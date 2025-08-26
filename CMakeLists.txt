@@ -9,8 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_LINK_ $<IF:$<CONFIG:Debug>, /NODEFAULTLIB:LIBCMT, /DEBUG;/OPT:REF>
-       /INCREMENTAL:NO)
+set(CMAKE_LINK_ $<IF:$<CONFIG:Debug>, /NODEFAULTLIB:LIBCMT, /DEBUG;/OPT:REF> /INCREMENTAL:NO)
 
 if (NOT DEFINED CMAKE_INSTALL_LIBDIR)
   set(CMAKE_INSTALL_LIBDIR "lib")
@@ -22,20 +21,49 @@ if (NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
 
-set(libs_loc "D:/Libraries/win64")
-
 
 option(CPP_SIMD_STL_INSTALL "Генерация цели для установки библиотеки" ${PROJECT_IS_TOP_LEVEL})
-set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/lib_base")
+set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 
-set(PRIVATE_SOURCES
+set(PRIVATE_SOURCES ""
 )
 
-set(PRIVATE_HEADERS
+set(PRIVATE_HEADERS ""
 )
 
 set(PUBLIC_HEADERS
+    include/simd_stl/arch/ProcessorFeatures.h
+    include/simd_stl/arch/ProcessorDetection.h
+
+    include/simd_stl/compatibility/AlignmentMacros.h
+    include/simd_stl/compatibility/BranchPrediction.h
+
+    include/simd_stl/compatibility/CallingConventions.h
+    include/simd_stl/compatibility/Compatibility.h
+
+    include/simd_stl/compatibility/CxxVersionDetection.h
+    include/simd_stl/compatibility/CompilerDetection.h
+
+    include/simd_stl/compatibility/FunctionAttributes.h
+    include/simd_stl/compatibility/Inline.h
+
+    include/simd_stl/compatibility/LanguageFeatures.h
+    include/simd_stl/compatibility/MemoryMacros.h
+
+    include/simd_stl/compatibility/Nodiscard.h
+    include/simd_stl/compatibility/SystemDetection.h
+
+    include/simd_stl/compatibility/UnreachableCode.h
+    include/simd_stl/compatibility/Warnings.h
+
+    include/simd_stl/arch/CpuId.h
+    include/simd_stl/compatibility/SimdCompatibility.h
+
+    include/simd_stl/arch/CpuFeature.h
+
+    include/simd_stl/Types.h
+    include/simd_stl/SimdStlNamespace.h
 )
 
 include(CMakePackageConfigHelpers)
@@ -46,11 +74,6 @@ add_library(cpp_simd_stl::cpp_simd_stl ALIAS cpp_simd_stl)
 
 include(cmake/Util_ExportConfig.cmake)
 
-include(cmake/Util_FindQt.cmake)
-
-target_sources(cpp_simd_stl PUBLIC 
-    $<BUILD_INTERFACE:${PRIVATE_HEADERS}> 
-    PRIVATE ${PRIVATE_SOURCES})
 
 target_include_directories(cpp_simd_stl
     PUBLIC
@@ -85,6 +108,8 @@ set_target_properties(
 
     EXPORT_NAME cpp_simd_stl
     OUTPUT_NAME cpp_simd_stl
+
+    LINKER_LANGUAGE CXX
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -165,11 +190,6 @@ endif()
 if(PROJECT_IS_TOP_LEVEL)
     enable_testing()
     add_subdirectory(tests)
-endif()
-
-if(PROJECT_IS_TOP_LEVEL)
-    enable_testing()
-    add_subdirectory(benchmarks)
 endif()
 
 if(CPP_SIMD_STL_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)

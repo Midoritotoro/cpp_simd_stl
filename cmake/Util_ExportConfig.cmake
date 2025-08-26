@@ -37,4 +37,4 @@ else()
     endif()
 endif()
 
-target_compile_definitions(cpp_simd_stl PUBLIC "LIB_BASE=${EXPORT_DECL}")
+target_compile_definitions(cpp_simd_stl PUBLIC "CPP_SIMD_STL=${EXPORT_DECL}")
