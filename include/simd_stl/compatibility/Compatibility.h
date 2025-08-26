@@ -13,25 +13,26 @@
 // Gcc attributes
 // https://ohse.de/uwe/articles/gcc-attributes.html and https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
 
-#include <base/core/compatibility/BranchPrediction.h>
+#include <simd_stl/compatibility/CompilerDetection.h>
+#include <simd_stl/compatibility/AlignmentMacros.h>
 
-#include <base/core/compatibility/CallingConventions.h>
-#include <base/core/compatibility/CompilerVisibility.h>
+#include <simd_stl/compatibility/BranchPrediction.h>
+#include <simd_stl/compatibility/CallingConventions.h>
 
-#include <base/core/compatibility/CxxVersionDetection.h>
-#include <base/core/compatibility/FunctionAttributes.h>
+#include <simd_stl/compatibility/Inline.h>
+#include <simd_stl/compatibility/CxxVersionDetection.h>
 
-#include <base/core/compatibility/Inline.h>
-#include <base/core/compatibility/MemoryMacros.h>
+#include <simd_stl/compatibility/FunctionAttributes.h>
+#include <simd_stl/compatibility/LanguageFeatures.h>
 
-#include <base/core/compatibility/MsvcSpecificMacros.h>
-#include <base/core/compatibility/Nodiscard.h>
+#include <simd_stl/compatibility/MemoryMacros.h>
+#include <simd_stl/compatibility/Nodiscard.h>
 
-#include <base/core/compatibility/UnreachableCode.h>
-#include <base/core/compatibility/Warnings.h>
+#include <simd_stl/compatibility/SimdCompatibility.h>
+#include <simd_stl/compatibility/SystemDetection.h>
 
-#include <base/core/compatibility/CompilerDetection.h>
-#include <base/core/compatibility/LanguageFeatures.h>
+#include <simd_stl/compatibility/UnreachableCode.h>
+#include <simd_stl/compatibility/Warnings.h>
 
 #include <cstddef>
 

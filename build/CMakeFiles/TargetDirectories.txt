@@ -1,0 +1,14 @@
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/cpp_simd_stl.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/PACKAGE.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/RUN_TESTS.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/INSTALL.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/CMakeFiles/PACKAGE.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/CMakeFiles/RUN_TESTS.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/CMakeFiles/INSTALL.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/CMakeFiles/ALL_BUILD.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/algorithm/CMakeFiles/PACKAGE.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/algorithm/CMakeFiles/RUN_TESTS.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/algorithm/CMakeFiles/INSTALL.dir
+C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/algorithm/CMakeFiles/ALL_BUILD.dir

@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <base/core/arch/ProcessorDetection.h>
+#include <simd_stl/arch/ProcessorDetection.h>
 
 
 #if !defined(__has_builtin)

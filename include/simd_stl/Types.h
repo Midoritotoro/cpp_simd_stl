@@ -1,9 +1,9 @@
 #pragma once 
 
-#include "SimdStlNamespace.h"
+#include <simd_stl/SimdStlNamespace.h>
 
-#include "arch/ProcessorDetection.h"
-#include "compatibility/SystemDetection.h"
+#include <simd_stl/arch/ProcessorDetection.h>
+#include <simd_stl/compatibility/SystemDetection.h>
 
 #include <functional>
 #include <numeric>

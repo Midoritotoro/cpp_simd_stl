@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "CompilerDetection.h"
-#include "../arch/ProcessorDetection.h"
+#include <simd_stl/compatibility/CompilerDetection.h>
+#include <simd_stl/arch/ProcessorDetection.h>
 
 
 #if !defined(simd_stl_unaligned)

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\build\CMakeFiles\5ad99c3a97be09ad04a37c677ddfc448\RUN_TESTS_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3A3FE8A0-36EA-3A7A-8FA4-58F160478017}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "../Types.h"
+#include <simd_stl/Types.h>
 
 __SIMD_STL_ARCH_NAMESPACE_BEGIN
 

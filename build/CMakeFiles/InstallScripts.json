@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/cmake_install.cmake",
+		"C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/cmake_install.cmake",
+		"C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/build/tests/algorithm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,9 +1,10 @@
 #pragma once 
 
-#include "CompilerDetection.h"
-#include "../arch/ProcessorDetection.h"
+#include <simd_stl/compatibility/CompilerDetection.h>
+#include <simd_stl/arch/ProcessorDetection.h>
 
-#include "SimdCompatibility.h"
+#include <simd_stl/compatibility/SimdCompatibility.h>
+
 
 #if !defined(simd_stl_fastcall)
 #  if defined(simd_stl_processor_x86_32)

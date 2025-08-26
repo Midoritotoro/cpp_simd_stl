@@ -4,13 +4,12 @@
 #include <vector>
 
 #include <array>
-#include <ranges>
 
-#include "../Types.h"
-#include "CpuId.h"
+#include <simd_stl/Types.h>
+#include <simd_stl/arch/CpuId.h>
 
-#include "../compatibility/Nodiscard.h"
-#include "../compatibility/Inline.h"
+#include <simd_stl/compatibility/Nodiscard.h>
+#include <simd_stl/compatibility/Inline.h>
 
 
 __SIMD_STL_ARCH_NAMESPACE_BEGIN

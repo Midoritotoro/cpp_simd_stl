@@ -26,10 +26,53 @@ option(CPP_SIMD_STL_INSTALL "Генерация цели для установки библиотеки" ${PROJECT_
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 
-set(PRIVATE_SOURCES ""
+set(PRIVATE_SOURCES  
+    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.cpp
+    src/simd_stl/algorithm/vectorized/ContainsVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/CountVectorized.cpp
+    src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/FindLastVectorized.cpp
+    src/simd_stl/algorithm/vectorized/FindRangeVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
+    src/simd_stl/algorithm/vectorized/MismatchVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/MinMaxVectorized.cpp
+    src/simd_stl/algorithm/vectorized/ReplaceVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.cpp
+    src/simd_stl/algorithm/vectorized/ReverseVectorized.cpp
+
+    src/simd_stl/algorithm/vectorized/SwapRangesVectorized.cpp
 )
 
-set(PRIVATE_HEADERS ""
+set(PRIVATE_HEADERS 
+    src/simd_stl/algorithm/vectorized/FindVectorized.h
+    src/simd_stl/algorithm/vectorized/AvxZeroUpperGuard.h
+
+    src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.h
+    src/simd_stl/algorithm/vectorized/ContainsVectorized.h
+
+    src/simd_stl/algorithm/vectorized/CountVectorized.h
+    src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.h
+
+    src/simd_stl/algorithm/vectorized/FindLastVectorized.h
+    src/simd_stl/algorithm/vectorized/FindRangeVectorized.h
+
+    src/simd_stl/algorithm/vectorized/FindVectorized.h
+    src/simd_stl/algorithm/vectorized/MismatchVectorized.h
+
+    src/simd_stl/algorithm/vectorized/MinMaxVectorized.h
+    src/simd_stl/algorithm/vectorized/ReplaceVectorized.h
+
+    src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.h
+    src/simd_stl/algorithm/vectorized/ReverseVectorized.h
+
+    src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
 )
 
 set(PUBLIC_HEADERS
@@ -73,6 +116,10 @@ add_library(cpp_simd_stl STATIC ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})
 add_library(cpp_simd_stl::cpp_simd_stl ALIAS cpp_simd_stl)
 
 include(cmake/Util_ExportConfig.cmake)
+
+target_sources(cpp_simd_stl PUBLIC 
+    $<BUILD_INTERFACE:${PRIVATE_HEADERS}> 
+    PRIVATE ${PRIVATE_SOURCES})
 
 
 target_include_directories(cpp_simd_stl

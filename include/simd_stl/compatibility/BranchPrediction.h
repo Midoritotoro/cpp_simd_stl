@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "CompilerDetection.h"
-#include "LanguageFeatures.h"
+#include <simd_stl/compatibility/CompilerDetection.h>
+#include <simd_stl/compatibility/LanguageFeatures.h>
 
 
 #if !defined(simd_stl_likely)

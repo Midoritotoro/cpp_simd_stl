@@ -1,6 +1,6 @@
 #pragma once
 
-#include <base/core/compatibility/CompilerDetection.h>
+#include <simd_stl/compatibility/CompilerDetection.h>
 
 
 #if defined(simd_stl_cpp_msvc) || defined(simd_stl_cpp_clang)

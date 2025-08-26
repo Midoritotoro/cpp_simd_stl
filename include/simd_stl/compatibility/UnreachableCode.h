@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <base/core/compatibility/CompilerDetection.h>
+#include <simd_stl/compatibility/CompilerDetection.h>
 
 
 #if !defined(simd_stl_maybe_unused_attribute)

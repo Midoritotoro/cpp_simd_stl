@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "CxxVersionDetection.h"
-#include "CompilerDetection.h"
+#include <simd_stl/compatibility/CxxVersionDetection.h>
+#include <simd_stl/compatibility/CompilerDetection.h>
 
 
 #if !defined(simd_stl_never_inline)

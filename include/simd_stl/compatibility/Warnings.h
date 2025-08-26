@@ -1,7 +1,6 @@
 #pragma once 
 
-#include <base/core/compatibility/Nodiscard.h>
-
+#include <simd_stl/compatibility/Nodiscard.h>
 
 // Warnings
 

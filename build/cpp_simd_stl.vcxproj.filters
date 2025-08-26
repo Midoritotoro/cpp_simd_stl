@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ContainsRangeVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ContainsVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\CountVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindLastRangeVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindLastVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindRangeVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\MismatchVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\MinMaxVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReplaceVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReverseCopyVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReverseVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\SwapRangesVectorized.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\arch\ProcessorFeatures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\arch\ProcessorDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\AlignmentMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\BranchPrediction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\CallingConventions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\Compatibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\CxxVersionDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\CompilerDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\FunctionAttributes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\Inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\LanguageFeatures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\MemoryMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\Nodiscard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\SystemDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\UnreachableCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\Warnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\arch\CpuId.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\compatibility\SimdCompatibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\arch\CpuFeature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\include\simd_stl\SimdStlNamespace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\AvxZeroUpperGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ContainsRangeVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ContainsVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\CountVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindLastRangeVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindLastVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\FindRangeVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\MismatchVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\MinMaxVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReplaceVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReverseCopyVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\ReverseVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\src\simd_stl\algorithm\vectorized\SwapRangesVectorized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\danya\source\repos\Midoritotoro\cpp_simd_stl\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F99CC844-1EEF-36E7-9B23-7B16A5D11143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{C576CA6E-EDC8-3844-83D7-2D1EB768CC15}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
