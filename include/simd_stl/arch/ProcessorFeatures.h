@@ -16,7 +16,6 @@ __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 class ProcessorFeatures
 {
-    class ProcessorFeaturesInternal;
 public:
     simd_stl_nodiscard simd_stl_always_inline static bool SSE()        noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool SSE2()       noexcept;
@@ -43,10 +42,10 @@ private:
         std::bitset<32> _leaf7EbxBitset;
     };
 
-    static const ProcessorFeaturesInternal _processorFeaturesInternal;
+    static inline ProcessorFeaturesInternal _processorFeaturesInternal;
 };
 
-ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() {
+ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexcept {
     std::array<uint32, 4>               registers;
     std::vector<std::array<uint32, 4>>  data;
 
