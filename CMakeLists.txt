@@ -28,82 +28,83 @@ set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 set(PRIVATE_SOURCES  
     src/simd_stl/algorithm/vectorized/FindVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.cpp
     src/simd_stl/algorithm/vectorized/ContainsVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/CountVectorized.cpp
     src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/FindLastVectorized.cpp
     src/simd_stl/algorithm/vectorized/FindRangeVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/FindVectorized.cpp
     src/simd_stl/algorithm/vectorized/MismatchVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/MinMaxVectorized.cpp
     src/simd_stl/algorithm/vectorized/ReplaceVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.cpp
     src/simd_stl/algorithm/vectorized/ReverseVectorized.cpp
-
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.cpp
 )
 
 set(PRIVATE_HEADERS 
     src/simd_stl/algorithm/vectorized/FindVectorized.h
     src/simd_stl/algorithm/vectorized/AvxZeroUpperGuard.h
-
     src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.h
     src/simd_stl/algorithm/vectorized/ContainsVectorized.h
-
     src/simd_stl/algorithm/vectorized/CountVectorized.h
     src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.h
-
     src/simd_stl/algorithm/vectorized/FindLastVectorized.h
     src/simd_stl/algorithm/vectorized/FindRangeVectorized.h
-
     src/simd_stl/algorithm/vectorized/FindVectorized.h
     src/simd_stl/algorithm/vectorized/MismatchVectorized.h
-
     src/simd_stl/algorithm/vectorized/MinMaxVectorized.h
     src/simd_stl/algorithm/vectorized/ReplaceVectorized.h
-
     src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.h
     src/simd_stl/algorithm/vectorized/ReverseVectorized.h
-
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
+
+    src/simd_stl/algorithm/AdvanceBytes.h
+
+    src/simd_stl/math/BitMath.h
+
+    "src/simd_stl/type_traits/CanMemcmpElements.h"
+    "src/simd_stl/type_traits/ContainerComparison.h"
+    "src/simd_stl/type_traits/FillMemsetSafety.h"
+    "src/simd_stl/type_traits/FunctionPass.h"
+    "src/simd_stl/type_traits/IntegralProperties.h"
+    "src/simd_stl/type_traits/IsConstantEvaluated.h"
+    "src/simd_stl/type_traits/IsDetected.h" 
+    "src/simd_stl/type_traits/IsVirtualBaseOf.h" 
+    "src/simd_stl/type_traits/IteratorCategory.h"
+    "src/simd_stl/type_traits/IteratorCheck.h" 
+    "src/simd_stl/type_traits/LexicographicalCompareTraits.h"
+    "src/simd_stl/type_traits/Ordering.h" 
+    "src/simd_stl/type_traits/SimdAlgorithmSafety.h"
+    "src/simd_stl/type_traits/SwapSafety.h" 
+    "src/simd_stl/type_traits/TypeCheck.h" 
+    "src/simd_stl/type_traits/TypeInfo.h" 
+    "src/simd_stl/type_traits/TypeTraits.h"
+    "src/simd_stl/type_traits/UnwrapEnum.h"
 )
 
 set(PUBLIC_HEADERS
     include/simd_stl/arch/ProcessorFeatures.h
     include/simd_stl/arch/ProcessorDetection.h
+    include/simd_stl/arch/CpuId.h
+    include/simd_stl/arch/CpuFeature.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h
-
     include/simd_stl/compatibility/CallingConventions.h
     include/simd_stl/compatibility/Compatibility.h
-
     include/simd_stl/compatibility/CxxVersionDetection.h
     include/simd_stl/compatibility/CompilerDetection.h
-
     include/simd_stl/compatibility/FunctionAttributes.h
     include/simd_stl/compatibility/Inline.h
-
     include/simd_stl/compatibility/LanguageFeatures.h
     include/simd_stl/compatibility/MemoryMacros.h
-
     include/simd_stl/compatibility/Nodiscard.h
     include/simd_stl/compatibility/SystemDetection.h
-
     include/simd_stl/compatibility/UnreachableCode.h
     include/simd_stl/compatibility/Warnings.h
-
-    include/simd_stl/arch/CpuId.h
     include/simd_stl/compatibility/SimdCompatibility.h
-
-    include/simd_stl/arch/CpuFeature.h
 
     include/simd_stl/Types.h
     include/simd_stl/SimdStlNamespace.h

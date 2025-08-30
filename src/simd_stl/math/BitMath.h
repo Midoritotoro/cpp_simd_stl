@@ -1,0 +1,209 @@
+﻿#pragma once 
+
+#include <simd_stl/Types.h>
+#include <simd_stl/compatibility/Inline.h>
+
+
+#if __has_include(<bit>) && __cplusplus > 201703L
+    #include <bit>
+#endif
+
+#if defined(simd_stl_cpp_msvc)
+    #include <intrin.h>
+#endif
+
+__SIMD_STL_MATH_NAMESPACE_BEGIN
+
+#ifndef simd_stl_combine_u32ints_to_u64int
+#  define simd_stl_combine_u32ints_to_u64int(high, low) ((uint64)high << 32) | (uint64)low
+#endif
+
+#ifndef simd_stl_combine_u16ints_to_u32int
+#  define simd_stl_combine_u16ints_to_u32int(high, low) ((uint32)high << 16) | (uint32)low
+#endif
+
+#ifndef simd_stl_combine_u16ints_to_u64int
+#  define simd_stl_combine_u16ints_to_u64int(high1, high2, low1, low2)	\
+	simd_stl_combine_u32ints_to_u64int(									\
+		simd_stl_combine_u16ints_to_u32int(high1, high2),				\
+		simd_stl_combine_u16ints_to_u32int(low1, low2))
+#endif
+
+constexpr simd_stl::uint32 PopulationCount(simd_stl::uint32 v) noexcept
+{
+    // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 24) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
+}
+
+constexpr simd_stl::uint PopulationCount(simd_stl::uint8 v) noexcept
+{
+    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
+}
+
+constexpr simd_stl::uint PopulationCount(simd_stl::uint16 v) noexcept
+{
+    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
+}
+
+constexpr simd_stl::uint32 PopulationCount(simd_stl::uint64 v) noexcept
+{
+    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 24) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 36) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 48) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
+        (((v >> 60) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
+}
+
+constexpr simd_stl::uint PopulationCount(long unsigned int v) noexcept
+{
+    return PopulationCount(static_cast<simd_stl::uint64>(v));
+}
+
+constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint32 v) noexcept
+{
+    // http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
+    unsigned int c = 32; // c - ����� ������� ����� ������
+
+    v &= -signed(v);
+    if (v) c--;
+
+    if (v & 0x0000FFFF) c -= 16;
+    if (v & 0x00FF00FF) c -= 8;
+    if (v & 0x0F0F0F0F) c -= 4;
+
+    if (v & 0x33333333) c -= 2;
+    if (v & 0x55555555) c -= 1;
+
+    return c;
+}
+
+constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint64 v) noexcept
+{
+    simd_stl::uint32 x = static_cast<simd_stl::uint32>(v);
+    return x ? ConstexprCountTrailingZeroBits(x)
+        : 32 + ConstexprCountTrailingZeroBits(static_cast<simd_stl::uint32>(v >> 32));
+}
+
+constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(uint8 v) noexcept
+{
+    unsigned int c = 8; // c - ����� ������� ����� ������
+
+    v &= simd_stl::uint8(-signed(v));
+    if (v) c--;
+
+    if (v & 0x0000000F) c -= 4;
+    if (v & 0x00000033) c -= 2;
+    if (v & 0x00000055) c -= 1;
+
+    return c;
+}
+
+constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint16 v) noexcept
+{
+    unsigned int c = 16; // c - ����� ������� ����� ������
+
+    v &= simd_stl::uint16(-signed(v));
+    if (v) c--;
+
+    if (v & 0x000000FF) c -= 8;
+    if (v & 0x00000F0F) c -= 4;
+
+    if (v & 0x00003333) c -= 2;
+    if (v & 0x00005555) c -= 1;
+
+    return c;
+}
+
+constexpr inline simd_stl::uint32 ConstexprCountTrailingZeroBits(unsigned long v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(IntegerForSizeof<long>::Unsigned(v));
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::uint32 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(v);
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::uint8 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(v);
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::uint16 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(v);
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::uint64 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(v);
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(unsigned long v) noexcept
+{
+    return CountTrailingZeroBits(IntegerForSizeof<long>::Unsigned(v));
+}
+
+constexpr simd_stl::uint32 CountLeadingZeroBits(simd_stl::uint32 v) noexcept
+{
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+
+    v = v | (v >> 8);
+    v = v | (v >> 16);
+
+    return PopulationCount(~v);
+}
+
+constexpr simd_stl::uint32 CountLeadingZeroBits(simd_stl::uint8 v) noexcept
+{
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+
+    return PopulationCount(static_cast<simd_stl::uint8>(~v));
+}
+
+constexpr simd_stl::uint32 CountLeadingZeroBits(simd_stl::uint16 v) noexcept
+{
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+
+    v = v | (v >> 4);
+    v = v | (v >> 8);
+
+    return PopulationCount(static_cast<simd_stl::uint16>(~v));
+}
+
+constexpr simd_stl::uint32 CountLeadingZeroBits(simd_stl::uint64 v) noexcept
+{
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+
+    v = v | (v >> 8);
+    v = v | (v >> 16);
+    v = v | (v >> 32);
+
+    return PopulationCount(~v);
+}
+
+constexpr simd_stl::uint32 CountLeadingZeroBits(unsigned long v) noexcept
+{
+    return CountLeadingZeroBits(IntegerForSizeof<long>::Unsigned(v));
+}
+
+static simd_stl_always_inline simd_stl::uint32 __BitScanReverse(unsigned v) noexcept
+{
+    uint32 result = CountLeadingZeroBits(v);
+
+    result ^= sizeof(unsigned) * 8 - 1;
+    return result;
+}
+
+__SIMD_STL_MATH_NAMESPACE_END

@@ -19,7 +19,7 @@
 #  if defined(simd_stl_cpp_msvc) || defined(simd_stl_cpp_clang)
 #    define simd_stl_always_inline __forceinline
 #  elif defined(simd_stl_cpp_gnu)
-#    define simd_stl_always_inline inline __attribute__((simd_stl_always_inline))
+#    define simd_stl_always_inline inline __attribute__((always_inline))
 #  else 
 #    define simd_stl_always_inline inline
 #  endif // defined(simd_stl_cpp_msvc) || defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)

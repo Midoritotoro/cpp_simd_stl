@@ -16,6 +16,17 @@ SIMD_STL_DECLARE_CPU_FEATURE_GUARDED_CLASS(
 template <>
 class FindTraits<arch::CpuFeature::SSE2> {
 public:
+    static constexpr bool useMaskedLoadForTail = false;
+    static constexpr size_t portionSize = 0xF;
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m128i LoadAligned(const void* address) noexcept {
+        return _mm_load_si128(reinterpret_cast<const __m128i*>(address));
+    }
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m128i LoadUnaligned(const void* address) noexcept {
+        return _mm_loadu_si128(reinterpret_cast<const __m128i*>(address));
+    }
+
     simd_stl_declare_const_function simd_stl_always_inline static __m128i Set(const uint8 value) noexcept {
         return _mm_set1_epi8(value);
     }
@@ -31,6 +42,8 @@ public:
     simd_stl_declare_const_function simd_stl_always_inline static __m128i Set(const uint64 value) noexcept {
         return _mm_set1_epi64x(value);
     }
+
+    
 
     template <size_t singleElementSize>
     simd_stl_declare_const_function simd_stl_always_inline static __m128i Compare(
@@ -57,6 +70,17 @@ public:
 template <>
 class FindTraits<arch::CpuFeature::AVX2> {
 public:
+    static constexpr bool useMaskedLoadForTail = true;
+    static constexpr size_t portionSize = 0x1F;
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m256i LoadAligned(const void* address) noexcept {
+        return _mm256_load_si256(reinterpret_cast<const __m256i*>(address));
+    }
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m256i LoadUnaligned(const void* address) noexcept {
+        return _mm256_lddqu_si256(reinterpret_cast<const __m256i*>(address));
+    }
+
     simd_stl_declare_const_function simd_stl_always_inline static __m256i Set(const uint8 value) noexcept {
         return _mm256_set1_epi8(value);
     }
@@ -98,6 +122,17 @@ public:
 template <>
 class FindTraits<arch::CpuFeature::AVX512F> {
 public:
+    static constexpr bool useMaskedLoadForTail = true;
+    static constexpr size_t portionSize = 0x3F;
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m512i LoadAligned(const void* address) noexcept {
+        return _mm512_load_si512(reinterpret_cast<const __m512i*>(address));
+    }
+
+    simd_stl_declare_const_function simd_stl_always_inline static __m512i LoadUnaligned(const void* address) noexcept {
+        return _mm512_loadu_si512(reinterpret_cast<const __m512i*>(address));
+    }
+
     simd_stl_declare_const_function simd_stl_always_inline static __m512i Set(const uint8 value) noexcept {
         return _mm512_set1_epi8(value);
     }
