@@ -10,10 +10,9 @@
 
 __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
-#if !defined(simd_stl_cpp_msvc)
+#if (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 
 #if !defined(__simd_stl_cpuid)
-
 #  define __simd_stl_cpuid(leaf, a, b, c, d)			\
      __asm volatile("cpuid\n\t"							\
 	   : "=a" (a), "=b" (b), "=c" (c), "=d" (d)			\
@@ -28,10 +27,10 @@ __SIMD_STL_ARCH_NAMESPACE_BEGIN
 #endif // !defined(__simd_stl_cpuidex)
 
 int simd_stl_cdecl GetCpuIdMax(
-	uint32_t	ext,
-	uint32_t*	sig) noexcept
+	uint32	ext,
+	uint32*	sig) noexcept
 {
-	uint32_t eax, ebx, ecx, edx;
+	uint32 eax, ebx, ecx, edx;
 
 #if !defined(simd_stl_processor_x86_64)
 #if simd_stl_cpp_gnu >= 3
@@ -76,62 +75,62 @@ int simd_stl_cdecl GetCpuIdMax(
 	return eax;
 }
 
-int simd_stl_cdecl CheckLeafInvalid(uint32_t leaf) noexcept {
-	return ((GetCpuIdMax(leaf & 0x40000000, 0) < leaf) && (GetCpuIdMax(leaf & 0x80000000, 0) < leaf));
+int simd_stl_cdecl CheckLeafInvalid(uint32 leaf) noexcept {
+	return ((GetCpuIdMax(leaf & 0x40000000, nullptr) < leaf) && (GetCpuIdMax(leaf & 0x80000000, nullptr) < leaf));
 }
 
 int simd_stl_cdecl GetCpuId(
-	uint32_t	leaf,
-	uint32_t*	eax, 
-	uint32_t*	ebx,
-	uint32_t*	ecx, 
-	uint32_t*	edx) noexcept
+	uint32	leaf,
+	uint32*	eax, 
+	uint32*	ebx,
+	uint32*	ecx, 
+	uint32*	edx) noexcept
 {
 	if (CheckLeafInvalid(leaf))
 		return 0;
 
-	__simd_stl_cpuid(__leaf, *eax, *ebx, *ecx, *edx);
+	__simd_stl_cpuid(leaf, *eax, *ebx, *ecx, *edx);
 	return 1;
 }
 
 int simd_stl_cdecl GetCpuIdEx(
-	uint32_t	leaf, 
-	uint32_t	subleaf,
-	uint32_t*	eax, 
-	uint32_t*	ebx,
-	uint32_t*	ecx,
-	uint32_t*	edx) noexcept
+	uint32	leaf, 
+	uint32	subleaf,
+	uint32*	eax, 
+	uint32*	ebx,
+	uint32*	ecx,
+	uint32*	edx) noexcept
 {
-	if (CheckLeafInvalid(__leaf))
+	if (CheckLeafInvalid(leaf))
 		return 0;
 
-	__simd_stl_cpuidex(__leaf, __subleaf, *__eax, *__ebx, *__ecx, *__edx);
+	__simd_stl_cpuidex(leaf, subleaf, *eax, *ebx, *ecx, *edx);
 	return 1;
 }
 
-#endif // !defined(simd_stl_cpp_msvc)
+#endif // (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 
 void simd_stl_cdecl cpuid(
-	uint32_t regs[],
-	uint32_t leaf) noexcept
+	uint32 regs[],
+	uint32 leaf) noexcept
 {
-#if !defined(simd_stl_cpp_msvc)
+#if (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 	GetCpuId(leaf, regs, regs + 1, regs + 2, regs + 3);
 #else
-	__cpuid((int32_t*)regs, leaf);
-#endif // !defined(simd_stl_cpp_msvc)
+	__cpuid((int*)regs, leaf);
+#endif // (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 }
 
 void simd_stl_cdecl cpuidex(
-	uint32_t regs[],
-	uint32_t leaf,
-	uint32_t subleaf) noexcept
+	uint32 regs[],
+	uint32 leaf,
+	uint32 subleaf) noexcept
 {
-#if !defined(simd_stl_cpp_msvc)
+#if (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 	GetCpuIdEx(leaf, subleaf, regs, regs + 1, regs + 2, regs + 3);
 #else
-	__cpuidex((int32_t*)regs, leaf, subleaf);
-#endif // !defined(simd_stl_cpp_msvc)
+	__cpuidex((int*)regs, leaf, subleaf);
+#endif // (defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)) && !defined(simd_stl_cpp_msvc)
 }
 
 __SIMD_STL_ARCH_NAMESPACE_END

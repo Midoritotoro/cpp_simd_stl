@@ -17,7 +17,7 @@ template <>
 class FindTraits<arch::CpuFeature::SSE2> {
 public:
     simd_stl_declare_const_function simd_stl_always_inline static __m128i Set(const uint8 value) noexcept {
-        return _mm_shuffle_epi8(_mm_cvtsi32_si128(value), _mm_setzero_si128());
+        return _mm_set1_epi8(value);
     }
 
     simd_stl_declare_const_function simd_stl_always_inline static __m128i Set(const uint16 value) noexcept {
