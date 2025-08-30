@@ -32,8 +32,6 @@ public:
             return _mm_sub_epi32(left, right);
         else if constexpr (typeSize == 8)
             return _mm_sub_epi64(left, right);
-
-        return {};
     }
 
     template <size_t typeSize>
@@ -97,8 +95,6 @@ public:
             return _mm256_sub_epi32(left, right);
         else if constexpr (typeSize == 8) 
             return _mm256_sub_epi64(left, right);
-
-        return {};
     }
 
     template <size_t typeSize>
@@ -171,8 +167,6 @@ public:
             return _mm512_sub_epi32(left, right);
         else if constexpr (typeSize == 8) 
             return _mm512_sub_epi64(left, right);
-
-        return {};
     }
 
     template <size_t typeSize>
@@ -221,7 +215,7 @@ public:
             const auto high = _mm512_castsi512_si256(reduce);
             const auto low = _mm512_extracti64x4_epi64(reduce, 1);
 
-            return  _mm256_extract_epi64(high, 0) + _mm256_extract_epi64(high, 1) +
+            return _mm256_extract_epi64(high, 0) + _mm256_extract_epi64(high, 1) +
                 _mm256_extract_epi64(high, 2) + _mm256_extract_epi64(high, 3) +
                 _mm256_extract_epi64(low, 0) + _mm256_extract_epi64(low, 1) +
                 _mm256_extract_epi64(low, 2) + _mm256_extract_epi64(low, 3);

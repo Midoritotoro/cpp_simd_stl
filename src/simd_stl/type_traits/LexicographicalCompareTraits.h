@@ -90,7 +90,7 @@ struct _Lexicographical_compare_memcmp_classify_pred<
 	>;
 };
 
-#if base_has_cxx20
+#if simd_stl_has_cxx20
 template <
 	class _FirstElement_,
 	class _SecondElement_>
@@ -118,7 +118,7 @@ struct _Lexicographical_compare_memcmp_classify_pred<
 		std::greater<int>, void
 	>;
 };
-#endif // base_has_cxx20
+#endif // simd_stl_has_cxx20
 
 template <
 	class _FirstIterator_, 
@@ -139,7 +139,7 @@ using _Lexicographical_compare_memcmp_classify =
 // =================================================================================
 
 
-#if base_has_cxx20
+#if simd_stl_has_cxx20
 
 template <
     class _FirstElement_,
@@ -233,7 +233,7 @@ using _Lexicographical_compare_three_way_memcmp_classify = std::conditional_t<
     void
 >;
 
-#endif // base_has_cxx20
+#endif // simd_stl_has_cxx20
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
 

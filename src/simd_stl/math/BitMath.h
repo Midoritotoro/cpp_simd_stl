@@ -143,6 +143,26 @@ constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::uint64 v) noex
     return ConstexprCountTrailingZeroBits(v);
 }
 
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::int32 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(static_cast<uint32>(v));
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::int8 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(static_cast<uint8>(v));
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::int16 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(static_cast<uint16>(v));
+}
+
+constexpr inline simd_stl::uint32 CountTrailingZeroBits(simd_stl::int64 v) noexcept
+{
+    return ConstexprCountTrailingZeroBits(static_cast<uint64>(v));
+}
+
 constexpr inline simd_stl::uint32 CountTrailingZeroBits(unsigned long v) noexcept
 {
     return CountTrailingZeroBits(IntegerForSizeof<long>::Unsigned(v));

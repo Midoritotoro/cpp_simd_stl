@@ -27,14 +27,12 @@ set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 
 set(PRIVATE_SOURCES  
-    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
     src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.cpp
     src/simd_stl/algorithm/vectorized/ContainsVectorized.cpp
     src/simd_stl/algorithm/vectorized/CountVectorized.cpp
     src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.cpp
     src/simd_stl/algorithm/vectorized/FindLastVectorized.cpp
     src/simd_stl/algorithm/vectorized/FindRangeVectorized.cpp
-    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
     src/simd_stl/algorithm/vectorized/MismatchVectorized.cpp
     src/simd_stl/algorithm/vectorized/MinMaxVectorized.cpp
     src/simd_stl/algorithm/vectorized/ReplaceVectorized.cpp
@@ -60,6 +58,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/ReverseVectorized.h
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
 
+    src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
 
     src/simd_stl/math/BitMath.h
@@ -70,8 +69,6 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/FunctionPass.h"
     "src/simd_stl/type_traits/IntegralProperties.h"
     "src/simd_stl/type_traits/IsConstantEvaluated.h"
-    "src/simd_stl/type_traits/IsDetected.h" 
-    "src/simd_stl/type_traits/IsVirtualBaseOf.h" 
     "src/simd_stl/type_traits/IteratorCategory.h"
     "src/simd_stl/type_traits/IteratorCheck.h" 
     "src/simd_stl/type_traits/LexicographicalCompareTraits.h"
@@ -79,9 +76,10 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/SimdAlgorithmSafety.h"
     "src/simd_stl/type_traits/SwapSafety.h" 
     "src/simd_stl/type_traits/TypeCheck.h" 
-    "src/simd_stl/type_traits/TypeInfo.h" 
     "src/simd_stl/type_traits/TypeTraits.h"
     "src/simd_stl/type_traits/UnwrapEnum.h"
+
+    "src/simd_stl/utility/Assert.h"
 )
 
 set(PUBLIC_HEADERS
@@ -108,6 +106,8 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/Types.h
     include/simd_stl/SimdStlNamespace.h
+
+    include/simd_stl/algorithm/find/Find.h
 )
 
 include(CMakePackageConfigHelpers)

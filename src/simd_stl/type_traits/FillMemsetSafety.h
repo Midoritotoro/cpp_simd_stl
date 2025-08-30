@@ -11,7 +11,7 @@ template <
     class _ForwardIterator_,
     class _Type_,
     bool = is_iterator_contiguous_v<_ForwardIterator_>>
-constexpr bool IsFillMemsetSafe = std::conjunction_v<
+constexpr bool is_fill_memset_safe_v = std::conjunction_v<
     std::is_scalar<_Type_>,
     is_character_or_byte_or_bool_v<
         unwrap_enum_t<
@@ -28,13 +28,13 @@ constexpr bool IsFillMemsetSafe = std::conjunction_v<
 template <
     class _ForwardIterator_,
     class _Type_>
-constexpr bool IsFillMemsetSafe<_ForwardIterator_, _Type_, false> = false;
+constexpr bool is_fill_memset_safe_v<_ForwardIterator_, _Type_, false> = false;
 
 template <
     class _ForwardIterator_,
     class _Type_,
     bool = is_iterator_contiguous_v<_ForwardIterator_>>
-constexpr bool IsFillZeroMemsetSafe =
+constexpr bool is_fill_zero_memset_safe_v =
     std::conjunction_v<
         std::is_scalar<_Type_>, 
         std::is_scalar<
@@ -52,6 +52,6 @@ constexpr bool IsFillZeroMemsetSafe =
 template <
     class _ForwardIterator_,
     class _Type_>
-constexpr bool IsFillZeroMemsetSafe<_ForwardIterator_, _Type_, false> = false;
+constexpr bool is_fill_zero_memset_safe_v<_ForwardIterator_, _Type_, false> = false;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

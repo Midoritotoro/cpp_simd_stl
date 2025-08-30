@@ -10,10 +10,9 @@
 #include <src/simd_stl/type_traits/IntegralProperties.h>
 
 #include <src/simd_stl/type_traits/SwapSafety.h>
-#include <src/simd_stl/type_traits/TypeTraits.h>
-
 #include <src/simd_stl/type_traits/TypeCheck.h>
-#include <src/simd_stl/type_traits/FunctionPass.h>
 
+#include <src/simd_stl/type_traits/FunctionPass.h>
 #include <src/simd_stl/type_traits/LexicographicalCompareTraits.h>
+
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
