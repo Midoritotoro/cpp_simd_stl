@@ -23,30 +23,6 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512VL,
 };
 
-template <CpuFeature feature>
-constexpr const char* featureStringify() {
-    if		constexpr (feature == CpuFeature::None)		return "None";
-    else if constexpr (feature == CpuFeature::SSE)      return "SSE";
-    else if constexpr (feature == CpuFeature::SSE2)     return "SSE2";
-    else if constexpr (feature == CpuFeature::SSE3)     return "SSE3";
-    else if constexpr (feature == CpuFeature::SSSE3)    return "SSSE3";
-    else if constexpr (feature == CpuFeature::SSE41)    return "SSE41";
-    else if constexpr (feature == CpuFeature::SSE42)    return "SSE42";
-    else if constexpr (feature == CpuFeature::AVX)      return "AVX";
-    else if constexpr (feature == CpuFeature::AVX2)     return "AVX2";
-    else if constexpr (feature == CpuFeature::AVX512F)  return "AVX512F";
-    else if constexpr (feature == CpuFeature::AVX512BW) return "AVX512BW";
-    else if constexpr (feature == CpuFeature::AVX512CD) return "AVX512CD";
-    else if constexpr (feature == CpuFeature::AVX512ER) return "AVX512ER";
-    else if constexpr (feature == CpuFeature::AVX512PF) return "AVX512PF";
-    else if constexpr (feature == CpuFeature::AVX512VL) return "AVX512VL";
-    else {
-        static_assert(false, "");
-        return "Unknown";
-    }
-}
-
-
 template <
 	CpuFeature	Feature,
 	CpuFeature	Candidate,

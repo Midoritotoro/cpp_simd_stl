@@ -2,6 +2,9 @@
 
 #include <simd_stl/compatibility/SimdCompatibility.h>
 
+#include <simd_stl/compatibility/Inline.h>
+#include <simd_stl/compatibility/FunctionAttributes.h>
+
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>

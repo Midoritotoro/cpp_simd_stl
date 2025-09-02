@@ -83,6 +83,10 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchVectorizedTraits.h
+    src/simd_stl/algorithm/vectorized/traits/SearchLoop.h
+    src/simd_stl/algorithm/vectorized/traits/FindVectorizedTraits.h
+    src/simd_stl/algorithm/vectorized/traits/CountVectorizedTraits.h
+    src/simd_stl/algorithm/vectorized/traits/MinMaxTraits.h
     src/simd_stl/algorithm/FixedMemcmp.h
 )
 

@@ -3,10 +3,7 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <simd_stl/compatibility/Nodiscard.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <src/simd_stl/algorithm/vectorized/FindVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/SearchVectorized.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -33,24 +30,51 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
+			const auto first1Address = std::to_address(first1);
+			const auto position = SearchVectorized(
+				first1Address, std::to_address(last1),
+				std::to_address(first2), std::to_address(last2));
 
+			return first1 + (reinterpret_cast<const type_traits::IteratorValueType<_FirstForwardIterator_>*>(position) - first1Address);
 		}
 	}
 
-	const auto firstRangeLength = IteratorsDifference(first1, last1);
-	const auto secondRangeLength = IteratorsDifference(first2, last2);
+#if defined(simd_stl_cpp_msvc)
+	auto firstRangeLength			= IteratorsDifference(std::_Get_unwrapped(first1), std::_Get_unwrapped(last1));
+	const auto secondRangeLength	= IteratorsDifference(std::_Get_unwrapped(first2), std::_Get_unwrapped(last2));
+#else
+	auto firstRangeLength			= IteratorsDifference(first1, last1);
+	const auto secondRangeLength	= IteratorsDifference(first2, last2);
+#endif // defined(simd_stl_cpp_msvc)
 
-	for (; secondRangeLength <= firstRangeLength; ++first1, --firstRangeLength) {
-		auto mid1 = first1;
+    if (firstRangeLength == secondRangeLength)
+        return (memcmp(std::to_address(first1), std::to_address(first2), firstRangeLength) == 0) ? first1 : last1;
 
-		for (auto mid2 = first2; ; ++mid1, ++mid2)
-			if (mid2 == last2)
-				return (first1);
-			else if (!(*mid1 == *mid2))
-				break;
-	}
+    const auto first = *first2;
+    const sizetype maxpos = sizetype(firstRangeLength) - sizetype(secondRangeLength) + 1;
 
-	return first1;
+    for (sizetype i = 0; i < maxpos; i++) {
+        if (first1[i] != first) {
+            i++;
+
+            while (i < maxpos && first1[i] != first)
+                i++;
+
+            if (i == maxpos)
+                break;
+        }
+
+        sizetype j = 1;
+
+        for (; j < secondRangeLength; ++j)
+            if (first1[i + j] != first2[j])
+                break;
+
+        if (j == secondRangeLength)
+            return (first1 + i);
+    }
+
+	return last1;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

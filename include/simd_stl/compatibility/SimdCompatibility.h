@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simd_stl/compatibility/Compatibility.h>
+#include <simd_stl/compatibility/CompilerDetection.h>
 
 #include <vector>
 #include <simd_stl/Types.h>
