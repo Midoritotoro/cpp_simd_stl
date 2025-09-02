@@ -108,6 +108,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/SimdStlNamespace.h
 
     include/simd_stl/algorithm/find/Find.h
+    include/simd_stl/algorithm/find/Search.h
 )
 
 include(CMakePackageConfigHelpers)
@@ -238,6 +239,11 @@ endif()
 if(PROJECT_IS_TOP_LEVEL)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+if(PROJECT_IS_TOP_LEVEL)
+    enable_testing()
+    #add_subdirectory(benchmarks)
 endif()
 
 if(CPP_SIMD_STL_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)

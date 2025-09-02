@@ -29,6 +29,12 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 		simd_stl_combine_u16ints_to_u32int(low1, low2))
 #endif
 
+template <typename _Type_>
+_Type_ ClearLeftMostSet(const _Type_ value) {
+    DebugAssert(value != _Type_{});
+    return value & (value - 1);
+}
+
 constexpr simd_stl::uint32 PopulationCount(simd_stl::uint32 v) noexcept
 {
     // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel

@@ -31,7 +31,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _Iterator_ find(
 			const auto firstAddress = std::to_address(firstIterator);
 			const auto position = FindVectorized(firstAddress, std::to_address(lastIterator), value);
 
-			return firstIterator + (position - firstAddress);
+			return firstIterator + (reinterpret_cast<const _Type_*>(position) - firstAddress);
 		}
 	}
 
