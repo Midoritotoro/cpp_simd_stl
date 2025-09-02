@@ -1,5 +1,9 @@
 #pragma once 
 
+#if !defined(SIMD_STL_ECHO)
+#  define SIMD_STL_ECHO(...) __VA_ARGS__
+#endif
+
 #if defined(_MSC_VER)
 #  define simd_stl_cpp_msvc			(_MSC_VER)
 #  define simd_stl_cpp_msvc_only	simd_stl_cpp_msvc

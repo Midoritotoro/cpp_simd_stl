@@ -20,11 +20,6 @@
 
 #include <iomanip>
 
-
-#if !defined(SIMD_STL_ECHO)
-#  define SIMD_STL_ECHO(...) __VA_ARGS__
-#endif
-
 #if !defined(SIMD_STL_BENCHMARK_REPITITIONS)
 #  define SIMD_STL_BENCHMARK_REPITITIONS 10000
 #endif // SIMD_STL_BENCHMARK_REPITITIONS

@@ -80,6 +80,10 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/UnwrapEnum.h"
 
     "src/simd_stl/utility/Assert.h"
+
+    src/simd_stl/algorithm/vectorized/SearchVectorized.h
+    src/simd_stl/algorithm/vectorized/traits/SearchVectorizedTraits.h
+    src/simd_stl/algorithm/FixedMemcmp.h
 )
 
 set(PUBLIC_HEADERS
