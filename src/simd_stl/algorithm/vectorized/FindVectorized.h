@@ -39,8 +39,14 @@ simd_stl_declare_const_function simd_stl_always_inline simd_stl_constexpr_cxx20 
     const void* lastPointer,
     _Type_      value) noexcept
 {
-    if (ByteLength(firstPointer, lastPointer) & (~(_Traits_::portionSize - 1)) != 0) {
+    const auto size         = ByteLength(firstPointer, lastPointer);
+    const auto alignedSize  = size & (~(_Traits_::portionSize - 1));
+
+    if (alignedSize != 0) {
         const auto comparand = _Traits_::Set(value);
+
+        const void* stopAt = firstPointer;
+        AdvanceBytes(stopAt, alignedSize);
 
         do {
             const auto mask = _Traits_::ToMask(
@@ -50,7 +56,7 @@ simd_stl_declare_const_function simd_stl_always_inline simd_stl_constexpr_cxx20 
                 return static_cast<const char*>(firstPointer) + math::CountTrailingZeroBits(mask);
 
             AdvanceBytes(firstPointer, _Traits_::portionSize);
-        } while (firstPointer != lastPointer);
+        } while (firstPointer != stopAt);
     }
 
     return (firstPointer == lastPointer) ? nullptr : FindScalar(firstPointer, lastPointer, value);
