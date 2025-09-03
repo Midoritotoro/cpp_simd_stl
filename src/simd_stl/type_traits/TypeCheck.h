@@ -99,7 +99,7 @@ template <
     class _SecondType_>
 constexpr bool can_compare_with_operator_equal_v<
     _FirstType_, _SecondType_,
-    std::void_t<decltype(declval<_FirstType_&>() == declval<_SecondType_&>())>> = true;
+    std::void_t<decltype(std::declval<_FirstType_&>() == std::declval<_SecondType_&>())>> = true;
 
 template <
     class _FirstType_,
@@ -107,6 +107,9 @@ template <
 constexpr bool is_pointer_address_comparable_v = can_compare_with_operator_equal_v<_FirstType_*, _SecondType_*> && 
         (is_pointer_address_convertible_v<_FirstType_, _SecondType_> 
     ||  is_pointer_address_convertible_v<_SecondType_, _FirstType_>);
+
+
+
 
 
 template <

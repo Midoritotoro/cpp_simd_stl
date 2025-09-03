@@ -55,13 +55,13 @@ template <
 constexpr bool can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, std::equal_to<>> =
 	can_memcmp_elements_v<_FirstElement_, _SecondElement_>;
 
-#if base_has_cxx20
+#if simd_stl_has_cxx20
 template <
 	class _FirstElement_,
 	class _SecondElement_>
 constexpr bool can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, std::ranges::equal_to> =
 	can_memcmp_elements_v<_FirstElement_, _SecondElement_>;
-#endif // base_has_cxx20
+#endif // simd_stl_has_cxx20
 
 template <
 	class _FirstIterator_,
@@ -84,5 +84,13 @@ constexpr bool equal_memcmp_is_safe_v =
 		std::remove_const_t<_SecondIterator_>,
 		std::remove_const_t<_Function_>
 	>;
+
+
+template <
+	class _FirstIterator_,
+	class _SecondIterator_,
+	class _Function_>
+constexpr bool is_vectorized_search_algorithm_safe_v = equal_memcmp_is_safe_v<_FirstIterator_, _SecondIterator_, _Function_>;
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
