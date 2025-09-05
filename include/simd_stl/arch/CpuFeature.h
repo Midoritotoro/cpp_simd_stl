@@ -20,7 +20,24 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512CD,
 	AVX512ER,
 	AVX512PF,
-	AVX512VL,
+	AVX512VL
+};
+
+static inline auto constexpr __supportedFeatures = {
+	CpuFeature::SSE,
+	CpuFeature::SSE2,
+	CpuFeature::SSE3,
+	CpuFeature::SSSE3,
+	CpuFeature::SSE41,
+	CpuFeature::SSE42,
+	CpuFeature::AVX,
+	CpuFeature::AVX2,
+	CpuFeature::AVX512F,
+	CpuFeature::AVX512BW,
+	CpuFeature::AVX512CD,
+	CpuFeature::AVX512ER,
+	CpuFeature::AVX512PF,
+	CpuFeature::AVX512VL
 };
 
 template <
@@ -47,6 +64,27 @@ template <
 struct Contains {
 	static constexpr bool value = (IsInListHelper<Feature, List>::value || ...);
 };
+
+
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, {	
+			CpuFeature::SSE, CpuFeature::SSE2, CpuFeature::SSE3,
+			CpuFeature::SSSE3, CpuFeature::SSE41, CpuFeature::SSE42
+		}
+	>::value;
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __is_ymm_v = Contains < _SimdGeneration_, {
+			CpuFeature::AVX, CpuFeature::AVX2,
+		}
+	>::value;
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, {
+				CpuFeature::AVX512F, CpuFeature::AVX512BW, CpuFeature::AVX512CD,
+				CpuFeature::AVX512ER, CpuFeature::AVX512PF, CpuFeature::AVX512VL
+			}
+	>::value;
 
 #ifndef SIMD_STL_STATIC_VERIFY_CPU_FEATURE
 #define SIMD_STL_STATIC_VERIFY_CPU_FEATURE(current, failureLogPrefix, ...)                      \

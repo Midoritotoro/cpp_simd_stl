@@ -6,6 +6,8 @@
 #include <src/simd_stl/algorithm/vectorized/traits/FindVectorizedTraits.h>
 #include <src/simd_stl/algorithm/vectorized/traits/SearchLoop.h>
 
+#include <algorithm>
+
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 SIMD_STL_DECLARE_CPU_FEATURE_GUARDED_CLASS(
@@ -13,7 +15,7 @@ SIMD_STL_DECLARE_CPU_FEATURE_GUARDED_CLASS(
 	class SearchTraits,
 	feature,
 	"simd_stl::string",
-	simd_stl::arch::CpuFeature::AVX512F, simd_stl::arch::CpuFeature::AVX2, simd_stl::arch::CpuFeature::SSE2
+	simd_stl::arch::CpuFeature::None, simd_stl::arch::CpuFeature::AVX512F, simd_stl::arch::CpuFeature::AVX2, simd_stl::arch::CpuFeature::SSE2
 );
 
 
@@ -27,6 +29,144 @@ simd_stl_always_inline __mmask16 ZeroByteMask(const __m512i vector) noexcept {
 
 	return _mm512_test_epi32_mask(tempVector1, tempVector1);
 }
+
+template <>
+struct SearchTraits<arch::CpuFeature::None> {
+	template <typename _Type_>
+	simd_stl_declare_const_function simd_stl_constexpr_cxx20 const _Type_* operator()(
+		const _Type_*	mainRange,
+		const sizetype	mainLength,
+		const _Type_*	subRange,
+		const sizetype	subLength) noexcept
+	{
+		if (mainLength == subLength)
+			return (memcmp(mainRange, subRange, mainLength) == 0) ? mainRange : nullptr;
+
+		const _Type_& first = subRange[0];
+		const sizetype maxpos = sizetype(mainLength) - sizetype(subLength) + 1;
+
+		for (sizetype i = 0; i < maxpos; i++) {
+			if (mainRange[i] != first) {
+				i++;
+
+				while (i < maxpos && mainRange[i] != first)
+					i++;
+
+				if (i == maxpos)
+					break;
+			}
+
+			sizetype j = 1;
+
+			for (; j < subLength; ++j)
+				if (mainRange[i + j] != subRange[j])
+					break;
+
+			if (j == subLength)
+				return (mainRange + i);
+		}
+
+		return nullptr;
+	}
+};
+
+template <>
+class SearchTraits<arch::CpuFeature::SSE2>: public FindTraits<arch::CpuFeature::SSE2> {
+public:
+	template <
+		sizetype needleLength,
+		typename _Type_,
+		typename _MemCmpLike_>
+	static simd_stl_declare_const_function const _Type_* Memcmp(
+		const _Type_*	mainRange,
+		const sizetype	mainLength,
+		const _Type_*	subRange,
+		_MemCmpLike_	memcmpLike) noexcept
+	{
+		if constexpr (needleLength <= 0)
+			return nullptr;
+
+		if (mainLength <= 0)
+			return nullptr;
+
+		if constexpr (needleLength < 16)
+			return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, needleLength);
+
+		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
+		constexpr auto subSizeInBytes	= sizeof(_Type_) * needleLength;
+
+		const auto first	= Set(subRange[0]);
+		const auto last		= Set(subRange[needleLength - 1]);
+
+		const char* mainRangeChar	= reinterpret_cast<const char*>(mainRange);
+		const char* subRangeChar	= reinterpret_cast<const char*>(subRange);
+
+		for (sizetype i = 0; i < mainRangeSizeInBytes; i += 16) {
+			const auto blockFirst	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(mainRangeChar + i));
+			const auto blockLast	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(mainRangeChar + i + subSizeInBytes - sizeof(_Type_)));
+
+			const auto equalFirst	= Compare<sizeof(_Type_)>(first, blockFirst);
+			const auto equalLast	= Compare<sizeof(_Type_)>(last, blockLast);
+
+			uint32_t mask = ToMask(_mm_and_si128(equalFirst, equalLast));
+
+			while (mask != 0) {
+				const auto bitpos = math::CountTrailingZeroBits(mask);
+
+				if (memcmpLike(mainRangeChar + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + (sizeof(_Type_))))
+					return reinterpret_cast<const _Type_*>(mainRangeChar + i + bitpos);
+
+				mask = math::ClearLeftMostSet(mask);
+			}
+		}
+
+		return nullptr;
+	}
+	
+	template <typename _Type_>
+	static simd_stl_declare_const_function const _Type_* AnySize(
+		const _Type_*	mainRange,
+		const sizetype	mainLength,
+		const _Type_*	subRange,
+		const sizetype	subLength) noexcept
+	{
+		if (mainLength <= 0 || subLength <= 0)
+			return nullptr;
+
+		if (((subLength & (~sizetype{ 0xF }))) != 0)
+			return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength);
+
+		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
+		const auto subInBytes			= sizeof(_Type_) * subLength;
+
+		const auto first	= Set(subRange[0]);
+		const auto last		= Set(subRange[subLength - 1]);
+
+		const char* charMainRange = reinterpret_cast<const char*>(mainRange);
+
+		for (sizetype i = 0; i < mainRangeSizeInBytes; i += 16) {
+
+			const auto blockFirst	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(charMainRange + i));
+			const auto blockLast	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(charMainRange + i + subInBytes - sizeof(_Type_)));
+
+			const auto equalFirst	= Compare<sizeof(_Type_)>(first, blockFirst);
+			const auto equalLast	= Compare<sizeof(_Type_)>(last, blockLast);
+
+			uint16_t mask = ToMask(_mm_and_si128(equalFirst, equalLast));
+
+			while (mask != 0) {
+				const auto bitpos = math::CountTrailingZeroBits(mask);
+
+				if (memcmp(charMainRange + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + 1, subInBytes - (2 * sizeof(_Type_))) == 0)
+					return reinterpret_cast<const _Type_*>(charMainRange + i + bitpos);
+
+				mask = math::ClearLeftMostSet(mask);
+			}
+		}
+
+		return nullptr;
+	}
+};
 
 //
 //template <>
@@ -159,6 +299,9 @@ public:
 
 		if (mainLength <= 0)
 			return nullptr;
+
+		if constexpr (needleLength < 16)
+			return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, needleLength);
 		
 		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
 		constexpr auto subInBytes		= sizeof(_Type_) * needleLength;
@@ -199,6 +342,9 @@ public:
 	{
 		if (subLength <= 0 || mainLength <= 0)
 			return nullptr;
+
+		if (((subLength & (~sizetype{ 0x1F }))) != 0)
+			return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength);
 
 		const auto first	= Set(subRange[0]);
 		const auto last		= Set(subRange[subLength - 1]);
@@ -243,9 +389,14 @@ public:
 		if (mainLength <= 0)
 			return nullptr;
 
-		constexpr auto subSizeInBytes = sizeof(_Type_) * subLength;
+		if constexpr (subLength < 32)
+			return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength);
 
-		if constexpr 
+		constexpr sizetype subSizeInBytes = sizeof(_Type_) * subLength;
+
+		if constexpr (subSizeInBytes < 32)
+			return ::std::search(mainRange, mainRange + mainLength, subRange, subRange + subLength);//SearchTraits<arch::CpuFeature::SSE2>::
+
 
 		__m256i broadcasted[subLength];
 
@@ -267,12 +418,12 @@ public:
 			next1 = _mm256_inserti128_si256(next1, _mm256_extracti128_si256(next, 0), 1); // c
 
 #if !defined(simd_stl_cpp_clang) && !defined(simd_stl_cpp_msvc)
-			for (unsigned j = 1; j < subSizeInBytes; j++) {
+			for (unsigned j = 1; j < subLength; j++) {
 				 auto subRangeVector = _mm256_alignr_epi8(next1, current, j);
 				equal = _mm256_and_si256(equal, Compare<sizeof(_Type_)>(subRangeVector, broadcasted[j]));
 			}
 #else
-			StringFindLoop<subLength>()(equal, next1, current, broadcasted);
+			StringFindLoop<_Type_, FindTraits<arch::CpuFeature::AVX2>, subLength>()(equal, next1, current, broadcasted);
 #endif
 
 			current = next;
@@ -280,99 +431,6 @@ public:
 
 			if (mask != 0)
 				return reinterpret_cast<const _Type_*>(subRangeChar + i + math::CountTrailingZeroBits(mask));
-		}
-
-		return nullptr;
-	}
-};
-
-
-template <>
-class SearchTraits<arch::CpuFeature::SSE2>: public FindTraits<arch::CpuFeature::SSE2> {
-public:
-	template <
-		sizetype needleLength,
-		typename _Type_,
-		typename _MemCmpLike_>
-	static simd_stl_declare_const_function const _Type_* Memcmp(
-		const _Type_*	mainRange,
-		const sizetype	mainLength,
-		const _Type_*	subRange,
-		_MemCmpLike_	memcmpLike) noexcept
-	{
-		if constexpr (needleLength <= 0)
-			return nullptr;
-
-		if (mainLength <= 0)
-			return nullptr;
-
-		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
-		constexpr auto subSizeInBytes	= sizeof(_Type_) * needleLength;
-
-		const auto first	= Set(subRange[0]);
-		const auto last		= Set(subRange[needleLength - 1]);
-
-		const char* mainRangeChar	= reinterpret_cast<const char*>(mainRange);
-		const char* subRangeChar	= reinterpret_cast<const char*>(subRange);
-
-		for (sizetype i = 0; i < mainRangeSizeInBytes; i += 16) {
-			const auto blockFirst	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(mainRangeChar + i));
-			const auto blockLast	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(mainRangeChar + i + subSizeInBytes - sizeof(_Type_)));
-
-			const auto equalFirst	= Compare<sizeof(_Type_)>(first, blockFirst);
-			const auto equalLast	= Compare<sizeof(_Type_)>(last, blockLast);
-
-			uint32_t mask = ToMask(_mm_and_si128(equalFirst, equalLast));
-
-			while (mask != 0) {
-				const auto bitpos = math::CountTrailingZeroBits(mask);
-
-				if (memcmpLike(mainRangeChar + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + (sizeof(_Type_))))
-					return reinterpret_cast<const _Type_*>(mainRangeChar + i + bitpos);
-
-				mask = math::ClearLeftMostSet(mask);
-			}
-		}
-
-		return nullptr;
-	}
-	
-	template <typename _Type_>
-	static simd_stl_declare_const_function const _Type_* AnySize(
-		const _Type_*	mainRange,
-		const sizetype	mainLength,
-		const _Type_*	subRange,
-		const sizetype	subLength) noexcept
-	{
-		if (mainLength <= 0 || subLength <= 0)
-			return nullptr;
-
-		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
-		const auto subInBytes			= sizeof(_Type_) * subLength;
-
-		const auto first	= Set(subRange[0]);
-		const auto last		= Set(subRange[subLength - 1]);
-
-		const char* charMainRange = reinterpret_cast<const char*>(mainRange);
-
-		for (sizetype i = 0; i < mainRangeSizeInBytes; i += 16) {
-
-			const auto blockFirst	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(charMainRange + i));
-			const auto blockLast	= _mm_loadu_si128(reinterpret_cast<const __m128i*>(charMainRange + i + subInBytes - sizeof(_Type_)));
-
-			const auto equalFirst	= Compare<sizeof(_Type_)>(first, blockFirst);
-			const auto equalLast	= Compare<sizeof(_Type_)>(last, blockLast);
-
-			uint16_t mask = ToMask(_mm_and_si128(equalFirst, equalLast));
-
-			while (mask != 0) {
-				const auto bitpos = math::CountTrailingZeroBits(mask);
-
-				if (memcmp(charMainRange + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + 1, subInBytes - (2 * sizeof(_Type_))) == 0)
-					return reinterpret_cast<const _Type_*>(charMainRange + i + bitpos);
-
-				mask = math::ClearLeftMostSet(mask);
-			}
 		}
 
 		return nullptr;

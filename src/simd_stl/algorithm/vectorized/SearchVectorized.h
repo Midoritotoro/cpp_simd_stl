@@ -28,34 +28,7 @@ struct _Search<arch::CpuFeature::None> {
         const _Type_*   subRange,
         const sizetype	subLength) noexcept
     {
-        if (mainLength == subLength)
-            return (memcmp(mainRange, subRange, mainLength) == 0) ? mainRange : nullptr;
-
-        const _Type_& first = subRange[0];
-        const sizetype maxpos = sizetype(mainLength) - sizetype(subLength) + 1;
-
-        for (sizetype i = 0; i < maxpos; i++) {
-            if (mainRange[i] != first) {
-                i++;
-
-                while (i < maxpos && mainRange[i] != first)
-                    i++;
-
-                if (i == maxpos)
-                    break;
-            }
-
-            sizetype j = 1;
-
-            for (; j < subLength; ++j)
-                if (mainRange[i + j] != subRange[j])
-                    break;
-
-            if (j == subLength)
-                return (mainRange + i);
-        }
-
-        return nullptr;
+        return SearchTraits<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength);
     }
 };
 //

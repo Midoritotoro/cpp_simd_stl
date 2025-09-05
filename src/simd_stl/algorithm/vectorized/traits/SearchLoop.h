@@ -6,30 +6,29 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 /*
-	The following templates implement the loop, where K is a template parameter.
-
-		for (unsigned i=1; i < K; i++) {
-			const __m256i substring = _mm256_alignr_epi8(next1, curr, i);
-			eq = _mm256_and_si256(eq, _mm256_cmpeq_epi8(substring, broadcasted[i]));
-		}
-
-	Clang and MSVC complains that the loop parameter `i` is a variable and it cannot be
-	applied as a parameter _mm256_alignr_epi8.  GCC somehow deals with it.
+	for (unsigned j = 1; j < K; j++) {
+		const __m256i subRange = _mm256_alignr_epi8(next1, curr, j);
+		eq = _mm256_and_si256(eq, _mm256_cmpeq_epi8(subRange, broadcasted[j]));
+	}
 */
 
 
 #if defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_msvc)
 
 template <
+	typename	_Type_,
+	class		_Traits_,
 	sizetype    K,
 	int         i,
 	bool        terminate>
 struct StringFindLoopImplementation;
 
 template <
-	sizetype K,
-	int i>
-struct StringFindLoopImplementation<K, i, false> {
+	typename	_Type_,
+	class		_Traits_,
+	sizetype	K,
+	int			i>
+struct StringFindLoopImplementation<_Type_, _Traits_, K, i, false> {
 	void operator()(
 		__m256i& eq,
 		const __m256i& next1,
@@ -37,16 +36,18 @@ struct StringFindLoopImplementation<K, i, false> {
 		const __m256i   (&broadcasted)[K])
 	{
 		const __m256i substring = _mm256_alignr_epi8(next1, curr, i);
-		eq = _mm256_and_si256(eq, _mm256_cmpeq_epi32(substring, broadcasted[i]));
+		eq = _mm256_and_si256(eq, _Traits_::Compare<sizeof(_Type_)>(substring, broadcasted[i]));
 
-		StringFindLoopImplementation<K, i + 1, i + 1 == K>()(eq, next1, curr, broadcasted);
+		StringFindLoopImplementation<_Type_, _Traits_, K, i + 1, i + 1 == K>()(eq, next1, curr, broadcasted);
 	}
 };
 
 template <
+	typename	_Type_,
+	class		_Traits_,
 	sizetype    K,
 	int         i>
-struct StringFindLoopImplementation<K, i, true> {
+struct StringFindLoopImplementation<_Type_, _Traits_, K, i, true> {
 	void operator()(
 		__m256i&,
 		const __m256i&,
@@ -57,7 +58,10 @@ struct StringFindLoopImplementation<K, i, true> {
 	}
 };
 
-template <sizetype K>
+template <
+	typename	_Type_,
+	class		_Traits_,
+	sizetype	K>
 struct StringFindLoop {
 	void operator()(
 		__m256i& eq,
@@ -65,8 +69,8 @@ struct StringFindLoop {
 		const __m256i& curr,
 		const __m256i   (&broadcasted)[K])
 	{
-		static_assert(K > 0, "wrong value");
-		StringFindLoopImplementation<K, 0, false>()(eq, next1, curr, broadcasted);
+		static_assert(K > 0);
+		StringFindLoopImplementation<_Type_, _Traits_, K, 0, false>()(eq, next1, curr, broadcasted);
 	}
 };
 
