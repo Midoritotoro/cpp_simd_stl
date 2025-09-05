@@ -21,10 +21,8 @@ if (NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
 
-
 option(CPP_SIMD_STL_INSTALL "Генерация цели для установки библиотеки" ${PROJECT_IS_TOP_LEVEL})
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
-
 
 set(PRIVATE_SOURCES  
     src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.cpp
@@ -88,6 +86,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/traits/CountVectorizedTraits.h
     src/simd_stl/algorithm/vectorized/traits/MinMaxTraits.h
     src/simd_stl/algorithm/FixedMemcmp.h
+    src/simd_stl/algorithm/MsvcIteratorUnwrap.h
 )
 
 set(PUBLIC_HEADERS

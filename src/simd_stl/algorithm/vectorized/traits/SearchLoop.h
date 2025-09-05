@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <simd_stl/compatibility/SimdCompatibility.h>
-
+#include <simd_stl/compatibility/CompilerDetection.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -37,7 +37,7 @@ struct StringFindLoopImplementation<K, i, false> {
 		const __m256i   (&broadcasted)[K])
 	{
 		const __m256i substring = _mm256_alignr_epi8(next1, curr, i);
-		eq = _mm256_and_si256(eq, _mm256_cmpeq_epi8(substring, broadcasted[i]));
+		eq = _mm256_and_si256(eq, _mm256_cmpeq_epi32(substring, broadcasted[i]));
 
 		StringFindLoopImplementation<K, i + 1, i + 1 == K>()(eq, next1, curr, broadcasted);
 	}

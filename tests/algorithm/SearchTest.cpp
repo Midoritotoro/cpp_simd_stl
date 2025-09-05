@@ -67,9 +67,6 @@ void testSearch() {
     int needle11[] = { 3, 4 };
     auto result11 = simd_stl::algorithm::search(haystack11, haystack11 + ARRAY_SIZE(haystack11), needle11, needle11 + ARRAY_SIZE(needle11));
     Assert(result11 == haystack11 + 2);
-
-    std::cout << "All C-style array tests passed!n";
-
 #undef ARRAY_SIZE
 }
 

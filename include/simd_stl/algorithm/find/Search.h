@@ -5,6 +5,8 @@
 #include <src/simd_stl/algorithm/vectorized/SearchVectorized.h>
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
 
+#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -21,35 +23,20 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
-#if !defined(NDEBUG)
-	VerifyRange(first1, last1);
-	VerifyRange(first2, last2);
-#endif
+	__verifyRange(first1, last1);
+	__verifyRange(first2, last2);
 
-#if defined(simd_stl_cpp_msvc)
-	auto first1Unwrapped		= std::_Get_unwrapped(first1);
-	const auto last1Unwrapped	= std::_Get_unwrapped(last1);
+	auto first1Unwrapped		= __unwrapIterator(first1);
+	const auto last1Unwrapped	= __unwrapIterator(last1);
 
-	const auto first2Unwrapped	= std::_Get_unwrapped(first2);
-	const auto last2Unwrapped	= std::_Get_unwrapped(last2);
-#endif
-	
-#if defined(simd_stl_cpp_msvc)
-	const auto first1Address = std::to_address(first1Unwrapped);
-	const auto first2Address = std::to_address(first2Unwrapped);
-#else 
-	const auto first1Address = std::to_address(first1);
-	const auto first2Address = std::to_address(first2);
-#endif
+	const auto first2Unwrapped	= __unwrapIterator(first2);
+	const auto last2Unwrapped	= __unwrapIterator(last2);
 
+	const auto first1Address	= std::to_address(first1Unwrapped);
+	const auto first2Address	= std::to_address(first2Unwrapped);
 
-#if defined(simd_stl_cpp_msvc)
 	auto firstRangeLength			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
 	const auto secondRangeLength	= IteratorsDifference(first2Unwrapped, last2Unwrapped);
-#else
-	auto firstRangeLength			= IteratorsDifference(first1, last1);
-	const auto secondRangeLength	= IteratorsDifference(first2, last2);
-#endif // defined(simd_stl_cpp_msvc)
 		
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIterator_> && 
@@ -63,19 +50,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 			{
-				const auto position = SearchVectorized(
-					first1Address, firstRangeLength, first2Address, secondRangeLength);
-
-				return first1 + (reinterpret_cast<const _Value_*>(position) - first1Address);
+				const auto position = SearchVectorized(first1Address, firstRangeLength, first2Address, secondRangeLength);
+				return (simd_stl_unlikely(position == nullptr)) ? last1 : first1 + (reinterpret_cast<const _Value_*>(position) - first1Address);
 			}
 		}
 
-		const auto searched = _Search<arch::CpuFeature::None>()(
-			first1Address, firstRangeLength, first2Address, secondRangeLength);
-
-		return (searched == nullptr) 
-			? last1 
-			: first1 + (reinterpret_cast<const _Value_*>(searched) - first1Address);
+		const auto searched = _Search<arch::CpuFeature::None>()(first1Address, firstRangeLength, first2Address, secondRangeLength);
+		return (simd_stl_unlikely(searched == nullptr)) ? last1 : first1 + (reinterpret_cast<const _Value_*>(searched) - first1Address);
 	}
 
 

@@ -6,7 +6,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_constexpr_cxx20 void VerifyRange(
+simd_stl_constexpr_cxx20 void _VerifyRange(
 	const _Type_* const firstPointer,
 	const _Type_* const lastPointer) noexcept
 {
@@ -17,7 +17,7 @@ template <
 	class _Iterator_,
 	class _Sentinel_>
 // check that [firstIterator, lastIterator) forms an iterator range
-simd_stl_constexpr_cxx20 void VerifyRange(
+simd_stl_constexpr_cxx20 void _VerifyRange(
 	const _Iterator_& firstIterator,
 	const _Sentinel_& lastIterator) noexcept
 {
@@ -27,10 +27,18 @@ simd_stl_constexpr_cxx20 void VerifyRange(
 		return;
 	}
 
-	VerifyRange(
+	_VerifyRange(
 		const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(firstIterator))),
 		const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(lastIterator))));
 #endif
 }
+
+#if !defined(__verifyRange)
+#  if !defined(NDEBUG)
+#    define __verifyRange(first, last)  _VerifyRange(first, last) 
+#  else
+#    define __verifyRange(first, last) 
+#  endif // !defined(NDEBUG)
+#endif // !defined(__verifyRange)
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
