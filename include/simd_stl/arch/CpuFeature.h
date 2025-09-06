@@ -23,23 +23,6 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512VL
 };
 
-static inline auto constexpr __supportedFeatures = {
-	CpuFeature::SSE,
-	CpuFeature::SSE2,
-	CpuFeature::SSE3,
-	CpuFeature::SSSE3,
-	CpuFeature::SSE41,
-	CpuFeature::SSE42,
-	CpuFeature::AVX,
-	CpuFeature::AVX2,
-	CpuFeature::AVX512F,
-	CpuFeature::AVX512BW,
-	CpuFeature::AVX512CD,
-	CpuFeature::AVX512ER,
-	CpuFeature::AVX512PF,
-	CpuFeature::AVX512VL
-};
-
 template <
 	CpuFeature	Feature,
 	CpuFeature	Candidate,
@@ -66,25 +49,18 @@ struct Contains {
 };
 
 
+#define __xmm_features arch::CpuFeature::SSE, arch::CpuFeature::SSE2, arch::CpuFeature::SSE3, arch::CpuFeature::SSSE3, arch::CpuFeature::SSE41, arch::CpuFeature::SSE42
+#define __ymm_features arch::CpuFeature::AVX, arch::CpuFeature::AVX2
+#define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512CD, arch::CpuFeature::AVX512ER, arch::CpuFeature::AVX512PF, arch::CpuFeature::AVX512VL
+
 template <arch::CpuFeature _SimdGeneration_> 
-constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, {	
-			CpuFeature::SSE, CpuFeature::SSE2, CpuFeature::SSE3,
-			CpuFeature::SSSE3, CpuFeature::SSE41, CpuFeature::SSE42
-		}
-	>::value;
+constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, CpuFeature::SSE, CpuFeature::SSE2, CpuFeature::SSE3, CpuFeature::SSSE3, CpuFeature::SSE41, CpuFeature::SSE42>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_ymm_v = Contains < _SimdGeneration_, {
-			CpuFeature::AVX, CpuFeature::AVX2,
-		}
-	>::value;
+constexpr inline bool __is_ymm_v = Contains<_SimdGeneration_, CpuFeature::AVX, CpuFeature::AVX2>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, {
-				CpuFeature::AVX512F, CpuFeature::AVX512BW, CpuFeature::AVX512CD,
-				CpuFeature::AVX512ER, CpuFeature::AVX512PF, CpuFeature::AVX512VL
-			}
-	>::value;
+constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, CpuFeature::AVX512F, CpuFeature::AVX512BW, CpuFeature::AVX512CD, CpuFeature::AVX512ER, CpuFeature::AVX512PF, CpuFeature::AVX512VL>::value;
 
 #ifndef SIMD_STL_STATIC_VERIFY_CPU_FEATURE
 #define SIMD_STL_STATIC_VERIFY_CPU_FEATURE(current, failureLogPrefix, ...)                      \

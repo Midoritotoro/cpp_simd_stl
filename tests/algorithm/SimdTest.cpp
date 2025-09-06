@@ -1,0 +1,10 @@
+#include <simd_stl/numeric/BasicSimd.h>
+
+
+int main() {
+    simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE> simd;
+
+    ++simd;
+
+    return 0;
+}
