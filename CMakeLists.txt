@@ -60,6 +60,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/AdvanceBytes.h
 
     src/simd_stl/math/BitMath.h
+    src/simd_stl/math/IntegralTypesConversions.h
 
     "src/simd_stl/type_traits/CanMemcmpElements.h"
     "src/simd_stl/type_traits/ContainerComparison.h"
@@ -76,8 +77,12 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/TypeCheck.h" 
     "src/simd_stl/type_traits/TypeTraits.h"
     "src/simd_stl/type_traits/UnwrapEnum.h"
+    "src/simd_stl/type_traits/SimdTypeCheck.h"
+
 
     "src/simd_stl/utility/Assert.h"
+
+
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchVectorizedTraits.h
@@ -119,7 +124,8 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h
-
+    include/simd_stl/numeric/BasicSimdImplementation.h
+    include/simd_stl/numeric/BasicSimdElementReference.h
 )
 
 include(CMakePackageConfigHelpers)

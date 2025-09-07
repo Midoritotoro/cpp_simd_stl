@@ -1,50 +1,8 @@
 #pragma once 
 
-#include <simd_stl/compatibility/SimdCompatibility.h>
-#include <src/simd_stl/type_traits/TypeTraits.h>
-
-#include <simd_stl/arch/CpuFeature.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <xstring>
+#include <simd_stl/numeric/BasicSimdImplementation.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_generation_supported_v = arch::Contains<_SimdGeneration_, __ymm_features, __xmm_features, __zmm_features>::value;
-
-template <typename _VectorElementType_>
-constexpr inline bool __is_vector_type_supported_v = std::is_arithmetic_v<_VectorElementType_>;
-
-template <
-    arch::CpuFeature  _SimdGeneration_,
-    typename          _VectorElementType_>
-using __deduce_simd_vector_type = std::conditional_t <
-    arch::__is_zmm_v<_SimdGeneration_>,
-    std::conditional_t<
-    type_traits::is_any_of_v<_VectorElementType_, double, long double>, __m512d,
-    std::conditional_t<
-    std::is_same_v<_VectorElementType_, float>, __m512,
-    std::conditional_t<
-    type_traits::is_nonbool_integral_v<_VectorElementType_>, __m512i, void>>>,
-    std::conditional_t<
-    arch::__is_ymm_v<_SimdGeneration_>,
-    std::conditional_t<
-    type_traits::is_any_of_v<_VectorElementType_, double, long double>, __m256d,
-    std::conditional_t<
-    std::is_same_v<_VectorElementType_, float>, __m256,
-    std::conditional_t<
-    type_traits::is_nonbool_integral_v<_VectorElementType_>, __m256i, void>>>,
-    std::conditional_t<
-    arch::__is_xmm_v<_SimdGeneration_>,
-    std::conditional_t<
-    type_traits::is_any_of_v<_VectorElementType_, double, long double>, __m128d,
-    std::conditional_t<
-    std::is_same_v<_VectorElementType_, float>, __m128,
-    std::conditional_t<
-    type_traits::is_nonbool_integral_v<_VectorElementType_>, __m128i, void>>>,
-    void>> > ;
-
 
 #if !defined(__basic_simd)
 #  define __basic_simd template <arch::CpuFeature _SimdGeneration_, typename _Element_>
@@ -62,18 +20,17 @@ class basic_simd {
     static_assert(__is_generation_supported_v<_SimdGeneration_>);
     static_assert(__is_vector_type_supported_v<_Element_>);
 public:
-    using value_type = _Element_;
-    using vector_type = __deduce_simd_vector_type<_SimdGeneration_, _Element_>;
+    using value_type    = _Element_;
+    using vector_type   = __deduce_simd_vector_type<_SimdGeneration_, _Element_>;
 
     using size_type = unsigned short;
 
     basic_simd() noexcept;
-    basic_simd(const value_type value);
 
+    basic_simd(const value_type value) noexcept;
     basic_simd(const vector_type& other) noexcept;
 
     ~basic_simd() noexcept;
-
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator+=(const basic_simd& other) const noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator-=(const basic_simd& other) noexcept;
@@ -104,20 +61,6 @@ public:
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator|=(const basic_simd& other) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator^=(const basic_simd& other) noexcept;
 private:
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __constructZero() noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __broadcast(const value_type value) noexcept;
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __add(const vector_type& left, const vector_type& right) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __sub(const vector_type& left, const vector_type& right) noexcept;
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __mul(const vector_type& left, const vector_type& right) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __div(const vector_type& left, const vector_type& right) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __mod(const vector_type& left, const vector_type& right) noexcept;
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __bitwiseNot(const vector_type& vector) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __bitwiseXor(const vector_type& left, const vector_type& right) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __bitwiseAnd(const vector_type& left, const vector_type& right) noexcept;
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type __bitwiseOr(const vector_type& left, const vector_type& right) noexcept;
 
     vector_type _vector;
 };
@@ -134,21 +77,13 @@ __basic_simd_t::basic_simd(const vector_type& other) noexcept : _vector(other)
 }
 
 __basic_simd
-__basic_simd_t::basic_simd(const value_type value) {
+__basic_simd_t::basic_simd(const value_type value) noexcept {
     _vector = __broadcast(value);
 }
 
 __basic_simd
 __basic_simd_t::~basic_simd() noexcept
 {
-}
-
-
-__basic_simd
-friend simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator+(const basic_simd& other)
-{
-    _vector = __add(_vector, other._vector);
-    return *this;
 }
 
 __basic_simd
@@ -158,22 +93,9 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator-(const basic_simd& other) const noexcept {
-    _vector = __sub(_vector, other._vector);
-    return *this;
-}
-
-__basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator-=(const basic_simd& other) noexcept {
-
-
 }
 
-__basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator*(const basic_simd& other) const noexcept {
-    _vector = __mul(_vector, other._vector);
-    return *this;
-}
 
 __basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator*=(const basic_simd& other) noexcept {
@@ -190,10 +112,6 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 
 }
 
-__basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator%(const basic_simd& other) const noexcept {
-
-}
 
 __basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator%=(const basic_simd& other) noexcept {
@@ -243,21 +161,6 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 
 __basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator~() const noexcept {
-
-}
-
-__basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator&(const basic_simd& other) const noexcept {
-
-}
-
-__basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator|(const basic_simd& other) const noexcept {
-
-}
-
-__basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator^(const basic_simd& other) const noexcept {
 
 }
 
@@ -476,13 +379,64 @@ static simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t::vector_ty
 
 }
 
+
+// ==============================================================================================
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator+(
+    const __basic_simd_t& left, 
+    const __basic_simd_t& right) noexcept
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator-(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept 
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator*(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator%(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator&(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator|(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept 
+{
+
+}
+
+__basic_simd
+simd_stl_constexpr_cxx20 inline __basic_simd_t& operator^(
+    const __basic_simd_t& left,
+    const __basic_simd_t& right) noexcept
+{
+
+}
+
+
 __SIMD_STL_NUMERIC_NAMESPACE_END
-
-    //simd_stl_constexpr_cxx20 friend inline basic_simd& operator+(const basic_simd& other);
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator-(const basic_simd& other) const noexcept;
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator*(const basic_simd& other) const noexcept;
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator%(const basic_simd& other) const noexcept;
-
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator&(const basic_simd& other) const noexcept;
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator|(const basic_simd& other) const noexcept;
-    //simd_stl_constexpr_cxx20 inline basic_simd& operator^(const basic_simd& other) const noexcept;

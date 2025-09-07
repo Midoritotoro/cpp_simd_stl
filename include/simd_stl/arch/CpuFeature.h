@@ -54,13 +54,13 @@ struct Contains {
 #define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512CD, arch::CpuFeature::AVX512ER, arch::CpuFeature::AVX512PF, arch::CpuFeature::AVX512VL
 
 template <arch::CpuFeature _SimdGeneration_> 
-constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, CpuFeature::SSE, CpuFeature::SSE2, CpuFeature::SSE3, CpuFeature::SSSE3, CpuFeature::SSE41, CpuFeature::SSE42>::value;
+constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, __xmm_features>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_ymm_v = Contains<_SimdGeneration_, CpuFeature::AVX, CpuFeature::AVX2>::value;
+constexpr inline bool __is_ymm_v = Contains<_SimdGeneration_, __ymm_features>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, CpuFeature::AVX512F, CpuFeature::AVX512BW, CpuFeature::AVX512CD, CpuFeature::AVX512ER, CpuFeature::AVX512PF, CpuFeature::AVX512VL>::value;
+constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, __zmm_features>::value;
 
 #ifndef SIMD_STL_STATIC_VERIFY_CPU_FEATURE
 #define SIMD_STL_STATIC_VERIFY_CPU_FEATURE(current, failureLogPrefix, ...)                      \

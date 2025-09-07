@@ -16,3 +16,4 @@
 #include <src/simd_stl/type_traits/LexicographicalCompareTraits.h>
 
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
+#include <src/simd_stl/type_traits/SimdTypeCheck.h>
