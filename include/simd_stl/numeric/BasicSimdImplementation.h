@@ -55,6 +55,7 @@ constexpr bool __is_ps_v    = (sizeof(_Element_) == sizeof(float)) && (std::is_s
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE, _Element_> {
+public:
     using value_type    = _Element_;
     using vector_type   = __m128; // SSE работает только с float-векторами 
 
@@ -124,6 +125,7 @@ class BasicSimdImplementation<arch::CpuFeature::SSE, _Element_> {
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE2, _Element_> {
+public:
     using value_type = _Element_;
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _Element_>;
 
@@ -309,6 +311,7 @@ class BasicSimdImplementation<arch::CpuFeature::SSE42, _Element_>:
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX, _Element_> {
+public:
     using value_type = _Element_;
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _Element_>;
 
@@ -374,19 +377,6 @@ class BasicSimdImplementation<arch::CpuFeature::AVX, _Element_> {
             return _mm256_sub_pd(left, right);
     }
 
-
-    /*  
-        vmovdqa ymm4, ymm0
-        vpsrlq  ymm2, ymm1, 32
-        vpsrlq  ymm3, ymm4, 32
-        vpmuludq        ymm2, ymm2, ymm4
-        vpmuludq        ymm3, ymm3, ymm1
-        vpmuludq        ymm0, ymm1, ymm0
-        vpaddq  ymm2, ymm2, ymm3
-        vpsllq  ymm2, ymm2, 32
-        vpaddq  ymm0, ymm0, ymm2
-        */
-
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type mul(
         const vector_type& left,
         const vector_type& right) noexcept
@@ -430,75 +420,129 @@ class BasicSimdImplementation<arch::CpuFeature::AVX, _Element_> {
         const vector_type& right) noexcept
     {
         if      constexpr (__is_epi64_v<value_type>)
-            return _mm_div_epi64(left, right);
+            return _mm256_castpd_si256(_mm256_div_pd(left, right));
         else if constexpr (__is_epu64_v<value_type>)
-            return _mm_div_epu64(left, right);
-        else if constexpr (__is_epi32_v<value_type>)
-            return _mm_div_epi32(left, right)
-        else if constexpr (__is_epu32_v<value_type>)
-            return _mm_div_epu32(left, right);
-        else if constexpr (__is_epi16_v<value_type>)
-            return _mm_div_epi16(left, right);
-        else if constexpr (__is_epu16_v<value_type>)
-            return _mm_div_epu16(left, right);
-        else if constexpr (__is_epi8_v<value_type>)
-            return _mm_div_epi8(left, right);
-        else if constexpr (__is_epu8_v<value_type>)
-            return _mm_div_epi8(left, right);
+            return _mm256_castpd_si256(_mm256_div_pd(left, right));
+        else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
+            return _mm256_castps_si256(_mm256_div_ps(left, right));
+        else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
+            return div_u16(left, right);
+        else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
+            return div_u8(left, right);
         else if constexpr (__is_ps_v<value_type>)
-            return _mm_div_ps(left, right);
+            return _mm256_div_ps(left, right);
         else if constexpr (__is_pd_v<value_type>)
-            return _mm_div_pd(left, right);
+            return _mm256_div_pd(left, right);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseNot(const vector_type& vector) noexcept {
-        if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_xor_pd(vector, _mm_cmpeq_pd(vector, vector));
-        else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_xor_si128(vector, _mm_cmpeq_epi32(vector, vector));
-        else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_xor_ps(vector, _mm_cmpeq_ps(vector, vector));
+        if      constexpr (std::is_same_v<vector_type, __m256d>)
+            return _mm256_xor_pd(vector, _mm256_cmp_pd(vector, vector, _CMP_EQ_OQ));
+        else if constexpr (std::is_same_v<vector_type, __m256>)
+            return _mm256_xor_ps(vector, _mm256_cmp_ps(vector, vector, _CMP_EQ_OQ));
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseXor(
         const vector_type& left,
         const vector_type& right) noexcept
     {
-        if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_xor_pd(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_xor_si128(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_xor_ps(vector);
+        if      constexpr (std::is_same_v<vector_type, __m256d>)
+            return _mm256_xor_pd(vector);
+        else if constexpr (std::is_same_v<vector_type, __m256>)
+            return _mm256_xor_ps(vector);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseAnd(
         const vector_type& left,
         const vector_type& right) noexcept
     {
-        if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_and_pd(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_and_si128(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_and_ps(vector);
+        if      constexpr (std::is_same_v<vector_type, __m256d>)
+            return _mm256_and_pd(vector);
+        else if constexpr (std::is_same_v<vector_type, __m256>)
+            return _mm256_and_ps(vector);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseOr(
         const vector_type& left,
         const vector_type& right) noexcept
     {
-        if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_or_pd(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_or_si128(vector);
-        else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_or_ps(vector);
+        if      constexpr (std::is_same_v<vector_type, __m256d>)
+            return _mm256_or_pd(vector);
+        else if constexpr (std::is_same_v<vector_type, __m256>)
+            return _mm256_or_ps(vector);
     }
+
+private:
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline __m256i divLow_u8_i32x8(
+        __m256i left,
+        __m256i right, 
+        float mul) noexcept 
+    {
+        const auto af = _mm256_cvtepi32_ps(left);
+        const auto bf = _mm256_cvtepi32_ps(right);
+
+        const auto m1 = _mm256_mul_ps(af, _mm256_set1_ps(1.001f * mul));
+        const auto m2 = _mm256_rcp_ps(bf);
+
+        return _mm256_cvttps_epi32(_mm256_mul_ps(m1, m2));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline __m256i div_u8(
+        __m256i left,
+        __m256i right) noexcept 
+    {
+        const auto m0 = _mm256_set1_epi32(0x000000ff);
+        const auto m1 = _mm256_set1_epi32(0x0000ff00);
+        const auto m2 = _mm256_set1_epi32(0x00ff0000);
+
+        const auto r0 = divLow_u8_i32x8(_mm256_and_si256(left, m0), _mm256_and_si256(right, m0), 1);
+        auto r1 = divLow_u8_i32x8(_mm256_and_si256(left, m1), _mm256_and_si256(right, m1), 1);
+
+        r1 = _mm256_slli_epi32(r1, 8);
+
+        const auto r2 = divLow_u8_i32x8(_mm256_and_si256(left, m2), _mm256_and_si256(right, m2), 1 << 16);
+        auto r3 = divLow_u8_i32x8(_mm256_srli_epi32(left, 24), _mm256_srli_epi32(right, 24), 1);
+
+        r3 = _mm256_slli_epi32(r3, 24);
+
+        const auto r01 = _mm256_or_si256(r0, r1);
+        const auto r23 = _mm256_or_si256(r2, r3);
+
+        return _mm256_blend_epi16(r01, r23, 0xAA);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline __m256i div_u16(
+        const __m256i left, 
+        const __m256i right) noexcept
+    {
+        const auto mask_lo = _mm256_set1_epi32(0x0000ffff);
+
+        const auto a_lo_u32 = _mm256_and_si256(left, mask_lo);
+        const auto b_lo_u32 = _mm256_and_si256(right, mask_lo);
+
+        const auto a_hi_u32 = _mm256_srli_epi32(left, 16);
+        const auto b_hi_u32 = _mm256_srli_epi32(right, 16);
+
+        const auto  a_lo_f32 = _mm256_cvtepi32_ps(a_lo_u32);
+        const auto  a_hi_f32 = _mm256_cvtepi32_ps(a_hi_u32);
+        const auto  b_lo_f32 = _mm256_cvtepi32_ps(b_lo_u32);
+        const auto  b_hi_f32 = _mm256_cvtepi32_ps(b_hi_u32);
+
+        const auto  c_lo_f32 = _mm256_div_ps(a_lo_f32, b_lo_f32);
+        const auto  c_hi_f32 = _mm256_div_ps(a_hi_f32, b_hi_f32);
+
+        const auto c_lo_i32 = _mm256_cvttps_epi32(c_lo_f32); // values in the u16 range
+        const auto c_hi_i32_0 = _mm256_cvttps_epi32(c_hi_f32); // values in the u16 range
+        const auto c_hi_i32 = _mm256_slli_epi32(c_hi_i32_0, 16);
+
+        return _mm256_or_si256(c_lo_i32, c_hi_i32);
+    }
+
 };
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX2, _Element_> {
+public:
     using value_type = _Element_;
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _Element_>;
 
