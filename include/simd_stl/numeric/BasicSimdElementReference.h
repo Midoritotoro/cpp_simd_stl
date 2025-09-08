@@ -21,11 +21,41 @@ constexpr bool __is_valid_basic_simd_v = std::disjunction_v<
 template <typename _BasicSimd_>
 class BasicSimdElementReference {
     static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
+
+    using __parent_impl = typename _BasicSimd_::__impl;
 public: 
+    using parent_type   = _BasicSimd_;
+
     using vector_type   = typename _BasicSimd_::vector_type;
     using value_type    = typename _BasicSimd_::value_type;
 
+    simd_stl_constexpr_cxx20 BasicSimdElementReference(
+        parent_type*    parent,
+        uint8           bytesOffset = 0
+    ) noexcept:
+        _parent(parent),
+        _bytesOffset(bytesOffset)
+    {}
 
+    simd_stl_constexpr_cxx20 ~BasicSimdElementReference() noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline value_type get() const noexcept {
+       // return __parent_impl::extract(_parent->_vector, _bytesOffset / sizeof(value_type));
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void set(value_type value) noexcept {
+      //  return __parent_impl::insert(_parent->_vector, _bytesOffset / sizeof(value_type), value);
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
+        
+    }
+
+private:
+    parent_type*    _parent         = nullptr;
+    uint8           _bytesOffset    = 0;   
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

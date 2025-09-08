@@ -48,9 +48,16 @@ template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE, _Element_> {
 public:
     using value_type    = _Element_;
-    using vector_type   = __m128; // SSE работает только с float-векторами 
+    using vector_type   = __m128;
 
     using size_type = unsigned short;
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
+        const vector_type&  vector,
+        const size_type     where) noexcept
+    {
+        return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type constructZero() noexcept {
         return _mm_setzero_ps();
@@ -121,6 +128,30 @@ public:
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _Element_>;
 
     using size_type = unsigned short;
+
+    static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
+        const vector_type&  vector,
+        const size_type     where) noexcept
+    {
+        if      constexpr (__is_pd_v<value_type>)
+            return _mm_cvtsd_f64(_mm_shuffle_pd(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_ps_v<value_type>)
+            return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
+            return _mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
+            return _mm_cvtsi128_si32(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
+            return _mm_extract_epi16(vector, where);
+        else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
+            return ((where >> 1) < vectorElementsCount) 
+                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff;
+                : return (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, 
+                    _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
+        }
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type constructZero() noexcept {
         if      constexpr (std::is_same_v<vector_type, __m128d>)
@@ -283,7 +314,9 @@ public:
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE3, _Element_>: 
     public BasicSimdImplementation<arch::CpuFeature::SSE2, _Element_> 
-{};
+{
+
+};
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSSE3, _Element_>:
@@ -308,7 +341,32 @@ public:
 
     using size_type = unsigned short;
 
-         static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type constructZero() noexcept {
+    static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
+
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
+        const vector_type&  vector,
+        const size_type     where) noexcept
+    {
+        if      constexpr (__is_pd_v<value_type>)
+            return _mm256_cvtsd_f64(_mm_shuffle_pd(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_ps_v<value_type>)
+            return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
+            return _mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
+            return _mm_cvtsi128_si32(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
+        else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
+            return _mm_extract_epi16(vector, where);
+        else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
+            return ((where >> 1) < vectorElementsCount)
+                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff;
+            : return (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector,
+                _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
+        }
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type constructZero() noexcept {
         if      constexpr (std::is_same_v<vector_type, __m256d>)
             return _mm256_setzero_pd();
         else if constexpr (std::is_same_v<vector_type, __m256i>)

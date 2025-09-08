@@ -31,6 +31,7 @@ class basic_simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
     static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
+    friend BasicSimdElementReference;
     using __impl = BasicSimdImplementation<_SimdGeneration_, _Element_>;
 public:
     static constexpr auto _Generation = _SimdGeneration_;
