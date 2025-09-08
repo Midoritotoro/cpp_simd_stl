@@ -17,3 +17,5 @@
 
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
+
+#include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
