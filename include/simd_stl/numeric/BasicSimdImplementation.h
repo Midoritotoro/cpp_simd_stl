@@ -147,9 +147,8 @@ public:
             return _mm_extract_epi16(vector, where);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
             return ((where >> 1) < vectorElementsCount) 
-                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff;
-                : return (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, 
-                    _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
+                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff
+                : (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
         }
     }
 
@@ -360,9 +359,8 @@ public:
             return _mm_extract_epi16(vector, where);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
             return ((where >> 1) < vectorElementsCount)
-                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff;
-            : return (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector,
-                _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
+                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff
+                : (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
         }
     }
 

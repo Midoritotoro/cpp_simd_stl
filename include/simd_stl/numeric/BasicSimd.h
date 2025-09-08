@@ -46,11 +46,44 @@ public:
     basic_simd(const value_type value) noexcept;
     basic_simd(const vector_type& other) noexcept;
 
-    // Operators
     basic_simd(
         _Basic_Simd_Plus_Operator_Tag,
         const vector_type left, 
         const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Sub_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Mul_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Div_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Bitwise_Or_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Bitwise_Xor_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Bitwise_And_Operator_Tag,
+        const vector_type left,
+        const vector_type right) noexcept;
+
+    basic_simd(
+        _Basic_Simd_Bitwise_Not_Operator_Tag,
+        const vector_type vector) noexcept;
 
     ~basic_simd() noexcept;
 
@@ -67,7 +100,7 @@ public:
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator=(const basic_simd& left) noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline _Element_ operator[](const size_type index) const noexcept;
-    simd_stl_constexpr_cxx20 simd_stl_always_inline _Element_& operator[](const size_type index) noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference<basic_simd> operator[](const size_type index) noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator++(int) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator++() noexcept;
@@ -76,7 +109,7 @@ public:
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator--() noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator!() const noexcept;
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator~() const noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd operator~() const noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator&=(const basic_simd& other) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator|=(const basic_simd& other) noexcept;
@@ -111,8 +144,72 @@ __basic_simd_t::basic_simd(
     const vector_type left,
     const vector_type right) noexcept
 {
+    _vector = __impl::add(left, right);
+}
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Sub_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept
+{
+    _vector = __impl::sub(left, right);
+}
+
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Mul_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept
+{
     _vector = __impl::mul(left, right);
 }
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Div_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept
+{
+    _vector = __impl::div(left, right);
+}
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Bitwise_Or_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept
+{
+    _vector = __impl::bitwiseOr(left, right);
+}
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Bitwise_Xor_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept
+{
+    _vector = __impl::bitwiseXor(left, right);
+}
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Bitwise_And_Operator_Tag,
+    const vector_type left,
+    const vector_type right) noexcept 
+{
+    _vector = __impl::bitwiseAnd(left, right);
+}
+
+__basic_simd
+__basic_simd_t::basic_simd(
+    _Basic_Simd_Bitwise_Not_Operator_Tag,
+    const vector_type vector) noexcept
+{
+    _vector = __impl::bitwiseNot(vector);
+}
+
 
 __basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator+=(const basic_simd& other) const noexcept {
@@ -153,12 +250,12 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 
 __basic_simd
 simd_stl_constexpr_cxx20 simd_stl_always_inline _Element_ __basic_simd_t::operator[](const size_type index) const noexcept {
-
+    return __impl::extract(_vector, index);
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline _Element_& __basic_simd_t::operator[](const size_type index) noexcept {
-
+simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference<__basic_simd_t> __basic_simd_t::operator[](const size_type index) noexcept {
+    return BasicSimdElementReference<__basic_simd_t>(this, index);
 }
 
 __basic_simd
@@ -188,8 +285,8 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::operator~() const noexcept {
-
+simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t __basic_simd_t::operator~() const noexcept {
+    return { _Basic_Simd_Bitwise_Not_Operator_Tag{}, _vector };
 }
 
 __basic_simd
@@ -208,61 +305,59 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline __basic_simd_t& __basic_simd_t::
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator+(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator+(
     const __basic_simd_t& left, 
     const __basic_simd_t& right) noexcept
 {
-    basic_simd temp = left;
-    temp._vector += right; 
-    return temp;
+    return { _Basic_Simd_Plus_Operator_Tag{}, left, right };
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator-(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator-(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept 
 {
-
+    return { _Basic_Simd_Sub_Operator_Tag{}, left, right };
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator*(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator*(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept
 {
-
+    return { _Basic_Simd_Mul_Operator_Tag{}, left, right };
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator%(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator%(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept
 {
-
+    
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator&(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator&(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept
 {
-
+    return { _Basic_Simd_Bitwise_And_Operator_Tag{}, left, right };
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator|(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator|(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept 
 {
-
+    return { _Basic_Simd_Bitwise_Or_Operator_Tag{}, left, right };
 }
 
 __basic_simd
-simd_stl_constexpr_cxx20 inline __basic_simd_t& operator^(
+simd_stl_constexpr_cxx20 inline __basic_simd_t operator^(
     const __basic_simd_t& left,
     const __basic_simd_t& right) noexcept
 {
-
+    return { _Basic_Simd_Bitwise_Xor_Operator_Tag{}, left, right };
 }
 
 

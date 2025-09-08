@@ -31,31 +31,31 @@ public:
 
     simd_stl_constexpr_cxx20 BasicSimdElementReference(
         parent_type*    parent,
-        uint8           bytesOffset = 0
+        uint8           index = 0
     ) noexcept:
         _parent(parent),
-        _bytesOffset(bytesOffset)
+        _index(index)
     {}
 
-    simd_stl_constexpr_cxx20 ~BasicSimdElementReference() noexcept {
-
-    }
+    simd_stl_constexpr_cxx20 ~BasicSimdElementReference() noexcept 
+    {}
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline value_type get() const noexcept {
-       // return __parent_impl::extract(_parent->_vector, _bytesOffset / sizeof(value_type));
+        return __parent_impl::extract(_parent->_vector, _index);
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline void set(value_type value) noexcept {
-      //  return __parent_impl::insert(_parent->_vector, _bytesOffset / sizeof(value_type), value);
+        return __parent_impl::insert(_parent->_vector, _index, value);
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
-        
+        set(other);
+        return *this;
     }
 
 private:
-    parent_type*    _parent         = nullptr;
-    uint8           _bytesOffset    = 0;   
+    parent_type*    _parent = nullptr;
+    uint8           _index  = 0;   
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
