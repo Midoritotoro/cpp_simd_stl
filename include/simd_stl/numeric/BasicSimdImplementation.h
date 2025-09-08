@@ -7,15 +7,6 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-#if !defined(__simd_imlp)
-#  define __simd_imlp template <arch::CpuFeature _SimdGeneration_, typename _Element_>
-#endif // __simd_imlp
-
-#if !defined(__simd_imlp_t)
-#  define __simd_imlp_t BasicSimdImplementation<_SimdGeneration_, _Element_>
-#endif // __simd_imlp_t
-
-
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_>
@@ -144,7 +135,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm_set1_epi64x(value);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm_set1_epi32(value)
+            return _mm_set1_epi32(value);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm_set1_epi16(value);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -162,7 +153,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm_add_epi64(left, right);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm_add_epi32(left, right)
+            return _mm_add_epi32(left, right);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm_add_epi16(left, right);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -180,7 +171,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm_sub_epi64(left, right);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm_sub_epi32(left, right)
+            return _mm_sub_epi32(left, right);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm_sub_epi16(left, right);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -200,7 +191,7 @@ public:
         else if constexpr (__is_epu64_v<value_type>)
             return _mm_mul_epu64(left, right);
         else if constexpr (__is_epi32_v<value_type>)
-            return _mm_mul_epi32(left, right)
+            return _mm_mul_epi32(left, right);
         else if constexpr (__is_epu32_v<value_type>)
             return _mm_mul_epu32(left, right);
         else if constexpr (__is_epi16_v<value_type>)
@@ -226,7 +217,7 @@ public:
         else if constexpr (__is_epu64_v<value_type>)
             return _mm_div_epu64(left, right);
         else if constexpr (__is_epi32_v<value_type>)
-            return _mm_div_epi32(left, right)
+            return _mm_div_epi32(left, right);
         else if constexpr (__is_epu32_v<value_type>)
             return _mm_div_epu32(left, right);
         else if constexpr (__is_epi16_v<value_type>)
@@ -257,11 +248,11 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_xor_pd(vector);
+            return _mm_xor_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_xor_si128(vector);
+            return _mm_xor_si128(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_xor_ps(vector);
+            return _mm_xor_ps(left, right);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseAnd(
@@ -269,11 +260,11 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_and_pd(vector);
+            return _mm_and_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_and_si128(vector);
+            return _mm_and_si128(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_and_ps(vector);
+            return _mm_and_ps(left, right);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseOr(
@@ -281,11 +272,11 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m128d>)
-            return _mm_or_pd(vector);
+            return _mm_or_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128i>)
-            return _mm_or_si128(vector);
+            return _mm_or_si128(left, right);
         else if constexpr (std::is_same_v<vector_type, __m128>)
-            return _mm_or_ps(vector);
+            return _mm_or_ps(left, right);
     }
 };
 
@@ -330,7 +321,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm256_set1_epi64x(value);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm256_set1_epi32(value)
+            return _mm256_set1_epi32(value);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm256_set1_epi16(value);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -348,7 +339,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm256_add_epi64(left, right);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm256_add_epi32(left, right)
+            return _mm256_add_epi32(left, right);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm256_add_epi16(left, right);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -366,7 +357,7 @@ public:
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
             return _mm256_sub_epi64(left, right);
         else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
-            return _mm256_sub_epi32(left, right)
+            return _mm256_sub_epi32(left, right);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm256_sub_epi16(left, right);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>)
@@ -389,7 +380,7 @@ public:
             return _mm256_add_epi64(_mm256_mul_epu32(right, left), ymm2);
         }
         else if constexpr (__is_epi32_v<value_type>)
-            return _mm256_mul_epi32(left, right)
+            return _mm256_mul_epi32(left, right);
         else if constexpr (__is_epu32_v<value_type>)
             return _mm256_mul_epu32(left, right);
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
@@ -447,9 +438,9 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m256d>)
-            return _mm256_xor_pd(vector);
+            return _mm256_xor_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m256>)
-            return _mm256_xor_ps(vector);
+            return _mm256_xor_ps(left, right);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseAnd(
@@ -457,9 +448,9 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m256d>)
-            return _mm256_and_pd(vector);
+            return _mm256_and_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m256>)
-            return _mm256_and_ps(vector);
+            return _mm256_and_ps(left, right);
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseOr(
@@ -467,9 +458,9 @@ public:
         const vector_type& right) noexcept
     {
         if      constexpr (std::is_same_v<vector_type, __m256d>)
-            return _mm256_or_pd(vector);
+            return _mm256_or_pd(left, right);
         else if constexpr (std::is_same_v<vector_type, __m256>)
-            return _mm256_or_ps(vector);
+            return _mm256_or_ps(left, right);
     }
 
 private:
@@ -538,6 +529,48 @@ private:
         return _mm256_or_si256(c_lo_i32, c_hi_i32);
     }
 
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline __m256i div_u64(
+        const __m256i ymm0,
+        const __m256i ymm1) noexcept
+    {
+        /*auto ymm3 = _mm256_set1_epi64x(1);
+        const auto ymm2 = bitwiseXor(ymm0, ymm1);
+
+        const auto ymm4 = _mm256_abs_epi32(ymm0);
+        const auto ymm5 = _mm256_abs_epi32(ymm1);
+
+        auto ymm6 = constructZero();
+        auto ymm7 = _mm256_cmpeq_epi32(ymm6, ymm6);
+
+        auto k2 = _mm256_movemask_pd(vectorsXor);
+
+        ymm0 = _mm256_castsi256_pd(ymm4);
+        ymm1 = _mm256_castsi256_pd(ymm5);
+
+        ymm1 = _mm256_div_pd(ymm3, ymm1);
+        ymm0 = _mm256_mul_pd(ymm0, ymm1);
+
+        ymm3 = _mm256_cvtepi32_pd(ymm0);
+        ymm2 = _mm256_mul_pd(ymm3, ymm5);
+
+        ymm4 = _mm256_sub_epi64(ymm4, ymm2);
+        ymm0 = _mm256_castsi256_pd(ymm4);
+
+        ymm0 = _mm256_mul_pd(ymm0, ymm1);
+        ymm2 = _mm256_castsi256_pd(ymm0);
+
+        ymm3 = _mm256_add_epi64(ymm3, ymm2);
+        ymm2 = _mm256_mul_pd(ymm2, ymm5);
+
+        ymm4 = _mm256_sub_epi64(ymm4, ymm2);
+        auto k1 = _mm256_movemask_epi8(_mm256_cmpgt_epi64(ymm4, ymm5));
+
+        ymm3 = _mm256_blend_epi8(_mm256_sub_epi64(ymm3, ymm7), k1);
+        ymm3 = _mm256_blend_epi8(_mm256_sub_epi64(ymm6, ymm3), k2);
+
+        return ymm3;*/
+    }
+
 };
 
 template <typename _Element_>
@@ -558,3 +591,5 @@ template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX512BW, _Element_> {
 
 };
+
+__SIMD_STL_NUMERIC_NAMESPACE_END
