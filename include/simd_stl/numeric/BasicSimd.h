@@ -3,6 +3,7 @@
 #include <simd_stl/numeric/BasicSimdImplementation.h>
 #include <simd_stl/numeric/BasicSimdElementReference.h>
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 #if !defined(__basic_simd)

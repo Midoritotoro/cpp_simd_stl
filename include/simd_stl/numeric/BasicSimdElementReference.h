@@ -3,8 +3,9 @@
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
 #include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
 
-__SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+__SIMD_STL_NUMERIC_NAMESPACE_BEGIN
+    
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_>
