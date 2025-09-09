@@ -3,7 +3,6 @@
 #include <src/simd_stl/type_traits/TypeTraits.h>
 #include <simd_stl/compatibility/Inline.h>
 
-#include <xstring>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -14,25 +13,25 @@ class BasicSimdImplementation {};
 
 
 template <typename _Element_>
-constexpr bool __is_epi64_v = (sizeof(_Element_) == 8) && (std::is_integral_v<_Element_>);
+constexpr bool __is_epi64_v = (sizeof(_Element_) == 8) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
 
 template <typename _Element_>
 constexpr bool __is_epu64_v = (sizeof(_Element_) == 8) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
 
 template <typename _Element_>
-constexpr bool __is_epi32_v = (sizeof(_Element_) == 4) && (std::is_integral_v<_Element_>);
+constexpr bool __is_epi32_v = (sizeof(_Element_) == 4) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
 
 template <typename _Element_>
 constexpr bool __is_epu32_v = (sizeof(_Element_) == 4) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
 
 template <typename _Element_>
-constexpr bool __is_epi16_v = (sizeof(_Element_) == 2) && (std::is_integral_v<_Element_>);
+constexpr bool __is_epi16_v = (sizeof(_Element_) == 2) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
 
 template <typename _Element_>
 constexpr bool __is_epu16_v = (sizeof(_Element_) == 2) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
 
 template <typename _Element_>
-constexpr bool __is_epi8_v  = (sizeof(_Element_) == 1) && (std::is_integral_v<_Element_>);
+constexpr bool __is_epi8_v  = (sizeof(_Element_) == 1) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
 
 template <typename _Element_>
 constexpr bool __is_epu8_v  = (sizeof(_Element_) == 1) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
@@ -146,7 +145,7 @@ public:
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>)
             return _mm_extract_epi16(vector, where);
         else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
-            return ((where >> 1) < vectorElementsCount)
+            return (where <= (vectorElementsCount >> 1))
                 ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xFF
                 : (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xFF;
         }

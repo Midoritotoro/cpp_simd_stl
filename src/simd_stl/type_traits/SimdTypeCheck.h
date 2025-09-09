@@ -47,4 +47,6 @@ using __deduce_simd_vector_type = std::conditional_t <
                                 type_traits::is_nonbool_integral_v<_VectorElementType_>, __m128i, void>>>,
     void>>>;
 
+
+
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
