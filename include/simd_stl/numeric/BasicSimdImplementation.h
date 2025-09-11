@@ -50,6 +50,27 @@ public:
     using vector_type   = __m128;
 
     using size_type = unsigned short;
+    using mask_type = unsigned short;
+
+    template <
+        typename _FromVector_,
+        typename _ToVector_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+        static_assert(std::is_same_v<_ToVector_, _FromVector_>, "Sse does not support type conversions.");
+        return from;
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type convertToMask(const vector_type& vector) noexcept {
+        return _mm_movemask_ps(vector);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type decrement(const vector_type& vector) noexcept {
+        return sub(vector, broadcast(1));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type increment(const vector_type& vector) noexcept {
+        return add(vector, broadcast(1));
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
         const vector_type&  vector,
@@ -127,8 +148,50 @@ public:
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _Element_>;
 
     using size_type = unsigned short;
+    using mask_type = unsigned short;
 
     static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
+
+
+    template <
+        typename _FromVector_,
+        typename _ToVector_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+        if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
+            return from;
+
+        else if constexpr (std::is_same<_FromVector, __m128> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castps_si128(from);
+        else if constexpr (std::is_same<_FromVector, __m128> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector, __m128d> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castpd_si128(from);
+
+        else if constexpr (std::is_same<_FromVector, __m128i> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castsi128_ps(from);
+        else if constexpr (std::is_same<_FromVector, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castsi128_pd(from);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type convertToMask(const vector_type& vector) noexcept {
+        if      constexpr (__is_ps_v<value_type>)
+            return _mm_movemask_ps(vector);
+        else if constexpr (__is_pd_v<value_type>)
+            return _mm_movemask_pd(vector);
+        else if constexpr (__is_ps_v<value_type>)
+            return _mm_movemask_epi8(vector);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type decrement(const vector_type& vector) noexcept {
+        return sub(vector, broadcast(1));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type increment(const vector_type& vector) noexcept {
+        return add(vector, broadcast(1));
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
         const vector_type&  vector,
@@ -337,10 +400,83 @@ public:
     using value_type = _Element_;
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _Element_>;
 
-    using size_type = unsigned short;
+    using size_type = uint32;
+    using mask_type = uint32;
 
     static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
 
+    template <
+        typename _FromVector_,
+        typename _ToVector_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+        if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
+            return from;
+
+        // ymm conversions
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_castps_si256(from);
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_castpd_si256(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_castsi256_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_castsi256_pd(from);
+
+        // xmm conversions
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castps_si128(from);
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castpd_si128(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castsi128_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castsi128_pd(from);
+
+        // Zero extend
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
+
+        // Truncate
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
+            return _mm256_castps256_ps128(from);
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm256_castpd256_pd128(from);
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm256_castsi256_si128(from);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type convertToMask(const vector_type& vector) noexcept {
+        if constexpr (__is_pd_v<value_type>)
+            return _mm256_movemask_pd(vector);
+        else if constexpr (__is_ps_v<value_type>)
+            return _mm256_movemask_ps(vector);
+        else
+            return _mm256_movemask_ps(cast<vector_type, __m256>(vector));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type decrement(const vector_type& vector) noexcept {
+        return sub(vector, broadcast(1));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type increment(const vector_type& vector) noexcept {
+        return add(vector, broadcast(1));
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
         const vector_type&  vector,
@@ -631,19 +767,129 @@ private:
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX2, _Element_> {
 public:
-    using value_type = _Element_;
-    using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _Element_>;
+    using value_type    = _Element_;
+    using vector_type   = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX2, _Element_>;
 
-    using size_type = unsigned short;
+    using size_type     = uint32;
+    using mask_type     = uint32;
 };
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> {
+    using value_type    = _Element_;
+    using vector_type   = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX512F, _Element_>;
 
+    using size_type     = uint64;
+    using mask_type     = uint64;
+
+    template <
+        typename _FromVector_,
+        typename _ToVector_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+        if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
+            return from;
+
+
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castps_si128(from);
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm_castpd_si128(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
+            return _mm_castsi128_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm_castsi128_pd(from);
+
+
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_castps_si256(from);
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_castpd_si256(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_castsi256_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_castsi256_pd(from);
+
+
+        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512i>)
+            return _mm512_castps_si512(from);
+        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512d>)
+            return _mm512_castps_pd(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512>)
+            return _mm512_castpd_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512i>)
+            return _mm512_castpd_si512(from);
+
+        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512>)
+            return _mm512_castsi512_ps(from);
+        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512d>)
+            return _mm512_castsi512_pd(from);
+
+
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
+            return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
+
+        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
+            return _mm256_castps256_ps128(from);
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm256_castpd256_pd128(from);
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm256_castsi256_si128(from);
+
+        // Zero extend
+        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>)
+            return _mm512_insertf128_ps(_mm512_castps128_ps512(from), _mm_setzero_ps(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d>)
+            return _mm512_insertf128_pd(_mm512_castpd128_pd512(from), _mm_setzero_pd(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i>)
+            return _mm512_insertf128_si512(_mm512_castsi128_si512(from), _mm_setzero_si128(), 1);
+
+        // Truncate
+        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m128>)
+            return _mm512_castps512_ps128(from);
+        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m128d>)
+            return _mm512_castpd512_pd128(from);
+        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m128i>)
+            return _mm512_castsi512_si128(from);
+
+       // Zero extend
+       else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>)
+            return _mm512_insertf256_ps(_mm512_castps256_ps512(from), _mm256_setzero_ps(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d>)
+            return _mm512_insertf256_pd(_mm512_castpd256_pd512(from), _mm256_setzero_pd(), 1);
+        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i>)
+            return _mm512_insertf256_si512(_mm512_castsi256_si512(from), _mm256_setzero_si256(), 1);
+
+        // Truncate
+        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m256>)
+            return _mm512_castps512_ps256(from);
+        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m256d>)
+            return _mm512_castpd512_pd256(from);
+        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m256i>)
+            return _mm512_castsi512_si256(from);
+    }
 };
 
 template <typename _Element_>
-class BasicSimdImplementation<arch::CpuFeature::AVX512BW, _Element_> {
+class BasicSimdImplementation<arch::CpuFeature::AVX512BW, _Element_>:
+    public BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> 
+{
 
 };
 

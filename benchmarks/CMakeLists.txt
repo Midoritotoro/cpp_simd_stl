@@ -15,7 +15,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks
 )
 
-set(benchmark_DIR "C:/Users/danya/source/repos/Midoritotoro/Libraries/win64/buil/d")
+set(benchmark_DIR "C:/Users/danya/source/repos/Midoritotoro/Libraries/win64/benchmark/build")
 find_package(benchmark REQUIRED)
 
 macro(cpp_simd_stlBenchmarks_add_benchmark filename)

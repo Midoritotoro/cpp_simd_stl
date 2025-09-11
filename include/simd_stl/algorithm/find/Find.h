@@ -22,7 +22,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _Iterator_ find(
 { 
 	__verifyRange(first, last);
 
-	auto firstUnwrapped	= __unwrapIterator(first);
+	auto firstUnwrapped			= __unwrapIterator(first);
 	const auto lastUnwrapped	= __unwrapIterator(last);
 
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_Iterator_, _Type_>) {

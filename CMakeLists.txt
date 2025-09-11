@@ -263,7 +263,7 @@ endif()
 
 if(PROJECT_IS_TOP_LEVEL)
     enable_testing()
-    #add_subdirectory(benchmarks)
+    add_subdirectory(benchmarks)
 endif()
 
 if(CPP_SIMD_STL_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)

@@ -11,6 +11,8 @@ template <
 class BasicSimdMaskImplementation {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
+
+
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
