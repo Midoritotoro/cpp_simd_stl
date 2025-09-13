@@ -6,6 +6,9 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+
+
+
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_ = int>
@@ -101,6 +104,14 @@ private:
 };
 
 template <
+    class _BasicSimdFrom_,
+    class _BasicSimdTo_>
+constexpr bool is_simd_convertible_v = std::conjunction_v<
+        __is_valid_basic_simd_v<_BasicSimdFrom_>,
+        __is_valid_basic_simd_v<_BasicSimdTo_>
+    >;
+
+template <
     arch::CpuFeature _SimdGeneration_,
     typename _Element_>
 basic_simd<_SimdGeneration_, _Element_>::basic_simd() noexcept
@@ -159,14 +170,6 @@ template <
     arch::CpuFeature _SimdGeneration_, 
     typename _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator/(const basic_simd& other) const noexcept {
-
-}
-
-template <
-    arch::CpuFeature _SimdGeneration_, 
-    typename _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator/=(const basic_simd& other) noexcept {
 
 }
@@ -186,6 +189,7 @@ template <
 simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
 basic_simd<_SimdGeneration_, _Element_>::operator=(const basic_simd& left) noexcept {
     _vector = left._vector;
+    return *this;
 }
 
 template <
@@ -278,6 +282,16 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _El
 basic_simd<_SimdGeneration_, _Element_>::operator^=(const basic_simd& other) noexcept {
     _vector = __impl::bitwiseXor(_vector, other._vector);
     return *this;
+}
+
+template <
+    arch::CpuFeature _SimdGeneration_, 
+    typename _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator/(
+    const basic_simd<_SimdGeneration_, _Element_>& left,
+    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept 
+{
+    return basic_simd<_SimdGeneration_, _Element_>::__impl::div(left._vector, right._vector);
 }
 
 template <

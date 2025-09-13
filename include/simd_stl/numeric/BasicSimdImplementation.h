@@ -43,6 +43,8 @@ template <typename _Element_>
 constexpr bool __is_ps_v    = (sizeof(_Element_) == sizeof(float)) && (std::is_same_v<_Element_, float>);
 
 
+
+
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE, _Element_> {
 public:
@@ -160,19 +162,19 @@ public:
         if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
             return from;
 
-        else if constexpr (std::is_same<_FromVector, __m128> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castps_si128(from);
-        else if constexpr (std::is_same<_FromVector, __m128> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector, __m128d> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castpd_si128(from);
 
-        else if constexpr (std::is_same<_FromVector, __m128i> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castsi128_ps(from);
-        else if constexpr (std::is_same<_FromVector, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castsi128_pd(from);
     }
 
@@ -412,52 +414,52 @@ public:
         if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
             return from;
 
-        // ymm conversions
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
+
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_castps_si256(from);
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_castpd_si256(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_castsi256_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_castsi256_pd(from);
 
-        // xmm conversions
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
+
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castps_si128(from);
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castpd_si128(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castsi128_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castsi128_pd(from);
 
         // Zero extend
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
 
         // Truncate
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
             return _mm256_castps256_ps128(from);
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
             return _mm256_castpd256_pd128(from);
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
             return _mm256_castsi256_si128(from);
     }
 
@@ -790,98 +792,98 @@ class BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> {
             return from;
 
 
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castps_si128(from);
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
             return _mm_castpd_si128(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
             return _mm_castsi128_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
             return _mm_castsi128_pd(from);
 
 
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_castps_si256(from);
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_castpd_si256(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_castsi256_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_castsi256_pd(from);
 
 
-        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512i>)
             return _mm512_castps_si512(from);
-        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512d>)
             return _mm512_castps_pd(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512>)
             return _mm512_castpd_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512i>)
             return _mm512_castpd_si512(from);
 
-        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512>)
             return _mm512_castsi512_ps(from);
-        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512d>)
             return _mm512_castsi512_pd(from);
 
 
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>)
             return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d>)
             return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i>)
             return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
 
-        else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
             return _mm256_castps256_ps128(from);
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
             return _mm256_castpd256_pd128(from);
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
             return _mm256_castsi256_si128(from);
 
         // Zero extend
-        else if constexpr (std::is_same<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>)
             return _mm512_insertf128_ps(_mm512_castps128_ps512(from), _mm_setzero_ps(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d>)
             return _mm512_insertf128_pd(_mm512_castpd128_pd512(from), _mm_setzero_pd(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i>)
             return _mm512_insertf128_si512(_mm512_castsi128_si512(from), _mm_setzero_si128(), 1);
 
         // Truncate
-        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m128>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m128>)
             return _mm512_castps512_ps128(from);
-        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m128d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m128d>)
             return _mm512_castpd512_pd128(from);
-        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m128i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m128i>)
             return _mm512_castsi512_si128(from);
 
        // Zero extend
-       else if constexpr (std::is_same<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>)
+       else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>)
             return _mm512_insertf256_ps(_mm512_castps256_ps512(from), _mm256_setzero_ps(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d>)
             return _mm512_insertf256_pd(_mm512_castpd256_pd512(from), _mm256_setzero_pd(), 1);
-        else if constexpr (std::is_same<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i>)
             return _mm512_insertf256_si512(_mm512_castsi256_si512(from), _mm256_setzero_si256(), 1);
 
         // Truncate
-        else if constexpr (std::is_same<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m256>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m256>)
             return _mm512_castps512_ps256(from);
-        else if constexpr (std::is_same<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m256d>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m256d>)
             return _mm512_castpd512_pd256(from);
-        else if constexpr (std::is_same<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m256i>)
+        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m256i>)
             return _mm512_castsi512_si256(from);
     }
 };
