@@ -3,6 +3,8 @@
 #include <src/simd_stl/type_traits/TypeTraits.h>
 #include <simd_stl/compatibility/Inline.h>
 
+#include <simd_stl/numeric/BasicSimdMask.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 

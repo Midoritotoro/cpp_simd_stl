@@ -18,6 +18,10 @@ public:
 	using mask_type = typename __impl::mask_type;
 	using size_type = typename __impl::size_type;
 
+	basic_simd_mask(const mask_type mask) noexcept :
+		_mask(mask)
+	{}
+
 	simd_stl_constexpr_cxx20 simd_stl_always_inline bool allOf() const noexcept {
 		return __impl::allOf(_mask);
 	}
@@ -42,7 +46,13 @@ public:
 		return __impl::countLeadingZeroBits(_mask);
 	}
 
-	basic_simd_mask& operator>>=(const int8 shift) noexcept;
+	simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type unwrap() const noexcept {
+		return _mask;
+	}
+
+	basic_simd_mask& operator>>=(const int8 shift) noexcept {
+
+	}
 private:
 	mask_type _mask = 0;
 };
