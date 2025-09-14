@@ -50,11 +50,24 @@ constexpr bool __is_ps_v    = (sizeof(_Element_) == sizeof(float)) && (std::is_s
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::SSE, _Element_> {
 public:
+    static_assert(sizeof(_Element_) == 4);
+
     using value_type    = _Element_;
     using vector_type   = __m128;
 
     using size_type = unsigned short;
     using mask_type = basic_simd_mask<arch::CpuFeature::SSE, _Element_>;
+
+    static constexpr uint8 vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type setAny(
+        const value_type first,
+        const value_type second,
+        const value_type third,
+        const value_type fourth) noexcept 
+    {
+        return _mm_set_ps(first, second, third, fourth);
+    }
 
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
@@ -99,29 +112,29 @@ public:
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
         const mask_type     mask,
-        const value_type*   where,
+        value_type*         where,
         const vector_type   vector) noexcept
     {
         const auto loaded   = _mm_loadu_ps(static_cast<const float*>(where));
         const auto shuffled = _mm_shuffle_ps(loaded, vector, mask.unwrap());
 
-        _mm_storeu_ps(static_cast<const float*>(where), shuffled);
+        _mm_storeu_ps(static_cast<float*>(where), shuffled);
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        const value_type*   where,
+        value_type*         where,
         const mask_type     mask,
         const vector_type   vector) noexcept
     {
         const auto loaded   = _mm_load_ps(static_cast<const float*>(where));
         const auto shuffled = _mm_shuffle_ps(loaded, vector, mask.unwrap());
 
-        _mm_store_ps(static_cast<const float*>(where), shuffled);
+        _mm_store_ps(static_cast<float*>(where), shuffled);
     }
 
     template <
         typename    _FromVector_,
-        typename    _ToVector_
+        typename    _ToVector_,
         bool        _SafeCast_ = false>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
         static_assert(std::is_same_v<_ToVector_, _FromVector_>, "Sse does not support type conversions.");
@@ -220,6 +233,24 @@ public:
 
     static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
 
+    template <
+        typename FuncType,
+        size_t... I>
+    void call(FuncType& f, std::index_sequence<I...>, value_type values ...) {
+        f(std::get(0, values));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type setAny(value_type values ...) noexcept {
+
+        /*if      constexpr (sizeof(values) == 16)
+            return _mm_set_epi8(values...);
+        else if constexpr (sizeof(values) == 8)
+            return _mm_set_epi16(values...);
+        else */if constexpr (sizeof(values) == 4)
+            return call(_mm_set_epi32, ...);
+        /*else if constexpr (sizeof(values) == 2)
+            return _mm_set_epi64x(values...);*/
+    }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
 

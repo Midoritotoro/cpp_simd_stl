@@ -6,6 +6,8 @@
 #include <src/simd_stl/utility/Assert.h>
 #include <xstring> 
 
+#include <tuple>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -32,6 +34,29 @@ public:
 
     basic_simd(const value_type value) noexcept;
     basic_simd(const vector_type& other) noexcept;
+
+    basic_simd(value_type values ...) noexcept {
+        static_assert(sizeof(values) == __impl::vectorElementsCount);
+        _vector = __impl::setAny(values);
+    }
+
+    template <typename _OtherType_>
+    basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept {
+        using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherType_>;
+        _vector = __impl::template cast<_FromVectorType_, vector_type>(other.unwrap());
+    }
+
+    template <
+        arch::CpuFeature    _OtherFeature_,
+        typename            _OtherType_>
+    basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept {
+        using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_OtherFeature_, _OtherType_>;
+        if constexpr (static_cast<int8>(_OtherFeature_) > static_cast<int8>(_SimdGeneration_))
+            // Downcast
+            _vector = BasicSimdImplementation<_OtherFeature_, _OtherType_>::template cast<_FromVectorType_, vector_type>(other.unwrap());
+        else
+            _vector = __impl::template cast<_FromVectorType_, vector_type>(other.unwrap());
+    }
 
     ~basic_simd() noexcept;
 
@@ -120,7 +145,7 @@ public:
         arch::CpuFeature	_OtherSimdGeneration_,
         typename            _OtherElement_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> safeCast() const noexcept {
-        return __impl::template cast<vector_type, type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>>(_vector);
+        return __impl::template cast<vector_type, type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>, true>(_vector);
     }
 
 
@@ -207,6 +232,10 @@ public:
         const mask_type     mask) noexcept
     {
 
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type unwrap() const noexcept {
+        return _vector;
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator+ <>(
