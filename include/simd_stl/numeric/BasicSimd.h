@@ -88,51 +88,132 @@ public:
     }
     
     /**
-        * @brief Конвертирует вектор из basic_simd<_Element_, _SimdGeneration_> в basic_simd<_OtherElement_, _SimdGeneration_>.
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_SimdGeneration_, _OtherElement_>.
         * Метод необходим только для компиляции и не занимает время во время выполнения.
         * @return Результат конвертации.
     */
     template <typename _OtherElement_> 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherElement_, _SimdGeneration_> cast() const noexcept {
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_> cast() const noexcept {
         return __impl::cast<
-            vector_type,
-            type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherElement_>
+            vector_type, type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherElement_>
         >(_vector);
+    }
+
+    ///**
+    //    * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
+    //    * Метод необходим только для компиляции и не занимает время во время выполнения. 
+    //    * Старшая часть результата преобразования с расширением неопределена.
+    //    * @return Результат конвертации.
+    //*/
+    //template <
+    //    arch::CpuFeature	_OtherSimdGeneration_,
+    //    typename            _OtherElement_>
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> cast() const noexcept {
+    //    return __impl::cast<
+    //        vector_type, type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>
+    //    >(_vector);
+    //}
+
+    ///**
+    //    * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>.
+    //    * Если не происходит преобразование с расширением, то метод необходим только для компиляции и не занимает время во время выполнения. 
+    //    * В противном случае старшая часть результата преобразования с расширением заполняется нулями.
+    //    * @return Результат конвертации.
+    //*/
+    //template <
+    //    arch::CpuFeature	_OtherSimdGeneration_,
+    //    typename            _OtherElement_>
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> safeCast() const noexcept {
+    //    return __impl::cast<
+    //        vector_type, type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>
+    //    >(_vector);
+    //}
+
+
+    /**
+        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_>::vector_type) байт из памяти по невыровненному адресу.
+        * @param where Указатель на память для загрузки.
+        * @return Загруженный вектор.
+    */
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd loadUnaligned(const value_type* where) noexcept {
+
     }
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_Element_, _SimdGeneration_> в basic_simd<_OtherElement_, _OtherSimdGeneration_>.
-        * Метод необходим только для компиляции и не занимает время во время выполнения. 
-        * Старшая часть результата преобразования с расширением неопределена.
-        * @return Результат конвертации.
+        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_>::vector_type) байт из памяти по выровненному адресу.
+        * @param where Указатель на память для загрузки.
+        * @return Загруженный вектор.
     */
-    template <
-        arch::CpuFeature	_OtherSimdGeneration_,
-        typename            _OtherElement_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherElement_, _SimdGeneration_> cast() const noexcept {
-        return __impl::cast<
-            vector_type,
-            type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>
-        >(_vector);
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd loadAligned(const value_type* where) noexcept {
+
     }
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_Element_, _SimdGeneration_> в basic_simd<_OtherElement_, _OtherSimdGeneration_>.
-        * Если не происходит преобразование с расширением, то метод необходим только для компиляции и не занимает время во время выполнения. 
-        * В противном случае старшая часть результата преобразования с расширением заполняется нулями.
-        * @return Результат конвертации.
+        * @brief Сохраняет вектор в память по невыровненному адресу.
+        * @param where Указатель на память для сохранения вектора.
     */
-    template <
-        arch::CpuFeature	_OtherSimdGeneration_,
-        typename            _OtherElement_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherElement_, _SimdGeneration_> safeCast() const noexcept {
-        return __impl::cast<
-            vector_type,
-            type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>
-        >(_vector);
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept {
+
+    }
+
+    /**
+        * @brief Сохраняет вектор в память по выровненному адресу.
+        * @param where Указатель на память для сохранения вектора.
+    */
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept {
+
     }
 
 
+    /**
+        * @brief Загружает вектор из памяти по невыровненному адресу, используя маску.
+        * @param where Указатель на память для загрузки.
+        * @param mask Маска.
+        * @return Загруженный вектор.
+    */
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd maskLoadUnaligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept 
+    {
+
+    }
+
+    /**
+        * @brief Загружает вектор из памяти по выровненному адресу, используя маску.
+        * @param where Указатель на память для загрузки.
+        * @param mask Маска.
+        * @return Загруженный вектор.
+    */
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd maskLoadAligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    /**
+        * @brief Сохраняет элемент вектора в память по невыровненному адресу, если соответствующий бит маски установлен.
+        * @param where Указатель на память для сохранения вектора.
+        * @param mask Маска.
+    */
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type*   where) noexcept
+    {
+
+    }
+
+    /**
+        * @brief Сохраняет элемент вектора в память по выровненному адресу, если соответствующий бит маски установлен.
+        * @param where Указатель на память для сохранения вектора.
+        * @param mask Маска.
+    */
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator+ <>(
         const basic_simd& left, 

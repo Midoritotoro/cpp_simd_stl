@@ -54,7 +54,63 @@ public:
     using vector_type   = __m128;
 
     using size_type = unsigned short;
-    using mask_type = unsigned short;
+    using mask_type = basic_simd_mask<arch::CpuFeature::SSE, _Element_>;
+
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
+        return _mm_loadu_ps(static_cast<const float*>(where));
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const value_type* where) noexcept {
+        return _mm_load_ps(static_cast<const float*>(where));
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(
+        value_type*         where,
+        const vector_type   vector) noexcept
+    {
+        return _mm_storeu_ps(static_cast<float*>(where), vector);
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(
+        value_type*         where,
+        const vector_type   vector) noexcept 
+    {
+        return _mm_store_ps(static_cast<float*>(where), vector);
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+        const auto loaded = _mm_loadu_ps(static_cast<const float*>(where));
+
+        if (mask.noneOf())
+            return loaded;
+
+        // const auto blended = _mm_shuffle_ps()
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type*   where) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 
     template <
         typename _FromVector_,
@@ -152,10 +208,54 @@ public:
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _Element_>;
 
     using size_type = unsigned short;
-    using mask_type = unsigned short;
+    using mask_type = basic_simd_mask<arch::CpuFeature::SSE, _Element_>;
 
     static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
 
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type*   where) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type*   where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 
     template <
         typename _FromVector_,
@@ -405,9 +505,54 @@ public:
     using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _Element_>;
 
     using size_type = uint32;
-    using mask_type = uint32;
+    using mask_type = basic_simd_mask<arch::CpuFeature::AVX, _Element_>;
 
     static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
+
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type* where) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 
     template <
         typename _FromVector_,
@@ -775,16 +920,107 @@ public:
     using vector_type   = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX2, _Element_>;
 
     using size_type     = uint32;
-    using mask_type     = uint32;
+    using mask_type     = basic_simd_mask<arch::CpuFeature::AVX2, _Element_>;
+
+    
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type* where) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 };
 
 template <typename _Element_>
 class BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> {
+public:
     using value_type    = _Element_;
     using vector_type   = type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX512F, _Element_>;
 
     using size_type     = uint64;
-    using mask_type     = uint64;
+    using mask_type     = basic_simd_mask<arch::CpuFeature::AVX512F, _Element_>;
+
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+        const mask_type     mask,
+        const value_type* where) noexcept
+    {
+
+    }
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+        const value_type* where,
+        const mask_type     mask) noexcept
+    {
+
+    }
 
     template <
         typename _FromVector_,

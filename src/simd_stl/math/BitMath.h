@@ -72,7 +72,7 @@ constexpr simd_stl::uint PopulationCount(long unsigned int v) noexcept
 constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint32 v) noexcept
 {
     // http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
-    unsigned int c = 32; // c - ����� ������� ����� ������
+    unsigned int c = 32;
 
     v &= -signed(v);
     if (v) c--;
@@ -96,7 +96,7 @@ constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint64 v) no
 
 constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(uint8 v) noexcept
 {
-    unsigned int c = 8; // c - ����� ������� ����� ������
+    unsigned int c = 8;
 
     v &= simd_stl::uint8(-signed(v));
     if (v) c--;
@@ -110,7 +110,7 @@ constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(uint8 v) noexcept
 
 constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint16 v) noexcept
 {
-    unsigned int c = 16; // c - ����� ������� ����� ������
+    unsigned int c = 16;
 
     v &= simd_stl::uint16(-signed(v));
     if (v) c--;
