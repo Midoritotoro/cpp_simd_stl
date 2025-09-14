@@ -1,4 +1,4 @@
-#pragma once 
+п»ї#pragma once 
 
 #include <simd_stl/numeric/BasicSimdMaskImplementation.h>
 #include <src/simd_stl/math/BitMath.h>
@@ -23,49 +23,49 @@ public:
 	{}
 
 	/**
-	   * @return true, если все биты маски установлены.
+	   * @return true, РµСЃР»Рё РІСЃРµ Р±РёС‚С‹ РјР°СЃРєРё СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹.
     */
 	simd_stl_constexpr_cxx20 simd_stl_always_inline bool allOf() const noexcept {
 		return __impl::allOf(_mask);
 	}
 
 	/**
-		* @return true, если хотя бы один бит маски установлен.
+		* @return true, РµСЃР»Рё С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ Р±РёС‚ РјР°СЃРєРё СѓСЃС‚Р°РЅРѕРІР»РµРЅ.
 	*/
 	simd_stl_constexpr_cxx20 simd_stl_always_inline bool anyOf() const noexcept {
 		return __impl::anyOf(_mask);
 	}
 
 	/**
-		* @return true, если ни один бит маски не установлен.
+		* @return true, РµСЃР»Рё РЅРё РѕРґРёРЅ Р±РёС‚ РјР°СЃРєРё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ.
 	*/
 	simd_stl_constexpr_cxx20 simd_stl_always_inline bool noneOf() const noexcept {
 		return __impl::noneOf(_mask);
 	}
 
 	/**
-		* @return Количество установленных битов маски.
+		* @return РљРѕР»РёС‡РµСЃС‚РІРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… Р±РёС‚РѕРІ РјР°СЃРєРё.
 	*/
 	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countSet() const noexcept {
 		return __impl::countSet(_mask);
 	}
 
 	/**
-		* @return Количество конечных нулевых битов в маске.
+		* @return РљРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРЅРµС‡РЅС‹С… РЅСѓР»РµРІС‹С… Р±РёС‚РѕРІ РІ РјР°СЃРєРµ.
 	*/
 	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countTrailingZeroBits() const noexcept {
 		return __impl::countTrailingZeroBits(_mask);
 	}
 
 	/**
-		* @return Количество ведущих нулевых битов маски.
+		* @return РљРѕР»РёС‡РµСЃС‚РІРѕ РІРµРґСѓС‰РёС… РЅСѓР»РµРІС‹С… Р±РёС‚РѕРІ РјР°СЃРєРё.
 	*/	
 	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countLeadingZeroBits() const noexcept {
 		return __impl::countLeadingZeroBits(_mask);
 	}
 
 	/**
-		* @return Числовое значение маски.
+		* @return Р§РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РјР°СЃРєРё.
 	*/	
 	simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type unwrap() const noexcept {
 		return _mask;
