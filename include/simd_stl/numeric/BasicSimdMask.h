@@ -6,6 +6,11 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+#if !defined(simd_stl_shuffle_mask)
+#  define simd_stl_shuffle_mask (_MM_SHUFFLE)
+#endif
+
+
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_>
