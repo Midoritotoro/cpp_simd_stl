@@ -12,6 +12,18 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_native_mask_load_supported = std::conjunction_v<
+    !arch::__is_xmm_v<_SimdGeneration_>,
+    arch::__is_ymm_v<_SimdGeneration_>,
+    arch::__is_zmm_v<_SimdGeneration_>
+>;
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_native_mask_store_supported = is_native_mask_load_supported<_SimdGeneration_>;
+
+
+
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_ = int>
@@ -35,11 +47,6 @@ public:
     basic_simd(const value_type value) noexcept;
     basic_simd(const vector_type& other) noexcept;
 
-    basic_simd(value_type values ...) noexcept {
-        static_assert(sizeof(values) == __impl::vectorElementsCount);
-        _vector = __impl::setAny(values);
-    }
-
     template <typename _OtherType_>
     basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept {
         using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherType_>;
@@ -51,7 +58,7 @@ public:
         typename            _OtherType_>
     basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept {
         using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_OtherFeature_, _OtherType_>;
-        if constexpr (static_cast<int8>(_OtherFeature_) > static_cast<int8>(_SimdGeneration_))
+        if constexpr (static_cast<uint8>(_OtherFeature_) > static_cast<uint8>(_SimdGeneration_))
             // Downcast
             _vector = BasicSimdImplementation<_OtherFeature_, _OtherType_>::template cast<_FromVectorType_, vector_type>(other.unwrap());
         else
@@ -125,7 +132,6 @@ public:
     /**
         * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
         * Метод необходим только для компиляции и не занимает время во время выполнения. 
-        * Старшая часть результата преобразования с расширением неопределена.
         * @return Результат конвертации.
     */
     template <
@@ -136,16 +142,51 @@ public:
     }
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>.
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в _BasicSimdTo_.
         * Если не происходит преобразование с расширением, то метод необходим только для компиляции и не занимает время во время выполнения. 
         * В противном случае старшая часть результата преобразования с расширением заполняется нулями.
         * @return Результат конвертации.
     */
-    template <
-        arch::CpuFeature	_OtherSimdGeneration_,
-        typename            _OtherElement_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> safeCast() const noexcept {
-        return __impl::template cast<vector_type, type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>, true>(_vector);
+    template <class _BasicSimdTo_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ safeCast(const basic_simd& from) noexcept {
+        static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
+
+        using _FromVectorType_   = typename basic_simd::vector_type;
+        using _ToVectorType_     = typename _BasicSimdTo_::vector_type;
+
+        if constexpr (static_cast<uint8>(basic_simd::_Generation) > static_cast<uint8>(_BasicSimdTo_::_Generation))
+            // Downcast
+            return BasicSimdImplementation<
+                basic_simd::_Generation,
+                typename basic_simd::value_type>::template cast<_FromVectorType_, _ToVectorType_, true>(from._vector);
+        else 
+            return BasicSimdImplementation<
+                _BasicSimdTo_::_Generation,
+                typename basic_simd::value_type>::template cast< _FromVectorType_, _ToVectorType_, true>(from._vector);
+    }
+
+    /**
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
+        * Метод необходим только для компиляции и не занимает время во время выполнения. 
+        * Старшая часть результата преобразования с расширением неопределена.
+        * @return Результат конвертации.
+    */
+    template <class _BasicSimdTo_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ cast(const basic_simd& from) const noexcept {
+        static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
+
+        using _FromVectorType_   = typename basic_simd::vector_type;
+        using _ToVectorType_     = typename _BasicSimdTo_::vector_type;
+
+        if constexpr (static_cast<uint8>(basic_simd::_Generation) > static_cast<uint8>(_BasicSimdTo_::_Generation))
+            // Downcast
+            return BasicSimdImplementation<
+                basic_simd::_Generation,
+                typename basic_simd::value_type>::template cast<_FromVectorType_, _ToVectorType_, false>(from._vector);
+        else
+            return BasicSimdImplementation<
+                _BasicSimdTo_::_Generation,
+                typename basic_simd::value_type>::template cast< _FromVectorType_, _ToVectorType_, false>(from._vector);
     }
 
 
