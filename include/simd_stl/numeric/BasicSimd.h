@@ -13,16 +13,32 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_load_supported = std::conjunction_v<
+constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
     !arch::__is_xmm_v<_SimdGeneration_>,
     arch::__is_ymm_v<_SimdGeneration_>,
     arch::__is_zmm_v<_SimdGeneration_>
 >;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_store_supported = is_native_mask_load_supported<_SimdGeneration_>;
+constexpr bool is_native_mask_store_supported_v = is_native_mask_load_supported_v<_SimdGeneration_>;
+
+template <
+    arch::CpuFeature _SimdGenerationFirst_,
+    arch::CpuFeature _SimdGenerationSecond_>
+constexpr bool is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
 
 
+template <
+    class _BasicSimdFrom_,
+    class _BasicSimdTo_>
+using deduce_superior_basic_simd_type = std::conditional_t<
+        is_simd_feature_superior_v<
+            _BasicSimdFrom_::_Generation,
+            _BasicSimdTo_::_Generation>,
+        _BasicSimdFrom_,
+        _BasicSimdTo_
+    >;
+        
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -58,9 +74,10 @@ public:
         typename            _OtherType_>
     basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept {
         using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_OtherFeature_, _OtherType_>;
-        if constexpr (static_cast<uint8>(_OtherFeature_) > static_cast<uint8>(_SimdGeneration_))
+        if constexpr (is_simd_feature_superior_v<_OtherFeature_, _SimdGeneration_>)
             // Downcast
-            _vector = BasicSimdImplementation<_OtherFeature_, _OtherType_>::template cast<_FromVectorType_, vector_type>(other.unwrap());
+            _vector = BasicSimdImplementation<_OtherFeature_, _OtherType_>
+                ::template cast<_FromVectorType_, vector_type>(other.unwrap());
         else
             _vector = __impl::template cast<_FromVectorType_, vector_type>(other.unwrap());
     }
@@ -150,19 +167,14 @@ public:
     template <class _BasicSimdTo_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ safeCast(const basic_simd& from) noexcept {
         static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
+        using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-        using _FromVectorType_   = typename basic_simd::vector_type;
-        using _ToVectorType_     = typename _BasicSimdTo_::vector_type;
+        return BasicSimdImplementation<
+            _SuperiorBasicSimdType_::_Generation, typename basic_simd::value_type>
+                ::template cast<
+                    typename basic_simd::vector_type,
+                    typename _BasicSimdTo_::vector_type, true>(from._vector);
 
-        if constexpr (static_cast<uint8>(basic_simd::_Generation) > static_cast<uint8>(_BasicSimdTo_::_Generation))
-            // Downcast
-            return BasicSimdImplementation<
-                basic_simd::_Generation,
-                typename basic_simd::value_type>::template cast<_FromVectorType_, _ToVectorType_, true>(from._vector);
-        else 
-            return BasicSimdImplementation<
-                _BasicSimdTo_::_Generation,
-                typename basic_simd::value_type>::template cast< _FromVectorType_, _ToVectorType_, true>(from._vector);
     }
 
     /**
@@ -174,19 +186,13 @@ public:
     template <class _BasicSimdTo_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ cast(const basic_simd& from) const noexcept {
         static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
+        using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-        using _FromVectorType_   = typename basic_simd::vector_type;
-        using _ToVectorType_     = typename _BasicSimdTo_::vector_type;
-
-        if constexpr (static_cast<uint8>(basic_simd::_Generation) > static_cast<uint8>(_BasicSimdTo_::_Generation))
-            // Downcast
-            return BasicSimdImplementation<
-                basic_simd::_Generation,
-                typename basic_simd::value_type>::template cast<_FromVectorType_, _ToVectorType_, false>(from._vector);
-        else
-            return BasicSimdImplementation<
-                _BasicSimdTo_::_Generation,
-                typename basic_simd::value_type>::template cast< _FromVectorType_, _ToVectorType_, false>(from._vector);
+        return BasicSimdImplementation<
+            _SuperiorBasicSimdType_::_Generation, typename basic_simd::value_type>
+                ::template cast<
+                    typename basic_simd::vector_type,
+                    typename _BasicSimdTo_::vector_type, false>(from._vector);
     }
 
 
@@ -340,14 +346,6 @@ public:
 private:
     vector_type _vector;
 };
-
-template <
-    class _BasicSimdFrom_,
-    class _BasicSimdTo_>
-constexpr bool is_simd_convertible_v = std::conjunction_v<
-        __is_valid_basic_simd_v<_BasicSimdFrom_>,
-        __is_valid_basic_simd_v<_BasicSimdTo_>
-    >;
 
 template <
     arch::CpuFeature    _SimdGeneration_,

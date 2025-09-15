@@ -65,7 +65,16 @@ public:
         vector_type vector,
         mask_type   shuffleMask) noexcept
     {
-        return _mm_shuffle_ps(vector, vector, shuffleMask.unwrap());
+        return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask.unwrap());
+    }
+
+    template <typename _ShuffleElementType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
+        vector_type vector,
+        vector_type vectorSecond,
+        mask_type   shuffleMask) noexcept
+    {
+        return _mm_shuffle_ps(vector, vectorSecond, shuffleMask.unwrap());
     }
 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const value_type* where) noexcept {
@@ -236,30 +245,45 @@ public:
         vector_type vector,
         mask_type   shuffleMask) noexcept
     {
-        if constexpr (sizeof(value_type) == 8) {
-            const auto casted = cast<vector_type, __m128d>(vector);
-            return cast<__m128d, vector_type>(_mm_shuffle_pd(casted, casted, shuffleMask.unwrap()));
+        return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask);
+    }
+
+    template <typename _ShuffleElementType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
+        vector_type vector,
+        vector_type secondVector,
+        mask_type   shuffleMask) noexcept
+    {
+        if constexpr (sizeof(_ShuffleElementType_) == 8) {
+            const auto casted       = cast<vector_type, __m128d>(vector);
+            const auto castedSecond = cast<vector_type, __m128d>(secondVector);
+
+            return cast<__m128d, vector_type>(_mm_shuffle_pd(casted, castedSecond, shuffleMask.unwrap()));
         }
-        else if constexpr (sizeof(value_type) == 4 && std::is_same_v<vector_type, __m128>)
-            return _mm_shuffle_ps(vector, vector, shuffleMask.unwrap());
-        else if constexpr (sizeof(value_type) == 4 && std::is_same_v<vector_type, __m128i>)
-            return _mm_shuffle_epi32(vector, vector, shuffleMask.unwrap());
-        else if constexpr (sizeof(value_type) == 2) {
+        else if constexpr (sizeof(_ShuffleElementType_) == 4 && std::is_same_v<vector_type, __m128>)
+            return _mm_shuffle_ps(vector, secondVector, shuffleMask.unwrap());
+        else if constexpr (sizeof(_ShuffleElementType_) == 4 && std::is_same_v<vector_type, __m128i>)
+            return _mm_shuffle_epi32(vector, secondVector, shuffleMask.unwrap());
+        else if constexpr (sizeof(_ShuffleElementType_) == 2) {
             const auto high = _mm_shufflehi_epi16(vector, shuffleMask.unwrap());
             const auto low  = _mm_shufflelo_epi16(vector, shuffleMask.unwrap());
 
             return _mm_set_epi64x(_mm_cvtsi128_si64(low), extract(high, 1));
         }
-        else if constexpr (sizeof(value_type) == 1) {
+        else if constexpr (sizeof(_ShuffleElementType_) == 1) {
             const auto unwrappedMask = shuffleMask.unwrap();
-            unsigned char   charArray[16];
+            uint8 charArray[16];
 
-            _mm_storeu_si128(reinterpret_cast<__m128i*>(vectorStore), vector);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(charArray), vector);
 
-            for (int j = 0; j < 16; ++j)
-                charArray[j] = vectorStore[(unwrappedMask >> 1) & 0x0F];
+            for (auto j = 0; j < 16; j += 4) {
+                charArray[j] = charArray[(unwrappedMask >> j) & 0x0F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 1)) & 0x0F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 2)) & 0x0F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x0F];
+            }
 
-            return _mm_loadu_si128(reinterpret_cast<const __m128i*>(rr));
+            return _mm_loadu_si128(reinterpret_cast<const __m128i*>(charArray));
         }
     }
 
@@ -310,18 +334,18 @@ public:
         value_type*         where,
         const vector_type   vector) noexcept
     {
-        //if constexpr (std::is_same_v<value_type, float> && std::is_same_v<vector_type, __m128>)
-        //    const auto loaded   = loadUnaligned(where);
-        //    const auto shuffled = _mm_shuffle_ps(loaded, vector, mask.unwrap());
+        if constexpr (std::is_same_v<value_type, float> && std::is_same_v<vector_type, __m128>) {
+            const auto loaded   = loadUnaligned(where);
+            const auto shuffled = shuffle(loaded, vector, mask.unwrap());
 
-        //    storeUnaligned(static_cast<float*>(where), shuffled);
-        //}
-        //else if constexpr (sizeof(value_type) == 2) {
-        //    const auto loaded   = loadUnaligned(where);
-        //    const auto shuffled = _mm_shuffle_ps(loaded, vector, mask.unwrap());
+            storeUnaligned(static_cast<float*>(where), shuffled);
+        }
+        else if constexpr (sizeof(value_type) == 2) {
+            const auto loaded   = loadUnaligned(where);
+            //const auto shuffled = _mm_shuffle(loaded, vector, mask.unwrap());
 
-        //    storeUnaligned(static_cast<float*>(where), shuffled);
-        //}
+            //storeUnaligned(static_cast<float*>(where), shuffled);
+        }
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(

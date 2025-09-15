@@ -23,6 +23,7 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512VL
 };
 
+
 template <
 	CpuFeature	Feature,
 	CpuFeature	Candidate,
