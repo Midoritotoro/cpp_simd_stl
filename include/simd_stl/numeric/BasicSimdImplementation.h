@@ -58,7 +58,7 @@ public:
 
     static constexpr uint8 vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
 
-    template <typename _ShuffleElementType_>
+    template <typename _DesiredType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
         vector_type vector,
         mask_type   shuffleMask) noexcept
@@ -66,7 +66,7 @@ public:
         return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask);
     }
 
-    template <typename _ShuffleElementType_>
+    template <typename _DesiredType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
         vector_type vector,
         vector_type vectorSecond,
