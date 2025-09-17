@@ -15,36 +15,34 @@ class BasicSimdImplementation {};
 
 
 template <typename _Element_>
-constexpr bool __is_epi64_v = (sizeof(_Element_) == 8) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
+constexpr bool __is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu64_v = (sizeof(_Element_) == 8) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
+constexpr bool __is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi32_v = (sizeof(_Element_) == 4) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
+constexpr bool __is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu32_v = (sizeof(_Element_) == 4) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
+constexpr bool __is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi16_v = (sizeof(_Element_) == 2) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
+constexpr bool __is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu16_v = (sizeof(_Element_) == 2) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
+constexpr bool __is_epu16_v = sizeof(_Element_) == 2 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi8_v  = (sizeof(_Element_) == 1) && (std::is_integral_v<_Element_>) && (std::is_signed_v<_Element_>);
+constexpr bool __is_epi8_v  = sizeof(_Element_) == 1 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu8_v  = (sizeof(_Element_) == 1) && (std::is_integral_v<_Element_>) && (std::is_unsigned_v<_Element_>);
+constexpr bool __is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_pd_v    = (sizeof(_Element_) == sizeof(double)) && (type_traits::is_any_of_v<_Element_, double, long double>);
+constexpr bool __is_pd_v    = sizeof(_Element_) == sizeof(double) && type_traits::is_any_of_v<_Element_, double, long double>;
 
 template <typename _Element_>
-constexpr bool __is_ps_v    = (sizeof(_Element_) == sizeof(float)) && (std::is_same_v<_Element_, float>);
-
-
+constexpr bool __is_ps_v    = sizeof(_Element_) == sizeof(float) && std::is_same_v<_Element_, float>;
 
 
 template <typename _Element_>
@@ -272,7 +270,7 @@ public:
             const auto unwrappedMask = shuffleMask.unwrap();
             uint8 charArray[16];
 
-            _mm_storeu_si128(static<__m128i*>(charArray), vector);
+            _mm_storeu_si128(static_cast<__m128i*>(charArray), vector);
 
             for (auto j = 0; j < 16; j += 4) {
                 charArray[j] = charArray[(unwrappedMask >> j) & 0x0F];
@@ -281,7 +279,7 @@ public:
                 charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x0F];
             }
 
-            return _mm_loadu_si128(static<const __m128i*>(charArray));
+            return _mm_loadu_si128(static_cast<const __m128i*>(charArray));
         }
     }
 
@@ -1147,8 +1145,34 @@ public:
                 shuffleMask.unwrap()
             );
         else if constexpr (__is_epi16_v<value_type> || __is_epu16_v<value_type>) {
-            const auto casted = _mm512_cvtepi32_epi16(vector);
-            const auto castedSecond = _mm512_cvtepi32_epi16(vectorSecond);
+            const auto unwrappedMask = shuffleMask.unwrap();
+            uint16 wordArray[32];
+
+            _mm512_storeu_si512(static_cast<__m512i*>(wordArray), vector);
+
+            for (auto j = 0; j < 32; j += 4) {
+                wordArray[j] = wordArray[(unwrappedMask >> j) & 0x3F];
+                wordArray[j] = wordArray[(unwrappedMask >> (j + 1)) & 0x3F];
+                wordArray[j] = wordArray[(unwrappedMask >> (j + 2)) & 0x3F];
+                wordArray[j] = wordArray[(unwrappedMask >> (j + 3)) & 0x3F];
+            }
+
+            return _mm512_loadu_si512(static_cast<const __m512i*>(wordArray));
+        }
+        else if constexpr (__is_epi8_v<value_type> || __is_epu8_v<value_type>) {
+            const auto unwrappedMask = shuffleMask.unwrap();
+            uint8 charArray[64];
+
+            _mm512_storeu_si512(static_cast<__m512i*>(charArray), vector);
+
+            for (auto j = 0; j < 64; j += 4) {
+                charArray[j] = charArray[(unwrappedMask >> j) & 0x3F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 1)) & 0x3F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 2)) & 0x3F];
+                charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x3F];
+            }
+
+            return _mm512_loadu_si512(static_cast<const __m512i*>(charArray));
         }
     }
 
@@ -1181,12 +1205,11 @@ public:
         const vector_type   vector) noexcept
     {
         if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
-            return _mm512_mask_store_epi64(where, mask.unwrap(), vector);
-        else if constexpr (__is_epi32<value_type> || __is_epu32_v<value_type>)
-            return _mm512_mask_store_epi32(where, mask.unwrap(), vector);
-        else if constexpr (__is_epi16<value_type> || __is_epu16<value_type>) {
-            return shuffle()
-        }
+            return _mm512_mask_storeu_epi64(where, mask.unwrap(), vector);
+        else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
+            return _mm512_mask_storeu_epi32(where, mask.unwrap(), vector);
+        else
+            return _mm512_storeu_si512(where, cast<vector_type, __m512i>(shuffle(vector, mask)));
     }
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
@@ -1194,7 +1217,12 @@ public:
         const mask_type     mask,
         const vector_type   vector) noexcept
     {
-        storeAligned(where, shuffle(loadAligned(where), vector, mask));
+        if constexpr (__is_epi64_v<value_type> || __is_epu64_v<value_type>)
+            return _mm512_mask_store_epi64(where, mask.unwrap(), vector);
+        else if constexpr (__is_epi32_v<value_type> || __is_epu32_v<value_type>)
+            return _mm512_mask_store_epi32(where, mask.unwrap(), vector);
+        else
+            return _mm512_store_si512(where, cast<vector_type, __m512i>(shuffle(vector, mask)));
     }
 
 

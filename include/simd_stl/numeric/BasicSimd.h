@@ -52,11 +52,11 @@ class basic_simd {
 public:
     static constexpr auto _Generation = _SimdGeneration_;
 
-    using value_type = typename __impl::value_type;
-    using vector_type = typename __impl::vector_type;
+    using value_type    = typename __impl::value_type;
+    using vector_type   = typename __impl::vector_type;
 
-    using size_type = typename __impl::size_type;
-    using mask_type = typename __impl::mask_type;
+    using size_type     = typename __impl::size_type;
+    using mask_type     = typename __impl::mask_type;
 
     basic_simd() noexcept;
 
@@ -65,21 +65,14 @@ public:
 
     template <typename _OtherType_>
     basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept {
-        using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherType_>;
-        _vector = __impl::template cast<_FromVectorType_, vector_type>(other.unwrap());
+        _vector = safeCast<basic_simd>(other);
     }
 
     template <
         arch::CpuFeature    _OtherFeature_,
         typename            _OtherType_>
     basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept {
-        using _FromVectorType_ = type_traits::__deduce_simd_vector_type<_OtherFeature_, _OtherType_>;
-        if constexpr (is_simd_feature_superior_v<_OtherFeature_, _SimdGeneration_>)
-            // Downcast
-            _vector = BasicSimdImplementation<_OtherFeature_, _OtherType_>
-                ::template cast<_FromVectorType_, vector_type>(other.unwrap());
-        else
-            _vector = __impl::template cast<_FromVectorType_, vector_type>(other.unwrap());
+        _vector = safeCast<basic_simd>(other);
     }
 
     ~basic_simd() noexcept;
