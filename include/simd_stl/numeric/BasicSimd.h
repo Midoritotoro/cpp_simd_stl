@@ -65,21 +65,21 @@ using deduce_superior_basic_simd_type = std::conditional_t<
 */
 template <
     arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_ = int>
+    typename			_Element_ = int32>
 class basic_simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
     static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
     friend BasicSimdElementReference;
-    using __impl = BasicSimdImplementation<_SimdGeneration_, _Element_>;
+    using __impl = BasicSimdImplementation<_SimdGeneration_>;
 public:
     static constexpr auto _Generation = _SimdGeneration_;
 
-    using value_type    = typename __impl::value_type;
-    using vector_type   = typename __impl::vector_type;
+    using value_type    = _Element_;
+    using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>;
 
-    using size_type     = typename __impl::size_type;
-    using mask_type     = typename __impl::mask_type;
+    using size_type     = uint8;
+    using mask_type     = __deduce_simd_mask_type<_SimdGeneration_, _Element_>;
 
     basic_simd() noexcept;
 

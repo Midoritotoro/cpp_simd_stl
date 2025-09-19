@@ -13,278 +13,75 @@ class BasicSimdImplementation {};
 
 
 template <typename _Element_>
-constexpr bool __is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;
+constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_>;
+constexpr bool is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_>;
+constexpr bool is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu16_v = sizeof(_Element_) == 2 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu16_v = sizeof(_Element_) == 2 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epi8_v  = sizeof(_Element_) == 1 && std::is_signed_v<_Element_>;
+constexpr bool is_epi8_v  = sizeof(_Element_) == 1 && std::is_signed_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool __is_pd_v    = sizeof(_Element_) == sizeof(double) && type_traits::is_any_of_v<_Element_, double, long double>;
+constexpr bool is_pd_v    = sizeof(_Element_) == sizeof(double) && type_traits::is_any_of_v<_Element_, double, long double>;
 
 template <typename _Element_>
-constexpr bool __is_ps_v    = sizeof(_Element_) == sizeof(float) && std::is_same_v<_Element_, float>;
+constexpr bool is_ps_v    = sizeof(_Element_) == sizeof(float) && std::is_same_v<_Element_, float>;
 
-
-template <>
-class BasicSimdImplementation<arch::CpuFeature::SSE> {
+class BasicSimdImplementation<arch::CpuFeature::SSE2> {
 public:
-    // static_assert(sizeof(_Element_) == 4);
-
-    using vector_type   = __m128;
-    using size_type     = uint8;
-
-    template <typename _DesiredType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
-        vector_type                                             vector,
-        basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>   shuffleMask) noexcept
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
+        _VectorType_                                            vector,
+        basic_simd_mask<arch::CpuFeature::SSE2, _DesiredType_>  shuffleMask) noexcept
     {
         return shuffle<_DesiredType_>(vector, vector, shuffleMask);
     }
 
-    template <typename _DesiredType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
-        vector_type                                             vector,
-        vector_type                                             vectorSecond,
-        basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>   shuffleMask) noexcept
-    {
-        return _mm_shuffle_ps(vector, vectorSecond, shuffleMask.unwrap());
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadUnaligned(const void* where) noexcept {
-        return _mm_loadu_ps(static_cast<const float*>(where));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type loadAligned(const void* where) noexcept {
-        return _mm_load_ps(static_cast<const float*>(where));
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(
-        void*               where,
-        const vector_type   vector) noexcept
-    {
-        return _mm_storeu_ps(static_cast<float*>(where), vector);
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(
-        void*               where,
-        const vector_type   vector) noexcept 
-    {
-        return _mm_store_ps(static_cast<float*>(where), vector);
-    }
-
-    template <typename _DesiredType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadUnaligned(
-        const void*                                                     where,
-        const basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>     mask,
-        const vector_type                                               reserveVector = constructZero()) noexcept
-    {
-        return shuffle<_DesiredType_>(loadUnaligned(where), reserveVector, mask.unwrap());
-    }
-
-    template <typename _DesiredType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type maskLoadAligned(
-        const void* where,
-        const basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>     mask,
-        const vector_type                                               reserveVector = constructZero()) noexcept
-    {
-        return shuffle<_DesiredType_>(loadAligned(where), reserveVector, mask.unwrap());
-    }
-
-    template <typename _DesiredType_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
-        const basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_> mask,
-        void*                                                       where,
-        const vector_type                                           vector) noexcept
-    {
-        storeUnaligned(where, shuffle<_DesiredType_>(loadUnaligned(where), vector, mask.unwrap()));
-    }
-
-    template <typename _DesiredType_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        void*                                                       where,
-        const basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_> mask,
-        const vector_type                                           vector) noexcept
-    {
-        storeUnaligned(where, shuffle<_DesiredType_>(loadAligned(where), vector, mask.unwrap()));
-    }
-
     template <
-        typename    _FromVector_,
-        typename    _ToVector_,
-        bool        _SafeCast_ = false>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
-        static_assert(std::is_same_v<_ToVector_, _FromVector_>, "Sse does not support type conversions.");
-        return from;
-    }
-
-    template <typename _DesiredType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>
-        convertToMask(const vector_type& vector) noexcept
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
+        _VectorType_                                            vector,
+        _VectorType_                                            secondVector,
+        basic_simd_mask<arch::CpuFeature::SSE2, _DesiredType_>  shuffleMask) noexcept
     {
-        if constexpr (__is_epi64_v< _DesiredType_> || __is_epu64_v<_DesiredType_> || __is_pd_v<_DesiredType_>) {
-            union {
-                struct {
-                    int64 first;
-                    int64 second;
-                } nums;
-                __m128 vec;
-            } converted;
+        if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
+            return cast<__m128d, _VectorType_>(_mm_shuffle_pd(
+                cast<_VectorType_, __m128d>(vector),
+                cast<_VectorType_, __m128d>(secondVector),
+                shuffleMask.unwrap())
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                cast<_VectorType_, __m128i>(vector),
+                cast<_VectorType_, __m128i>(secondVector),
+                shuffleMask.unwrap())
+            );
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            const auto unwrapped = shuffleMask.unwrap();
 
-            _mm_storeu_ps(static_cast<float*>(&converted), vector);
-
-            uint8 bits = 0;
-
-            bits |= (converted.nums.first & 1);
-            bits |= ((converted.nums.second >> 1) & 1);
-
-            // Используется только два бита маски
-            return basic_simd_mask<arch::CpuFeature::SSE, _DesiredType_>(bits);
-
-        }
-        else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_> || __is_ps_v<_DesiredType_>) {
-            return _mm_movemask_ps(vector);
-        }
-        else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>) {
-
-        }
-        
-    } 
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type decrement(const vector_type& vector) noexcept {
-        return sub(vector, broadcast(1));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type increment(const vector_type& vector) noexcept {
-        return add(vector, broadcast(1));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline value_type extract(
-        const vector_type&  vector,
-        const size_type     where) noexcept
-    {
-        return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type constructZero() noexcept {
-        return _mm_setzero_ps();
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type broadcast(const value_type value) noexcept {
-        return _mm_set1_ps(value);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type add(
-        const vector_type& left, 
-        const vector_type& right) noexcept
-    {
-        return _mm_add_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type sub(
-        const vector_type& left, 
-        const vector_type& right) noexcept 
-    {
-        return _mm_sub_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type mul(
-        const vector_type& left, 
-        const vector_type& right) noexcept
-    {
-        return _mm_mul_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type div(
-        const vector_type& left,
-        const vector_type& right) noexcept
-    {
-        return _mm_div_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseNot(const vector_type& vector) noexcept {
-        return _mm_xor_ps(vector, _mm_cmpeq_ps(vector, vector)); 
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseXor(
-        const vector_type& left, 
-        const vector_type& right) noexcept 
-    {
-        return _mm_xor_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseAnd(
-        const vector_type& left, 
-        const vector_type& right) noexcept 
-    {
-        return _mm_and_ps(left, right);
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type bitwiseOr(
-        const vector_type& left, 
-        const vector_type& right) noexcept
-    {
-        return _mm_or_ps(left, right);
-    }
-};
-
-template <typename _Element_>
-class BasicSimdImplementation<arch::CpuFeature::SSE2, _Element_> {
-public:
-    using value_type = _Element_;
-    using vector_type = type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _Element_>;
-
-    using size_type = unsigned short;
-    using mask_type = basic_simd_mask<arch::CpuFeature::SSE, _Element_>;
-
-    static constexpr size_type vectorElementsCount = sizeof(vector_type) / sizeof(value_type);
-
-    template <typename _ShuffleElementType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
-        vector_type vector,
-        mask_type   shuffleMask) noexcept
-    {
-        return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask);
-    }
-
-    template <typename _ShuffleElementType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type shuffle(
-        vector_type vector,
-        vector_type secondVector,
-        mask_type   shuffleMask) noexcept
-    {
-        if constexpr (sizeof(_ShuffleElementType_) == 8) {
-            return cast<__m128d, vector_type>(_mm_shuffle_pd(
-                cast<vector_type, __m128d>(vector),
-                cast<vector_type, __m128d>(secondVector), 
-                shuffleMask.unwrap()));
-        }
-        else if constexpr (sizeof(_ShuffleElementType_) == 4)
-            return cast<__m128i, vector_type>(_mm_shuffle_epi32(vector, secondVector, shuffleMask.unwrap()));
-        else if constexpr (sizeof(_ShuffleElementType_) == 2) {
-            const auto high = _mm_shufflehi_epi16(vector, shuffleMask.unwrap());
-            const auto low  = _mm_shufflelo_epi16(vector, shuffleMask.unwrap());
+            const auto high = _mm_shufflehi_epi16(vector, unwrapped);
+            const auto low  = _mm_shufflelo_epi16(vector, unwrapped >> );
 
             return _mm_set_epi64x(_mm_cvtsi128_si64(low), extract(high, 1));
         }
-        else if constexpr (sizeof(_ShuffleElementType_) == 1) {
+        else if constexpr (sizeof(_DesiredType_) == 1) {
             const auto unwrappedMask = shuffleMask.unwrap();
             uint8 charArray[16];
 
