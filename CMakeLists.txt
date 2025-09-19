@@ -129,6 +129,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/numeric/BasicSimdElementReference.h
     include/simd_stl/numeric/BasicSimdMaskImplementation.h
     include/simd_stl/numeric/BasicSimdMask.h
+    include/simd_stl/numeric/BasicSimdShuffleMask.h
 )
 
 include(CMakePackageConfigHelpers)

@@ -4,13 +4,12 @@
 #include <simd_stl/compatibility/Inline.h>
 
 #include <simd_stl/numeric/BasicSimdMask.h>
-
+#include <simd_stl/numeric/BasicSimdShuffleMask.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <arch::CpuFeature _SimdGeneration_>
-class BasicSimdImplementation {};
-
+class BasicSimdImplementation;
 
 template <typename _Element_>
 constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;
@@ -37,10 +36,10 @@ template <typename _Element_>
 constexpr bool is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_pd_v    = sizeof(_Element_) == sizeof(double) && type_traits::is_any_of_v<_Element_, double, long double>;
+constexpr bool is_pd_v    = sizeof(_Element_) == 8 && type_traits::is_any_of_v<_Element_, double, long double>;
 
 template <typename _Element_>
-constexpr bool is_ps_v    = sizeof(_Element_) == sizeof(float) && std::is_same_v<_Element_, float>;
+constexpr bool is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, float>;
 
 class BasicSimdImplementation<arch::CpuFeature::SSE2> {
 public:
@@ -48,8 +47,9 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_                                            vector,
-        basic_simd_mask<arch::CpuFeature::SSE2, _DesiredType_>  shuffleMask) noexcept
+        _VectorType_                                        vector,
+        type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>   shuffleMask) noexcept
     {
         return shuffle<_DesiredType_>(vector, vector, shuffleMask);
     }
@@ -60,38 +60,64 @@ public:
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
         _VectorType_                                            vector,
         _VectorType_                                            secondVector,
-        basic_simd_mask<arch::CpuFeature::SSE2, _DesiredType_>  shuffleMask) noexcept
+        type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>       shuffleMask) noexcept
     {
         if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
             return cast<__m128d, _VectorType_>(_mm_shuffle_pd(
                 cast<_VectorType_, __m128d>(vector),
                 cast<_VectorType_, __m128d>(secondVector),
-                shuffleMask.unwrap())
+                shuffleMask)
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
             return cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
                 cast<_VectorType_, __m128i>(vector),
                 cast<_VectorType_, __m128i>(secondVector),
-                shuffleMask.unwrap())
+                shuffleMask)
             );
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            const auto unwrapped = shuffleMask.unwrap();
+            const auto rawMask = shuffleMask & 0xFFFFFF;
 
-            const auto high = _mm_shufflehi_epi16(vector, unwrapped);
-            const auto low  = _mm_shufflelo_epi16(vector, unwrapped >> );
+            int8 index0 = (rawMask >> 0) & 0x7;
+            int8 index1 = (rawMask >> 3) & 0x7;
 
-            return _mm_set_epi64x(_mm_cvtsi128_si64(low), extract(high, 1));
+            int8 index2 = (rawMask >> 6) & 0x7;
+            int8 index3 = (rawMask >> 9) & 0x7;
+
+            int8 index4 = (rawMask >> 12) & 0x7;
+            int8 index5 = (rawMask >> 15) & 0x7;
+
+            int8 index6 = (rawMask >> 18) & 0x7;
+            int8 index7 = (rawMask >> 21) & 0x7;
+
+            int8 low0 = index0 << 1;
+            int8 low1 = index1 << 1;
+
+            int8 low2 = index2 << 1;
+            int8 low3 = index3 << 1;
+
+            int8 low4 = index4 << 1;
+            int8 low5 = index5 << 1;
+
+            int8 low6 = index6 << 1;
+            int8 low7 = index7 << 1;
+
+            __m128i byteMask = _mm_set_epi8(
+                low7 + 1, low7, low6 + 1, low6, low5 + 1, low5, low4 + 1, low4,
+                low3 + 1, low3, low2 + 1, low2, low1 + 1, low1, low0 + 1, low0
+            );
+
+            return _mm_shuffle_epi8(vector, byteMask);
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto unwrappedMask = shuffleMask.unwrap();
             uint8 charArray[16];
 
             _mm_storeu_si128(static_cast<__m128i*>(charArray), vector);
 
             for (auto j = 0; j < 16; j += 4) {
-                charArray[j] = charArray[(unwrappedMask >> j) & 0x0F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 1)) & 0x0F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 2)) & 0x0F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x0F];
+                charArray[j] = charArray[(shuffleMask >> j) & 0x0F];
+                charArray[j] = charArray[(shuffleMask >> (j + 1)) & 0x0F];
+                charArray[j] = charArray[(shuffleMask >> (j + 2)) & 0x0F];
+                charArray[j] = charArray[(shuffleMask >> (j + 3)) & 0x0F];
             }
 
             return _mm_loadu_si128(static_cast<const __m128i*>(charArray));

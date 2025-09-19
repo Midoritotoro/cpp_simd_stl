@@ -48,5 +48,24 @@ using __deduce_simd_vector_type = std::conditional_t <
     void>>>;
 
 
+template <uint8 size>
+using __deduce_simd_mask_type_helper =
+	std::conditional_t<size <= 1, uint8,
+		std::conditional_t<size <= 2, uint16,
+			std::conditional_t<size <= 4, uint32,
+				std::conditional_t<size <= 8, uint64, void>>>>;
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_>
+using __deduce_simd_mask_type =  __deduce_simd_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>) / sizeof(_Element_))>;
+
+
+template <sizetype _VectorLength_>
+using __deduce_simd_shuffle_mask_type = std::conditional_t<size == 2, uint8,
+		std::conditional_t<size == 2, uint8,
+			std::conditional_t<size == 8, uint32,
+				std::conditional_t<size <= 16, uint64, void>>>>;
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
