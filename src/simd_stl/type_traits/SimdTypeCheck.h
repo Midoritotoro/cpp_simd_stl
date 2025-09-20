@@ -63,9 +63,11 @@ using __deduce_simd_mask_type =  __deduce_simd_mask_type_helper<(sizeof(type_tra
 
 template <sizetype _VectorLength_>
 using __deduce_simd_shuffle_mask_type = std::conditional_t<size == 2, uint8,
-		std::conditional_t<size == 2, uint8,
+		std::conditional_t<size == 4, uint8,
 			std::conditional_t<size == 8, uint32,
-				std::conditional_t<size <= 16, uint64, void>>>>;
+				std::conditional_t<size == 16, uint64, 
+                    std::conditional_t<size == 32, __m256i, 
+                        std::conditional_t<size == 64, __m512i,void>>>>>>;
 
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
