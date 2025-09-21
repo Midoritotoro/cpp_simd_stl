@@ -41,6 +41,7 @@ constexpr bool is_pd_v    = sizeof(_Element_) == 8 && type_traits::is_any_of_v<_
 template <typename _Element_>
 constexpr bool is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, float>;
 
+template <>
 class BasicSimdImplementation<arch::CpuFeature::SSE2> {
 public:
     template <
@@ -68,6 +69,7 @@ public:
                 cast<_VectorType_, __m128d>(vector),
                 cast<_VectorType_, __m128d>(secondVector),
                 shuffleMask)
+            );
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
             return cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
                 cast<_VectorType_, __m128i>(vector),
@@ -211,12 +213,7 @@ public:
 
     template <typename _VectorType_> 
     static simd_stl_constexpr_cxx20 simd_stl_always_inline int32 convertToMask(_VectorType_ vector) noexcept {
-        if      constexpr (is_ps_v<_DesiredType_>)
-            return _mm_movemask_ps(vector);
-        else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm_movemask_pd(vector);
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_movemask_epi8(vector);
+        return 0;
     }
 
     template <typename _VectorType_>
@@ -236,21 +233,7 @@ public:
         _VectorType_    vector,
         const uint8     where) noexcept
     {
-        if      constexpr (is_pd_v<_DesiredType_>)
-            return _mm_cvtsd_f64(_mm_shuffle_pd(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm_cvtsi128_si32(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_extract_epi16(vector, where);
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            return (where <= (vectorElementsCount >> 1))
-                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xFF
-                : (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xFF;
-        }
+        
     }
 
     template <typename _VectorType_>
@@ -462,13 +445,13 @@ class BasicSimdImplementation<arch::CpuFeature::SSSE3>:
         _VectorType_                                            vector,
         _VectorType_                                            secondVector,
         type_traits::__deduce_simd_shuffle_mask_type<
-        sizeof(_VectorType_) / sizeof(_DesiredType_)>       shuffleMask) noexcept
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>       shuffleMask) noexcept
     {
         if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
             return cast<__m128d, _VectorType_>(_mm_shuffle_pd(
                 cast<_VectorType_, __m128d>(vector),
                 cast<_VectorType_, __m128d>(secondVector),
-                shuffleMask)
+                shuffleMask));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
                 return cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
                     cast<_VectorType_, __m128i>(vector),
@@ -510,7 +493,7 @@ class BasicSimdImplementation<arch::CpuFeature::SSSE3>:
             return _mm_shuffle_epi8(vector, byteMask);
         }
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            return _mm_shuffle_epi8(vector, byteMask);
+           // return _mm_shuffle_epi8(vector, (shuffleMask));
         }
     }
 };
@@ -526,68 +509,168 @@ class BasicSimdImplementation<arch::CpuFeature::SSE42>:
 {};
 
 template <>
-class BasicSimdImplementation<arch::CpuFeature::AVX> {
+class BasicSimdImplementation<arch::CpuFeature::AVX2> {
 public:
+    template <
+        typename _DesiredVectorElementType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline int32 maskFromVector(_VectorType_ vector) noexcept {
+        if constexpr (is_pd_v<_DesiredVectorElementType_> || is_epi64_v<_DesiredVectorElementType_> || is_epu64_v<_DesiredVectorElementType_>)
+            return _mm256_movemask_pd(cast<_VectorType_, __m256d>(vector));
+        else if constexpr (is_ps_v<_DesiredVectorElementType_> || is_epi32_v<_DesiredVectorElementType_> || is_epu32_v<_DesiredVectorElementType_>)
+            return _mm256_movemask_ps(cast<_VectorType_, __m256>(vector));
+        else if constexpr (is_epi16_v<_DesiredVectorElementType_> || is_epu16_v<_DesiredVectorElementType_>) {
+
+        }
+        else if constexpr (is_epi8_v<_DesiredVectorElementType_> || is_epu8_v<_DesiredVectorElementType_>) {
+            return _mm256_movemask_epi8(cast<_VectorType_, __m256i>(vector));
+        }
+    }
+
+    template <
+        typename _MaskType_,
+        typename _DesiredVectorElementType_,
+        typename _VectorType_> 
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskToVector(_MaskType_ mask) noexcept {
+        if constexpr (is_epi64_v<_DesiredVectorElementType_> || is_epu64_v<_DesiredVectorElementType_> || is_pd_v<_DesiredVectorElementType_>) {
+            _DesiredVectorElementType_ arrayTemp[4];
+
+            arrayTemp[0] = (mask        & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
+            arrayTemp[1] = ((mask >> 1) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
+            arrayTemp[2] = ((mask >> 2) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
+            arrayTemp[3] = ((mask >> 3) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
+
+            return loadUnaligned(arrayTemp);
+        }
+        else if constexpr (is_epi32_v<_DesiredVectorElementType_> || is_epu32_v<_DesiredVectorElementType_> || is_ps_v<_DesiredVectorElementType_>) {
+            const auto vshiftСount = _mm256_set_epi32(24, 25, 26, 27, 28, 29, 30, 31);
+            auto bcast = _mm256_set1_epi32(mask);
+            // Старший бит каждого элемента - соответствующий бит в маске
+            auto shifted = _mm256_sllv_epi32(bcast, vshiftСount); // AVX2
+            return shifted;
+        }
+        else if constexpr (is_epi16_v<_DesiredVectorElementType_> || is_epu16_v<_DesiredVectorElementType_>) {
+           /* const auto shuffle = _mm256_setr_epi32(0, 0, 0x01010101, 0x01010101);
+            auto v = _mm256_shuffle_epi8(broadcast(mask), shuffle);
+
+            const auto bitselect = _mm256_setr_epi8(
+                1, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1U << 7,
+                1, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1U << 7);
+
+            v = _mm256_and_si256(v, bitselect);
+            v = _mm256_min_epu8(v, _mm256_set1_epi8(1));
+
+            return v;*/
+        }
+        else if constexpr (is_epi8_v<_DesiredVectorElementType_> || is_epu8_v<_DesiredVectorElementType_>) {
+            auto vmask = _mm256_set1_epi32(mask);
+            const auto shuffle = _mm256_setr_epi64x(
+                0x0000000000000000, 0x0101010101010101,
+                0x0202020202020202, 0x0303030303030303);
+
+            vmask = _mm256_shuffle_epi8(vmask, shuffle);
+            const auto bitMask = _mm256_set1_epi64x(0x7fbfdfeff7fbfdfe);
+
+            vmask = _mm256_or_si256(vmask, bitMask);
+            return _mm256_cmpeq_epi8(vmask, _mm256_set1_epi64x(-1));
+        }
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
         return _mm256_lddqu_si256(static_cast<const __m256i*>(where));
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
         return _mm256_load_si256(static_cast<const __m256i*>(where));
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(
-        _DesiredType_*         where,
-        const _VectorType_   vector) noexcept
+        _DesiredType_*      where,
+        const _VectorType_  vector) noexcept
     {
         return _mm256_storeu_si256(static_cast<__m256i*>(where), vector);
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(
-        _DesiredType_* where,
-        const _VectorType_   vector) noexcept
+        _DesiredType_*      where,
+        const _VectorType_  vector) noexcept
     {
         return _mm256_store_si256(static_cast<__m256i*>(where), vector);
     }
-
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
-        const mask_type     mask,
-        _DesiredType_*         where,
-        const _VectorType_   vector) noexcept
+        _DesiredType_*                                      where,
+        const type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
+        const _VectorType_                                  vector) noexcept
     {
-        storeUnaligned(where, shuffle(loadUnaligned(where), vector, mask));
+        _mm256_maskstore_ps(
+            static_cast<float*>(where), 
+            maskToVector(mask), cast<_VectorType_, __m256>(vector));
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        _DesiredType_*         where,
-        const mask_type     mask,
-        const _VectorType_   vector) noexcept
+        _DesiredType_*                                          where,
+        const type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>       mask,
+        const _VectorType_                                      vector) noexcept
     {
-        storeAligned(where, shuffle(loadAligned(where), vector, mask));
+        _mm256_maskstore_ps(
+            static_cast<float*>(where),
+            maskToVector(mask), cast<_VectorType_, __m256>(vector));
     }
 
-
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const mask_type     mask,
-        const _DesiredType_*   where,
-        const _VectorType_   vector) noexcept
+        const _DesiredType_*                                where,
+        const type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask) noexcept
     {
-        return shuffle(loadUnaligned(where), vector, mask);
+        return cast<__m256, _VectorType_>(
+            _mm256_maskload_ps(
+                static_cast<const float*>(where),
+                maskToVector(mask)));
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskLoadAligned(
-        const _DesiredType_*   where,
-        const mask_type     mask,
-        const _VectorType_   vector) noexcept
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadAligned(
+        const _DesiredType_*                                where,
+        const type_traits::__deduce_simd_shuffle_mask_type<
+            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask) noexcept
     {
-        return shuffle(loadAligned(where), vector, mask);
+        return cast<__m256, _VectorType_>(
+            _mm256_maskload_ps(
+                static_cast<const float*>(where),
+                maskToVector(mask)));
     }
 
     template <
         typename    _FromVector_,
         typename    _ToVector_,
         bool        _SafeCast_ = false>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(_FromVector_ from) noexcept {
         if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
             return from;
 
@@ -648,44 +731,50 @@ public:
             return _mm256_castsi256_si128(from);
     }
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type convertToMask(const _VectorType_& vector) noexcept {
-        if constexpr (is_pd_v<_DesiredType_>)
-            return _mm256_movemask_pd(vector);
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm256_movemask_ps(vector);
-        else
-            return _mm256_movemask_ps(cast<_VectorType_, __m256>(vector));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ decrement(const _VectorType_& vector) noexcept {
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ decrement(_VectorType_ vector) noexcept {
         return sub(vector, broadcast(1));
     }
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ increment(const _VectorType_& vector) noexcept {
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ increment(_VectorType_ vector) noexcept {
         return add(vector, broadcast(1));
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _DesiredType_ extract(
-        const _VectorType_&  vector,
-        const size_type     where) noexcept
+        _VectorType_    vector,
+        uint8           where) noexcept
     {
-        if      constexpr (is_pd_v<_DesiredType_>)
-            return _mm256_cvtsd_f64(_mm_shuffle_pd(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_mm_shuffle_ps(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm_cvtsi128_si32(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where)));
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_extract_epi16(vector, where);
+        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
+            _DesiredType_ x[4];
+            storeUnaligned(x);
+            return x[where & 3];
+        }
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>) {
+            _DesiredType_ x[8];
+            storeUnaligned(x);
+            return x[where & 7];
+        }
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            _DesiredType_ x[16];
+            storeUnaligned(x);
+            return x[where & 0x0F];
+        }
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            return ((where >> 1) < vectorElementsCount)
-                ? (_mm_cvtsi128_si64(vector) >> (where << 3)) & 0xff
-                : (_mm_cvtsi128_si64(_mm_shuffle_epi32(vector, vector, _MM_SHUFFLE(where, where, where, where))) >> (where << 3)) & 0xff;
+            _DesiredType_ x[32];
+            storeUnaligned(x);
+            return x[where & 0x1F];
         }
     }
 
+    template <typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ constructZero() noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m256d>)
             return _mm256_setzero_pd();
@@ -695,24 +784,30 @@ public:
             return _mm256_setzero_ps();
     }
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ broadcast(const _DesiredType_ value) noexcept {
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ broadcast(_DesiredType_ value) noexcept {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm256_set1_epi64x(value);
+            return cast<__m256i, _VectorType_>(_mm256_set1_epi64x(value));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm256_set1_epi32(value);
+            return cast<__m256i, _VectorType_>(_mm256_set1_epi32(value));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm256_set1_epi16(value);
+            return cast<__m256i, _VectorType_>(_mm256_set1_epi16(value));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _mm256_set1_epi8(value);
+            return cast<__m256i, _VectorType_>(_mm256_set1_epi8(value));
         else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm256_set1_ps(value);
+            return cast<__m256, _VectorType_>(_mm256_set1_ps(value));
         else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm256_set1_pd(value);
+            return cast<__m256d, _VectorType_>(_mm256_set1_pd(value));
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ add(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
             return _mm256_add_epi64(left, right);
@@ -727,10 +822,14 @@ public:
         else if constexpr (is_pd_v<_DesiredType_>)
             return _mm256_add_pd(left, right);
     }
+    
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ sub(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
             return _mm256_sub_epi64(left, right);
@@ -746,9 +845,12 @@ public:
             return _mm256_sub_pd(left, right);
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ mul(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
             auto ymm2 = _mm256_mul_epu32(_mm256_srli_epi64(right, 32), left);
@@ -784,61 +886,70 @@ public:
             return _mm256_mul_pd(left, right);
     }
 
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ div(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
-        if      constexpr (is_epi64_v<_DesiredType_>)
-            return _mm256_castpd_si256(_mm256_div_pd(left, right));
-        else if constexpr (is_epu64_v<_DesiredType_>)
-            return _mm256_castpd_si256(_mm256_div_pd(left, right));
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm256_castps_si256(_mm256_div_ps(left, right));
+        if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
+            return cast<__m256d, _VectorType_>(_mm256_div_pd(left, right));
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+            return cast<__m256, _VectorType_>(_mm256_div_ps(left, right));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return div_u16(left, right);
+            return cast<__m256i, _VectorType_>(div_u16(left, right));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return div_u8(left, right);
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm256_div_ps(left, right);
-        else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm256_div_pd(left, right);
+            return cast<__m256i, _VectorType_>(div_u8(left, right));
     }
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ bitwiseNot(const _VectorType_& vector) noexcept {
+    template <typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ bitwiseNot(_VectorType_ vector) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m256d>)
             return _mm256_xor_pd(vector, _mm256_cmp_pd(vector, vector, _CMP_EQ_OQ));
         else if constexpr (std::is_same_v<_VectorType_, __m256>)
             return _mm256_xor_ps(vector, _mm256_cmp_ps(vector, vector, _CMP_EQ_OQ));
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_xor_si256(vector, _mm256_cmpeq_epi64(vector, vector));
     }
 
+    template <typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ bitwiseXor(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m256d>)
             return _mm256_xor_pd(left, right);
         else if constexpr (std::is_same_v<_VectorType_, __m256>)
             return _mm256_xor_ps(left, right);
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_xor_si256(left, right);
     }
 
+    template <typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ bitwiseAnd(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m256d>)
             return _mm256_and_pd(left, right);
         else if constexpr (std::is_same_v<_VectorType_, __m256>)
             return _mm256_and_ps(left, right);
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_and_si256(left, right);
     }
 
+    template <typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ bitwiseOr(
-        const _VectorType_& left,
-        const _VectorType_& right) noexcept
+        _VectorType_ left,
+        _VectorType_ right) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m256d>)
             return _mm256_or_pd(left, right);
         else if constexpr (std::is_same_v<_VectorType_, __m256>)
             return _mm256_or_ps(left, right);
+        else if constexpr (std::is_same_v<_VectorType_, __m256>)
+            return _mm256_or_si256(left, right);
     }
 
 private:
@@ -866,7 +977,6 @@ private:
 
         const auto r0 = divLow_u8_i32x8(_mm256_and_si256(left, m0), _mm256_and_si256(right, m0), 1);
         auto r1 = divLow_u8_i32x8(_mm256_and_si256(left, m1), _mm256_and_si256(right, m1), 1);
-
         r1 = _mm256_slli_epi32(r1, 8);
 
         const auto r2 = divLow_u8_i32x8(_mm256_and_si256(left, m2), _mm256_and_si256(right, m2), 1 << 16);
@@ -906,379 +1016,273 @@ private:
 
         return _mm256_or_si256(c_lo_i32, c_hi_i32);
     }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline __m256i div_u64(
-        const __m256i ymm0,
-        const __m256i ymm1) noexcept
-    {
-        /*auto ymm3 = _mm256_set1_epi64x(1);
-        const auto ymm2 = bitwiseXor(ymm0, ymm1);
-
-        const auto ymm4 = _mm256_abs_epi32(ymm0);
-        const auto ymm5 = _mm256_abs_epi32(ymm1);
-
-        auto ymm6 = constructZero();
-        auto ymm7 = _mm256_cmpeq_epi32(ymm6, ymm6);
-
-        auto k2 = _mm256_movemask_pd(vectorsXor);
-
-        ymm0 = _mm256_castsi256_pd(ymm4);
-        ymm1 = _mm256_castsi256_pd(ymm5);
-
-        ymm1 = _mm256_div_pd(ymm3, ymm1);
-        ymm0 = _mm256_mul_pd(ymm0, ymm1);
-
-        ymm3 = _mm256_cvtepi32_pd(ymm0);
-        ymm2 = _mm256_mul_pd(ymm3, ymm5);
-
-        ymm4 = _mm256_sub_epi64(ymm4, ymm2);
-        ymm0 = _mm256_castsi256_pd(ymm4);
-
-        ymm0 = _mm256_mul_pd(ymm0, ymm1);
-        ymm2 = _mm256_castsi256_pd(ymm0);
-
-        ymm3 = _mm256_add_epi64(ymm3, ymm2);
-        ymm2 = _mm256_mul_pd(ymm2, ymm5);
-
-        ymm4 = _mm256_sub_epi64(ymm4, ymm2);
-        auto k1 = _mm256_movemask_epi8(_mm256_cmpgt_epi64(ymm4, ymm5));
-
-        ymm3 = _mm256_blend_epi8(_mm256_sub_epi64(ymm3, ymm7), k1);
-        ymm3 = _mm256_blend_epi8(_mm256_sub_epi64(ymm6, ymm3), k2);
-
-        return ymm3;*/
-    }
-
 };
 
-template <typename _Element_>
-class BasicSimdImplementation<arch::CpuFeature::AVX2, _Element_> {
+template <>
+class BasicSimdImplementation<arch::CpuFeature::AVX512F> {
 public:
-    using _DesiredType_    = _Element_;
-    using _VectorType_   = type_traits::__deduce_simd__VectorType_<arch::CpuFeature::AVX2, _Element_>;
+    //template <typename _ShuffleElementType_>
+    //static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
+    //    _VectorType_ vector,
+    //    mask_type   shuffleMask) noexcept
+    //{
+    //    return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask);
+    //}
 
-    using size_type     = uint32;
-    using mask_type     = basic_simd_mask<arch::CpuFeature::AVX2, _Element_>;
+    //template <typename _ShuffleElementType_>
+    //static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
+    //    _VectorType_ vector,
+    //    _VectorType_ vectorSecond,
+    //    mask_type   shuffleMask) noexcept
+    //{
+    //    if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
+    //        return _mm512_shuffle_pd(
+    //            cast<_VectorType_, __m512d>(vector),
+    //            cast<_VectorType_, __m512d>(vectorSecond),
+    //            shuffleMask.unwrap()
+    //        );
+    //    else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+    //        return _mm512_shuffle_ps(
+    //            cast<_VectorType_, __m512>(vector),
+    //            cast<_VectorType_, __m512>(vectorSecond),
+    //            shuffleMask.unwrap()
+    //        );
+    //    else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+    //        const auto unwrappedMask = shuffleMask.unwrap();
+    //        uint16 wordArray[32];
 
-    
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
+    //        _mm512_storeu_si512(static_cast<__m512i*>(wordArray), vector);
 
-    }
+    //        for (auto j = 0; j < 32; j += 4) {
+    //            wordArray[j] = wordArray[(unwrappedMask >> j) & 0x3F];
+    //            wordArray[j] = wordArray[(unwrappedMask >> (j + 1)) & 0x3F];
+    //            wordArray[j] = wordArray[(unwrappedMask >> (j + 2)) & 0x3F];
+    //            wordArray[j] = wordArray[(unwrappedMask >> (j + 3)) & 0x3F];
+    //        }
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
+    //        return _mm512_loadu_si512(static_cast<const __m512i*>(wordArray));
+    //    }
+    //    else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+    //        const auto unwrappedMask = shuffleMask.unwrap();
+    //        uint8 charArray[64];
 
-    }
+    //        _mm512_storeu_si512(static_cast<__m512i*>(charArray), vector);
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const _DesiredType_* where) noexcept {
+    //        for (auto j = 0; j < 64; j += 4) {
+    //            charArray[j] = charArray[(unwrappedMask >> j) & 0x3F];
+    //            charArray[j] = charArray[(unwrappedMask >> (j + 1)) & 0x3F];
+    //            charArray[j] = charArray[(unwrappedMask >> (j + 2)) & 0x3F];
+    //            charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x3F];
+    //        }
 
-    }
+    //        return _mm512_loadu_si512(static_cast<const __m512i*>(charArray));
+    //    }
+    //}
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const _DesiredType_* where) noexcept {
 
-    }
+    //static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
+    //    return _mm512_loadu_si256(static_cast<const __m512i*>(where));
+    //}
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const _DesiredType_* where,
-        const mask_type     mask) noexcept
-    {
+    //static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
+    //    return _mm512_load_si512(static_cast<const __m512i*>(where));
+    //}
 
-    }
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(
+    //    _DesiredType_*         where,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    return _mm512_storeu_si512(static_cast<__m512i*>(where), vector);
+    //}
 
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadAligned(
-        const _DesiredType_* where,
-        const mask_type     mask) noexcept
-    {
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(
+    //    _DesiredType_*         where,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    return _mm512_store_si512(static_cast<__m512i*>(where), vector);
+    //}
 
-    }
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
+    //    const mask_type     mask,
+    //    _DesiredType_*         where,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
+    //        return _mm512_mask_storeu_epi64(where, mask.unwrap(), vector);
+    //    else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
+    //        return _mm512_mask_storeu_epi32(where, mask.unwrap(), vector);
+    //    else
+    //        return _mm512_storeu_si512(where, cast<_VectorType_, __m512i>(shuffle(vector, mask)));
+    //}
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
-        const mask_type     mask,
-        const _DesiredType_* where) noexcept
-    {
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
+    //    _DesiredType_*         where,
+    //    const mask_type     mask,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
+    //        return _mm512_mask_store_epi64(where, mask.unwrap(), vector);
+    //    else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
+    //        return _mm512_mask_store_epi32(where, mask.unwrap(), vector);
+    //    else
+    //        return _mm512_store_si512(where, cast<_VectorType_, __m512i>(shuffle(vector, mask)));
+    //}
 
-    }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        const _DesiredType_* where,
-        const mask_type     mask) noexcept
-    {
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadUnaligned(
+    //    const mask_type     mask,
+    //    const _DesiredType_*   where,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    return shuffle(loadUnaligned(where), vector, mask);
+    //}
 
-    }
+    //simd_stl_constexpr_cxx20 simd_stl_always_inline void maskLoadAligned(
+    //    const _DesiredType_*   where,
+    //    const mask_type     mask,
+    //    const _VectorType_   vector) noexcept
+    //{
+    //    return shuffle(loadAligned(where), vector, mask);
+    //}
+
+
+    //template <
+    //    typename    _FromVector_,
+    //    typename    _ToVector_,
+    //    bool        _SafeCast_ = false>
+    //static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
+    //    if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
+    //        return from;
+
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
+    //        return _mm_castps_si128(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
+    //        return _mm_castps_pd(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
+    //        return _mm_castpd_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
+    //        return _mm_castpd_si128(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
+    //        return _mm_castsi128_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
+    //        return _mm_castsi128_pd(from);
+
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
+    //        return _mm256_castps_si256(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
+    //        return _mm256_castps_pd(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
+    //        return _mm256_castpd_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
+    //        return _mm256_castpd_si256(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
+    //        return _mm256_castsi256_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
+    //        return _mm256_castsi256_pd(from);
+
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512i>)
+    //        return _mm512_castps_si512(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512d>)
+    //        return _mm512_castps_pd(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512>)
+    //        return _mm512_castpd_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512i>)
+    //        return _mm512_castpd_si512(from);
+
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512>)
+    //        return _mm512_castsi512_ps(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512d>)
+    //        return _mm512_castsi512_pd(from);
+
+    //    
+    //    // Zero extend
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>   && _SafeCast_ == true)
+    //        return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d> && _SafeCast_ == true)
+    //        return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i> && _SafeCast_ == true)
+    //        return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
+
+    //    // Zero extend
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>   && _SafeCast_ == false)
+    //        return _mm256_castps128_ps256(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d> && _SafeCast_ == false)
+    //        return _mm256_castpd128_pd256(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i> && _SafeCast_ == false)
+    //        return _mm256_castsi128_si256(from);
+
+
+    //    // Truncate
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
+    //        return _mm256_castps256_ps128(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
+    //        return _mm256_castpd256_pd128(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
+    //        return _mm256_castsi256_si128(from);
+
+    //    // Zero extend
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == true)
+    //        return _mm512_insertf128_ps(_mm512_castps128_ps512(from), _mm_setzero_ps(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == true)
+    //        return _mm512_insertf128_pd(_mm512_castpd128_pd512(from), _mm_setzero_pd(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == true)
+    //        return _mm512_insertf128_si512(_mm512_castsi128_si512(from), _mm_setzero_si128(), 1);
+
+
+    //    // Undefined
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == false)
+    //        return _mm512_castps128_ps512(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == false)
+    //        return _mm512_castpd128_pd512(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == false)
+    //        return _mm512_castsi128_si512(from);
+
+
+    //    // Truncate
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m128>)
+    //        return _mm512_castps512_ps128(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m128d>)
+    //        return _mm512_castpd512_pd128(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m128i>)
+    //        return _mm512_castsi512_si128(from);
+
+    //   // Zero extend
+    //   else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>    && _SafeCast_ == true)
+    //        return _mm512_insertf256_ps(_mm512_castps256_ps512(from), _mm256_setzero_ps(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == true)
+    //        return _mm512_insertf256_pd(_mm512_castpd256_pd512(from), _mm256_setzero_pd(), 1);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == true)
+    //        return _mm512_insertf256_si512(_mm512_castsi256_si512(from), _mm256_setzero_si256(), 1);
+
+    //    // Undefined
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == false)
+    //        return _mm512_castps256_ps512(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == false)
+    //        return _mm512_castpd256_pd512(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == false)
+    //        return _mm512_castsi256_si512(from);
+
+    //    // Truncate
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m256>)
+    //        return _mm512_castps512_ps256(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m256d>)
+    //        return _mm512_castpd512_pd256(from);
+    //    else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m256i>)
+    //        return _mm512_castsi512_si256(from);
+    //}
 };
 
-template <typename _Element_>
-class BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> {
-public:
-    using _DesiredType_    = _Element_;
-    using _VectorType_   = type_traits::__deduce_simd__VectorType_<arch::CpuFeature::AVX512F, _Element_>;
-
-    using size_type     = uint64;
-    using mask_type     = basic_simd_mask<arch::CpuFeature::AVX512F, _Element_>;
-
-    static constexpr uint8 vectorElementsCount = sizeof(_VectorType_) / sizeof(_DesiredType_);
-
-    template <typename _ShuffleElementType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_ vector,
-        mask_type   shuffleMask) noexcept
-    {
-        return shuffle<_ShuffleElementType_>(vector, vector, shuffleMask);
-    }
-
-    template <typename _ShuffleElementType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_ vector,
-        _VectorType_ vectorSecond,
-        mask_type   shuffleMask) noexcept
-    {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _mm512_shuffle_pd(
-                cast<_VectorType_, __m512d>(vector),
-                cast<_VectorType_, __m512d>(vectorSecond),
-                shuffleMask.unwrap()
-            );
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _mm512_shuffle_ps(
-                cast<_VectorType_, __m512>(vector),
-                cast<_VectorType_, __m512>(vectorSecond),
-                shuffleMask.unwrap()
-            );
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            const auto unwrappedMask = shuffleMask.unwrap();
-            uint16 wordArray[32];
-
-            _mm512_storeu_si512(static_cast<__m512i*>(wordArray), vector);
-
-            for (auto j = 0; j < 32; j += 4) {
-                wordArray[j] = wordArray[(unwrappedMask >> j) & 0x3F];
-                wordArray[j] = wordArray[(unwrappedMask >> (j + 1)) & 0x3F];
-                wordArray[j] = wordArray[(unwrappedMask >> (j + 2)) & 0x3F];
-                wordArray[j] = wordArray[(unwrappedMask >> (j + 3)) & 0x3F];
-            }
-
-            return _mm512_loadu_si512(static_cast<const __m512i*>(wordArray));
-        }
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            const auto unwrappedMask = shuffleMask.unwrap();
-            uint8 charArray[64];
-
-            _mm512_storeu_si512(static_cast<__m512i*>(charArray), vector);
-
-            for (auto j = 0; j < 64; j += 4) {
-                charArray[j] = charArray[(unwrappedMask >> j) & 0x3F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 1)) & 0x3F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 2)) & 0x3F];
-                charArray[j] = charArray[(unwrappedMask >> (j + 3)) & 0x3F];
-            }
-
-            return _mm512_loadu_si512(static_cast<const __m512i*>(charArray));
-        }
-    }
-
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
-        return _mm512_loadu_si256(static_cast<const __m512i*>(where));
-    }
-
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
-        return _mm512_load_si512(static_cast<const __m512i*>(where));
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(
-        _DesiredType_*         where,
-        const _VectorType_   vector) noexcept
-    {
-        return _mm512_storeu_si512(static_cast<__m512i*>(where), vector);
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(
-        _DesiredType_*         where,
-        const _VectorType_   vector) noexcept
-    {
-        return _mm512_store_si512(static_cast<__m512i*>(where), vector);
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
-        const mask_type     mask,
-        _DesiredType_*         where,
-        const _VectorType_   vector) noexcept
-    {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm512_mask_storeu_epi64(where, mask.unwrap(), vector);
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm512_mask_storeu_epi32(where, mask.unwrap(), vector);
-        else
-            return _mm512_storeu_si512(where, cast<_VectorType_, __m512i>(shuffle(vector, mask)));
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        _DesiredType_*         where,
-        const mask_type     mask,
-        const _VectorType_   vector) noexcept
-    {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm512_mask_store_epi64(where, mask.unwrap(), vector);
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm512_mask_store_epi32(where, mask.unwrap(), vector);
-        else
-            return _mm512_store_si512(where, cast<_VectorType_, __m512i>(shuffle(vector, mask)));
-    }
-
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const mask_type     mask,
-        const _DesiredType_*   where,
-        const _VectorType_   vector) noexcept
-    {
-        return shuffle(loadUnaligned(where), vector, mask);
-    }
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void maskLoadAligned(
-        const _DesiredType_*   where,
-        const mask_type     mask,
-        const _VectorType_   vector) noexcept
-    {
-        return shuffle(loadAligned(where), vector, mask);
-    }
-
-
-    template <
-        typename    _FromVector_,
-        typename    _ToVector_,
-        bool        _SafeCast_ = false>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _ToVector_ cast(const _FromVector_ from) noexcept {
-        if constexpr (std::is_same_v<_ToVector_, _FromVector_>)
-            return from;
-
-
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128i>)
-            return _mm_castps_si128(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m128d>)
-            return _mm_castps_pd(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128>)
-            return _mm_castpd_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m128i>)
-            return _mm_castpd_si128(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128>)
-            return _mm_castsi128_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m128d>)
-            return _mm_castsi128_pd(from);
-
-
-        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256i>)
-            return _mm256_castps_si256(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m256d>)
-            return _mm256_castps_pd(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256>)
-            return _mm256_castpd_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m256i>)
-            return _mm256_castpd_si256(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256>)
-            return _mm256_castsi256_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m256d>)
-            return _mm256_castsi256_pd(from);
-
-
-        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512i>)
-            return _mm512_castps_si512(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m512d>)
-            return _mm512_castps_pd(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512>)
-            return _mm512_castpd_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m512i>)
-            return _mm512_castpd_si512(from);
-
-        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512>)
-            return _mm512_castsi512_ps(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m512d>)
-            return _mm512_castsi512_pd(from);
-
-        
-        // Zero extend
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>   && _SafeCast_ == true)
-            return _mm256_insertf128_ps(_mm256_castps128_ps256(from), _mm_setzero_ps(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d> && _SafeCast_ == true)
-            return _mm256_insertf128_pd(_mm256_castpd128_pd256(from), _mm_setzero_pd(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i> && _SafeCast_ == true)
-            return _mm256_insertf128_si256(_mm256_castsi128_si256(from), _mm_setzero_si128(), 1);
-
-        // Zero extend
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m256>   && _SafeCast_ == false)
-            return _mm256_castps128_ps256(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m256d> && _SafeCast_ == false)
-            return _mm256_castpd128_pd256(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m256i> && _SafeCast_ == false)
-            return _mm256_castsi128_si256(from);
-
-
-        // Truncate
-        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m128>)
-            return _mm256_castps256_ps128(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m128d>)
-            return _mm256_castpd256_pd128(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m128i>)
-            return _mm256_castsi256_si128(from);
-
-        // Zero extend
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == true)
-            return _mm512_insertf128_ps(_mm512_castps128_ps512(from), _mm_setzero_ps(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == true)
-            return _mm512_insertf128_pd(_mm512_castpd128_pd512(from), _mm_setzero_pd(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == true)
-            return _mm512_insertf128_si512(_mm512_castsi128_si512(from), _mm_setzero_si128(), 1);
-
-
-        // Undefined
-        else if constexpr (std::is_same_v<_FromVector_, __m128> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == false)
-            return _mm512_castps128_ps512(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == false)
-            return _mm512_castpd128_pd512(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m128i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == false)
-            return _mm512_castsi128_si512(from);
-
-
-        // Truncate
-        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m128>)
-            return _mm512_castps512_ps128(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m128d>)
-            return _mm512_castpd512_pd128(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m128i>)
-            return _mm512_castsi512_si128(from);
-
-       // Zero extend
-       else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>    && _SafeCast_ == true)
-            return _mm512_insertf256_ps(_mm512_castps256_ps512(from), _mm256_setzero_ps(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == true)
-            return _mm512_insertf256_pd(_mm512_castpd256_pd512(from), _mm256_setzero_pd(), 1);
-        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == true)
-            return _mm512_insertf256_si512(_mm512_castsi256_si512(from), _mm256_setzero_si256(), 1);
-
-        // Undefined
-        else if constexpr (std::is_same_v<_FromVector_, __m256> && std::is_same_v<_ToVector_, __m512>   && _SafeCast_ == false)
-            return _mm512_castps256_ps512(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256d> && std::is_same_v<_ToVector_, __m512d> && _SafeCast_ == false)
-            return _mm512_castpd256_pd512(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m256i> && std::is_same_v<_ToVector_, __m512i> && _SafeCast_ == false)
-            return _mm512_castsi256_si512(from);
-
-        // Truncate
-        else if constexpr (std::is_same_v<_FromVector_, __m512> && std::is_same_v<_ToVector_, __m256>)
-            return _mm512_castps512_ps256(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512d> && std::is_same_v<_ToVector_, __m256d>)
-            return _mm512_castpd512_pd256(from);
-        else if constexpr (std::is_same_v<_FromVector_, __m512i> && std::is_same_v<_ToVector_, __m256i>)
-            return _mm512_castsi512_si256(from);
-    }
-};
-
-template <typename _Element_>
-class BasicSimdImplementation<arch::CpuFeature::AVX512BW, _Element_>:
-    public BasicSimdImplementation<arch::CpuFeature::AVX512F, _Element_> 
+template <>
+class BasicSimdImplementation<arch::CpuFeature::AVX512BW>:
+    public BasicSimdImplementation<arch::CpuFeature::AVX512F> 
 {
 
 };

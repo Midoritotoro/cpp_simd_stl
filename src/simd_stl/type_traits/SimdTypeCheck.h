@@ -61,7 +61,7 @@ template <
 using __deduce_simd_mask_type =  __deduce_simd_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>) / sizeof(_Element_))>;
 
 
-template <sizetype _VectorLength_>
+template <sizetype size>
 using __deduce_simd_shuffle_mask_type = std::conditional_t<size == 2, uint8,
 		std::conditional_t<size == 4, uint8,
 			std::conditional_t<size == 8, uint32,
