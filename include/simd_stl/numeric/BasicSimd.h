@@ -194,13 +194,13 @@ public:
         * @brief Сохраняет вектор в память по невыровненному адресу.
         * @param where Указатель на память для сохранения вектора.
     */
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(const value_type* where) noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeUnaligned(value_type* where) noexcept;
 
     /**
         * @brief Сохраняет вектор в память по выровненному адресу.
         * @param where Указатель на память для сохранения вектора.
     */
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(const value_type* where) noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void storeAligned(value_type* where) noexcept;
 
 
     /**
@@ -211,7 +211,7 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd maskLoadUnaligned(
-        const value_type* where,
+        const value_type*   where,
         const mask_type     mask) noexcept;
 
     /**
@@ -232,8 +232,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreUnaligned(
-        const mask_type     mask,
-        const value_type*   where) noexcept;
+        value_type*     where,
+        const mask_type mask) noexcept;
 
     /**
         * @brief Сохраняет элемент вектора в память по выровненному адресу, если соответствующий бит маски установлен.
@@ -242,8 +242,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void maskStoreAligned(
-        const value_type*   where,
-        const mask_type     mask) noexcept;
+        value_type*     where,
+        const mask_type mask) noexcept;
 
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type unwrap() const noexcept {
@@ -832,14 +832,14 @@ basic_simd<_SimdGeneration_, _Element_>::loadAligned(const value_type* where) no
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(const value_type* where) noexcept {
+simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(value_type* where) noexcept {
     implementation::template storeUnaligned<value_type>(where, _vector);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(const value_type* where) noexcept {
+simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(value_type* where) noexcept {
     implementation::template storeAligned<value_type>(where, _vector);
 }
 
@@ -872,8 +872,8 @@ template <
     typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreUnaligned(
-    const mask_type     mask,
-    const value_type*   where) noexcept
+    value_type*     where,
+    const mask_type mask) noexcept
 {
     implementation::template maskStoreUnaligned<value_type>(where, mask, _vector);
 }
@@ -883,8 +883,8 @@ template <
     typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreAligned(
-    const value_type*   where,
-    const mask_type     mask) noexcept
+    value_type*     where,
+    const mask_type mask) noexcept
 {
     implementation::template maskStoreAligned<value_type>(where, mask, _vector);
 }
