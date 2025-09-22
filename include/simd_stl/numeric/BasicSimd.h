@@ -71,8 +71,8 @@ class basic_simd {
     static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
     friend BasicSimdElementReference;
-    using implementation = BasicSimdImplementation<_SimdGeneration_>;
 public:
+    using implementation = BasicSimdImplementation<_SimdGeneration_>;
     static constexpr auto _Generation = _SimdGeneration_;
 
     using value_type    = _Element_;
@@ -83,8 +83,20 @@ public:
 
     basic_simd() noexcept;
 
+    
+    /**
+        * @brief Заполнение вектора значением.
+        * @param value Значение, которым будет заполнен вектор.
+    */
     basic_simd(const value_type value) noexcept;
+
     basic_simd(const vector_type& other) noexcept;
+
+    /**
+        * @brief Загрузка вектора из памяти по адресу address.
+        * @param address Адрес для загрузки.
+    */
+    basic_simd(const value_type* address) noexcept;
 
     template <typename _OtherType_>
     basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept;
@@ -97,11 +109,17 @@ public:
     ~basic_simd() noexcept;
 
     /**
+        * @brief Заполнение вектора значением.
+        * @param value Значение, которым будет заполнен вектор.
+    */
+    template <typename _DesiredType_ = value_type>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void fill(const value_type value) noexcept;
+
+    /**
         * @brief Извлечение значения из вектора в позиции 'index' с предварительной проверкой границ.
         * @param index Позиция для извлечения.
         * @return Извлечённое значение.
     */
-    
     template <typename _DesiredType_ = value_type>
     simd_stl_constexpr_cxx20 simd_stl_always_inline _DesiredType_ extract(const size_type index) const noexcept;
 
@@ -429,8 +447,15 @@ basic_simd<_SimdGeneration_, _Element_>::basic_simd(const vector_type& other) no
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
+basic_simd<_SimdGeneration_, _Element_>::basic_simd(const value_type* address) noexcept {
+    _vector = loadUnaligned(address).unwrap();
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
 basic_simd<_SimdGeneration_, _Element_>::basic_simd(const value_type value) noexcept {
-    _vector = implementation::template broadcast<vector_type>(value);
+    _vector = fill(value);
 }
 
 template <
@@ -438,6 +463,15 @@ template <
     typename            _Element_>
 basic_simd<_SimdGeneration_, _Element_>::~basic_simd() noexcept
 {}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline void
+basic_simd<_SimdGeneration_, _Element_>::fill(const value_type value) noexcept {
+    _vector = implementation::template broadcast<vector_type>(value);
+}
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -680,8 +714,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _El
 basic_simd<_SimdGeneration_, _Element_>::operator-() const noexcept 
 {
     return implementation::template sub<value_type>(
-        implementation::template constructZero<vector_type>(), _vector
-    );
+        implementation::template constructZero<vector_type>(), _vector);
 }
 
 template <
@@ -785,7 +818,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <class _BasicSimdTo_>
-static simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::safeCast(const basic_simd& from) noexcept {
+simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::safeCast(const basic_simd& from) noexcept {
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
     using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
@@ -814,57 +847,57 @@ basic_simd<_SimdGeneration_, _Element_>::cast(const basic_simd& from) const noex
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::loadUnaligned(const value_type* where) noexcept
 {
-    return implementation::template loadUnaligned<value_type>(where);
+    return implementation::template loadUnaligned<vector_type>(where);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
 basic_simd<_SimdGeneration_, _Element_>::loadAligned(const value_type* where) noexcept
 {
-    return implementation::template loadAligned<value_type>(where);
+    return implementation::template loadAligned<vector_type>(where);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(value_type* where) noexcept {
-    implementation::template storeUnaligned<value_type>(where, _vector);
+    implementation::template storeUnaligned(where, _vector);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(value_type* where) noexcept {
-    implementation::template storeAligned<value_type>(where, _vector);
+    implementation::template storeAligned(where, _vector);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _DesiredType_>
-static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
     const value_type*   where,
     const mask_type     mask) noexcept 
 {
-    return implementation::template maskLoadUnaligned<value_type>(where, mask);
+    return implementation::template maskLoadUnaligned(where, mask);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _DesiredType_>
-static simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::maskLoadAligned(
     const value_type*   where,
     const mask_type     mask) noexcept
 {
-    return implementation::template maskLoadAligned<value_type>(where, mask);
+    return implementation::template maskLoadAligned(where, mask);
 }
 
 template <
@@ -875,7 +908,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_
     value_type*     where,
     const mask_type mask) noexcept
 {
-    implementation::template maskStoreUnaligned<value_type>(where, mask, _vector);
+    implementation::template maskStoreUnaligned(where, mask, _vector);
 }
 
 template <
@@ -886,7 +919,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_
     value_type*     where,
     const mask_type mask) noexcept
 {
-    implementation::template maskStoreAligned<value_type>(where, mask, _vector);
+    implementation::template maskStoreAligned(where, mask, _vector);
 }
 
 

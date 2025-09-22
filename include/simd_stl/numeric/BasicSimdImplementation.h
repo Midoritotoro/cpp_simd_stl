@@ -85,8 +85,8 @@ public:
     }
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
+        typename _VectorType_,
+        typename _DesiredType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_loadu_si128(reinterpret_cast<const __m128i*>(where));
@@ -118,9 +118,9 @@ public:
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_storeu_si128(reinterpret_cast<__m128i*>(where), vector);
         else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_storeu_si128(reinterpret_cast<double*>(where), vector);
+            return _mm_storeu_pd(reinterpret_cast<double*>(where), vector);
         else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_storeu_si128(reinterpret_cast<float*>(where), vector);
+            return _mm_storeu_ps(reinterpret_cast<float*>(where), vector);
     }
 
     template <
@@ -148,7 +148,7 @@ public:
             sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        storeUnaligned(where, shuffle<_DesiredType_>(loadUnaligned(where), vector, mask));
+        storeUnaligned(where, shuffle<_DesiredType_>(loadUnaligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -160,7 +160,7 @@ public:
             sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        storeAligned(where, shuffle<_DesiredType_>(loadAligned(where), vector, mask));
+        storeAligned(where, shuffle<_DesiredType_>(loadAligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -172,7 +172,7 @@ public:
             sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        return shuffle<_DesiredType_>(loadUnaligned(where), vector, mask);
+        return shuffle<_DesiredType_>(loadUnaligned<_VectorType_>(where), vector, mask);
     }
 
     template <
@@ -184,7 +184,7 @@ public:
             sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
         _VectorType_                                        vector) noexcept
     {
-        return shuffle<_DesiredType_>(loadAligned(where), vector, mask);
+        return shuffle<_DesiredType_>(loadAligned<_VectorType_>(where), vector, mask);
     }
 
     template <
@@ -251,17 +251,17 @@ public:
         typename _DesiredType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ broadcast(_DesiredType_ value) noexcept {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm_set1_epi64x(value);
+            return cast<__m128i, _VectorType_>(_mm_set1_epi64x(value));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm_set1_epi32(value);
+            return cast<__m128i, _VectorType_>(_mm_set1_epi32(value));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_set1_epi16(value);
+            return cast<__m128i, _VectorType_>(_mm_set1_epi16(value));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _mm_set1_epi8(value);
+            return cast<__m128i, _VectorType_>(_mm_set1_epi8(value));
         else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_set1_ps(value);
+            return cast<__m128, _VectorType_>(_mm_set1_ps(value));
         else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm_set1_pd(value);
+            return cast<__m128d, _VectorType_>(_mm_set1_pd(value));
     }
 
     template <
@@ -272,17 +272,29 @@ public:
         _VectorType_ right) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm_add_epi64(left, right);
+            return cast<__m128i, _VectorType_>(_mm_add_epi64(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm_add_epi32(left, right);
+            return cast<__m128i, _VectorType_>(_mm_add_epi32(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_add_epi16(left, right);
+            return cast<__m128i, _VectorType_>(_mm_add_epi16(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _mm_add_epi8(left, right);
+            return cast<__m128i, _VectorType_>(_mm_add_epi8(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_add_ps(left, right);
+            return cast<__m128, _VectorType_>(_mm_add_ps(
+                cast<_VectorType_, __m128>(left),
+                cast<_VectorType_, __m128>(right)));
         else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm_add_pd(left, right);
+            return cast<__m128d, _VectorType_>(_mm_add_pd(
+                cast<_VectorType_, __m128d>(left),
+                cast<_VectorType_, __m128d>(right)));
     }
 
     template <
@@ -293,17 +305,29 @@ public:
         _VectorType_ right) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _mm_sub_epi64(left, right);
+            return cast<__m128i, _VectorType_>(_mm_sub_epi64(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _mm_sub_epi32(left, right);
+            return cast<__m128i, _VectorType_>(_mm_sub_epi32(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_sub_epi16(left, right);
+            return cast<__m128i, _VectorType_>(_mm_sub_epi16(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _mm_sub_epi8(left, right);
+            return cast<__m128i, _VectorType_>(_mm_sub_epi8(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_sub_ps(left, right);
+            return cast<__m128, _VectorType_>(_mm_sub_ps(
+                cast<_VectorType_, __m128>(left),
+                cast<_VectorType_, __m128>(right)));
         else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm_sub_pd(left, right);
+            return cast<__m128d, _VectorType_>(_mm_sub_pd(
+                cast<_VectorType_, __m128d>(left),
+                cast<_VectorType_, __m128d>(right)));
     }
 
     template <
@@ -314,26 +338,44 @@ public:
         _VectorType_ right) noexcept
     {
         // ? 
-        if      constexpr (is_epi64_v<_DesiredType_>)
-            return _mm_mul_epi64(left, right);
+       /* if      constexpr (is_epi64_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_mul_epi64(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epu64_v<_DesiredType_>)
-            return _mm_mul_epu64(left, right);
+            return cast<__m128i, _VectorType_>(_mm_mul_epu64(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
         else if constexpr (is_epi32_v<_DesiredType_>)
-            return _mm_mul_epi32(left, right);
-        else if constexpr (is_epu32_v<_DesiredType_>)
-            return _mm_mul_epu32(left, right);
-        else if constexpr (is_epi16_v<_DesiredType_>)
-            return _mm_mul_epi16(left, right);
-        else if constexpr (is_epu16_v<_DesiredType_>)
-            return _mm_mul_epu16(left, right);
-        else if constexpr (is_epi8_v<_DesiredType_>)
-            return _mm_mul_epi8(left, right);
-        else if constexpr (is_epu8_v<_DesiredType_>)
-            return _mm_mul_epi8(left, right);
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _mm_mul_ps(left, right);
+            return cast<__m128i, _VectorType_>(_mm_mul_epi32(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
+        else */if constexpr (is_epu32_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_mul_epu32(
+                cast<_VectorType_, __m128i>(left),
+                cast<_VectorType_, __m128i>(right)));
+        //else if constexpr (is_epi16_v<_DesiredType_>)
+        //    return cast<__m128i, _VectorType_>(_mm_mul_epi16(
+        //        cast<_VectorType_, __m128i>(left),
+        //        cast<_VectorType_, __m128i>(right)));
+        //else if constexpr (is_epu16_v<_DesiredType_>)
+        //    return cast<__m128i, _VectorType_>(_mm_mul_epu16(
+        //        cast<_VectorType_, __m128i>(left),
+        //        cast<_VectorType_, __m128i>(right)));
+        //else if constexpr (is_epi8_v<_DesiredType_>)
+        //    return cast<__m128i, _VectorType_>(_mm_mul_epi8(
+        //        cast<_VectorType_, __m128i>(left),
+        //        cast<_VectorType_, __m128i>(right)));
+        //else if constexpr (is_epu8_v<_DesiredType_>)
+        //    return cast<__m128i, _VectorType_>(_mm_mul_epi8(
+        //        cast<_VectorType_, __m128i>(left),
+        //        cast<_VectorType_, __m128i>(right)));
+        //else if constexpr (is_ps_v<_DesiredType_>)
+        //    return _mm_mul_ps(left, right);
         else if constexpr (is_pd_v<_DesiredType_>)
             return _mm_mul_pd(left, right);
+
+        return broadcast<_VectorType_>(0);
     }
 
     template <
@@ -344,7 +386,7 @@ public:
         _VectorType_ right) noexcept
     {
         // ?
-        if      constexpr (is_epi64_v<_DesiredType_>)
+        /*if      constexpr (is_epi64_v<_DesiredType_>)
             return _mm_div_epi64(left, right);
         else if constexpr (is_epu64_v<_DesiredType_>)
             return _mm_div_epu64(left, right);
@@ -362,8 +404,12 @@ public:
             return _mm_div_epi8(left, right);
         else if constexpr (is_ps_v<_DesiredType_>)
             return _mm_div_ps(left, right);
-        else if constexpr (is_pd_v<_DesiredType_>)
-            return _mm_div_pd(left, right);
+        else */if constexpr (is_pd_v<_DesiredType_>)
+            return cast<__m128d, _VectorType_>(_mm_div_pd(
+                cast<_VectorType_, __m128d>(left),
+                cast<_VectorType_, __m128d>(right)));
+
+        return broadcast<_VectorType_>(0);
     }
 
     template <typename _VectorType_>
@@ -599,7 +645,7 @@ public:
             arrayTemp[2] = ((mask >> 2) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
             arrayTemp[3] = ((mask >> 3) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
 
-            return loadUnaligned(arrayTemp);
+            return loadUnaligned<_VectorType_>(arrayTemp);
         }
         else if constexpr (is_epi32_v<_DesiredVectorElementType_> || is_epu32_v<_DesiredVectorElementType_> || is_ps_v<_DesiredVectorElementType_>) {
             const auto vshift—ount = _mm256_set_epi32(24, 25, 26, 27, 28, 29, 30, 31);
@@ -1171,7 +1217,7 @@ public:
 //            arrayTemp[6] = ((mask >> 6) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
 //            arrayTemp[7] = ((mask >> 7) & 1) ? 0xFFFFFFFFFFFFFFFF : 0;
 //
-//            return loadUnaligned(arrayTemp);
+//            return loadUnaligned<_VectorType_>(arrayTemp);
 //        }
 //        else if constexpr (is_epi32_v<_DesiredVectorElementType_> || is_epu32_v<_DesiredVectorElementType_> || is_ps_v<_DesiredVectorElementType_>) {
 //            const auto vshift—ount = _mm512_set_epi32(24, 25, 26, 27, 28, 29, 30, 31);
