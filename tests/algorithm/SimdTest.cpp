@@ -11,7 +11,7 @@ bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>
 
 template <typename T, simd_stl::arch::CpuFeature Arch>
 void testArithmeticOperations() {
-    size_t num_elements = simd_stl::numeric::basic_simd<Arch, T>::size(); // Get the number of elements in SIMD vector
+    constexpr size_t num_elements = simd_stl::numeric::basic_simd<Arch, T>::template size(); // Get the number of elements in SIMD vector
     std::vector<T> initial_values(num_elements, 51);
     simd_stl::numeric::basic_simd<Arch, T> simd(initial_values.data());
     std::vector<T> array(num_elements);
@@ -75,16 +75,16 @@ void testArithmeticOperations() {
         simd = initial_values.data(); // Reset
     }
 
-    //// Left Shift
-    //if constexpr (std::is_integral_v<T>) {
-    //    std::vector<T> expected_left_shift(num_elements);
-    //    std::transform(initial_values.begin(), initial_values.end(), expected_left_shift.begin(), [](T x) { return x << 2; }); // shift by 2 bits
-    //    simd = simd << 2;
-    //    simd.storeUnaligned(array.data());
-    //    assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
-    //    std::cout << "Left Shift test passed" << std::endl;
-    //    simd = initial_values.data(); // Reset
-    //}
+    // Left Shift
+    if constexpr (std::is_integral_v<T>) {
+        std::vector<T> expected_left_shift(num_elements);
+        std::transform(initial_values.begin(), initial_values.end(), expected_left_shift.begin(), [](T x) { return x << 2; }); // shift by 2 bits
+        simd = simd << 2;
+        simd.storeUnaligned(array.data());
+        assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
+        std::cout << "Left Shift test passed" << std::endl;
+        simd = initial_values.data(); // Reset
+    }
 
     //// Right Shift
     //if constexpr (std::is_integral_v<T>) {
@@ -102,6 +102,7 @@ void testArithmeticOperations() {
     std::transform(initial_values.begin(), initial_values.end(), expected_unary_minus.begin(), std::negate<T>());
     simd = -simd;
     simd.storeUnaligned(array.data());
+    
     assert(areEqual(simd, expected_unary_minus) && "Unary Minus test failed");
     simd = initial_values.data(); // Reset
 

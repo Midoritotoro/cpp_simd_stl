@@ -83,7 +83,7 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
-
+    src/simd_stl/numeric/SimdDivisors.h
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchVectorizedTraits.h
