@@ -938,7 +938,7 @@ private:
             constexpr int32 magicMultiplier = int32(1 + ((uint64(1) << (32 + shiftForMagic))
                 / uint32(absoluteDivisor)) - (int64(1) << 32));
 
-            const SimdDivisor<arch::CpuFeature::SSE2, int32_t> divisorParams(
+            SimdDivisor<arch::CpuFeature::SSE2, int32> divisorParams(
                 magicMultiplier, shiftForMagic, _Divisor_ < 0 ? -1 : 0);
 
             const auto productLowEven = _mm_mul_epu32(dividendVector, divisorParams.getMultiplier()); // dividendVector[0], dividendVector[2]

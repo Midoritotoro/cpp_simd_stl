@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <simd_stl/compatibility/Compatibility.h>
+#include <src/simd_stl/utility/Assert.h>
 
 #if defined(min)
 #  undef min
