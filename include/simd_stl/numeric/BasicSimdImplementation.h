@@ -440,6 +440,15 @@ template <>
 class BasicSimdImplementation<arch::CpuFeature::SSE2> {
 public:
     template <
+        typename        _DesiredType_,
+        _DesiredType_   _Divisor_,
+        typename        _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ divideByConst(_VectorType_ dividendVector) noexcept
+    {
+        return divideByConstHelper<_DesiredType_, _Divisor_, _VectorType_>(dividendVector);
+    }
+
+    template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ unaryMinus(_VectorType_ vector) noexcept {
@@ -856,118 +865,209 @@ public:
 private: 
     template <
         typename        _DesiredType_,
-        _DesiredType_   _Value_,
+        _DesiredType_   _Divisor_,
         typename        _VectorType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ divideByConstHelper(_VectorType_ left) noexcept
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ divideByConstHelper(_VectorType_ dividendVector) noexcept
     {
-        static_assert(_Value_  != 0, "Integer division by zero");
+        static_assert(_Divisor_ != 0, "Integer division by zero");
 
-        if constexpr (_Value_ == 1)
-            return left;
+        if constexpr (_Divisor_ == 1)
+            return dividendVector;
 
         if constexpr (is_epu32_v<_DesiredType_>) {
-            const auto integerLeft          = cast<_VectorType_, __m128i>(left);
-            constexpr auto trailingZeroBits = math::CountTrailingZeroBits(_Value_); // floor(log2(_Value_))
+            const auto dividendAsInt32 = cast<_VectorType_, __m128i>(dividendVector);
+            constexpr auto trailingZerosInDivisor = math::CountTrailingZeroBits(_Divisor_);
 
-            if constexpr ((uint32(_Value_) & (uint32(_Value_) - 1)) == 0)
-                // _Value_ является степенью двойки - можно использовать битовый сдвиг для деления.
-                return _mm_srli_epi32(integerLeft, trailingZeroBits);
-           
-            constexpr auto multiplier       = uint32((uint64(1) << (trailingZeroBits+32)) / _Value_);               // 2^(32+trailingZeroBits) / _Value_
-            constexpr uint64 remainder      = (uint64(1) << (trailingZeroBits+32)) - uint64(_Value_)*multiplier;    // 2^(32+trailingZeroBits) % _Value_
+            if constexpr ((uint32(_Divisor_) & (uint32(_Divisor_) - 1)) == 0)
+                return _mm_srli_epi32(dividendAsInt32, trailingZerosInDivisor);
 
-            constexpr auto roundDown        = (2 * remainder < _Value_);
-            constexpr auto multiplierSecond = roundDown ? multiplier : multiplier + 1;
+            constexpr uint32 magicMultiplier = uint32((uint64(1) << (trailingZerosInDivisor + 32)) / _Divisor_);
+            constexpr uint64 magicRemainder = (uint64(1) << (trailingZerosInDivisor + 32)) - uint64(_Divisor_) * magicMultiplier;
 
-            const auto broadcasted = broadcast<_VectorType_>(uint64(multiplierSecond));
+            constexpr bool useRoundDown = (2 * magicRemainder < _Divisor_);
+            constexpr uint32 adjustedMultiplier = useRoundDown ? magicMultiplier : magicMultiplier + 1;
 
-            auto t1 = _mm_mul_epu32(integerLeft, broadcasted);
+            const auto multiplierBroadcasted = broadcast<_VectorType_>(uint64(adjustedMultiplier));
 
-            if constexpr (roundDown)
-                // Компенсация ошибок округления.
-                t1 = _mm_add_epi64(t1, broadcasted);
-            
-            // Старшие 32 бита результата умножения left[0] на left[2]
-            auto t2 = _mm_srli_epi64(t1, 32);
+            auto lowProduct = _mm_mul_epu32(dividendAsInt32, multiplierBroadcasted);    // Умножаем элементы [0] и [2] на multiplier
 
-            // Получение left[1] и left[3]
-            auto t3 = _mm_srli_epi64(integerLeft, 32);
+            if constexpr (useRoundDown)
+                lowProduct = _mm_add_epi64(lowProduct, multiplierBroadcasted);
 
-            // 64-битное умножение left[1] и left[3]
-            auto t4 = _mm_mul_epu32(t3, broadcasted);
+            auto lowProductShifted = _mm_srli_epi64(lowProduct, 32);                   // Получаем старшие 32 бита результата умножения
+            auto highParts = _mm_srli_epi64(dividendAsInt32, 32);              // Получаем элементы [1] и [3] из исходного вектора
+            auto highProduct = _mm_mul_epu32(highParts, multiplierBroadcasted);  // Умножаем элементы [1] и [3] на multiplier
 
-            if constexpr (roundDown)
-                // Компенсация ошибок округления.
-                t4 = _mm_add_epi64(t4, broadcasted);
-            
-            auto t5 = _mm_set_epi32(-1, 0, -1, 0);
-            auto t6 = _mm_and_si128(t4, t5);
-            auto t7 = _mm_or_si128(t2, t6);
-        
-            return cast<__m128i, _VectorType_>(_mm_srli_epi32(t7, trailingZeroBits));
+            if constexpr (useRoundDown)
+                highProduct = _mm_add_epi64(highProduct, multiplierBroadcasted);
+
+            auto low32BitMask = _mm_set_epi32(-1, 0, -1, 0);
+            auto highProductMasked = _mm_and_si128(highProduct, low32BitMask);
+
+            auto combinedProduct = _mm_or_si128(lowProductShifted, highProductMasked);
+
+            return cast<__m128i, _VectorType_>(_mm_srli_epi32(combinedProduct, trailingZerosInDivisor));
         }
-        else if constexpr (is_epi32_v< _DesiredType_>) {
-            if constexpr (_Value_ == -1)
-                return unaryMinus<_DesiredType_>(left);
+        else if constexpr (is_epi32_v<_DesiredType_>) {
+            if constexpr (_Divisor_ == -1)
+                return unaryMinus<_DesiredType_>(dividendVector);
 
-            // if constexpr (uint32(_Value_) == 0x80000000u) /* */
+            constexpr uint32 absoluteDivisor = _Divisor_ > 0 ? uint32(_Divisor_) : uint32(-_Divisor_);
 
-            constexpr uint32 absolute = _Value_ > 0 ? uint32(_Value_) : uint32(-_Value_);
+            if constexpr ((absoluteDivisor & (absoluteDivisor - 1)) == 0) {
+                constexpr auto shiftAmount = math::CountTrailingZeroBits(absoluteDivisor);
+                __m128i signBits;
 
-            if constexpr ((absolute & (absolute - 1)) == 0) {
-                // absolute является степенью двойки.
-                constexpr auto k = math::CountTrailingZeroBits(absolute);
-                __m128i sign;
-
-                if constexpr (k > 1)
-                    sign = _mm_srai_epi32(left , k - 1);
+                if constexpr (shiftAmount > 1)
+                    signBits = _mm_srai_epi32(dividendVector, shiftAmount - 1);
                 else
-                    sign = left;
+                    signBits = dividendVector;
 
-                auto bias = _mm_srli_epi32(sign, 32 - k);
-                auto xpbias = _mm_add_epi32(left, bias);
+                auto roundingBias = _mm_srli_epi32(signBits, 32 - shiftAmount);
+                auto biasedDividend = _mm_add_epi32(dividendVector, roundingBias);
 
-                auto q = _mm_srai_epi32(xpbias, k);
+                auto quotient = _mm_srai_epi32(biasedDividend, shiftAmount);
 
-                if (_Value_ > 0)     
-                    return q;
+                if constexpr (_Divisor_ > 0)
+                    return quotient;
 
-                return _mm_sub_epi32(_mm_setzero_si128(), q);
+                return _mm_sub_epi32(_mm_setzero_si128(), quotient);
             }
 
-            constexpr int32 sh = math::CountTrailingZeroBits(uint32(absolute) - 1); // ceil(log2(d1)) - 1. (d1 < 2 handled by power of 2 case)
-            constexpr int32 mult = int(1 + (uint64(1) << (32 + sh)) / uint32(absolute) - (int64(1) << 32));   // multiplier
+            constexpr int32 shiftForMagic = math::CountTrailingZeroBits(uint32_t(absoluteDivisor) - 1);
+            constexpr int32 magicMultiplier = int32(1 + ((uint64(1) << (32 + shiftForMagic))
+                / uint32(absoluteDivisor)) - (int64(1) << 32));
 
-            const SimdDivisor<arch::CpuFeature::SSE2, int32> divisor(mult, sh, _Value_ < 0 ? -1 : 0);
+            const SimdDivisor<arch::CpuFeature::SSE2, int32_t> divisorParams(
+                magicMultiplier, shiftForMagic, _Divisor_ < 0 ? -1 : 0);
 
-            auto t1 = _mm_mul_epu32(left, divisor.getMultiplier());               // 32x32->64 bit unsigned multiplication of a[0] and a[2]
-            auto t2 = _mm_srli_epi64(t1, 32);                   // high dword of result 0 and 2
+            const auto productLowEven = _mm_mul_epu32(dividendVector, divisorParams.getMultiplier()); // dividendVector[0], dividendVector[2]
+            const auto productHighEven = _mm_srli_epi64(productLowEven, 32);
 
-            auto t3 = _mm_srli_epi64(a, 32);                    // get a[1] and a[3] into position for multiplication
-            auto t4 = _mm_mul_epu32(t3, divisor.getMultiplier());              // 32x32->64 bit unsigned multiplication of a[1] and a[3]
+            const auto shiftedDividendOdd = _mm_srli_epi64(dividendVector, 32); // dividendVector[1], dividendVector[3]
+            const auto productLowOdd = _mm_mul_epu32(shiftedDividendOdd, divisorParams.getMultiplier());
 
-            auto t5 = _mm_set_epi32(-1, 0, -1, 0);              // mask of dword 1 and 3
-            auto t6 = _mm_and_si128(t4, t5);                    // high dword of result 1 and 3
+            const auto oddMask = _mm_set_epi32(-1, 0, -1, 0);
+            const auto productHighOdd = _mm_and_si128(productLowOdd, oddMask);
 
-            auto t7 = _mm_or_si128(t2, t6);                     // combine all four results of unsigned high mul into one vector
+            const auto combinedHighProduct = _mm_or_si128(productHighEven, productHighOdd);
 
-            // convert unsigned to signed high multiplication (from: H S Warren: Hacker's delight, 2003, p. 132)
-            auto u1 = _mm_srai_epi32(left, 31);                    // sign of a
-            auto u2 = _mm_srai_epi32(divisor.getMultiplier(), 31);             // sign of m [ m is always negative, except for abs(d) = 1 ]
+            const auto dividendSignMask = _mm_srai_epi32(dividendVector, 31);
+            const auto multiplierSignMask = _mm_srai_epi32(divisorParams.getMultiplier(), 31);
 
-            auto u3 = _mm_and_si128(divisor.getMultiplier(), u1);              // m * sign of a
-            auto u4 = _mm_and_si128(left, u2);                     // a * sign of m
+            const auto correctionFromMultiplier = _mm_and_si128(divisorParams.getMultiplier(), dividendSignMask);
+            const auto correctionFromDividend = _mm_and_si128(dividendVector, multiplierSignMask);
 
-            auto u5 = _mm_add_epi32(u3, u4);                    // sum of sign corrections
-            auto u6 = _mm_sub_epi32(t7, u5);                    // high multiplication result converted to signed
+            const auto totalCorrection = _mm_add_epi32(correctionFromMultiplier, correctionFromDividend);
+            const auto signedProduct = _mm_sub_epi32(combinedHighProduct, totalCorrection);
 
-            auto t8 = _mm_add_epi32(u6, left);                     // add a
-            auto t9 = _mm_sra_epi32(t8, divisor.getFirstShiftCount());             // shift right arithmetic
+            const auto adjustedSum = _mm_add_epi32(signedProduct, dividendVector);
+            const auto shiftedQuotient = _mm_sra_epi32(adjustedSum, divisorParams.getFirstShiftCount());
 
-            auto t10 = _mm_sub_epi32(u1, divisor.getDivisorSign());          // sign of a - sign of d
-            auto t11 = _mm_sub_epi32(t9, t10);                  // + 1 if a < 0, -1 if d < 0
+            const auto signDifference = _mm_sub_epi32(dividendSignMask, divisorParams.getDivisorSign());
+            const auto correctedQuotient = _mm_sub_epi32(shiftedQuotient, signDifference);
 
-            return _mm_xor_si128(t11, divisor.getDivisorSign());         // change sign if divisor negative
+            return _mm_xor_si128(correctedQuotient, divisorParams.getDivisorSign());
+        }
+        else if constexpr (is_epi16_v<_DesiredType_>) {
+            if constexpr (_Divisor_ == -1)
+                return unaryMinus<_DesiredType_>(dividendVector);
+
+            constexpr uint32 absoluteDivisor = _Divisor_ > 0 ? uint32_t(_Divisor_) : uint32_t(-_Divisor_);
+
+            if constexpr ((absoluteDivisor & (absoluteDivisor - 1)) == 0) {
+                // Делитель — степень двойки
+                constexpr auto shiftAmount = math::CountTrailingZeroBits(absoluteDivisor);
+                __m128i signBits;
+
+                if constexpr (shiftAmount > 1)
+                    signBits = _mm_srai_epi32(dividendVector, shiftAmount - 1);
+                else
+                    signBits = dividendVector;
+
+                const auto roundingBias = _mm_srli_epi32(signBits, 32 - shiftAmount);
+                const auto biasedDividend = _mm_add_epi32(dividendVector, roundingBias);
+                const auto quotient = _mm_srai_epi32(biasedDividend, shiftAmount);
+
+                if constexpr (_Divisor_ > 0)
+                    return quotient;
+
+                return _mm_sub_epi32(_mm_setzero_si128(), quotient);
+            }
+
+            constexpr auto shiftForMagic = math::CountTrailingZeroBits(uint32(absoluteDivisor) - 1);
+            constexpr auto magicMultiplier = int32(1 + ((uint64(1) << (32 + shiftForMagic)) / uint32(absoluteDivisor)) - (int64(1) << 32));
+
+            const SimdDivisor<arch::CpuFeature::SSE2, int32_t> divisorParams(
+                magicMultiplier, shiftForMagic, _Divisor_ < 0 ? -1 : 0);
+
+            const auto productLowEven = _mm_mul_epu32(dividendVector, divisorParams.getMultiplier()); // dividendVector[0], dividendVector[2]
+            const auto productHighEven = _mm_srli_epi64(productLowEven, 32);
+
+            const auto shiftedDividendOdd = _mm_srli_epi64(dividendVector, 32); // dividendVector[1], dividendVector[3]
+            const auto productLowOdd = _mm_mul_epu32(shiftedDividendOdd, divisorParams.getMultiplier());
+
+            const auto oddMask = _mm_set_epi32(-1, 0, -1, 0);
+            const auto productHighOdd = _mm_and_si128(productLowOdd, oddMask);
+
+            const auto combinedHighProduct = _mm_or_si128(productHighEven, productHighOdd);
+
+            const auto dividendSignMask = _mm_srai_epi32(dividendVector, 31);
+            const auto multiplierSignMask = _mm_srai_epi32(divisorParams.getMultiplier(), 31);
+
+            const auto correctionFromMultiplier = _mm_and_si128(divisorParams.getMultiplier(), dividendSignMask);
+            const auto correctionFromDividend = _mm_and_si128(dividendVector, multiplierSignMask);
+
+            const auto totalCorrection = _mm_add_epi32(correctionFromMultiplier, correctionFromDividend);
+            const auto signedProduct = _mm_sub_epi32(combinedHighProduct, totalCorrection);
+
+            const auto adjustedSum = _mm_add_epi32(signedProduct, dividendVector);
+            const auto shiftedQuotient = _mm_sra_epi32(adjustedSum, divisorParams.getFirstShiftCount());
+
+            const auto signDifference = _mm_sub_epi32(dividendSignMask, divisorParams.getDivisorSign());
+            const auto correctedQuotient = _mm_sub_epi32(shiftedQuotient, signDifference);
+
+            return _mm_xor_si128(correctedQuotient, divisorParams.getDivisorSign());
+        }
+        else if constexpr (is_epu16_v<_DesiredType_>) {
+            constexpr int trailingZeroBitCount = math::CountTrailingZeroBits(_Divisor_);
+
+            if constexpr ((_Divisor_ & (_Divisor_ - 1u)) == 0)
+                return _mm_srli_epi16(dividendVector, trailingZeroBitCount);
+
+            constexpr auto magicDivisionMultiplier = uint16((1u << uint32(trailingZeroBitCount + 16)) / _Divisor_);
+
+            constexpr uint32_t magicDivisionRemainder = ((uint32_t(1) << uint32_t(trailingZeroBitCount + 16)) 
+                - uint32_t(_Divisor_) * magicDivisionMultiplier);
+
+            constexpr bool shouldRoundDown = (2u * magicDivisionRemainder < _Divisor_);
+
+            if (shouldRoundDown)
+                dividendVector = dividendVector + _mm_set1_epi16(1);
+
+            constexpr uint16 adjustedMagicMultiplier = shouldRoundDown
+                ? magicDivisionMultiplier
+                : magicDivisionMultiplier + 1;
+
+            const auto multiplierVector = _mm_set1_epi16(static_cast<int16_t>(adjustedMagicMultiplier));
+
+            auto highProductVector = _mm_mulhi_epu16(dividendVector, multiplierVector);
+            auto quotientVector = _mm_srli_epi16(highProductVector, trailingZeroBitCount);
+
+            if constexpr (shouldRoundDown) {
+                auto isDividendZeroMask = _mm_cmpeq_epi16(dividendVector, _mm_setzero_si128());
+
+                return _mm_or_si128(
+                    _mm_and_si128(
+                        isDividendZeroMask,
+                        broadcast<__m128i>(uint16_t(adjustedMagicMultiplier >> trailingZeroBitCount))
+                    ),
+                    _mm_andnot_si128(quotientVector, _mm_set1_epi16(trailingZeroBitCount))
+                );
+            }
+            else
+                return quotientVector;
+        
         }
     }
 };

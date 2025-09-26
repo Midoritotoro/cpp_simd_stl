@@ -19,7 +19,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _Iterator_ find(
 	_Iterator_			first,
 	const _Iterator_	last,
 	const _Type_&		value) noexcept
-{ 
+{
 	__verifyRange(first, last);
 
 	auto firstUnwrapped			= __unwrapIterator(first);
