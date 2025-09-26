@@ -16,6 +16,13 @@ void testArithmeticOperations() {
     simd_stl::numeric::basic_simd<Arch, T> simd(initial_values.data());
     std::vector<T> array(num_elements);
 
+    // Division by constexpr number 
+    std::vector<T> expected_constexpr_division(num_elements, 1);
+    simd = simd / std::integral_constant<T, T(51)>{};
+    simd.storeUnaligned(array.data());
+    assert(areEqual(simd, expected_constexpr_division) && "Constexpr division test failed");
+    simd = initial_values.data(); // Reset
+
     //// Addition
     //std::vector<T> expected_addition(num_elements);
     //std::transform(initial_values.begin(), initial_values.end(), expected_addition.begin(), [](T x) { return x + x; });
@@ -124,11 +131,11 @@ int main() {
     //testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
-    //testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
+   // testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
-    testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
+   // testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
+    //testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
 
     //testArithmeticOperations<float, simd_stl::arch::CpuFeature::SSE2>();

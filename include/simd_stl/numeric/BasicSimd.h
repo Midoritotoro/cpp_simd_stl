@@ -297,6 +297,28 @@ public:
         const value_type    right) noexcept;
 
     /*
+        Операторы с constexpr-числами
+    */
+
+    template <_Element_ _Value_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator-<>(
+        const basic_simd&                           left,
+        std::integral_constant<_Element_, _Value_>  right) noexcept
+    {
+        return basic_simd::implementation::template sub<_Element_>(left._vector,
+            basic_simd::implementation::template broadcast<typename basic_simd::vector_type>(right));
+    }
+
+    template <_Element_ _Divisor_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator/<>(
+        const basic_simd& left,
+        std::integral_constant<_Element_, _Divisor_>  right) noexcept
+    {
+        return implementation::template divideByConst<_Element_, _Divisor_, basic_simd::vector_type>(left._vector);
+    }
+
+
+    /*
         Операторы с векторами
     */
 
@@ -666,6 +688,17 @@ basic_simd<_SimdGeneration_, _Element_>::operator^=(const basic_simd& other) noe
     _vector = implementation::template bitwiseXor(_vector, other._vector);
     return *this;
 }
+
+//template <
+//    arch::CpuFeature    _SimdGeneration_,
+//    typename            _Element_>
+//template <_Element_ _Value_>
+//simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
+//    const basic_simd<_SimdGeneration_, _Element_>&  left,
+//    std::integral_constant<_Element_, _Value_>      right) noexcept
+//{
+//    return imp
+//}
 
 template <
     arch::CpuFeature    _SimdGeneration_,
