@@ -3,6 +3,12 @@
 #include <simd_stl/Types.h>
 #include <simd_stl/compatibility/Inline.h>
 
+#include <simd_stl/arch/ProcessorFeatures.h>
+#include <simd_stl/arch/ProcessorDetection.h>
+
+#include <simd_stl/compatibility/SimdCompatibility.h>
+#include <src/simd_stl/type_traits/IsConstantEvaluated.h>
+
 
 #if __has_include(<bit>) && __cplusplus > 201703L
     #include <bit>
@@ -14,65 +20,36 @@
 
 __SIMD_STL_MATH_NAMESPACE_BEGIN
 
-#ifndef simd_stl_combine_u32ints_to_u64int
-#  define simd_stl_combine_u32ints_to_u64int(high, low) ((uint64)high << 32) | (uint64)low
-#endif
-
-#ifndef simd_stl_combine_u16ints_to_u32int
-#  define simd_stl_combine_u16ints_to_u32int(high, low) ((uint32)high << 16) | (uint32)low
-#endif
-
-#ifndef simd_stl_combine_u16ints_to_u64int
-#  define simd_stl_combine_u16ints_to_u64int(high1, high2, low1, low2)	\
-	simd_stl_combine_u32ints_to_u64int(									\
-		simd_stl_combine_u16ints_to_u32int(high1, high2),				\
-		simd_stl_combine_u16ints_to_u32int(low1, low2))
-#endif
 
 template <typename _Type_>
 _Type_ ClearLeftMostSet(const _Type_ value) {
-    DebugAssert(value != _Type_{});
+    DebugAssert(value != _Type_());
     return value & (value - 1);
-}
-
-constexpr simd_stl::uint32 PopulationCount(simd_stl::uint32 v) noexcept
-{
-    // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 24) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
-}
-
-constexpr simd_stl::uint PopulationCount(simd_stl::uint8 v) noexcept
-{
-    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
-}
-
-constexpr simd_stl::uint PopulationCount(simd_stl::uint16 v) noexcept
-{
-    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
-}
-
-constexpr simd_stl::uint32 PopulationCount(simd_stl::uint64 v) noexcept
-{
-    return (((v) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 12) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 24) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 36) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 48) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f +
-        (((v >> 60) & 0xfff) * UINT64_C(0x1001001001001) & UINT64_C(0x84210842108421)) % 0x1f;
-}
-
-constexpr simd_stl::uint PopulationCount(long unsigned int v) noexcept
-{
-    return PopulationCount(static_cast<simd_stl::uint64>(v));
 }
 
 constexpr simd_stl::uint32 ConstexprCountTrailingZeroBits(simd_stl::uint32 v) noexcept
 {
-    // http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
-    unsigned int c = 32;
+    if (!type_traits::is_constant_evaluated()) {
+#if !defined(simd_stl_processor_arm)
+
+#  if defined(simd_stl_processor_x86_64)
+        if (arch::ProcessorFeatures::AVX2())
+            return _tzcnt_u32(v);
+        else
+#  endif
+
+#  if defined (simd_stl_processor_x86)
+        {
+            ulong index = 0;
+            _BitScanForward(&index, v);
+
+            return index;
+        }
+#  endif
+#endif
+    } 
+    
+    uint32 c = 32;
 
     v &= -signed(v);
     if (v) c--;

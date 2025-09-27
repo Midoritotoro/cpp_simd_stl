@@ -1,6 +1,8 @@
 #include <src/simd_stl/math/BitMath.h>
 #include <benchmarks/tools/BenchmarkHelper.h>
 
+#include <simd_stl/compatibility/SimdCompatibility.h>
+
 class BsfInstructionForCtzBenchmark {
 public:
     static void Ctz(benchmark::State& state) noexcept {
@@ -54,8 +56,8 @@ public:
     }
 };
 
-SIMD_STL_ADD_BENCHMARK(SimdStlCtzBenchmark::Ctz, BsfInstructionForCtzBenchmark::Ctz);
-SIMD_STL_ADD_BENCHMARK(SimdStlCtzBenchmark::Ctz, TzcntInstructionForCtzBenchmark::Ctz);
+SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS(SimdStlCtzBenchmark::Ctz, BsfInstructionForCtzBenchmark::Ctz, 100000);
+SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS(SimdStlCtzBenchmark::Ctz, TzcntInstructionForCtzBenchmark::Ctz, 100000);
 
 
 SIMD_STL_BENCHMARK_MAIN();

@@ -153,6 +153,20 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
 SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::uint32);
 SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::uint64);
 
+#if !defined(SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS)
+#  define SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS(benchFirst, benchSecond, repititions)                   \
+     BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
+        ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
+        ->Repetitions(repititions)                       \
+        ->ReportAggregatesOnly(true)                                    \
+        ->DisplayAggregatesOnly(true);                                  \
+    BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
+        ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
+        ->Repetitions(repititions)                       \
+        ->ReportAggregatesOnly(true)                                    \
+        ->DisplayAggregatesOnly(true);                                   
+#endif // SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS
+
 
 
 #if !defined(SIMD_STL_ADD_BENCHMARK)
@@ -401,20 +415,28 @@ public:
         for (const auto& run : reports) {
             _benchmarks.push_back(run);
 
-            if (_benchmarks.size() % 8 == 0) {
-                const auto realTimeDifference = (_benchmarks[4].GetAdjustedRealTime() / _benchmarks[0].GetAdjustedRealTime());
+            const auto& firstBenchmark = _benchmarks[0];
+            const auto& secondBenchmark = _benchmarks[4];
 
-                ColorPrintf(out, COLOR_MAGENTA, "Benchmark 1: %s\n", _benchmarks[0].benchmark_name().c_str());
-                ColorPrintf(out, COLOR_MAGENTA, "Benchmark 2: %s\n", _benchmarks[4].benchmark_name().c_str());
+            if (_benchmarks.size() % 8 == 0) {
+                const auto realTimeDifference = (secondBenchmark.GetAdjustedRealTime() / firstBenchmark.GetAdjustedRealTime());
+
+                const auto firstBenchmarkFullName   = firstBenchmark.benchmark_name();
+                const auto secondBenchmarkFullName  = secondBenchmark.benchmark_name();
+                
+                const auto firstBenchmarkPrettyName = firstBenchmarkFullName.substr(0, firstBenchmarkFullName.find('/'));
+                const auto secondBenchmarkPrettyName = secondBenchmarkFullName.substr(0, secondBenchmarkFullName.find('/'));
 
                 if (realTimeDifference > 1.0f)
-                    ColorPrintf(out, COLOR_BLUE, "Benchmark 1 faster than Benchmark 2 by a %f%s\n", std::abs(realTimeDifference * 100 - 100), "%");
+                    ColorPrintf(out, COLOR_BLUE, "%s faster than %s by a %f%s\n", firstBenchmarkPrettyName.c_str(),
+                        secondBenchmarkPrettyName.c_str(), std::abs(realTimeDifference * 100 - 100), "%");
 
                 else if (realTimeDifference < 1.0f)
-                    ColorPrintf(out, COLOR_RED, "Benchmark 1 slower than Benchmark 2 by a %f%s\n", std::abs(realTimeDifference * 100 - 100), "%");
+                    ColorPrintf(out, COLOR_RED, "%s slower than %s by a %f%s\n", firstBenchmarkPrettyName.c_str(),
+                        secondBenchmarkPrettyName.c_str(), std::abs(realTimeDifference * 100 - 100), "%");
 
                 else
-                    ColorPrintf(out, COLOR_WHITE, "Benchmark 1 and Benchmark 2 are equal\n");
+                    ColorPrintf(out, COLOR_WHITE, "Benchmarks are equal\n");
 
                 _benchmarks.resize(0);
             }
