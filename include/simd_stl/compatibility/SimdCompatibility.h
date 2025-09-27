@@ -7,7 +7,7 @@
 
 #include <simd_stl/arch/CpuFeature.h>
 
-#if !defined(_M_ARM64EC)
+#if defined(simd_stl_cpp_msvc) && !defined(_M_ARM64EC)
 #  include <intrin.h>
 #endif
 

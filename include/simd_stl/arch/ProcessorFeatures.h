@@ -11,7 +11,6 @@
 #include <simd_stl/compatibility/Nodiscard.h>
 #include <simd_stl/compatibility/Inline.h>
 
-
 __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 class ProcessorFeatures

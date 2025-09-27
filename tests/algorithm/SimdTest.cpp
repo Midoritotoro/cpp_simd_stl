@@ -1,7 +1,6 @@
 #include <simd_stl/numeric/BasicSimd.h>
 #include <string>
 
-
 template <typename T, simd_stl::arch::CpuFeature Arch>
 bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>& vec) {
     std::vector<T> simd_data(vec.size());
