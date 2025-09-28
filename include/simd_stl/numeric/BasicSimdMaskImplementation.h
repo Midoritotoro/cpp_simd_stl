@@ -3,8 +3,8 @@
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
 #include <simd_stl/compatibility/Inline.h>
 
-#include <src/simd_stl/math/BitMath.h>
-#include <src/simd_stl/math/IntegralTypesConversions.h>
+#include <simd_stl/math/BitMath.h>
+#include <simd_stl/math/IntegralTypesConversions.h>
 
 #include <bitset>
 

@@ -16,20 +16,22 @@ __SIMD_STL_ARCH_NAMESPACE_BEGIN
 class ProcessorFeatures
 {
 public:
-    simd_stl_nodiscard simd_stl_always_inline static bool SSE()        noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool SSE2()       noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool SSE3()       noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool SSSE3()      noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool SSE41()      noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool SSE42()      noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX()        noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX2()       noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512F()    noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512BW()   noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512PF()   noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512ER()   noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512CD()   noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()   noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSE()         noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSE2()        noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSE3()        noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSSE3()       noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSE41()       noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool SSE42()       noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX()         noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX2()        noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512F()     noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512BW()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512PF()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512ER()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512CD()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()    noexcept;
+    
+    simd_stl_nodiscard simd_stl_always_inline static bool POPCNT()      noexcept;
 private:
     class ProcessorFeaturesInternal
     {
@@ -50,8 +52,10 @@ private:
         bool _avx512bw : 1 = false;
         bool _avx512pf : 1 = false;
         bool _avx512er : 1 = false;
-        bool _avx512cd : 2 = false;
-        bool _avx512vl : 2 = false;
+        bool _avx512cd : 1 = false;
+        bool _avx512vl : 1 = false;
+
+        bool _popcnt   : 2 = false;
     };
 
     static inline ProcessorFeaturesInternal _processorFeaturesInternal;
@@ -78,6 +82,7 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
         _sse41  = (leaf1Ecx >> 19) & 1;
         _sse42  = (leaf1Ecx >> 20) & 1;
         
+        _popcnt = (leaf1Ecx >> 23) & 1;
         _avx    = (leaf1Ecx >> 28) & 1;
     }
 
@@ -152,6 +157,10 @@ bool ProcessorFeatures::AVX512CD() noexcept {
 
 bool ProcessorFeatures::AVX512VL() noexcept {
     return _processorFeaturesInternal._avx512vl;
+}
+
+bool ProcessorFeatures::POPCNT() noexcept {
+    return _processorFeaturesInternal._popcnt;
 }
 
 __SIMD_STL_ARCH_NAMESPACE_END

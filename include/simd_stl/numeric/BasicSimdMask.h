@@ -1,7 +1,7 @@
 ﻿#pragma once 
 
 #include <simd_stl/numeric/BasicSimdMaskImplementation.h>
-#include <src/simd_stl/math/BitMath.h>
+#include <simd_stl/math/BitMath.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN

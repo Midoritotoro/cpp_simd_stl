@@ -3,6 +3,7 @@
 #include <simd_stl/SimdStlNamespace.h>
 #include <type_traits>
 
+#include <src/simd_stl/type_traits/TypeCheck.h>
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
@@ -70,6 +71,17 @@ constexpr inline bool is_character_or_bool_v = _Is_character_or_bool<_Type_>::va
 
 template <class _Type_>
 constexpr inline bool is_character_or_byte_or_bool_v = _Is_character_or_byte_or_bool<_Type_>::value;
+
+
+template <class _Type_>
+constexpr inline bool is_standard_unsigned_integer_v =
+	is_any_of_v<std::remove_cv_t<_Type_>, 
+	unsigned char, 
+	unsigned short, unsigned int, 
+	unsigned long, unsigned long long>;
+
+template <class _Type_>
+concept standard_unsigned_integral = is_standard_unsigned_integer_v<_Type_>;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
 

@@ -59,8 +59,10 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
 
-    src/simd_stl/math/BitMath.h
-    src/simd_stl/math/IntegralTypesConversions.h
+    src/simd_stl/math/CountTrailingZeros.h
+    src/simd_stl/math/CountLeadingZeros.h
+    src/simd_stl/math/PopulationCount.h
+
 
     "src/simd_stl/type_traits/CanMemcmpElements.h"
     "src/simd_stl/type_traits/ContainerComparison.h"
@@ -96,6 +98,9 @@ set(PRIVATE_HEADERS
 )
 
 set(PUBLIC_HEADERS
+    include/simd_stl/math/BitMath.h
+    include/simd_stl/math/IntegralTypesConversions.h
+
     include/simd_stl/arch/ProcessorFeatures.h
     include/simd_stl/arch/ProcessorDetection.h
     include/simd_stl/arch/CpuId.h

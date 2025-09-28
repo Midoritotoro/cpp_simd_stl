@@ -1,4 +1,4 @@
-#include <src/simd_stl/math/BitMath.h>
+#include <simd_stl/math/BitMath.h>
 #include <benchmarks/tools/BenchmarkHelper.h>
 
 #include <simd_stl/compatibility/SimdCompatibility.h>
@@ -50,9 +50,13 @@ class SimdStlCtzBenchmark {
 public:
     static void Ctz(benchmark::State& state) noexcept {
         static constexpr unsigned int value = 0b10000000000000000000000000000000;
+        uint32_t index = 0;
 
-        while (state.KeepRunning())
-            benchmark::DoNotOptimize(simd_stl::math::CountTrailingZeroBits(value));
+        while (state.KeepRunning()) {
+            // benchmark::DoNotOptimize(index = static_cast<uint32_t>(simd_stl::math::CountTrailingZeroBits(value)));
+            index = static_cast<uint32_t>(simd_stl::math::CountTrailingZeroBits(value));
+            benchmark::DoNotOptimize(index);
+        }
     }
 };
 
