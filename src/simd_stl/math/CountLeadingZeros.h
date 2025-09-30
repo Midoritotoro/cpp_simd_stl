@@ -71,6 +71,24 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
         return _BitHacksPopulationCount(~value);
     }
     else if constexpr (sizeof(_IntegralType_) == 1) {
+        // 0b00001101
+        
+        // 0b00001101 | 0b00000110 = 0b00001111
+        // 0b00001111 | 0b00000011 = 0b00001111
+        // 0b00001111 | 0b00000000 = 0b00001111
+        // ~0b00001111 = 0b11110000
+
+        // popcnt(0b11110000) == 4;
+        
+        // 0b00111100
+
+        // 0b00111100 | 0b00011110 = 0b00111110
+        // 0b00111110 | 0b00001111 = 0b00111111
+        // 0b00111111 | 0b00000011 = 0b00111111
+        // ~0b00111111 = 0b11000000
+
+        // popcnt(0b11000000) == 2;
+
         value = value | (value >> 1);
 
         value = value | (value >> 2);

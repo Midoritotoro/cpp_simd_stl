@@ -84,7 +84,6 @@ public:
 
     basic_simd() noexcept;
 
-
     /**
         * @brief Заполнение вектора значением.
         * @param value Значение, которым будет заполнен вектор.
@@ -108,6 +107,19 @@ public:
     basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept;
 
     ~basic_simd() noexcept;
+
+    /**
+        * @brief Конвертирует вектор в тип ...
+    */
+    template <class _BasicSimdTo_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ convert() noexcept {
+
+    }
+
+    /**
+        * @brief Поддержан ли сет инструкций _SimdGeneration_ на текущей машине
+    */
+    static simd_stl_always_inline bool isSupported() noexcept;
 
     /**
         * @brief Заполнение вектора значением.
@@ -271,6 +283,13 @@ public:
     */
     template <_Element_ _Divisor_>
     simd_stl_constexpr_cxx20 simd_stl_always_inline void divideByConst() noexcept;
+
+    /** 
+        * @brief Умножение вектора на константу времени компиляции.     
+        * @tparam _Divisor_ множитель
+    */
+    template <_Element_ _Divisor_>
+    simd_stl_constexpr_cxx20 simd_stl_always_inline void multiplyByConst() noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline vector_type unwrap() const noexcept {
         return _vector;
@@ -525,6 +544,14 @@ template <
     typename            _Element_>
 basic_simd<_SimdGeneration_, _Element_>::~basic_simd() noexcept
 {}
+
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isSupported() noexcept {
+    return arch::ProcessorFeatures::isSupported<_SimdGeneration_>();
+}
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -1054,6 +1081,14 @@ template <
 template <_Element_ _Divisor_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::divideByConst() noexcept {
     return implementation::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <_Element_ _Divisor_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::multiplyByConst() noexcept {
+    
 }
 
 

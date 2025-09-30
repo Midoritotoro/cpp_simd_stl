@@ -28,10 +28,6 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 
 #  elif defined(simd_stl_cpp_msvc) 
 
-#    if !defined(simd_stl_popcnt_u16)
-#      define simd_stl_popcnt_u16 __popcnt16
-#    endif // !defined(simd_stl_popcnt_u16)
-
 #    if !defined(simd_stl_popcnt_u32)
 #      define simd_stl_popcnt_u32 __popcnt
 #    endif // !defined(simd_stl_popcnt_u32)
@@ -92,10 +88,10 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline int _PopcntPopulationCount(_Inte
         return static_cast<int>(simd_stl_popcnt_u32(static_cast<uint32>(value)));
     else if constexpr (digits == 16)
 #if defined(simd_stl_cpp_msvc)
-        return static_cast<int>(simd_stl_popcnt_u16(static_cast<uint16>(value)));
+        return static_cast<int>(__popcnt16(static_cast<uint16>(value)));
 #elif defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_clang)
         return _BitHacksPopulationCount(value);
-#endif
+#endif // defined(simd_stl_cpp_msvc) // defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_clang)
     
     return _BitHacksPopulationCount(value);
 }

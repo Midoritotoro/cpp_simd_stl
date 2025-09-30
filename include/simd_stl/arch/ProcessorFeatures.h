@@ -32,6 +32,9 @@ public:
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()    noexcept;
     
     simd_stl_nodiscard simd_stl_always_inline static bool POPCNT()      noexcept;
+
+    template <CpuFeature _Feature_> 
+    simd_stl_nodiscard simd_stl_always_inline static bool isSupported() noexcept;
 private:
     class ProcessorFeaturesInternal
     {
@@ -161,6 +164,38 @@ bool ProcessorFeatures::AVX512VL() noexcept {
 
 bool ProcessorFeatures::POPCNT() noexcept {
     return _processorFeaturesInternal._popcnt;
+}
+
+template <CpuFeature _Feature_>
+bool ProcessorFeatures::isSupported() noexcept {
+    if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE))
+        return _processorFeaturesInternal._sse;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE2))
+        return _processorFeaturesInternal._sse2;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE3))
+        return _processorFeaturesInternal._sse3;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSSE3))
+        return _processorFeaturesInternal._ssse3;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE41))
+        return _processorFeaturesInternal._sse41;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE42))
+        return _processorFeaturesInternal._sse42;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX))
+        return _processorFeaturesInternal._avx;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX2))
+        return _processorFeaturesInternal._avx2;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512F))
+        return _processorFeaturesInternal._avx512f;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512BW))
+        return _processorFeaturesInternal._avx512bw;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512CD))
+        return _processorFeaturesInternal._avx512cd;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512ER))
+        return _processorFeaturesInternal._avx512er;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512PF))
+        return _processorFeaturesInternal._avx512pf;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VL))
+        return _processorFeaturesInternal._avx512vl;
 }
 
 __SIMD_STL_ARCH_NAMESPACE_END
