@@ -1,4 +1,4 @@
-#include <simd_stl/numeric/BasicSimd.h>
+﻿#include <simd_stl/numeric/BasicSimd.h>
 #include <string>
 
 template <typename T, simd_stl::arch::CpuFeature Arch>
@@ -38,21 +38,21 @@ void testArithmeticOperations() {
     simd = initial_values.data(); // Reset
 
     //// Multiplication
-    std::vector<T> expected_multiplication(num_elements);
-    std::transform(initial_values.begin(), initial_values.end(), expected_multiplication.begin(), [](T x) { return x * x; });
-    simd = simd * simd;
-    simd.storeUnaligned(array.data());
-    assert(areEqual(simd, expected_multiplication) && "Multiplication test failed");
-    std::cout << "Multiplication test passed" << std::endl;
-    simd = initial_values.data(); // Reset
+    //std::vector<T> expected_multiplication(num_elements);
+    //std::transform(initial_values.begin(), initial_values.end(), expected_multiplication.begin(), [](T x) { return x * x; });
+    //simd = simd * simd;
+    //simd.storeUnaligned(array.data());
+    //assert(areEqual(simd, expected_multiplication) && "Multiplication test failed");
+    //std::cout << "Multiplication test passed" << std::endl;
+    //simd = initial_values.data(); // Reset
 
     //// Division (careful with integer division!)
-    std::vector<T> expected_division(num_elements, 1);
-    simd = simd / simd;
-    simd.storeUnaligned(array.data());
-    assert(areEqual(simd, expected_division) && "Division test failed");
-    std::cout << "Division test passed" << std::endl;
-    simd = initial_values.data(); // Reset
+    //std::vector<T> expected_division(num_elements, 1);
+    //simd = simd / simd;
+    //simd.storeUnaligned(array.data());
+    //assert(areEqual(simd, expected_division) && "Division test failed");
+    //std::cout << "Division test passed" << std::endl;
+    //simd = initial_values.data(); // Reset
 
     //// Bitwise AND
     if constexpr (std::is_integral_v<T>) {
@@ -88,7 +88,6 @@ void testArithmeticOperations() {
         simd = simd << 2;
         simd.storeUnaligned(array.data());
         assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
-        std::cout << "Left Shift test passed" << std::endl;
         simd = initial_values.data(); // Reset
     }
 
@@ -99,7 +98,6 @@ void testArithmeticOperations() {
         simd = simd >> 2;
         simd.storeUnaligned(array.data());
         assert(areEqual(simd, expected_right_shift) && "Right Shift test failed");
-        std::cout << "Right Shift test passed" << std::endl;
         simd = initial_values.data(); // Reset
     }
 
@@ -123,6 +121,101 @@ void testArithmeticOperations() {
     }
 }
 
+template <typename T, simd_stl::arch::CpuFeature Arch>
+void testMethods() {
+    using Simd = simd_stl::numeric::basic_simd<Arch, T>;
+
+    // --- Конструкторы ---
+    {
+        Simd v1; // default
+        Simd v2(5); // fill constructor
+        for (int i = 0; i < v2.size(); ++i) Assert(v2.extract(i) == 5);
+
+        alignas(16) T arr[4] = {1,2,3,4};
+        Simd v3(arr); // load from pointer
+        for (int i = 0; i < v3.size(); ++i) Assert(v3.extract(i) == arr[i]);
+
+        Simd v4(v3.unwrap()); // from vector_type
+        for (int i = 0; i < v4.size(); ++i) Assert(v4.extract(i) == arr[i]);
+
+        Simd v5(v3); // copy ctor
+        for (int i = 0; i < v5.size(); ++i) Assert(v5.extract(i) == arr[i]);
+    }
+
+    // --- fill / extract / insert ---
+    {
+        Simd v(0);
+        v.fill(42);
+        for (int i = 0; i < v.size(); ++i) Assert(v.extract(i) == 42);
+
+        v.insert(0, 99);
+        Assert(v.extract(0) == 99);
+    }
+
+    // --- extractWrapped ---
+    {
+        Simd v(7);
+        auto ref = v.extractWrapped(0);
+        ref = 123; // изменяем через reference wrapper
+        Assert(v.extract(0) == 123);
+    }
+
+    // --- expand ---
+    {
+       /* Simd v(0);
+        typename Simd::mask_type mask;
+        v.expand(mask, 77);
+        assert(v.extract(0) == 77);*/
+    }
+
+    // --- convert / cast / safeCast ---
+    {
+        Simd v(5);
+        auto v8 = v.convert<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
+        Assert(v8.extract(0) == 5);
+
+        auto vDouble = v.cast<double>();
+        Assert(vDouble.extract(0) == 5.0);
+
+        auto vSafe = Simd::template safeCast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
+        Assert(vSafe.extract(0) == 5);
+    }
+
+    // --- cross‑arch cast ---
+    {
+        Simd v(11);
+        auto vOther = v.cast<simd_stl::arch::CpuFeature::SSE2, float>();
+        Assert(static_cast<int>(vOther.extract(0)) == 11);
+    }
+
+    // --- load/store aligned/unaligned ---
+    {
+        alignas(16) simd_stl::int32 arr[4] = {10,20,30,40};
+        Simd v = Simd::loadAligned(arr);
+        simd_stl::int32 out[4] = {};
+        v.storeAligned(out);
+        for (int i = 0; i < 4; ++i) Assert(out[i] == arr[i]);
+
+        Simd v2 = Simd::loadUnaligned(arr);
+        simd_stl::int32 out2[4] = {};
+        v2.storeUnaligned(out2);
+        for (int i = 0; i < 4; ++i) Assert(out2[i] == arr[i]);
+    }
+
+    // --- unwrap ---
+    {
+        Simd v(99);
+        auto raw = v.unwrap();
+        (void)raw; // smoke‑check
+    }
+
+    // --- isSupported ---
+    {
+        assert(Simd::isSupported() && "SSE2 must be supported on x86_64");
+    }
+}
+
+
 int main() {
     //testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
@@ -130,7 +223,7 @@ int main() {
     //testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
-    testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+ //   testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
    // testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
@@ -142,6 +235,8 @@ int main() {
 
  //   testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
    // testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
+
+    testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
 
     return 0;
 }

@@ -11,7 +11,7 @@
 #include <src/simd_stl/algorithm/vectorized/traits/FindVectorizedTraits.h>
 #include <src/simd_stl/algorithm/AdvanceBytes.h>
 
-#include <src/simd_stl/math/BitMath.h>
+#include <simd_stl/math/BitMath.h>
 #include <simd_stl/compatibility/Inline.h>
 
 

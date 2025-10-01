@@ -49,11 +49,11 @@ using __deduce_simd_vector_type = std::conditional_t <
 
 
 template <uint8 size>
-using __deduce_simd_mask_type_helper =
-	std::conditional_t<size <= 1, uint8,
-		std::conditional_t<size <= 2, uint16,
-			std::conditional_t<size <= 4, uint32,
-				std::conditional_t<size <= 8, uint64, void>>>>;
+using __deduce_simd_mask_type_helper = uint64;
+	//std::conditional_t<size <= 4, uint8,
+	//	std::conditional_t<size <= 2, uint16,
+	//		std::conditional_t<size <= 4, uint32,
+	//			std::conditional_t<size <= 8, uint64, void>>>>;
 
 template <
 	arch::CpuFeature	_SimdGeneration_,

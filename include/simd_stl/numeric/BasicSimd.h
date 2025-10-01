@@ -424,16 +424,6 @@ public:
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator>> <>(
-        const basic_simd left,
-        const basic_simd shift) noexcept;
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator<< <>(
-        const basic_simd left,
-        const basic_simd shift) noexcept;
-
-
     simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator>> <>(
         const basic_simd left,
         const uint32 shift) noexcept;
@@ -441,6 +431,8 @@ public:
     simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator<< <>(
         const basic_simd left,
         const uint32 shift) noexcept;
+
+
 
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd operator+() const noexcept;
@@ -455,9 +447,6 @@ public:
     */
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd operator++(int) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator++() noexcept;
-
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator>>=(const basic_simd& shift) noexcept;
-    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator<<=(const basic_simd& shift) noexcept;
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
@@ -954,7 +943,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_
     const size_type     where,
     const value_type    value) noexcept
 {
-    implementation::template insert<value_type>(_vector, where, value);
+    _vector = implementation::template insert<value_type>(_vector, where, value);
 }
 
 template <
@@ -1130,30 +1119,11 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
-    const basic_simd<_SimdGeneration_, _Element_> left,
-    const basic_simd<_SimdGeneration_, _Element_> shift) noexcept
-{
-
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator<<(
-    const basic_simd<_SimdGeneration_, _Element_> left,
-    const basic_simd<_SimdGeneration_, _Element_> shift) noexcept
-{
-
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
     const basic_simd<_SimdGeneration_, _Element_>   left,
     const uint32                                    shift) noexcept
 {
-
+    return basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftRight
+        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
 }
 
 template <
@@ -1163,23 +1133,8 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _El
     const basic_simd<_SimdGeneration_, _Element_>   left,
     const uint32                                    shift) noexcept
 {
-
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator>>=(const basic_simd& shift) noexcept {
-    return *this;
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator<<=(const basic_simd& shift) noexcept {
-    return *this;
+    return basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftLeft
+        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
 }
 
 template <
@@ -1187,6 +1142,8 @@ template <
     typename            _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator>>=(const uint32 shift) noexcept {
+    _vector = basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftRight
+        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
     return *this;
 }
 
@@ -1195,6 +1152,8 @@ template <
     typename            _Element_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator<<=(const uint32 shift) noexcept {
+    _vector = basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftLeft
+        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
     return *this;
 }
 

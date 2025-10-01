@@ -173,11 +173,100 @@ constexpr bool is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, 
 
 27. template <typename _MaskType_, typename _DesiredVectorElementType_,  typename _VectorType_>
     _VectorType_ maskToVector(_MaskType_ mask) noexcept;
+
+28.    template <typename _DesiredType_, typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shiftRight(
+        _VectorType_    vector,
+        uint32          shift) noexcept;
+
+29.    template <typename _DesiredType_, typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shiftLeft(
+        _VectorType_    vector,
+        uint32          shift) noexcept;
 */
 
 template <>
 class BasicSimdImplementation<arch::CpuFeature::SSE2> {
 public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_> 
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline void insert(
+        _VectorType_&       vector,
+        const uint8         position,
+        const _DesiredType_ value) noexcept 
+    {
+        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
+            const auto broad = _mm_set1_epi32(value);
+            const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
+
+            const auto mask = _mm_loadu_si128((__m128i const*)(maskl + 4 - (position & 3))); // FFFFFFFF at index position
+            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+        }
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>) {
+            const auto broad = _mm_set1_epi32(value);
+            const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
+
+            const auto mask = _mm_loadu_si128((__m128i const*)(maskl + 4 - (position & 3))); // FFFFFFFF at index position
+            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+        }
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            _vector = _mm_insert_epi16(vector, value, position);
+        }
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            const int8 maskl[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+            const auto broad = _mm_set1_epi8(value); 
+
+            const auto mask  = _mm_loadu_si128((__m128i const*)(maskl + 16 - (position & 0x0F))); // FF at index position
+            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_> 
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shiftRight(
+        _VectorType_    vector,
+        uint32          shift) noexcept
+    {
+        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_srli_epi64(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_srli_epi32(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_srli_epi16(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            auto evenVector = _mm_slli_epi16(vector, 8);
+            evenVector = _mm_sra_epi16(evenVector, _mm_cvtsi32_si128(shift + 8));
+
+            const auto oddVector = _mm_sra_epi16(vector, _mm_cvtsi32_si128(shift)); 
+            const auto mask = _mm_set1_epi32(0x00FF00FF);
+                
+            return _mm_or_si128(_mm_and_si128(mask, evenVector), _mm_andnot_si128(mask, oddVector));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_> 
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ shiftLeft(
+        _VectorType_    vector,
+        uint32          shift) noexcept
+    {
+        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_slli_epi64(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_slli_epi32(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
+            return cast<__m128i, _VectorType_>(_mm_slli_epi16(cast<_VectorType_, __m128i>(vector), shift));
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            uint32 mask = (uint32)0xFF >> (uint32)shift;
+            const auto andMask = _mm_and_si128(cast<_VectorType_, __m128i>(vector), _mm_set1_epi8((char)mask));
+
+            return cast<__m128i, _VectorType_>(_mm_sll_epi16(andMask, _mm_cvtsi32_si128(shift)));
+        }
+    }
+
     template <
         typename        _DesiredType_,
         _DesiredType_   _Divisor_,

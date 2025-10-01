@@ -23,7 +23,7 @@ template <typename _BasicSimd_>
 class BasicSimdElementReference {
     static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
 
-    using __parent_impl = typename _BasicSimd_::__impl;
+    using __parent_impl = typename _BasicSimd_::implementation;
 public: 
     using parent_type   = _BasicSimd_;
 
