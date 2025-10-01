@@ -29,4 +29,5 @@ using simd_avx512f = basic_simd<arch::CpuFeature::AVX512F, _IntegralType_>;
 template <typename _IntegralType_ = int>
 using simd_avx512bw = basic_simd<arch::CpuFeature::AVX512BW, _IntegralType_>;
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

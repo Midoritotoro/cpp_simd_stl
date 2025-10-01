@@ -43,7 +43,7 @@ public:
             sh = 30;
         }
         else if (d1 > 1) {
-            sh = (int)math::CountTrailingZeroBits(uint32(d1 - 1));
+            sh = (int)math::CountLeadingZeroBits(uint32(d1 - 1));
             m = int32((int64(1) << (32 + sh)) / d1 - ((int64(1) << 32) - 1));
         }
         else {

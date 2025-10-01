@@ -54,11 +54,13 @@ using deduce_superior_basic_simd_type = std::conditional_t<
     * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
     * 
     * Предоставляет высокоуровневый интерфейс для векторных вычислений:
-    * - арифметика и математика
+    * - арифметика
     * - побитовые операции
     * - перестановки и сдвиги
     * - загрузка/сохранение
-    * - утилиты
+    * - приведения типов
+    * - вставка и извлечение
+    * - проверка поддержки сета инструкций во времени выполнения
     * 
     * @tparam _SimdGeneration_ Архитектура SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512 и т.д.).
     * @tparam _Element_ Тип элементов вектора ('int', 'float', 'double' и т.д.). По умолчанию 'int'.
@@ -109,12 +111,13 @@ public:
     ~basic_simd() noexcept;
 
     /**
-        * @brief Конвертирует вектор в тип ...
+        * @brief Выполняет действие конвертации вектора в '_BasicSimdTo_'
+        * Например: 
+        * basic_simd<SSE2, int32>(1).convert<basic_simd<SSE2, int8>>() ->
+        *     basic_simd<SSE2, int8>(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
     */
     template <class _BasicSimdTo_>
-    simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ convert() noexcept {
-
-    }
+    simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ convert() noexcept;
 
     /**
         * @brief Поддержан ли сет инструкций _SimdGeneration_ на текущей машине
@@ -422,6 +425,24 @@ public:
         const basic_simd& right) noexcept;
 
 
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator>> <>(
+        const basic_simd left,
+        const basic_simd shift) noexcept;
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator<< <>(
+        const basic_simd left,
+        const basic_simd shift) noexcept;
+
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator>> <>(
+        const basic_simd left,
+        const uint32 shift) noexcept;
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline friend basic_simd operator<< <>(
+        const basic_simd left,
+        const uint32 shift) noexcept;
+
+
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd operator+() const noexcept;
 
     /**
@@ -435,6 +456,12 @@ public:
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd operator++(int) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator++() noexcept;
 
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator>>=(const basic_simd& shift) noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator<<=(const basic_simd& shift) noexcept;
+
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
+    simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
+    
     /**
         * @brief Декрементирует каждый элемент вектора.
     */
@@ -450,6 +477,7 @@ public:
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator*=(const basic_simd& other) noexcept;
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator/=(const basic_simd& other) noexcept;
+
 
     simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd& operator%=(const basic_simd& other) noexcept;
 
@@ -545,6 +573,13 @@ template <
 basic_simd<_SimdGeneration_, _Element_>::~basic_simd() noexcept
 {}
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <class _BasicSimdTo_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::convert() noexcept {
+
+}
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -896,7 +931,7 @@ template <typename _DesiredType_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline _DesiredType_
 basic_simd<_SimdGeneration_, _Element_>::extract(const size_type index) const noexcept
 {
-    Assert(index > 0 && index < implementation::vectorElementsCount, "simd_stl::numeric::basic_simd: Index out of range");
+    Assert(index > 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
     return implementation::template extract<value_type>(_vector, index);
 }
 
@@ -907,7 +942,7 @@ template <typename _DesiredType_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>> 
 basic_simd<_SimdGeneration_, _Element_>::extractWrapped(const size_type index) noexcept 
 {
-    Assert(index > 0 && index < implementation::vectorElementsCount, "simd_stl::numeric::basic_simd: Index out of range");
+    Assert(index > 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
     return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>>(this, index);
 }
 
@@ -1080,7 +1115,7 @@ template <
     typename            _Element_>
 template <_Element_ _Divisor_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::divideByConst() noexcept {
-    return implementation::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
+    _vector = implementation::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
 }
 
 template <
@@ -1091,5 +1126,76 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void basic_simd<_SimdGeneration_
     
 }
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
+    const basic_simd<_SimdGeneration_, _Element_> left,
+    const basic_simd<_SimdGeneration_, _Element_> shift) noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator<<(
+    const basic_simd<_SimdGeneration_, _Element_> left,
+    const basic_simd<_SimdGeneration_, _Element_> shift) noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
+    const basic_simd<_SimdGeneration_, _Element_>   left,
+    const uint32                                    shift) noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator<<(
+    const basic_simd<_SimdGeneration_, _Element_>   left,
+    const uint32                                    shift) noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
+basic_simd<_SimdGeneration_, _Element_>::operator>>=(const basic_simd& shift) noexcept {
+    return *this;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
+basic_simd<_SimdGeneration_, _Element_>::operator<<=(const basic_simd& shift) noexcept {
+    return *this;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
+basic_simd<_SimdGeneration_, _Element_>::operator>>=(const uint32 shift) noexcept {
+    return *this;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
+basic_simd<_SimdGeneration_, _Element_>::operator<<=(const uint32 shift) noexcept {
+    return *this;
+}
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

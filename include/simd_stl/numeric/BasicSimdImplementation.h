@@ -38,267 +38,6 @@ template <typename _Element_>
 constexpr bool is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, float>;
 
 
-// vector operator / : divide each element by divisor
-
-// vector of 4 32-bit signed integers
-//static inline Vec4i operator / (Vec4i const a, Divisor_i const d) {
-//#if INSTRSET >= 5
-//    __m128i t1 = _mm_mul_epi32(a, d.getm());               // 32x32->64 bit signed multiplication of a[0] and a[2]
-//    __m128i t2 = _mm_srli_epi64(t1, 32);                   // high dword of result 0 and 2
-//    __m128i t3 = _mm_srli_epi64(a, 32);                    // get a[1] and a[3] into position for multiplication
-//    __m128i t4 = _mm_mul_epi32(t3, d.getm());              // 32x32->64 bit signed multiplication of a[1] and a[3]
-//    __m128i t7 = _mm_blend_epi16(t2, t4, 0xCC);
-//    __m128i t8 = _mm_add_epi32(t7, a);                     // add
-//    __m128i t9 = _mm_sra_epi32(t8, d.gets1());             // shift right arithmetic
-//    __m128i t10 = _mm_srai_epi32(a, 31);                   // sign of a
-//    __m128i t11 = _mm_sub_epi32(t10, d.getsign());         // sign of a - sign of d
-//    __m128i t12 = _mm_sub_epi32(t9, t11);                  // + 1 if a < 0, -1 if d < 0
-//    return        _mm_xor_si128(t12, d.getsign());         // change sign if divisor negative
-//#else  // not SSE4.1
-//    __m128i t1 = _mm_mul_epu32(a, d.getm());               // 32x32->64 bit unsigned multiplication of a[0] and a[2]
-//    __m128i t2 = _mm_srli_epi64(t1, 32);                   // high dword of result 0 and 2
-//    __m128i t3 = _mm_srli_epi64(a, 32);                    // get a[1] and a[3] into position for multiplication
-//    __m128i t4 = _mm_mul_epu32(t3, d.getm());              // 32x32->64 bit unsigned multiplication of a[1] and a[3]
-//    __m128i t5 = _mm_set_epi32(-1, 0, -1, 0);              // mask of dword 1 and 3
-//    __m128i t6 = _mm_and_si128(t4, t5);                    // high dword of result 1 and 3
-//    __m128i t7 = _mm_or_si128(t2, t6);                     // combine all four results of unsigned high mul into one vector
-//    // convert unsigned to signed high multiplication (from: H S Warren: Hacker's delight, 2003, p. 132)
-//    __m128i u1 = _mm_srai_epi32(a, 31);                    // sign of a
-//    __m128i u2 = _mm_srai_epi32(d.getm(), 31);             // sign of m [ m is always negative, except for abs(d) = 1 ]
-//    __m128i u3 = _mm_and_si128(d.getm(), u1);              // m * sign of a
-//    __m128i u4 = _mm_and_si128(a, u2);                     // a * sign of m
-//    __m128i u5 = _mm_add_epi32(u3, u4);                    // sum of sign corrections
-//    __m128i u6 = _mm_sub_epi32(t7, u5);                    // high multiplication result converted to signed
-//    __m128i t8 = _mm_add_epi32(u6, a);                     // add a
-//    __m128i t9 = _mm_sra_epi32(t8, d.gets1());             // shift right arithmetic
-//    __m128i t10 = _mm_sub_epi32(u1, d.getsign());          // sign of a - sign of d
-//    __m128i t11 = _mm_sub_epi32(t9, t10);                  // + 1 if a < 0, -1 if d < 0
-//    return        _mm_xor_si128(t11, d.getsign());         // change sign if divisor negative
-//#endif
-//}
-//
-//// vector of 4 32-bit unsigned integers
-//static inline Vec4ui operator / (Vec4ui const a, Divisor_ui const d) {
-//    __m128i t1 = _mm_mul_epu32(a, d.getm());               // 32x32->64 bit unsigned multiplication of a[0] and a[2]
-//    __m128i t2 = _mm_srli_epi64(t1, 32);                   // high dword of result 0 and 2
-//    __m128i t3 = _mm_srli_epi64(a, 32);                    // get a[1] and a[3] into position for multiplication
-//    __m128i t4 = _mm_mul_epu32(t3, d.getm());              // 32x32->64 bit unsigned multiplication of a[1] and a[3]
-//#if INSTRSET >= 5   // SSE4.1 supported
-//    __m128i t7 = _mm_blend_epi16(t2, t4, 0xCC);            // blend two results
-//#else
-//    __m128i t5 = _mm_set_epi32(-1, 0, -1, 0);              // mask of dword 1 and 3
-//    __m128i t6 = _mm_and_si128(t4, t5);                    // high dword of result 1 and 3
-//    __m128i t7 = _mm_or_si128(t2, t6);                     // combine all four results into one vector
-//#endif
-//    __m128i t8 = _mm_sub_epi32(a, t7);                     // subtract
-//    __m128i t9 = _mm_srl_epi32(t8, d.gets1());             // shift right logical
-//    __m128i t10 = _mm_add_epi32(t7, t9);                   // add
-//    return        _mm_srl_epi32(t10, d.gets2());           // shift right logical
-//}
-//
-//// vector of 8 16-bit signed integers
-//static inline Vec8s operator / (Vec8s const a, Divisor_s const d) {
-//    __m128i t1 = _mm_mulhi_epi16(a, d.getm());             // multiply high signed words
-//    __m128i t2 = _mm_add_epi16(t1, a);                     // + a
-//    __m128i t3 = _mm_sra_epi16(t2, d.gets1());             // shift right arithmetic
-//    __m128i t4 = _mm_srai_epi16(a, 15);                    // sign of a
-//    __m128i t5 = _mm_sub_epi16(t4, d.getsign());           // sign of a - sign of d
-//    __m128i t6 = _mm_sub_epi16(t3, t5);                    // + 1 if a < 0, -1 if d < 0
-//    return        _mm_xor_si128(t6, d.getsign());          // change sign if divisor negative
-//}
-//
-//// vector of 8 16-bit unsigned integers
-//static inline Vec8us operator / (Vec8us const a, Divisor_us const d) {
-//    __m128i t1 = _mm_mulhi_epu16(a, d.getm());             // multiply high unsigned words
-//    __m128i t2 = _mm_sub_epi16(a, t1);                     // subtract
-//    __m128i t3 = _mm_srl_epi16(t2, d.gets1());             // shift right logical
-//    __m128i t4 = _mm_add_epi16(t1, t3);                    // add
-//    return        _mm_srl_epi16(t4, d.gets2());            // shift right logical
-//}
-//
-//
-//// vector of 16 8-bit signed integers
-//static inline Vec16c operator / (Vec16c const a, Divisor_s const d) {
-//    // expand into two Vec8s
-//    Vec8s low = extend_low(a) / d;
-//    Vec8s high = extend_high(a) / d;
-//    return compress(low, high);
-//}
-//
-//// vector of 16 8-bit unsigned integers
-//static inline Vec16uc operator / (Vec16uc const a, Divisor_us const d) {
-//    // expand into two Vec8s
-//    Vec8us low = extend_low(a) / d;
-//    Vec8us high = extend_high(a) / d;
-//    return compress(low, high);
-//}
-//
-//// vector operator /= : divide
-//static inline Vec8s & operator /= (Vec8s & a, Divisor_s const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//static inline Vec8us & operator /= (Vec8us & a, Divisor_us const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//static inline Vec4i & operator /= (Vec4i & a, Divisor_i const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//static inline Vec4ui & operator /= (Vec4ui & a, Divisor_ui const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//static inline Vec16c & operator /= (Vec16c & a, Divisor_s const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//static inline Vec16uc & operator /= (Vec16uc & a, Divisor_us const d) {
-//    a = a / d;
-//    return a;
-//}
-//
-///*****************************************************************************
-//*
-//*          Integer division 2: divisor is a compile-time constant
-//*
-//*****************************************************************************/
-//
-//// Divide Vec4i by compile-time constant
-//template <int32_t d>
-//static inline Vec4i divide_by_i(Vec4i const x) {
-//    static_assert(d != 0, "Integer division by zero");     // Error message if dividing by zero
-//    if constexpr (d == 1) return  x;
-//    if constexpr (d == -1) return -x;
-//    if constexpr (uint32_t(d) == 0x80000000u) return Vec4i(x == Vec4i(0x80000000)) & 1; // prevent overflow when changing sign
-//    constexpr uint32_t d1 = d > 0 ? uint32_t(d) : uint32_t(-d);// compile-time abs(d). (force GCC compiler to treat d as 32 bits, not 64 bits)
-//    if constexpr ((d1 & (d1 - 1)) == 0) {
-//        // d1 is a power of 2. use shift
-//        constexpr int k = bit_scan_reverse_const(d1);
-//        __m128i sign;
-//        if constexpr (k > 1) sign = _mm_srai_epi32(x, k-1); else sign = x;// k copies of sign bit
-//        __m128i bias = _mm_srli_epi32(sign, 32 - k);       // bias = x >= 0 ? 0 : k-1
-//        __m128i xpbias = _mm_add_epi32(x, bias);           // x + bias
-//        __m128i q = _mm_srai_epi32(xpbias, k);             // (x + bias) >> k
-//        if (d > 0)      return q;                          // d > 0: return  q
-//        return _mm_sub_epi32(_mm_setzero_si128(), q);      // d < 0: return -q
-//    }
-//    // general case
-//    constexpr int32_t sh = bit_scan_reverse_const(uint32_t(d1) - 1); // ceil(log2(d1)) - 1. (d1 < 2 handled by power of 2 case)
-//    constexpr int32_t mult = int(1 + (uint64_t(1) << (32 + sh)) / uint32_t(d1) - (int64_t(1) << 32));   // multiplier
-//    const Divisor_i div(mult, sh, d < 0 ? -1 : 0);
-//    return x / div;
-//}
-//
-//// define Vec4i a / const_int(d)
-//template <int32_t d>
-//static inline Vec4i operator / (Vec4i const a, Const_int_t<d>) {
-//    return divide_by_i<d>(a);
-//}
-//
-//// define Vec4i a / const_uint(d)
-//template <uint32_t d>
-//static inline Vec4i operator / (Vec4i const a, Const_uint_t<d>) {
-//    static_assert(d < 0x80000000u, "Dividing signed by overflowing unsigned");
-//    return divide_by_i<int32_t(d)>(a);                     // signed divide
-//}
-//
-//// vector operator /= : divide
-//template <int32_t d>
-//static inline Vec4i & operator /= (Vec4i & a, Const_int_t<d> b) {
-//    a = a / b;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//template <uint32_t d>
-//static inline Vec4i & operator /= (Vec4i & a, Const_uint_t<d> b) {
-//    a = a / b;
-//    return a;
-//}
-//
-//
-//// Divide Vec4ui by compile-time constant
-//template <uint32_t d>
-//static inline Vec4ui divide_by_ui(Vec4ui const x) {
-//    static_assert(d != 0, "Integer division by zero");     // Error message if dividing by zero
-//    if constexpr (d == 1) return x;                        // divide by 1
-//    constexpr int b = bit_scan_reverse_const(d);           // floor(log2(d))
-//    if constexpr ((uint32_t(d) & (uint32_t(d) - 1)) == 0) {
-//        // d is a power of 2. use shift
-//        return    _mm_srli_epi32(x, b);                    // x >> b
-//    }
-//    // general case (d > 2)
-//    constexpr uint32_t mult = uint32_t((uint64_t(1) << (b+32)) / d); // multiplier = 2^(32+b) / d
-//    constexpr uint64_t rem = (uint64_t(1) << (b+32)) - uint64_t(d)*mult; // remainder 2^(32+b) % d
-//    constexpr bool round_down = (2 * rem < d);             // check if fraction is less than 0.5
-//    constexpr uint32_t mult1 = round_down ? mult : mult + 1;
-//    // do 32*32->64 bit unsigned multiplication and get high part of result
-//#if INSTRSET >= 10
-//    const __m128i multv = _mm_maskz_set1_epi32(0x05, mult1);// zero-extend mult and broadcast
-//#else
-//    const __m128i multv = Vec2uq(uint64_t(mult1));         // zero-extend mult and broadcast
-//#endif
-//    __m128i t1 = _mm_mul_epu32(x, multv);                  // 32x32->64 bit unsigned multiplication of x[0] and x[2]
-//    if constexpr (round_down) {
-//        t1 = _mm_add_epi64(t1, multv);                     // compensate for rounding error. (x+1)*m replaced by x*m+m to avoid overflow
-//    }
-//    __m128i t2 = _mm_srli_epi64(t1, 32);                   // high dword of result 0 and 2
-//    __m128i t3 = _mm_srli_epi64(x, 32);                    // get x[1] and x[3] into position for multiplication
-//    __m128i t4 = _mm_mul_epu32(t3, multv);                 // 32x32->64 bit unsigned multiplication of x[1] and x[3]
-//    if constexpr (round_down) {
-//        t4 = _mm_add_epi64(t4, multv);                     // compensate for rounding error. (x+1)*m replaced by x*m+m to avoid overflow
-//    }
-//#if INSTRSET >= 5   // SSE4.1 supported
-//    __m128i t7 = _mm_blend_epi16(t2, t4, 0xCC);            // blend two results
-//#else
-//    __m128i t5 = _mm_set_epi32(-1, 0, -1, 0);              // mask of dword 1 and 3
-//    __m128i t6 = _mm_and_si128(t4, t5);                    // high dword of result 1 and 3
-//    __m128i t7 = _mm_or_si128(t2, t6);                     // combine all four results into one vector
-//#endif
-//    Vec4ui q = _mm_srli_epi32(t7, b);                      // shift right by b
-//    return q;                                              // no overflow possible
-//}
-//
-//// define Vec4ui a / const_uint(d)
-//template <uint32_t d>
-//static inline Vec4ui operator / (Vec4ui const a, Const_uint_t<d>) {
-//    return divide_by_ui<d>(a);
-//}
-//
-//// define Vec4ui a / const_int(d)
-//template <int32_t d>
-//static inline Vec4ui operator / (Vec4ui const a, Const_int_t<d>) {
-//    static_assert(d < 0x80000000u, "Dividing unsigned integer by negative value is ambiguous");
-//    return divide_by_ui<d>(a);                             // unsigned divide
-//}
-//
-//// vector operator /= : divide
-//template <uint32_t d>
-//static inline Vec4ui & operator /= (Vec4ui & a, Const_uint_t<d> b) {
-//    a = a / b;
-//    return a;
-//}
-//
-//// vector operator /= : divide
-//template <int32_t d>
-//static inline Vec4ui & operator /= (Vec4ui & a, Const_int_t<d> b) {
-//    a = a / b;
-//    return a;
-//}
-
-
 /* 
 Каждая специализация реализует: 
 
@@ -445,6 +184,7 @@ public:
         typename        _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ divideByConst(_VectorType_ dividendVector) noexcept
     {
+
         return divideByConstHelper<_DesiredType_, _Divisor_, _VectorType_>(dividendVector);
     }
 
@@ -915,7 +655,7 @@ private:
             constexpr uint32 absoluteDivisor = _Divisor_ > 0 ? uint32(_Divisor_) : uint32(-_Divisor_);
 
             if constexpr ((absoluteDivisor & (absoluteDivisor - 1)) == 0) {
-                constexpr auto shiftAmount = math::CountTrailingZeroBits(absoluteDivisor);
+                constexpr auto shiftAmount = math::CountLeadingZeroBits(absoluteDivisor);
                 __m128i signBits;
 
                 if constexpr (shiftAmount > 1)
@@ -934,7 +674,7 @@ private:
                 return _mm_sub_epi32(_mm_setzero_si128(), quotient);
             }
 
-            constexpr int32 shiftForMagic = math::CountTrailingZeroBits(uint32_t(absoluteDivisor) - 1);
+            constexpr int32 shiftForMagic = math::CountLeadingZeroBits(uint32_t(absoluteDivisor) - 1);
             constexpr int32 magicMultiplier = int32(1 + ((uint64(1) << (32 + shiftForMagic))
                 / uint32(absoluteDivisor)) - (int64(1) << 32));
 
@@ -967,7 +707,7 @@ private:
             const auto signDifference = _mm_sub_epi32(dividendSignMask, divisorParams.getDivisorSign());
             const auto correctedQuotient = _mm_sub_epi32(shiftedQuotient, signDifference);
 
-            return _mm_xor_si128(correctedQuotient, divisorParams.getDivisorSign());
+            return cast<__m128i, _VectorType_>(_mm_xor_si128(correctedQuotient, divisorParams.getDivisorSign()));
         }
         else if constexpr (is_epi16_v<_DesiredType_>) {
             if constexpr (_Divisor_ == -1)

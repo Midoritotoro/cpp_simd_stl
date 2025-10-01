@@ -7,7 +7,7 @@ __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 enum class CpuFeature : simd_stl::uchar {
 	None,
-	SSE,
+	SSE, // Говно, не поддерживается
 	SSE2,
 	SSE3,
 	SSSE3,
