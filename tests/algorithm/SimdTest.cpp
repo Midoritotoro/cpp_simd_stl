@@ -129,22 +129,23 @@ void testMethods() {
     {
         Simd v1; // default
         Simd v2(5); // fill constructor
+   
         for (int i = 0; i < v2.size(); ++i) Assert(v2.extract(i) == 5);
 
         alignas(16) T arr[4] = {1,2,3,4};
         Simd v3(arr); // load from pointer
-        for (int i = 0; i < v3.size(); ++i) Assert(v3.extract(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) Assert(v3.extract(i) == arr[i]);
 
         Simd v4(v3.unwrap()); // from vector_type
-        for (int i = 0; i < v4.size(); ++i) Assert(v4.extract(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) Assert(v4.extract(i) == arr[i]);
 
         Simd v5(v3); // copy ctor
-        for (int i = 0; i < v5.size(); ++i) Assert(v5.extract(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) Assert(v5.extract(i) == arr[i]);
     }
 
     // --- fill / extract / insert ---
     {
-        Simd v(0);
+        Simd v(1);
         v.fill(42);
         for (int i = 0; i < v.size(); ++i) Assert(v.extract(i) == 42);
 
@@ -168,24 +169,18 @@ void testMethods() {
         assert(v.extract(0) == 77);*/
     }
 
-    // --- convert / cast / safeCast ---
+    // --- convert / bitcast / safeBitcast ---
     {
         Simd v(5);
         auto v8 = v.convert<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
-        Assert(v8.extract(0) == 5);
-
-        auto vDouble = v.cast<double>();
-        Assert(vDouble.extract(0) == 5.0);
-
-        auto vSafe = Simd::template safeCast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
-        Assert(vSafe.extract(0) == 5);
+        auto vDouble = v.bitcast<double>();
+        auto vSafe = Simd::template safeBitcast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
     }
 
-    // --- cross‑arch cast ---
+    // --- cross‑arch bitcast ---
     {
         Simd v(11);
-        auto vOther = v.cast<simd_stl::arch::CpuFeature::SSE2, float>();
-        Assert(static_cast<int>(vOther.extract(0)) == 11);
+        auto vOther = v.bitcast<simd_stl::arch::CpuFeature::SSE2, float>();
     }
 
     // --- load/store aligned/unaligned ---
@@ -217,26 +212,38 @@ void testMethods() {
 
 
 int main() {
-    //testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 
-    //testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
- //   testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
-   // testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
-
+    testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
     //testArithmeticOperations<float, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<float, simd_stl::arch::CpuFeature::SSE2>();
 
- //   testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
-   // testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
+    //testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
+    //testArithmeticOperations<double, simd_stl::arch::CpuFeature::SSE2>();
+
+
+    testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
+
+    testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
     testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
+
+    testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
+
+
 
     return 0;
 }

@@ -194,15 +194,27 @@ public:
     static simd_stl_constexpr_cxx20 simd_stl_always_inline void insert(
         _VectorType_&       vector,
         const uint8         position,
-        const _DesiredType_ value) noexcept 
+        const _DesiredType_ value) noexcept
     {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
-            const auto broad = _mm_set1_epi32(value);
-            const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
+#if defined(simd_stl_processor_x86_64)
+            auto vectorValue = _mm_cvtsi64_si128(value);
+#else
+            union {
+                __m128i vec;
+                int64   num;
+            } convert;
 
-            const auto mask = _mm_loadu_si128((__m128i const*)(maskl + 4 - (position & 3))); // FFFFFFFF at index position
-            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
-        }
+            convert.num = value;
+            auto vectorValue = _mm_loadl_epi64(&convert.vec);
+#endif
+            if (position == 0) {
+                vectorValue = _mm_unpacklo_epi64(vectorValue, vectorValue);
+                vector = _mm_unpackhi_epi64(vectorValue, vector);
+            }
+            else
+                vector = _mm_unpacklo_epi64(vector, vectorValue);
+        }   
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>) {
             const auto broad = _mm_set1_epi32(value);
             const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
@@ -211,7 +223,26 @@ public:
             vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
         }
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            _vector = _mm_insert_epi16(vector, value, position);
+            // Обход ошибки C2057 MSVC
+            switch (position) {
+                case 0:
+                    vector = _mm_insert_epi16(vector, value, 0);
+                case 1:
+                    vector = _mm_insert_epi16(vector, value, 1);
+                case 2:
+                    vector = _mm_insert_epi16(vector, value, 2);
+                case 3:
+                    vector = _mm_insert_epi16(vector, value, 3);
+                case 4:
+                    vector = _mm_insert_epi16(vector, value, 4);
+                case 5:
+                    vector = _mm_insert_epi16(vector, value, 5);
+                case 6:
+                    vector = _mm_insert_epi16(vector, value, 6);
+                case 7:
+                    vector = _mm_insert_epi16(vector, value, 7);
+            }
+           
         }
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
             const int8 maskl[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
@@ -219,6 +250,60 @@ public:
 
             const auto mask  = _mm_loadu_si128((__m128i const*)(maskl + 16 - (position & 0x0F))); // FF at index position
             vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+        }
+        else if constexpr (is_pd_v<_DesiredType_>) {
+            const auto broadcasted = _mm_set_sd(value);
+
+            vector = (position == 0)
+                ? _mm_shuffle_pd(broadcasted, vector, 2)
+                : _mm_shuffle_pd(vector, broadcasted, 0);
+        }
+        else if constexpr (is_ps_v<_DesiredType_>) {
+            const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
+
+            const auto broadcasted  = _mm_set1_ps(value);
+            const auto mask         = _mm_loadu_ps((float const*)(maskl + 4 - (position & 3))); // FFFFFFFF at index position
+
+            vector = _mm_or_ps(
+                _mm_and_ps(mask, broadcasted),
+                _mm_andnot_ps(mask, vector));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_constexpr_cxx20 simd_stl_always_inline _DesiredType_ extract(
+        _VectorType_    vector,
+        const uint8     where) noexcept
+    {
+        if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            // Обход ошибки C2057 MSVC
+            switch (where) {
+                case 0:
+                    return _mm_extract_epi16(vector, 0);
+                case 1:
+                    return _mm_extract_epi16(vector, 1);
+                case 2:
+                    return _mm_extract_epi16(vector, 2);
+                case 3:
+                    return _mm_extract_epi16(vector, 3);
+                case 4:
+                    return _mm_extract_epi16(vector, 4);
+                case 5:
+                    return _mm_extract_epi16(vector, 5);
+                case 6:
+                    return _mm_extract_epi16(vector, 6);
+                case 7:
+                    return _mm_extract_epi16(vector, 7);
+            }
+        }
+        else {
+            constexpr auto vectorLength = (sizeof(_VectorType_) / sizeof(_DesiredType_));
+            _DesiredType_ array[vectorLength];
+
+            storeUnaligned(array, vector);
+            return array[where & (vectorLength - 1)];
         }
     }
 
@@ -342,8 +427,8 @@ public:
     }
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
+        typename _VectorType_,
+        typename _DesiredType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_load_si128(reinterpret_cast<const __m128i*>(where));
@@ -469,16 +554,6 @@ public:
     template <typename _VectorType_>
     static simd_stl_constexpr_cxx20 simd_stl_always_inline _VectorType_ increment(_VectorType_ vector) noexcept {
         return add(vector, broadcast(1));
-    }
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_constexpr_cxx20 simd_stl_always_inline _DesiredType_ extract(
-        _VectorType_    vector,
-        const uint8     where) noexcept
-    {
-        
     }
 
     template <typename _VectorType_>
