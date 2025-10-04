@@ -172,7 +172,7 @@ struct greater_equal {
     }
 };
 
-template <class _Ty = void>
+template <class _Type_ = void>
 struct less_equal {
     simd_stl_nodiscard constexpr bool operator()(
         const _Type_& left,

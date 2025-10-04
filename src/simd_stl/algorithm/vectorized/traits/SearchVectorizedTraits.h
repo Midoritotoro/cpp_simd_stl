@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <simd_stl/compatibility/Compatibility.h>
-#include <src/simd_stl/math/BitMath.h>
+#include <simd_stl/math/BitMath.h>
 
 #include <src/simd_stl/algorithm/vectorized/traits/FindVectorizedTraits.h>
 #include <src/simd_stl/algorithm/vectorized/traits/SearchLoop.h>

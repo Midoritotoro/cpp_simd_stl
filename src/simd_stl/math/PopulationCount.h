@@ -40,6 +40,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
 
+
 template <type_traits::standard_unsigned_integral _IntegralType_>
 constexpr int _BitHacksPopulationCount(_IntegralType_ value) noexcept {
     if      constexpr (sizeof(_IntegralType_) == 8) {
@@ -97,5 +98,6 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline int _PopcntPopulationCount(_Inte
 }
 
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
+
 
 __SIMD_STL_MATH_NAMESPACE_END

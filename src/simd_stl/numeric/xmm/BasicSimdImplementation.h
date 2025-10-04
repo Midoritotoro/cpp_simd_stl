@@ -16,9 +16,9 @@ public:
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
-        if constexpr (std::is_same_v<_CompareType, type_traits::equal_to>) {
+       /* if constexpr (std::is_same_v<_CompareType, type_traits::equal_to>) {
 
-        }
+        }*/
     }
 
     template <

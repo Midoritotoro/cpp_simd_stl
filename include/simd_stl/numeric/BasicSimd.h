@@ -8,7 +8,10 @@
 #  undef min
 #endif
 
-#include <simd_stl/numeric/BasicSimdImplementation.h>
+#include <src/simd_stl/numeric/xmm/BasicSimdImplementation.h>
+//#include <src/simd_stl/numeric/ymm/BasicSimdImplementation.h>
+//#include <src/simd_stl/numeric/zmm/BasicSimdImplementation.h>
+
 #include <simd_stl/numeric/BasicSimdElementReference.h>
 
 #include <src/simd_stl/utility/Assert.h>
@@ -528,6 +531,7 @@ public:
     template <typename _ElementType_ = _Element_>
     static constexpr int width() noexcept {
         static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
+
         constexpr auto width = sizeof(vector_type);
         return width;
     }
@@ -535,6 +539,7 @@ public:
     template <typename _ElementType_ = _Element_>
     static constexpr int size() noexcept {
         static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
+
         constexpr auto length = (sizeof(vector_type) / sizeof(_ElementType_));
         return length;
     }
@@ -1186,8 +1191,10 @@ simd_stl_always_inline bool operator==(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
-        ::template compare<_Element_>(left._vector, right._vector);
+    return true;
+   /* return basic_simd<_SimdGeneration_, _Element_>::implementation
+
+        ::template compare<_Element_>(left._vector, right._vector);*/
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -1,13 +1,13 @@
 #pragma once 
 
 #include <simd_stl/arch/CpuFeature.h>
-#include <type_traits>
+#include <src/simd_stl/type_traits/TypeTraits.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <arch::CpuFeature _SimdGeneration_>
-class BasicSimdImplementation;
+class BasicSimdImplementation {};
 
 template <typename _Element_>
 constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;

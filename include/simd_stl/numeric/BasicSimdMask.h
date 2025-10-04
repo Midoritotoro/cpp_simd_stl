@@ -13,10 +13,10 @@ class basic_simd_mask {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
-	using __impl = BasicSimdMaskImplementation<_SimdGeneration_, _Element_>;
+	using implementation = BasicSimdMaskImplementation<_SimdGeneration_, _Element_>;
 public:
-	using mask_type = typename __impl::mask_type;
-	using size_type = typename __impl::size_type;
+	using mask_type = typename implementation::mask_type;
+	using size_type = typename implementation::size_type;
 
 	basic_simd_mask(const mask_type mask) noexcept :
 		_mask(mask)
@@ -26,42 +26,42 @@ public:
 	   * @return true, если все биты маски установлены.
     */
 	constexpr simd_stl_always_inline bool allOf() const noexcept {
-		return __impl::allOf(_mask);
+		return implementation::allOf(_mask);
 	}
 
 	/**
 		* @return true, если хотя бы один бит маски установлен.
 	*/
 	constexpr simd_stl_always_inline bool anyOf() const noexcept {
-		return __impl::anyOf(_mask);
+		return implementation::anyOf(_mask);
 	}
 
 	/**
 		* @return true, если ни один бит маски не установлен.
 	*/
 	constexpr simd_stl_always_inline bool noneOf() const noexcept {
-		return __impl::noneOf(_mask);
+		return implementation::noneOf(_mask);
 	}
 
 	/**
 		* @return Количество установленных битов маски.
 	*/
 	constexpr simd_stl_always_inline size_type countSet() const noexcept {
-		return __impl::countSet(_mask);
+		return implementation::countSet(_mask);
 	}
 
 	/**
 		* @return Количество конечных нулевых битов в маске.
 	*/
 	constexpr simd_stl_always_inline size_type countTrailingZeroBits() const noexcept {
-		return __impl::countTrailingZeroBits(_mask);
+		return implementation::countTrailingZeroBits(_mask);
 	}
 
 	/**
 		* @return Количество ведущих нулевых битов маски.
 	*/	
 	constexpr simd_stl_always_inline size_type countLeadingZeroBits() const noexcept {
-		return __impl::countLeadingZeroBits(_mask);
+		return implementation::countLeadingZeroBits(_mask);
 	}
 
 	/**
