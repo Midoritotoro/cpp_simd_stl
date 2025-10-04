@@ -81,7 +81,7 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/UnwrapEnum.h"
     "src/simd_stl/type_traits/SimdTypeCheck.h"
     "src/simd_stl/type_traits/IsVirtualBaseOf.h"
-
+    src/simd_stl/type_traits/OperatorWrappers.h
 
     "src/simd_stl/utility/Assert.h"
 

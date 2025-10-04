@@ -6,11 +6,6 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-#if !defined(simd_stl_shuffle_mask)
-#  define simd_stl_shuffle_mask (_MM_SHUFFLE)
-#endif
-
-
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_>
@@ -30,49 +25,49 @@ public:
 	/**
 	   * @return true, если все биты маски установлены.
     */
-	simd_stl_constexpr_cxx20 simd_stl_always_inline bool allOf() const noexcept {
+	constexpr simd_stl_always_inline bool allOf() const noexcept {
 		return __impl::allOf(_mask);
 	}
 
 	/**
 		* @return true, если хотя бы один бит маски установлен.
 	*/
-	simd_stl_constexpr_cxx20 simd_stl_always_inline bool anyOf() const noexcept {
+	constexpr simd_stl_always_inline bool anyOf() const noexcept {
 		return __impl::anyOf(_mask);
 	}
 
 	/**
 		* @return true, если ни один бит маски не установлен.
 	*/
-	simd_stl_constexpr_cxx20 simd_stl_always_inline bool noneOf() const noexcept {
+	constexpr simd_stl_always_inline bool noneOf() const noexcept {
 		return __impl::noneOf(_mask);
 	}
 
 	/**
 		* @return Количество установленных битов маски.
 	*/
-	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countSet() const noexcept {
+	constexpr simd_stl_always_inline size_type countSet() const noexcept {
 		return __impl::countSet(_mask);
 	}
 
 	/**
 		* @return Количество конечных нулевых битов в маске.
 	*/
-	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countTrailingZeroBits() const noexcept {
+	constexpr simd_stl_always_inline size_type countTrailingZeroBits() const noexcept {
 		return __impl::countTrailingZeroBits(_mask);
 	}
 
 	/**
 		* @return Количество ведущих нулевых битов маски.
 	*/	
-	simd_stl_constexpr_cxx20 simd_stl_always_inline size_type countLeadingZeroBits() const noexcept {
+	constexpr simd_stl_always_inline size_type countLeadingZeroBits() const noexcept {
 		return __impl::countLeadingZeroBits(_mask);
 	}
 
 	/**
 		* @return Числовое значение маски.
 	*/	
-	simd_stl_constexpr_cxx20 simd_stl_always_inline mask_type unwrap() const noexcept {
+	constexpr simd_stl_always_inline mask_type unwrap() const noexcept {
 		return _mask;
 	}
 private:

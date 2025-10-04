@@ -30,7 +30,7 @@ public:
     using vector_type   = typename _BasicSimd_::vector_type;
     using value_type    = typename _BasicSimd_::value_type;
 
-    simd_stl_constexpr_cxx20 BasicSimdElementReference(
+    BasicSimdElementReference(
         parent_type*    parent,
         uint8           index = 0
     ) noexcept:
@@ -38,120 +38,120 @@ public:
         _index(index)
     {}
 
-    simd_stl_constexpr_cxx20 ~BasicSimdElementReference() noexcept 
+    ~BasicSimdElementReference() noexcept 
     {}
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline uint8 index() const noexcept {
+    simd_stl_always_inline uint8 index() const noexcept {
         return _index;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline value_type get() const noexcept {
+    simd_stl_always_inline value_type get() const noexcept {
         return __parent_impl::extract(_parent->_vector, _index);
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline void set(value_type value) noexcept {
+    simd_stl_always_inline void set(value_type value) noexcept {
         return __parent_impl::insert(_parent->_vector, _index, value);
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
         set(other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator++() noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator++() noexcept {
         set(get() + 1);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator--() noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator--() noexcept {
         set(get() - 1);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference operator++(int) noexcept {
+    simd_stl_always_inline BasicSimdElementReference operator++(int) noexcept {
         auto self = *this;
         set(get() + 1);
         return self;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference operator--(int) noexcept {
+    simd_stl_always_inline BasicSimdElementReference operator--(int) noexcept {
         auto self = *this;
         set(get() - 1);
         return self;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline value_type operator-() noexcept {
+    simd_stl_always_inline value_type operator-() noexcept {
         return -get();
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline value_type operator+() noexcept {
+    simd_stl_always_inline value_type operator+() noexcept {
         return get();
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline operator value_type() const noexcept {
+    simd_stl_always_inline operator value_type() const noexcept {
         return get();
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator==(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator==(const value_type other) const noexcept {
         return get() == other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator!=(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator!=(const value_type other) const noexcept {
         return get() != other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator>(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator>(const value_type other) const noexcept {
         return get() > other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator<(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator<(const value_type other) const noexcept {
         return get() < other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator<=(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator<=(const value_type other) const noexcept {
         return get() <= other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline bool operator>=(const value_type other) const noexcept {
+    simd_stl_always_inline bool operator>=(const value_type other) const noexcept {
         return get() >= other;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator+=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator+=(const value_type other) noexcept {
         set(get() + other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator-=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator-=(const value_type other) noexcept {
         set(get() - other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator*=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator*=(const value_type other) noexcept {
         set(get() * other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator/=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator/=(const value_type other) noexcept {
         set(get() / other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator%=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator%=(const value_type other) noexcept {
         set(get() % other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator&=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator&=(const value_type other) noexcept {
         set(get() & other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator^=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator^=(const value_type other) noexcept {
         set(get() ^ other);
         return *this;
     }
 
-    simd_stl_constexpr_cxx20 simd_stl_always_inline BasicSimdElementReference& operator|=(const value_type other) noexcept {
+    simd_stl_always_inline BasicSimdElementReference& operator|=(const value_type other) noexcept {
         set(get() | other);
         return *this;
     }

@@ -14,6 +14,8 @@
 #include <simd_stl/math/BitMath.h>
 #include <simd_stl/compatibility/Inline.h>
 
+#include <simd_stl/numeric/BasicSimd.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -32,18 +34,20 @@ simd_stl_declare_const_function simd_stl_always_inline simd_stl_constexpr_cxx20 
 }
 
 template <
-    class _Traits_,
+    arch::CpuFeature _SimdGeneration_,
     class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline simd_stl_constexpr_cxx20 const void* FindVectorizedInternal(
     const void* firstPointer,
     const void* lastPointer,
     _Type_      value) noexcept
 {
+   /* using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+
     const auto size         = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize  = size & (~(_Traits_::portionSize - 1));
+    const auto alignedSize  = size & (~(_SimdType_::width() - 1));
 
     if (alignedSize != 0) {
-        const auto comparand = _Traits_::Set(value);
+        const auto comparand = _SimdType_(value);
 
         const void* stopAt = firstPointer;
         AdvanceBytes(stopAt, alignedSize);
@@ -57,7 +61,7 @@ simd_stl_declare_const_function simd_stl_always_inline simd_stl_constexpr_cxx20 
 
             AdvanceBytes(firstPointer, _Traits_::portionSize);
         } while (firstPointer != stopAt);
-    }
+    }*/
 
     return (firstPointer == lastPointer) ? nullptr : FindScalar(firstPointer, lastPointer, value);
 }

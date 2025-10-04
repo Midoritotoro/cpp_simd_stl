@@ -23,27 +23,27 @@ class BasicSimdMaskImplementation {
 	using mask_type = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_>;
 	static constexpr uint8 usedBits = sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>) / sizeof(_Element_);
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline bool allOf(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline bool allOf(const mask_type mask) noexcept {
 		return (mask == math::MaximumIntegralLimit<mask_type>());
 	}
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline bool anyOf(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline bool anyOf(const mask_type mask) noexcept {
 		return (mask != 0);
 	}
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline bool noneOf(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline bool noneOf(const mask_type mask) noexcept {
 		return (mask == 0);
 	}
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline uint8 countSet(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline uint8 countSet(const mask_type mask) noexcept {
 		return math::PopulationCount(mask);
 	}
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline uint8 countTrailingZeroBits(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline uint8 countTrailingZeroBits(const mask_type mask) noexcept {
 		return math::CountTrailingZeroBits(mask);
 	}
 
-	static simd_stl_constexpr_cxx20 simd_stl_always_inline uint8 countLeadingZeroBits(const mask_type mask) noexcept {
+	static constexpr simd_stl_always_inline uint8 countLeadingZeroBits(const mask_type mask) noexcept {
 		return math::CountLeadingZeroBits(mask);
 	}
 

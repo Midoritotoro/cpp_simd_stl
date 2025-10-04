@@ -124,7 +124,7 @@ void testArithmeticOperations() {
 template <typename T, simd_stl::arch::CpuFeature Arch>
 void testMethods() {
     using Simd = simd_stl::numeric::basic_simd<Arch, T>;
-
+    
     // --- Конструкторы ---
     {
         Simd v1; // default
@@ -212,6 +212,7 @@ void testMethods() {
 
 
 int main() {
+    
     //testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
     //testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 
