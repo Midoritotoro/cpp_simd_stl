@@ -85,7 +85,12 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
-    src/simd_stl/numeric/SimdDivisors.h
+    src/simd_stl/numeric/xmm/SimdDivisors.h
+    src/simd_stl/numeric/xmm/BasicSimdImplementation.h
+
+    src/simd_stl/numeric/ymm/BasicSimdImplementation.h
+    src/simd_stl/numeric/zmm/BasicSimdImplementation.h
+
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchVectorizedTraits.h
@@ -95,6 +100,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/traits/MinMaxTraits.h
     src/simd_stl/algorithm/FixedMemcmp.h
     src/simd_stl/algorithm/MsvcIteratorUnwrap.h
+
+   
 )
 
 set(PUBLIC_HEADERS
@@ -130,7 +137,6 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h
-    include/simd_stl/numeric/BasicSimdImplementation.h
     include/simd_stl/numeric/BasicSimdElementReference.h
     include/simd_stl/numeric/BasicSimdMaskImplementation.h
     include/simd_stl/numeric/BasicSimdMask.h

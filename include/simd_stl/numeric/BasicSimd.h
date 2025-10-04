@@ -95,7 +95,7 @@ public:
     basic_simd(vector_type other) noexcept;
 
     /**
-        * @brief Загрузка вектора из памяти по адресу address.
+        * @brief Загрузка вектора из памяти по адресу 'address'.
         * @param address Адрес для загрузки.
     */
     basic_simd(const void* address) noexcept;

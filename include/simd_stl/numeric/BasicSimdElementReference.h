@@ -19,6 +19,7 @@ constexpr bool __is_valid_basic_simd_v = std::disjunction_v<
         basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type>, _BasicSimd_>
 >;
 
+
 template <typename _BasicSimd_>
 class BasicSimdElementReference {
     static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
@@ -36,7 +37,10 @@ public:
     ) noexcept:
         _parent(parent),
         _index(index)
-    {}
+    {
+        DebugAssert(parent != nullptr);
+        DebugAssert(index >= 0 && index < parent_type::template size<value_type>());
+    }
 
     ~BasicSimdElementReference() noexcept 
     {}
@@ -46,11 +50,11 @@ public:
     }
 
     simd_stl_always_inline value_type get() const noexcept {
-        return __parent_impl::extract(_parent->_vector, _index);
+        return parent->extract(_index);
     }
 
     simd_stl_always_inline void set(value_type value) noexcept {
-        return __parent_impl::insert(_parent->_vector, _index, value);
+        return parent->insert(_index, value);
     }
 
     simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
