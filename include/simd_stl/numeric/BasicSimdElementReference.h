@@ -50,13 +50,11 @@ public:
     }
 
     simd_stl_always_inline value_type get() const noexcept {
-        return value_type{};
-       // return _parent->extract(_index);
+        return _parent->extract(_index);
     }
 
     simd_stl_always_inline void set(value_type value) noexcept {
-
-       // return _parent->insert(_index, value);
+        _parent->insert(_index, value);
     }
 
     simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {

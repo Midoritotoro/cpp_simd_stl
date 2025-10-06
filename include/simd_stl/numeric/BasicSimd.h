@@ -179,7 +179,7 @@ public:
         * @param mask Маска для перемешивания.
     */
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline void shuffle(basic_simd_mask<_SimdGeneration_, _Element_> mask) noexcept;
+    simd_stl_always_inline void permute(basic_simd_mask<_SimdGeneration_, _Element_> mask) noexcept;
 
     /**
         * @brief Вставка value в вектор, если соответствующий бит маски установлен.
@@ -990,10 +990,10 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::shuffle(
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::permute(
     basic_simd_mask<_SimdGeneration_, _Element_> mask) noexcept
 {
-    return elementWise::template shuffle<_Element_>(_vector, mask);
+    return elementWise::template permute<_Element_>(_vector, mask);
 }
 
 template <

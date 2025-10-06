@@ -10,15 +10,15 @@ class SimdElementWise;
 
 template <>
 class SimdElementWise<arch::CpuFeature::SSE2> {
-    using _Cast_ = SimdCast<arch::CpuFeature::SSE2>;
+    using _Cast_            = SimdCast<arch::CpuFeature::SSE2>;
+    using _MemoryAccess_    = SimdMemoryAccess<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ shuffle(
         _VectorType_                                        vector,
-        type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>   shuffleMask) noexcept
+        uint8 shuffleMask) noexcept
     {
         return shuffle<_DesiredType_>(vector, vector, shuffleMask);
     }
@@ -29,8 +29,7 @@ public:
     static simd_stl_always_inline _VectorType_ shuffle(
         _VectorType_                                            vector,
         _VectorType_                                            secondVector,
-        type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>       shuffleMask) noexcept
+        uint8       shuffleMask) noexcept
     {
         if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
             return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
@@ -47,7 +46,16 @@ public:
 
         }
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            uint8 ii[16];
+            int8  sourceVector[16], rr[16];
 
+            _MemoryAccess_::template storeUnaligned(vector);
+            index.store(ii);
+
+            for (int32 j = 0; j < 16; j++) 
+                rr[j] = tt[ii[j] & 0x0F];
+
+            return Vec16c().load(rr);
         }
     }
 };

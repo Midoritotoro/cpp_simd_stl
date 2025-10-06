@@ -6,17 +6,17 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 /**
- * @class basic_simd_shuffle_mask
+ * @class basic_simd_permute_mask
  * @brief Предоставляет интерфейс для создания битовой маски перестановки элементов вектора.
  *
  * @tparam _VectorLength_ Количество элементов вектора.
  * @tparam _Indices_ Индексы перестановки.
  */
 template <uint8 ... _Indices_>
-class basic_simd_shuffle_mask;
+class basic_simd_permute_mask;
 
 template <uint8 A, uint8 B>
-class basic_simd_shuffle_mask<A, B> {
+class basic_simd_permute_mask<A, B> {
 public:
     using mask_type = uint8;
 
@@ -25,14 +25,14 @@ public:
     }
 private:
     static constexpr mask_type compute() noexcept {
-        return (A << 2) | B;
+        return (A << 1) | B;
     }
 
     static constexpr mask_type _mask = compute();
 };
 
 template <uint8 A, uint8 B, uint8 C, uint8 D>
-class basic_simd_shuffle_mask<A, B, C, D> {
+class basic_simd_permute_mask<A, B, C, D> {
 public:
     using mask_type = uint8;
 
@@ -51,7 +51,7 @@ private:
 template <
     uint8 A, uint8 B, uint8 C, uint8 D,
     uint8 E, uint8 F, uint8 G, uint8 H>
-class basic_simd_shuffle_mask<A, B, C, D, E, F, G, H> {
+class basic_simd_permute_mask<A, B, C, D, E, F, G, H> {
 public:
     using mask_type = uint32;
 
@@ -74,7 +74,7 @@ template <
     uint8 E, uint8 F, uint8 G, uint8 H,
     uint8 I, uint8 J, uint8 K, uint8 L,
     uint8 M, uint8 N, uint8 O, uint8 P>
-class basic_simd_shuffle_mask<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> {
+class basic_simd_permute_mask<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> {
 public:
     using mask_type = unsigned long long;
 

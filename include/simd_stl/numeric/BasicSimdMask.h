@@ -18,7 +18,7 @@ public:
 	using mask_type = typename implementation::mask_type;
 	using size_type = typename implementation::size_type;
 
-	basic_simd_mask(const mask_type mask) noexcept :
+	basic_simd_mask(const mask_type mask) noexcept:
 		_mask(mask)
 	{}
 
