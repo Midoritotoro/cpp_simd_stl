@@ -24,7 +24,7 @@ template <typename _BasicSimd_>
 class BasicSimdElementReference {
     static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
 
-    using __parent_impl = typename _BasicSimd_::implementation;
+    using parentElementAccess = typename _BasicSimd_::elementAccess;
 public: 
     using parent_type   = _BasicSimd_;
 
@@ -50,11 +50,13 @@ public:
     }
 
     simd_stl_always_inline value_type get() const noexcept {
-        return _parent->extract(_index);
+        return value_type{};
+       // return _parent->extract(_index);
     }
 
     simd_stl_always_inline void set(value_type value) noexcept {
-        return _parent->insert(_index, value);
+
+       // return _parent->insert(_index, value);
     }
 
     simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {

@@ -85,11 +85,15 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
-    src/simd_stl/numeric/xmm/SimdDivisors.h
-    src/simd_stl/numeric/xmm/BasicSimdImplementation.h
-
-    src/simd_stl/numeric/ymm/BasicSimdImplementation.h
-    src/simd_stl/numeric/zmm/BasicSimdImplementation.h
+    src/simd_stl/numeric/SimdDivisors.h
+    src/simd_stl/numeric/SimdArithmetic.h
+    src/simd_stl/numeric/SimdCast.h
+    src/simd_stl/numeric/SimdConvert.h
+    src/simd_stl/numeric/SimdCompare.h
+    src/simd_stl/numeric/SimdElementAccess.h
+    src/simd_stl/numeric/SimdElementWise.h
+    src/simd_stl/numeric/SimdIntegralTypesCheck.h
+    src/simd_stl/numeric/SimdMemoryAccess.h
 
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h

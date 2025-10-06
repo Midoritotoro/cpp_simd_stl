@@ -1,7 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/BasicSimdImplementationUnspecialized.h>
-#include <src/simd_stl/numeric/xmm/SimdDivisors.h>
+#include <src/simd_stl/numeric/SimdCast.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 

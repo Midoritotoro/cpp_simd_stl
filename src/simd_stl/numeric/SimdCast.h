@@ -1,7 +1,10 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/BasicSimdImplementationUnspecialized.h>
-#include <src/simd_stl/numeric/xmm/SimdDivisors.h>
+#include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
+#include <src/simd_stl/type_traits/SimdTypeCheck.h>
+
+#include <simd_stl/compatibility/Inline.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 

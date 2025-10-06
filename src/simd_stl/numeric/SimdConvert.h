@@ -1,7 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/BasicSimdImplementationUnspecialized.h>
-#include <src/simd_stl/numeric/xmm/SimdDivisors.h>
+#include <src/simd_stl/numeric/SimdCast.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -11,6 +10,7 @@ class SimdConvert;
 template <>
 class SimdConvert<arch::CpuFeature::SSE2> {
 public:
+
 };
 
 template <>

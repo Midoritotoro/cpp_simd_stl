@@ -8,16 +8,19 @@
 #  undef min
 #endif
 
-#include <src/simd_stl/numeric/xmm/BasicSimdImplementation.h>
-//#include <src/simd_stl/numeric/ymm/BasicSimdImplementation.h>
-//#include <src/simd_stl/numeric/zmm/BasicSimdImplementation.h>
-
 #include <simd_stl/numeric/BasicSimdElementReference.h>
 
-#include <src/simd_stl/utility/Assert.h>
-#include <xstring> 
+#include <src/simd_stl/numeric/SimdArithmetic.h>
+#include <src/simd_stl/numeric/SimdCast.h>
 
-#include <tuple>
+#include <src/simd_stl/numeric/SimdCompare.h>
+#include <src/simd_stl/numeric/SimdConvert.h>
+
+#include <src/simd_stl/numeric/SimdElementAccess.h>
+#include <src/simd_stl/numeric/SimdElementWise.h>
+
+#include <src/simd_stl/numeric/SimdMemoryAccess.h>
+#include <src/simd_stl/utility/Assert.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -78,7 +81,18 @@ class basic_simd {
 
     friend BasicSimdElementReference;
 public:
-    using implementation = BasicSimdImplementation<_SimdGeneration_>;
+    using cast          = SimdCast<_SimdGeneration_>;
+    using convert       = SimdConvert<_SimdGeneration_>;
+
+    using compare       = SimdCompare<_SimdGeneration_>;
+    using elementWise   = SimdElementWise<_SimdElementWise_>;
+
+    using elementAccess = SimdElementAccess<_SimdGeneration_>;
+    using memoryAccess  = SimdMemoryAccess<_SimdGeneration_>;
+
+    using arithmetic    = SimdArithmetic<_SimdGeneration_>;
+
+
     static constexpr auto _Generation = _SimdGeneration_;
 
     using value_type = _Element_;
@@ -330,8 +344,8 @@ public:
         const basic_simd&                           left,
         std::integral_constant<_Element_, _Value_>  right) noexcept
     {
-        return basic_simd::implementation::template sub<_Element_>(left._vector,
-            basic_simd::implementation::template broadcast<typename basic_simd::vector_type>(right));
+        return basic_simd::arithmetic::template sub<_Element_>(left._vector,
+            basic_simd::elementAccess::template broadcast<typename basic_simd::vector_type>(right));
     }
 
     template <_Element_ _Divisor_>
@@ -339,7 +353,7 @@ public:
         const basic_simd& left,
         std::integral_constant<_Element_, _Divisor_>  right) noexcept
     {
-        return implementation::template divideByConst<_Element_, _Divisor_, basic_simd::vector_type>(left._vector);
+        return arithmetic::template divideByConst<_Element_, _Divisor_, basic_simd::vector_type>(left._vector);
     }
 
 
@@ -558,7 +572,7 @@ template <
     typename            _Element_>
 basic_simd<_SimdGeneration_, _Element_>::basic_simd() noexcept
 {
-    _vector = implementation::template constructZero<vector_type>();
+    _vector = elementAccess::template constructZero<vector_type>();
 }
 
 template <
@@ -627,7 +641,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void
 basic_simd<_SimdGeneration_, _Element_>::fill(const value_type value) noexcept {
-    _vector = implementation::template broadcast<vector_type>(value);
+    _vector = elementAccess::template broadcast<vector_type>(value);
 }
 
 template <
@@ -635,7 +649,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator+=(const basic_simd& other) const noexcept {
-    _vector = implementation::template add<value_type>(_vector, other._vector);
+    _vector = arithmetic::template add<value_type>(_vector, other._vector);
     return *this;
 }
 
@@ -645,7 +659,7 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator-=(const basic_simd& other) noexcept
 {
-    _vector = implementation::template sub<value_type>(_vector, other._vector);
+    _vector = arithmetic::template sub<value_type>(_vector, other._vector);
     return *this;
 }
 
@@ -655,7 +669,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator*=(const basic_simd& other) noexcept {
-    _vector = implementation::template mul<value_type>(_vector, other._vector);
+    _vector = arithmetic::template mul<value_type>(_vector, other._vector);
     return *this;
 }
 
@@ -664,7 +678,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator/=(const basic_simd& other) noexcept {
-    _vector = implementation::template div<value_type>(_vector, other._vector);
+    _vector = arithmetic::template div<value_type>(_vector, other._vector);
     return *this;
 }
 
@@ -690,7 +704,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline _Element_ 
 basic_simd<_SimdGeneration_, _Element_>::operator[](const size_type index) const noexcept {
-    return implementation::template extract<value_type>(_vector, index);
+    return elementAccess::template extract<value_type>(_vector, index);
 }
 
 template <
@@ -707,7 +721,7 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::operator++(int) noexcept {
     auto self = *this;
-    _vector = implementation::template increment<value_type>(_vector);
+    _vector = arithmetic::template increment<value_type>(_vector);
     return self;
 }
 
@@ -716,7 +730,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator++() noexcept {
-    _vector = implementation::template increment<value_type>(_vector);
+    _vector = arithmetic::template increment<value_type>(_vector);
     return *this;
 }
 
@@ -727,7 +741,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
 basic_simd<_SimdGeneration_, _Element_>::operator--(int) noexcept
 {
     auto self = *this;
-    _vector = implementation::template decrement<value_type>(_vector);
+    _vector = arithmetic::template decrement<value_type>(_vector);
     return self;
 }
 
@@ -737,7 +751,7 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator--() noexcept 
 {
-    _vector = implementation::template decrement<value_type>(_vector);
+    _vector = arithmetic::template decrement<value_type>(_vector);
     return *this;
 }
 
@@ -746,7 +760,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>::mask_type
 basic_simd<_SimdGeneration_, _Element_>::operator!() const noexcept {
-    return implementation::template convertToMask(implementation::template bitwiseNot(_vector));
+    // return implementation::template convertToMask(arithmetic::template bitwiseNot(_vector)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 template <
@@ -754,7 +768,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
 basic_simd<_SimdGeneration_, _Element_>::operator~() const noexcept {
-    return implementation::template bitwiseNot(_vector);
+    return arithmetic::template bitwiseNot(_vector);
 }
 
 template <
@@ -762,7 +776,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
 basic_simd<_SimdGeneration_, _Element_>::operator&=(const basic_simd& other) noexcept {
-    _vector = implementation::template bitwiseAnd(_vector, other._vector);
+    _vector = arithmetic::template bitwiseAnd(_vector, other._vector);
     return *this;
 }
 
@@ -771,7 +785,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator|=(const basic_simd& other) noexcept {
-    _vector = implementation::template bitwiseOr(_vector, other._vector);
+    _vector = arithmetic::template bitwiseOr(_vector, other._vector);
     return *this;
 }
 
@@ -780,7 +794,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
 basic_simd<_SimdGeneration_, _Element_>::operator^=(const basic_simd& other) noexcept {
-    _vector = implementation::template bitwiseXor(_vector, other._vector);
+    _vector = arithmetic::template bitwiseXor(_vector, other._vector);
     return *this;
 }
 
@@ -802,7 +816,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator/(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template div<_Element_>(left._vector, right._vector);
 }
 
@@ -813,7 +827,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator+(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template add<_Element_>(left._vector, right._vector);
 }
 
@@ -824,7 +838,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template sub<_Element_>(left._vector, right._vector);
 }
 
@@ -835,7 +849,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator*(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template mul<_Element_>(left._vector, right._vector);
 }
 
@@ -846,7 +860,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator&(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template bitwiseAnd(left._vector, right._vector);
 }
 
@@ -857,7 +871,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator|(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template bitwiseAnd(left._vector, right._vector);
 }
 
@@ -868,7 +882,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator^(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic
         ::template bitwiseXor(left._vector, right._vector);
 }
 
@@ -880,8 +894,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator+(
     const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
 {
     using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::implementation::template add<_Element_>(
-        left._vector, _LeftType_::implementation::template broadcast<typename _LeftType_::vector_type>(right));
+    return _LeftType_::arithmetic::template add<_Element_>(
+        left._vector, _LeftType_::elementAccess::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
@@ -892,8 +906,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
     const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
 {
     using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::implementation::template sub<_Element_>(
-        left._vector, _LeftType_::implementation::template broadcast<typename _LeftType_::vector_type>(right));
+    return _LeftType_::arithmetic::template sub<_Element_>(
+        left._vector, _LeftType_::elementAccess::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
@@ -904,8 +918,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator*(
     const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
 {
     using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::implementation::template mul<_Element_>(
-        left._vector, _LeftType_::implementation::template broadcast<typename _LeftType_::vector_type>(right));
+    return _LeftType_::arithmetic::template mul<_Element_>(
+        left._vector, _LeftType_::elementAccess::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 
@@ -917,8 +931,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator/(
     const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
 {
     using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::implementation::template div<_Element_>(
-        left._vector, _LeftType_::implementation::template broadcast<typename _LeftType_::vector_type>(right));
+    return _LeftType_::arithmetic::template div<_Element_>(
+        left._vector, _LeftType_::elementAccess::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
@@ -936,7 +950,7 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::operator-() const noexcept 
 {
-    return implementation::template unaryMinus<value_type>(_vector);
+    return arithmetic::template unaryMinus<value_type>(_vector);
 }
 
 template <
@@ -947,7 +961,7 @@ simd_stl_always_inline _DesiredType_
 basic_simd<_SimdGeneration_, _Element_>::extract(const size_type index) const noexcept
 {
    // DebugAssert(index > 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
-    return implementation::template extract<value_type>(_vector, index);
+    return elementAccess::template extract<value_type>(_vector, index);
 }
 
 template <
@@ -969,7 +983,7 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::insert(
     const size_type     where,
     const value_type    value) noexcept
 {
-    implementation::template insert<value_type>(_vector, where, value);
+    elementAccess::template insert<value_type>(_vector, where, value);
 }
 
 template <
@@ -979,7 +993,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::shuffle(
     basic_simd_mask<_SimdGeneration_, _Element_> mask) noexcept
 {
-    return implementation::template shuffle<_Element_>(_vector, mask);
+    return elementWise::template shuffle<_Element_>(_vector, mask);
 }
 
 template <
@@ -999,7 +1013,7 @@ template <typename _OtherElement_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_> 
 basic_simd<_SimdGeneration_, _Element_>::bitcast() const noexcept
 {
-    return implementation::template cast<vector_type, 
+    return cast::template cast<vector_type, 
         type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherElement_>>(_vector);
 }
 
@@ -1012,7 +1026,7 @@ template <
 simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> 
 basic_simd<_SimdGeneration_, _Element_>::bitcast() const noexcept
 {
-    return implementation::template cast<vector_type, 
+    return cast::template cast<vector_type, 
         type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>>(_vector);
 }
 
@@ -1025,7 +1039,7 @@ simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::sa
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
     using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-    return BasicSimdImplementation<_SuperiorBasicSimdType_::_Generation>::template cast<
+    return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
         typename basic_simd::vector_type,
         typename _BasicSimdTo_::vector_type, true>(from._vector);
 }
@@ -1041,7 +1055,7 @@ basic_simd<_SimdGeneration_, _Element_>::bitcast(const basic_simd& from) const n
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
     using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-    return BasicSimdImplementation<_SuperiorBasicSimdType_::_Generation>::template bitcast<
+    return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
         typename basic_simd::vector_type,
         typename _BasicSimdTo_::vector_type, false>(from._vector);
 }
@@ -1053,7 +1067,7 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::loadUnaligned(const void* where) noexcept
 {
-    return implementation::template loadUnaligned<vector_type>(reinterpret_cast<const value_type*>(where));
+    return memoryAccess::template loadUnaligned<vector_type>(reinterpret_cast<const value_type*>(where));
 }
 
 template <
@@ -1062,21 +1076,21 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
 basic_simd<_SimdGeneration_, _Element_>::loadAligned(const void* where) noexcept
 {
-    return implementation::template loadAligned<vector_type>(reinterpret_cast<const value_type*>(where));
+    return memoryAccess::template loadAligned<vector_type>(reinterpret_cast<const value_type*>(where));
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(void* where) noexcept {
-    implementation::template storeUnaligned(reinterpret_cast<value_type*>(where), _vector);
+    memoryAccess::template storeUnaligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(void* where) noexcept {
-    implementation::template storeAligned(reinterpret_cast<value_type*>(where), _vector);
+    memoryAccess::template storeAligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
 template <
@@ -1088,7 +1102,7 @@ basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
     const void*     where,
     const mask_type mask) noexcept 
 {
-    return implementation::template maskLoadUnaligned(reinterpret_cast<const value_type*>(where), mask);
+    return memoryAccess::template maskLoadUnaligned(reinterpret_cast<const value_type*>(where), mask);
 }
 
 template <
@@ -1100,7 +1114,7 @@ basic_simd<_SimdGeneration_, _Element_>::maskLoadAligned(
     const void*     where,
     const mask_type mask) noexcept
 {
-    return implementation::template maskLoadAligned(reinterpret_cast<const value_type*>(where), mask);
+    return memoryAccess::template maskLoadAligned(reinterpret_cast<const value_type*>(where), mask);
 }
 
 template <
@@ -1111,7 +1125,7 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreUn
     void*           where,
     const mask_type mask) noexcept
 {
-    implementation::template maskStoreUnaligned(reinterpret_cast<value_type*>(where), mask, _vector);
+    memoryAccess::template maskStoreUnaligned(reinterpret_cast<value_type*>(where), mask, _vector);
 }
 
 template <
@@ -1122,7 +1136,7 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreAl
     void*           where,
     const mask_type mask) noexcept
 {
-    implementation::template maskStoreAligned(reinterpret_cast<value_type*>(where), mask, _vector);
+    memoryAccess::template maskStoreAligned(reinterpret_cast<value_type*>(where), mask, _vector);
 }
 
 template <
@@ -1130,7 +1144,7 @@ template <
     typename            _Element_>
 template <_Element_ _Divisor_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::divideByConst() noexcept {
-    _vector = implementation::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
+    _vector = arithmetic::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
 }
 
 template <
@@ -1148,7 +1162,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
     const basic_simd<_SimdGeneration_, _Element_>   left,
     const uint32                                    shift) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftRight
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic::template shiftRight
         <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
 }
 
@@ -1159,7 +1173,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator<<(
     const basic_simd<_SimdGeneration_, _Element_>   left,
     const uint32                                    shift) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftLeft
+    return basic_simd<_SimdGeneration_, _Element_>::arithmetic::template shiftLeft
         <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
 }
 
@@ -1168,7 +1182,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator>>=(const uint32 shift) noexcept {
-    _vector = basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftRight
+    _vector = basic_simd<_SimdGeneration_, _Element_>::arithmetic::template shiftRight
         <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
     return *this;
 }
@@ -1178,7 +1192,7 @@ template <
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
 basic_simd<_SimdGeneration_, _Element_>::operator<<=(const uint32 shift) noexcept {
-    _vector = basic_simd<_SimdGeneration_, _Element_>::implementation::template shiftLeft
+    _vector = basic_simd<_SimdGeneration_, _Element_>::arithmetic::template shiftLeft
         <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
     return *this;
 }

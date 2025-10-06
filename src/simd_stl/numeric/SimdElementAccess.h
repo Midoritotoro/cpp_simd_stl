@@ -1,7 +1,7 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/BasicSimdImplementationUnspecialized.h>
-#include <src/simd_stl/numeric/xmm/SimdDivisors.h>
+#include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
+#include <src/simd_stl/numeric/SimdCast.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -10,12 +10,13 @@ class SimdElementAccess;
 
 template <>
 class SimdElementAccess<arch::CpuFeature::SSE2> {
+    using _Cast_ = SimdCast<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void insert(
-        _VectorType_& vector,
+        _VectorType_&       vector,
         const uint8         position,
         const _DesiredType_ value) noexcept
     {
@@ -33,37 +34,41 @@ public:
 #endif
             if (position == 0) {
                 vectorValue = _mm_unpacklo_epi64(vectorValue, vectorValue);
-                vector = _mm_unpackhi_epi64(vectorValue, vector);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(
+                    _mm_unpackhi_epi64(vectorValue, _Cast_::template cast<_VectorType_, __m128i>(vector)));
             }
             else
-                vector = _mm_unpacklo_epi64(vector, vectorValue);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_unpacklo_epi64(
+                    _Cast_::template cast<_VectorType_, __m128i>(vector), vectorValue));
         }
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>) {
             const auto broad = _mm_set1_epi32(value);
             const int32 maskl[8] = { 0,0,0,0,-1,0,0,0 };
 
             const auto mask = _mm_loadu_si128((__m128i const*)(maskl + 4 - (position & 3))); // FFFFFFFF at index position
-            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+            vector = _Cast_::template cast<__m128i, _VectorType_>(
+                _mm_or_si128(_mm_and_si128(mask, broad), 
+                    _mm_andnot_si128(mask, _Cast_::template cast<_VectorType_, __m128i>*(vector))));
         }
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
             // Обход ошибки C2057 MSVC
             switch (position) {
             case 0:
-                vector = _mm_insert_epi16(vector, value, 0);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 0));
             case 1:
-                vector = _mm_insert_epi16(vector, value, 1);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 1));
             case 2:
-                vector = _mm_insert_epi16(vector, value, 2);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 2));
             case 3:
-                vector = _mm_insert_epi16(vector, value, 3);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 3));
             case 4:
-                vector = _mm_insert_epi16(vector, value, 4);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 4));
             case 5:
-                vector = _mm_insert_epi16(vector, value, 5);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 5));
             case 6:
-                vector = _mm_insert_epi16(vector, value, 6);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 6));
             case 7:
-                vector = _mm_insert_epi16(vector, value, 7);
+                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, value, 7));
             }
 
         }
@@ -104,21 +109,21 @@ public:
             // Обход ошибки C2057 MSVC
             switch (where) {
             case 0:
-                return _mm_extract_epi16(vector, 0);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 0));
             case 1:
-                return _mm_extract_epi16(vector, 1);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 1));
             case 2:
-                return _mm_extract_epi16(vector, 2);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 2));
             case 3:
-                return _mm_extract_epi16(vector, 3);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 3));
             case 4:
-                return _mm_extract_epi16(vector, 4);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 4));
             case 5:
-                return _mm_extract_epi16(vector, 5);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 5));
             case 6:
-                return _mm_extract_epi16(vector, 6);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 6));
             case 7:
-                return _mm_extract_epi16(vector, 7);
+                return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 7));
             }
         }
         else {
@@ -145,17 +150,17 @@ public:
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ broadcast(_DesiredType_ value) noexcept {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return cast<__m128i, _VectorType_>(_mm_set1_epi64x(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi64x(value));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return cast<__m128i, _VectorType_>(_mm_set1_epi32(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi32(value));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return cast<__m128i, _VectorType_>(_mm_set1_epi16(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi16(value));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return cast<__m128i, _VectorType_>(_mm_set1_epi8(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi8(value));
         else if constexpr (is_ps_v<_DesiredType_>)
-            return cast<__m128, _VectorType_>(_mm_set1_ps(value));
+            return _Cast_::template cast<__m128, _VectorType_>(_mm_set1_ps(value));
         else if constexpr (is_pd_v<_DesiredType_>)
-            return cast<__m128d, _VectorType_>(_mm_set1_pd(value));
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_set1_pd(value));
     }
 };
 
