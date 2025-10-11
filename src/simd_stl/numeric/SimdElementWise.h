@@ -11,7 +11,6 @@ class SimdElementWise;
 template <>
 class SimdElementWise<arch::CpuFeature::SSE2> {
     using _Cast_            = SimdCast<arch::CpuFeature::SSE2>;
-    using _MemoryAccess_    = SimdMemoryAccess<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _DesiredType_,
@@ -31,32 +30,33 @@ public:
         _VectorType_                                            secondVector,
         uint8       shuffleMask) noexcept
     {
-        if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
-                _Cast_::template cast<_VectorType_, __m128d>(vector),
-                _Cast_::template cast<_VectorType_, __m128d>(secondVector),
-                shuffleMask)
-            );
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(vector),
-                shuffleMask)
-            );
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+        //if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
+        //    return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
+        //        _Cast_::template cast<_VectorType_, __m128d>(vector),
+        //        _Cast_::template cast<_VectorType_, __m128d>(secondVector),
+        //        shuffleMask)
+        //    );
+        //else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+        //    return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+        //        _Cast_::template cast<_VectorType_, __m128i>(vector),
+        //        shuffleMask)
+        //    );
+        //else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
 
-        }
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            uint8 ii[16];
-            int8  sourceVector[16], rr[16];
+        //}
+        //else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+        //    uint8 ii[16];
+        //    int8  sourceVector[16], rr[16];
 
-            _MemoryAccess_::template storeUnaligned(vector);
-            index.store(ii);
+        //    _mm_storeu_si128(reinterpret_cast<__m128* vector);
+        //    index.store(ii);
 
-            for (int32 j = 0; j < 16; j++) 
-                rr[j] = tt[ii[j] & 0x0F];
+        //    for (int32 j = 0; j < 16; j++) 
+        //        rr[j] = tt[ii[j] & 0x0F];
 
-            return Vec16c().load(rr);
-        }
+        //    return Vec16c().load(rr);
+        //}
+        return vector;
     }
 };
 

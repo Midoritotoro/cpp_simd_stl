@@ -1,10 +1,8 @@
 #pragma once 
 
-#include <src/simd_stl/type_traits/TypeTraits.h>
-#include <simd_stl/compatibility/Inline.h>
 
-#include <simd_stl/numeric/BasicSimdMask.h>
-#include <simd_stl/numeric/BasicSimdShuffleMask.h>
+#include <simd_stl/arch/CpuFeature.h>
+#include <simd_stl/math/BitMath.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -43,7 +41,7 @@ public:
             sh = 30;
         }
         else if (d1 > 1) {
-            sh = (int)math::CountLeadingZeroBits(uint32(d1 - 1));
+            sh = math::CountLeadingZeroBits(uint32(d1 - 1));
             m = int32((int64(1) << (32 + sh)) / d1 - ((int64(1) << 32) - 1));
         }
         else {

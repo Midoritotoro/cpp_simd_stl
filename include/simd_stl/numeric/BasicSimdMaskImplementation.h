@@ -46,7 +46,6 @@ class BasicSimdMaskImplementation {
 	static constexpr simd_stl_always_inline uint8 countLeadingZeroBits(const mask_type mask) noexcept {
 		return math::CountLeadingZeroBits(mask);
 	}
-
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -34,14 +34,14 @@ class SimdCompare<arch::CpuFeature::SSSE3> :
     public SimdCompare<arch::CpuFeature::SSE3>
 {};
 
-template <>
-class SimdCompare<arch::CpuFeature::SSE41> :
-    public SimdCompare<arch::CpuFeature::SSSE3>
-{};
-
-template <>
-class SimdCompare<arch::CpuFeature::SSE42> :
-    public SimdCompare<arch::CpuFeature::SSE41>
-{};
+//template <>
+//class SimdCompare<arch::CpuFeature::SSE41> :
+//    public SimdCompare<arch::CpuFeature::SSSE3>
+//{};
+//
+//template <>
+//class SimdCompare<arch::CpuFeature::SSE42> :
+//    public SimdCompare<arch::CpuFeature::SSE41>
+//{};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

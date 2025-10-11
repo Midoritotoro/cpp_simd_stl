@@ -1,8 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
 #include <src/simd_stl/numeric/SimdElementWise.h>
-
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -11,7 +9,7 @@ class SimdMemoryAccess;
 
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE2> {
-    using _ElementWise_ = SimdElementWise<arch::CpuFeature::SSE2>;
+    //using _ElementWise_ = SimdElementWise<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _VectorType_,
@@ -73,12 +71,11 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreUnaligned(
         _DesiredType_*                                      where,
-        const type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
+        const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        storeUnaligned(where, _ElementWise_::template shuffle<_DesiredType_>(
-            loadUnaligned<_VectorType_>(where), vector, mask));
+        //storeUnaligned(where, _ElementWise_::template shuffle<_DesiredType_>(
+           // loadUnaligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -86,12 +83,11 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreAligned(
         _DesiredType_*                                      where,
-        const type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
+        const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        storeAligned(where, _ElementWise_::template shuffle<_DesiredType_>(
-            loadAligned<_VectorType_>(where), vector, mask));
+       // storeAligned(where, _ElementWise_::template shuffle<_DesiredType_>(
+          //  loadAligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -99,12 +95,11 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ maskLoadUnaligned(
         const _DesiredType_*                                where,
-        const type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
+        const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        return _ElementWise_::template shuffle<_DesiredType_>(
-            loadUnaligned<_VectorType_>(where), vector, mask);
+        //return _ElementWise_::template shuffle<_DesiredType_>(
+           // loadUnaligned<_VectorType_>(where), vector, mask);
     }
 
     template <
@@ -112,12 +107,11 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline void maskLoadAligned(
         const _DesiredType_*                                where,
-        const type_traits::__deduce_simd_shuffle_mask_type<
-            sizeof(_VectorType_) / sizeof(_DesiredType_)>   mask,
+        const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>  mask,
         _VectorType_                                        vector) noexcept
     {
-        return _ElementWise_::template shuffle<_DesiredType_>(
-            loadAligned<_VectorType_>(where), vector, mask);
+       // return _ElementWise_::template shuffle<_DesiredType_>(
+           // loadAligned<_VectorType_>(where), vector, mask);
     }
 };
 
@@ -140,3 +134,5 @@ template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE42> :
     public SimdMemoryAccess<arch::CpuFeature::SSE41>
 {};
+
+__SIMD_STL_NUMERIC_NAMESPACE_END

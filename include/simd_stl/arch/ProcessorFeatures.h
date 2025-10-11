@@ -33,11 +33,12 @@ public:
     
     simd_stl_nodiscard simd_stl_always_inline static bool POPCNT()      noexcept;
 
-    template <CpuFeature _Feature_> 
+    template <arch::CpuFeature _Feature_> 
     simd_stl_nodiscard simd_stl_always_inline static bool isSupported() noexcept;
 private:
     class ProcessorFeaturesInternal
     {
+        simd_stl_nodiscard simd_stl_always_inline static int HighestFunctionId(uint32* registers) noexcept;
     public:
         ProcessorFeaturesInternal() noexcept;
 
@@ -64,22 +65,30 @@ private:
     static inline ProcessorFeaturesInternal _processorFeaturesInternal;
 };
 
+simd_stl_always_inline int ProcessorFeatures::ProcessorFeaturesInternal::HighestFunctionId(uint32* registers) noexcept {
+    cpuid(registers, 0);
+    return registers[0];
+}
+
 ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexcept {
     std::array<uint32, 4> registers;
 
-    cpuid(registers.data(), 0);
-    const auto leafCount = registers[0];
+    const auto leafCount = HighestFunctionId(registers.data());
  
     if (leafCount >= 1) {
-        memset(registers.data(), 0, registers.size() * sizeof(uint32));
+        std::memset(registers.data(), 0, registers.size() * sizeof(uint32));
         cpuidex(registers.data(), 1, 0); // 0 - eax, 1 - ebx, 2 - ecx, 3 - edx
 
         const auto leaf1Ecx = registers[2];
         const auto leaf1Edx = registers[3];
-
+        
+#if defined(simd_stl_processor_x86_64)
+        _sse    = true;
+        _sse2   = true;
+#else
         _sse    = (leaf1Edx >> 25) & 1;
         _sse2   = (leaf1Edx >> 26) & 1;
-        
+#endif
         _sse3   = (leaf1Ecx & 1);
         _ssse3  = (leaf1Ecx >> 9) & 1;
         _sse41  = (leaf1Ecx >> 19) & 1;
@@ -90,7 +99,7 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
     }
 
     if (leafCount >= 7) {
-        memset(registers.data(), 0, registers.size() * sizeof(uint32));
+        std::memset(registers.data(), 0, registers.size() * sizeof(uint32));
         cpuidex(registers.data(), 7, 0); // 0 - eax, 1 - ebx, 2 - ecx, 3 - edx
 
         const auto leaf7Ebx = registers[1];
@@ -166,9 +175,9 @@ bool ProcessorFeatures::POPCNT() noexcept {
     return _processorFeaturesInternal._popcnt;
 }
 
-template <CpuFeature _Feature_>
+template <arch::CpuFeature _Feature_>
 bool ProcessorFeatures::isSupported() noexcept {
-    if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE))
+    if      constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE))
         return _processorFeaturesInternal._sse;
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::SSE2))
         return _processorFeaturesInternal._sse2;

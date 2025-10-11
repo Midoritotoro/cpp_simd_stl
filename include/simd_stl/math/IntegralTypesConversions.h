@@ -1,8 +1,7 @@
 #pragma once 
 
 #include <numeric>
-#include <simd_stl/SimdStlNamespace.h>
-
+#include <src/simd_stl/type_traits/TypeTraits.h>
 
 __SIMD_STL_MATH_NAMESPACE_BEGIN
 
@@ -35,10 +34,10 @@ constexpr _Type_ MaximumIntegralLimit() noexcept {
 template <
 	typename _TypeTo_,
 	typename _TypeFrom_,
-	typename = std::enable_if_t<
-		std::is_integral_v<_TypeFrom_>
-		&& std::is_integral_v<_TypeTo_>
-		&& !std::is_same_v<_TypeFrom_, _TypeTo_>>>
+	typename = ::std::enable_if_t<
+		::std::is_integral_v<_TypeFrom_>
+		&& ::std::is_integral_v<_TypeTo_>
+		&& !::std::is_same_v<_TypeFrom_, _TypeTo_>>>
 constexpr inline bool ConvertIntegral(
 	const _TypeFrom_	from,
 	_TypeTo_&			to) noexcept

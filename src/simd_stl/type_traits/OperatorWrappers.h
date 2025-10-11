@@ -5,6 +5,8 @@
 #include <simd_stl/compatibility/Compatibility.h>
 #include <simd_stl/SimdStlNamespace.h>
 
+#include <vector> 
+
 template <class _Type_>
 simd_stl_nodiscard _Type_ _FakeCopyInit(_Type_) noexcept;
 

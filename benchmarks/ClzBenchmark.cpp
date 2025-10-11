@@ -1,4 +1,4 @@
-#include <src/simd_stl/math/BitMath.h>
+#include <simd_stl/math/BitMath.h>
 #include <benchmarks/tools/BenchmarkHelper.h>
 
 #include <simd_stl/compatibility/SimdCompatibility.h>

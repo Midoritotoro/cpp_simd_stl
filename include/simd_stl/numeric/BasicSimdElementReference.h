@@ -3,6 +3,9 @@
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
 #include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
 
+#include <simd_stl/compatibility/Inline.h>
+#include <src/simd_stl/utility/Assert.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
     
@@ -20,20 +23,22 @@ constexpr bool __is_valid_basic_simd_v = std::disjunction_v<
 >;
 
 
-template <typename _BasicSimd_>
+template <
+    typename _BasicSimd_, 
+    typename _ImposedElementType_ = typename _BasicSimd_::value_type>
 class BasicSimdElementReference {
     static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
 
-    using parentElementAccess = typename _BasicSimd_::elementAccess;
+    using parentElementAccess = typename _BasicSimd_::simdElementAccess;
 public: 
     using parent_type   = _BasicSimd_;
 
     using vector_type   = typename _BasicSimd_::vector_type;
-    using value_type    = typename _BasicSimd_::value_type;
+    using value_type    = _ImposedElementType_;
 
     BasicSimdElementReference(
         parent_type*    parent,
-        uint8           index = 0
+        uint32          index = 0
     ) noexcept:
         _parent(parent),
         _index(index)
@@ -45,7 +50,7 @@ public:
     ~BasicSimdElementReference() noexcept 
     {}
 
-    simd_stl_always_inline uint8 index() const noexcept {
+    simd_stl_always_inline uint32 index() const noexcept {
         return _index;
     }
 
@@ -161,7 +166,7 @@ public:
     }
 private:
     parent_type*    _parent = nullptr;
-    uint8           _index  = 0;   
+    uint32          _index  = 0;
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
