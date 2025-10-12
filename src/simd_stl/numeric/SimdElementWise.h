@@ -3,6 +3,9 @@
 #include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
 #include <src/simd_stl/numeric/SimdCast.h>
 
+#include <simd_stl/numeric/BasicSimdShuffleMask.h>
+
+
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <arch::CpuFeature _SimdGeneration_>
@@ -10,53 +13,64 @@ class SimdElementWise;
 
 template <>
 class SimdElementWise<arch::CpuFeature::SSE2> {
-    using _Cast_            = SimdCast<arch::CpuFeature::SSE2>;
+    using _Cast_ = SimdCast<arch::CpuFeature::SSE2>;
 public:
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_                                        vector,
-        uint8 shuffleMask) noexcept
+        typename    _DesiredType_,
+        uint8 ...   _Indices_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ permute(_VectorType_ vector) noexcept
     {
-        return shuffle<_DesiredType_>(vector, vector, shuffleMask);
+        return permute<_DesiredType_, _Indices_...>(vector, vector);
     }
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_                                            vector,
-        _VectorType_                                            secondVector,
-        uint8       shuffleMask) noexcept
+        typename    _DesiredType_,
+        uint8 ...   _Indices_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ permute(
+        _VectorType_ vector,
+        _VectorType_ secondVector) noexcept
     {
-        //if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-        //    return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
-        //        _Cast_::template cast<_VectorType_, __m128d>(vector),
-        //        _Cast_::template cast<_VectorType_, __m128d>(secondVector),
-        //        shuffleMask)
-        //    );
-        //else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-        //    return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
-        //        _Cast_::template cast<_VectorType_, __m128i>(vector),
-        //        shuffleMask)
-        //    );
-        //else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+        if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
+                _Cast_::template cast<_VectorType_, __m128d>(vector),
+                _Cast_::template cast<_VectorType_, __m128d>(secondVector),
+                basic_simd_permute_mask<_Indices_...>::template unwrap<arch::CpuFeature::SSE2, _DesiredType_>())
+            );
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                _Cast_::template cast<_VectorType_, __m128i>(vector),
+                basic_simd_permute_mask<_Indices_...>::template unwrap<arch::CpuFeature::SSE2, _DesiredType_>())
+            );
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            _DesiredType_ sourceVector[8], result[8];
 
-        //}
-        //else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-        //    uint8 ii[16];
-        //    int8  sourceVector[16], rr[16];
+            _mm_storeu_si128(
+                reinterpret_cast<__m128*>(sourceVector),
+                _Cast_::template cast<_VectorType_, __m128i>(vector));
 
-        //    _mm_storeu_si128(reinterpret_cast<__m128* vector);
-        //    index.store(ii);
+            auto index = basic_simd_permute_mask<_Indices_...>::template unwrap<arch::CpuFeature::SSE2, _DesiredType_>();
 
-        //    for (int32 j = 0; j < 16; j++) 
-        //        rr[j] = tt[ii[j] & 0x0F];
+            for (int j = 0; j < 8; j++) 
+                result[j] = sourceVector[index[j] & 0x07];
 
-        //    return Vec16c().load(rr);
-        //}
-        return vector;
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
+        }
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            _DesiredType_ sourceVector[16], result[16];
+
+            _mm_storeu_si128(
+                reinterpret_cast<__m128*>(sourceVector), 
+                _Cast_::template cast<_VectorType_, __m128i>(vector));
+
+            auto index = basic_simd_permute_mask<_Indices_...>::template unwrap<arch::CpuFeature::SSE2, _DesiredType_>();
+
+            for (int32 j = 0; j < 16; j++) 
+                result[j] = sourceVector[index[j] & 0x0F];
+
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
+        }
     }
 };
 

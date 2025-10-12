@@ -9,7 +9,7 @@ class SimdMemoryAccess;
 
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE2> {
-    //using _ElementWise_ = SimdElementWise<arch::CpuFeature::SSE2>;
+    using _ElementWise_ = SimdElementWise<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _VectorType_,
@@ -74,8 +74,8 @@ public:
         const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        //storeUnaligned(where, _ElementWise_::template shuffle<_DesiredType_>(
-           // loadUnaligned<_VectorType_>(where), vector, mask));
+        storeUnaligned(where, _ElementWise_::template shuffle<_DesiredType_>(
+            loadUnaligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -86,8 +86,8 @@ public:
         const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-       // storeAligned(where, _ElementWise_::template shuffle<_DesiredType_>(
-          //  loadAligned<_VectorType_>(where), vector, mask));
+        storeAligned(where, _ElementWise_::template shuffle<_DesiredType_>(
+            loadAligned<_VectorType_>(where), vector, mask));
     }
 
     template <
@@ -98,8 +98,8 @@ public:
         const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>   mask,
         const _VectorType_                                  vector) noexcept
     {
-        //return _ElementWise_::template shuffle<_DesiredType_>(
-           // loadUnaligned<_VectorType_>(where), vector, mask);
+        return _ElementWise_::template shuffle<_DesiredType_>(
+            loadUnaligned<_VectorType_>(where), vector, mask);
     }
 
     template <
@@ -110,8 +110,8 @@ public:
         const type_traits::__deduce_simd_shuffle_mask_type<arch::CpuFeature::SSE2, _DesiredType_>  mask,
         _VectorType_                                        vector) noexcept
     {
-       // return _ElementWise_::template shuffle<_DesiredType_>(
-           // loadAligned<_VectorType_>(where), vector, mask);
+        return _ElementWise_::template shuffle<_DesiredType_>(
+            loadAligned<_VectorType_>(where), vector, mask);
     }
 };
 

@@ -175,8 +175,10 @@ public:
         * @brief Перемешивает элементы вектора в зависимости от установленных битов в маске
         * @param mask Маска для перемешивания.
     */
-    template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline void permute(basic_simd_mask<_SimdGeneration_, _DesiredType_> mask) noexcept;
+    template <
+        typename    _DesiredType_,
+        uint8 ...   _Indices_>
+    simd_stl_always_inline void permute() noexcept;
 
     /**
         * @brief Вставка value в вектор, если соответствующий бит маски установлен.
@@ -957,7 +959,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline _DesiredType_
 basic_simd<_SimdGeneration_, _Element_>::extract(const size_type index) const noexcept
 {
-    DebugAssert(index > 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
+    DebugAssert(index >= 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
     return simdElementAccess::template extract<_DesiredType_>(_vector, index);
 }
 
@@ -968,7 +970,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>> 
 basic_simd<_SimdGeneration_, _Element_>::extractWrapped(const size_type index) noexcept 
 {
-    //DebugAssert(index > 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
+    DebugAssert(index >= 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
     return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>>(this, index);
 }
 
@@ -986,11 +988,12 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::insert(
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-template <typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::permute(
-    basic_simd_mask<_SimdGeneration_, _DesiredType_> mask) noexcept
+template <
+    typename    _DesiredType_,
+    uint8 ...   _Indices_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::permute() noexcept
 {
-    return simdElementWise::template permute<_DesiredType_>(_vector, mask);
+    return simdElementWise::template permute<_DesiredType_, _Indices_...>(_vector);
 }
 
 template <
