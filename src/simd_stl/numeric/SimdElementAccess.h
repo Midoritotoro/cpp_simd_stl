@@ -127,11 +127,10 @@ public:
             }
         }
         else {
-            constexpr auto vectorLength = (sizeof(_VectorType_) / sizeof(_DesiredType_));
-            _DesiredType_ array[vectorLength];
-
+            _DesiredType_ array[sizeof(_VectorType_) / sizeof(_DesiredType_)];
             _MemoryAccess_::template storeUnaligned<_DesiredType_>(array, vector);
-            return array[where /*& (vectorLength - 1)*/];
+
+            return static_cast<_DesiredType_>(array[where]);
         }
     }
 

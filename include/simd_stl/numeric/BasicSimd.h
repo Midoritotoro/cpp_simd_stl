@@ -142,7 +142,7 @@ public:
         * @brief Заполнение вектора значением.
         * @param value Значение, которым будет заполнен вектор.
     */
-    template <typename _DesiredType_ = value_type>
+    template <typename _DesiredType_>
     simd_stl_always_inline void fill(const _DesiredType_ value) noexcept;
 
     /**
@@ -541,26 +541,35 @@ public:
     //     template <typename _DesiredType_ = value_type>
     //simd_stl_always_inline basic_simd maximum(const basic_simd& other) const noexcept;
 
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline bool isEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskNotEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskGreater(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskLess(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskGreaterEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskLessEqual(const basic_simd& right) const noexcept;
+
     template <typename _ElementType_ = _Element_>
-    static constexpr int width() noexcept {
-        static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
-
-        constexpr auto width = sizeof(vector_type);
-        return width;
-    }
+    static constexpr int width() noexcept;
 
     template <typename _ElementType_ = _Element_>
-    static constexpr int size() noexcept {
-        static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
-
-        constexpr auto length = (sizeof(vector_type) / sizeof(_ElementType_));
-        return length;
-    }
+    static constexpr int size() noexcept;
 
     template <typename _ElementType_ = _Element_>
-    static constexpr int length() noexcept {
-        return size<_ElementType_>();
-    }
+    static constexpr int length() noexcept;
 private:
     vector_type _vector;
 };
@@ -592,7 +601,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 basic_simd<_SimdGeneration_, _Element_>::basic_simd(const value_type value) noexcept {
-    fill(value);
+    fill<value_type>(value);
 }
 
 template <
@@ -640,7 +649,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void
 basic_simd<_SimdGeneration_, _Element_>::fill(const _DesiredType_ value) noexcept {
-    _vector = simdElementAccess::template broadcast<vector_type>(value);
+    _vector = simdElementAccess::template broadcast<vector_type, _DesiredType_>(value);
 }
 
 template <
@@ -1205,10 +1214,112 @@ simd_stl_always_inline bool operator==(
     const basic_simd<_SimdGeneration_, _Element_>& left,
     const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
 {
-    return true;
-   /* return basic_simd<_SimdGeneration_, _Element_>::implementation
+    return left.isEqual(right);
+}
 
-        ::template compare<_Element_>(left._vector, right._vector);*/
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isEqual(const basic_simd& right) const noexcept {
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::equal_to>(_vector, right._vector);
+    return (mask == math::MaximumIntegralLimit<decltype(mask)>());
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_>
+    basic_simd<_SimdGeneration_, _Element_>::maskNotEqual(const basic_simd& right) const noexcept
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::not_equal_to>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::maskEqual(const basic_simd& right) const noexcept
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::equal_to>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::maskGreater(const basic_simd& right) const noexcept
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::greater>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::maskLess(const basic_simd& right) const noexcept
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::less>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::maskGreaterEqual(const basic_simd& right) const noexcept 
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::greater_equal>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::maskLessEqual(const basic_simd& right) const noexcept
+{
+    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::less_equal>(_vector, right._vector);
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _ElementType_>
+static constexpr int basic_simd<_SimdGeneration_, _Element_>::width() noexcept {
+    static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
+
+    constexpr auto width = sizeof(vector_type);
+    return width;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _ElementType_>
+static constexpr int basic_simd<_SimdGeneration_, _Element_>::size() noexcept {
+    static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
+
+    constexpr auto length = (sizeof(vector_type) / sizeof(_ElementType_));
+    return length;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _ElementType_>
+static constexpr int basic_simd<_SimdGeneration_, _Element_>::length() noexcept {
+    return size<_ElementType_>();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

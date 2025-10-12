@@ -34,13 +34,13 @@ public:
             return compareLess<_DesiredType_>(left, right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal>)
-            return compareLessEqual<_DesiredType_>(left, right);
+            return ~compareGreater<_DesiredType_>(left, right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater>)
             return compareGreater<_DesiredType_>(right, left);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal>)
-            return compareLessEqual<_DesiredType_>(right, left);
+            return ~compareLess<_DesiredType_>(right, left);
     }
 private:
     template <
