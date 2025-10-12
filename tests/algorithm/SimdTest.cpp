@@ -127,38 +127,38 @@ void testMethods() {
     
     // --- Конструкторы ---
     {
-        Simd v1; // default
-        Simd v2(5); // fill constructor
+        Simd v1;
+        Simd v2(5);
    
-        for (int i = 0; i < v2.size(); ++i) Assert(v2.extract(i) == 5);
+        for (int i = 0; i < v2.size(); ++i) Assert(v2.extract<T>(i) == 5);
 
         alignas(16) T arr[4] = {1,2,3,4};
-        Simd v3(arr); // load from pointer
-        for (int i = 0; i < v2.size(); ++i) Assert(v3.extract(i) == arr[i]);
+        Simd v3(arr);
+        for (int i = 0; i < v2.size(); ++i) Assert(v3.extract<T>(i) == arr[i]);
 
-        Simd v4(v3.unwrap()); // from vector_type
-        for (int i = 0; i < v2.size(); ++i) Assert(v4.extract(i) == arr[i]);
+        Simd v4(v3.unwrap());
+        for (int i = 0; i < v2.size(); ++i) Assert(v4.extract<T>(i) == arr[i]);
 
         Simd v5(v3); // copy ctor
-        for (int i = 0; i < v2.size(); ++i) Assert(v5.extract(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) Assert(v5.extract<T>(i) == arr[i]);
     }
 
     // --- fill / extract / insert ---
     {
         Simd v;
         v.fill<T>(42);
-        for (int i = 0; i < v.size(); ++i) Assert(v.extract(i) == 42);
+        for (int i = 0; i < v.size(); ++i) Assert(v.extract<T>(i) == 42);
 
-        v.insert(0, 99);
-        Assert(v.extract(0) == 99);
+        v.insert<T>(0, 99);
+        Assert(v.extract<T>(0) == 99);
     }
 
     // --- extractWrapped ---
     {
         Simd v(7);
-        auto ref = v.extractWrapped(0);
-        ref = 123; // изменяем через reference wrapper
-        Assert(v.extract(0) == 123);
+        auto ref = v.extractWrapped<T>(0);
+        ref = 123;
+        Assert(v.extract<T>(0) == 123);
     }
 
     // --- expand ---

@@ -7,28 +7,28 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <typename _Element_>
-constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_>;
+constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_>;
+constexpr bool is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_>;
+constexpr bool is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epu16_v = sizeof(_Element_) == 2 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu16_v = sizeof(_Element_) == 2 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epi8_v  = sizeof(_Element_) == 1 && std::is_signed_v<_Element_>;
+constexpr bool is_epi8_v  = sizeof(_Element_) == 1 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
-constexpr bool is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_>;
+constexpr bool is_epu8_v  = sizeof(_Element_) == 1 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
 
 template <typename _Element_>
 constexpr bool is_pd_v    = sizeof(_Element_) == 8 && type_traits::is_any_of_v<_Element_, double, long double>;

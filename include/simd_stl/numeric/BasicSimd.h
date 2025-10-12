@@ -143,14 +143,14 @@ public:
         * @param value Значение, которым будет заполнен вектор.
     */
     template <typename _DesiredType_>
-    simd_stl_always_inline void fill(const _DesiredType_ value) noexcept;
+    simd_stl_always_inline void fill(const typename std::type_identity<_DesiredType_>::type value) noexcept;
 
     /**
         * @brief Извлечение значения из вектора в позиции 'index' с предварительной проверкой границ.
         * @param index Позиция для извлечения.
         * @return Извлечённое значение.
     */
-    template <typename _DesiredType_ = value_type>
+    template <typename _DesiredType_>
     simd_stl_always_inline _DesiredType_ extract(const size_type index) const noexcept;
 
     /**
@@ -158,7 +158,7 @@ public:
         * @param index Позиция для извлечения.
         * @return Обёртка над извлеченным значением, позволяющая изменять соответствующий элемент вектора.
     */
-    template <typename _DesiredType_ = value_type>
+    template <typename _DesiredType_>
     simd_stl_always_inline BasicSimdElementReference<basic_simd> extractWrapped(const size_type index) noexcept;
 
     /**
@@ -166,10 +166,10 @@ public:
         * @param where Позиция для вставки.
         * @param value Значение для вставки.
     */
-    template <typename _DesiredType_ = value_type>
+    template <typename _DesiredType_>
     simd_stl_always_inline void insert(
-        const size_type     where,
-        const _DesiredType_ value) noexcept;
+        const size_type                                         where,
+        const typename std::type_identity<_DesiredType_>::type  value) noexcept;
 
     /**
         * @brief Перемешивает элементы вектора в зависимости от установленных битов в маске
@@ -648,7 +648,7 @@ template <
     typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_always_inline void
-basic_simd<_SimdGeneration_, _Element_>::fill(const _DesiredType_ value) noexcept {
+basic_simd<_SimdGeneration_, _Element_>::fill(const typename std::type_identity<_DesiredType_>::type value) noexcept {
     _vector = simdElementAccess::template broadcast<vector_type, _DesiredType_>(value);
 }
 
@@ -988,8 +988,8 @@ template <
     typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::insert(
-    const size_type         where,
-    const _DesiredType_     value) noexcept
+    const size_type                                         where,
+    const typename std::type_identity<_DesiredType_>::type  value) noexcept
 {
     simdElementAccess::template insert<_DesiredType_>(_vector, where, value);
 }
