@@ -415,10 +415,10 @@ public:
         for (const auto& run : reports) {
             _benchmarks.push_back(run);
 
-            const auto& firstBenchmark = _benchmarks[0];
-            const auto& secondBenchmark = _benchmarks[4];
-
             if (_benchmarks.size() % 8 == 0) {
+                const auto& firstBenchmark = _benchmarks[0];
+                const auto& secondBenchmark = _benchmarks[4];
+
                 const auto realTimeDifference = (secondBenchmark.GetAdjustedRealTime() / firstBenchmark.GetAdjustedRealTime());
 
                 const auto firstBenchmarkFullName   = firstBenchmark.benchmark_name();

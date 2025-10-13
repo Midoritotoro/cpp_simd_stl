@@ -1,4 +1,4 @@
-#pragma once 
+﻿#pragma once 
 
 #include <src/simd_stl/type_traits/IteratorCheck.h>
 

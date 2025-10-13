@@ -1222,7 +1222,7 @@ template <
     typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isEqual(const basic_simd& right) const noexcept {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::equal_to>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
     return (mask == math::MaximumIntegralLimit<decltype(mask)>());
 }
 
@@ -1233,7 +1233,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_>
     basic_simd<_SimdGeneration_, _Element_>::maskNotEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::not_equal_to>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
@@ -1244,7 +1244,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::equal_to>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
@@ -1255,7 +1255,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskGreater(const basic_simd& right) const noexcept
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::greater>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
@@ -1266,7 +1266,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskLess(const basic_simd& right) const noexcept
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::less>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
@@ -1277,7 +1277,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskGreaterEqual(const basic_simd& right) const noexcept 
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::greater_equal>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
@@ -1288,7 +1288,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskLessEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = simdCompare::template compare<_DesiredType_, type_traits::less_equal>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 

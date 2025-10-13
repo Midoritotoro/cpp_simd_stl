@@ -31,14 +31,13 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 #endif // simd_stl_has_cxx20
 
 
-template <class _Iterator_>
-constexpr inline bool is_iterator_contiguous_v = 
 #if simd_stl_has_cxx20
-	std::contiguous_iterator<_Iterator_>;
-#else 
-	std::is_pointer_v<_Iterator_>;
-#endif // simd_stl_has_cxx20
-
+	template <class _Iterator_>
+	constexpr bool is_iterator_contiguous_v = std::contiguous_iterator<_Iterator_>;
+#else
+	template <class _Iterator_>
+	constexpr bool is_iterator_contiguous_v = std::is_pointer_v<_Iterator_>;
+#endif
 
 template <class _Iterator_>
 constexpr inline bool is_iterator_volatile_v = std::is_volatile_v<std::remove_reference_t<std::iter_reference_t<_Iterator_>>>;

@@ -20,29 +20,29 @@ public:
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto compare(
+    static simd_stl_always_inline int compare(
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
-        if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to>)
+        if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to<>>)
             return compareEqual<_DesiredType_>(left, right);
 
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to>)
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
             return (~compareEqual<_DesiredType_>(left, right));
 
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::less>)
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return compareLess<_DesiredType_>(left, right);
 
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal>)
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
             return ~compareGreater<_DesiredType_>(left, right);
 
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater>)
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
             return compareGreater<_DesiredType_>(right, left);
 
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal>)
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
             return ~compareLess<_DesiredType_>(right, left);
     }
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>

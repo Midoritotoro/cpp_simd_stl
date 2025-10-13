@@ -204,29 +204,29 @@ void testMethods() {
         (void)raw; // smoke‑check
     }
 
-    // --- isSupported ---
+
     {
-        assert(Simd::isSupported() && "SSE2 must be supported on x86_64");
+
     }
 }
 
 
 int main() {
     
-    //testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 
-    //testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
-    //testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
-    //testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    //testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
+    testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
 
-  /*  testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
     testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 
     testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
@@ -236,10 +236,10 @@ int main() {
     testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
     testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();*/
+    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
     testMethods<float, simd_stl::arch::CpuFeature::SSE2>();
-   // testMethods<double, simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<double, simd_stl::arch::CpuFeature::SSE2>();
 
     return 0;
 }

@@ -23,29 +23,39 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
+#if defined(simd_stl_cpp_msvc) 
+	using _FirstForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondForwardIterator_>;
+#else
+	using _FirstForwardIteratorUnwrappedType_	= _FirstForwardIterator_;
+	using _SecondForwardIteratorUnwrappedType_	= _SecondForwardIterator_;
+#endif // defined(simd_stl_cpp_msvc)
+
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
-
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
-
-	const auto first2Unwrapped	= __unwrapIterator(first2);
-	const auto last2Unwrapped	= __unwrapIterator(last2);
-
-	const auto first1Address	= std::to_address(first1Unwrapped);
-	const auto first2Address	= std::to_address(first2Unwrapped);
-
-	auto firstRangeLength			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
-	const auto secondRangeLength	= IteratorsDifference(first2Unwrapped, last2Unwrapped);
 		
 	if constexpr (
-		type_traits::is_iterator_random_ranges_v<_FirstForwardIterator_> && 
-		type_traits::is_iterator_random_ranges_v<_SecondForwardIterator_>
+		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
+		type_traits::is_iterator_random_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	) {
+		auto first1Unwrapped		= __unwrapIterator(first1);
+		const auto last1Unwrapped	= __unwrapIterator(last1);
+
+		const auto first2Unwrapped	= __unwrapIterator(first2);
+		const auto last2Unwrapped	= __unwrapIterator(last2);
+
+		const auto first1Address	= std::to_address(first1Unwrapped);
+		const auto first2Address	= std::to_address(first2Unwrapped);
+
+		auto firstRangeLength = IteratorsDifference(first1Unwrapped, last1Unwrapped);
+		const auto secondRangeLength = IteratorsDifference(first2Unwrapped, last2Unwrapped);
+
 		if (firstRangeLength < secondRangeLength)
 			return last1;
 	
-		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<_FirstForwardIterator_, _SecondForwardIterator_, _Function_>) {
+		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+			_FirstForwardIteratorUnwrappedType_, _SecondForwardIteratorUnwrappedType_, _Function_>)
+		{
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
@@ -60,7 +70,9 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 	}
 
 
-	const auto lastPossible = last1Unwrapped - secondRangeLength;
+	const auto lastPossible = __unwrapIterator(last1) - IteratorsDifference(__unwrapIterator(first2), __unwrapIterator(last2));
+	auto first1Unwrapped = __unwrapIterator(first1);
+
 	for (;; ++first1Unwrapped) {
 		auto mid1 = first1;
 		
