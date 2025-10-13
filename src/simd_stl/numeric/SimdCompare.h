@@ -20,7 +20,7 @@ public:
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline int compare(
+    static simd_stl_always_inline _VectorType_ compare(
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
@@ -28,7 +28,7 @@ public:
             return compareEqual<_DesiredType_>(left, right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return (~compareEqual<_DesiredType_>(left, right));
+            return ~compareEqual<_DesiredType_>(left, right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return compareLess<_DesiredType_>(left, right);
@@ -46,7 +46,7 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline int compareEqual(
+    static simd_stl_always_inline _VectorType_ compareEqual(
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
@@ -55,42 +55,40 @@ public:
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right));
 
-            // Меняем местами младшие и старшие 64 бита. 
             // int64 temp = equalMask[0];
             // equalMask[0] = equalMask[1];
             // equalMask[1] = temp;
-
             const auto rotatedMask = _mm_shuffle_epi32(equalMask, 0xB1);
 
             const auto combinedMask = _mm_and_si128(equalMask, rotatedMask);
             const auto signMask = _mm_srai_epi32(combinedMask, 31);
 
             const auto finalMask = _mm_shuffle_epi32(signMask, 0xF5);
-            return _Convert_::template convertToMask<_DesiredType_>(finalMask);
+            return _Cast_::template cast<__m128i, _VectorType_>(finalMask);
         }
 
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpeq_epi32(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi32(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpeq_epi16(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi16(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpeq_epi8(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi8(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpeq_ps(
+            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmpeq_ps(
                 _Cast_::template cast<_VectorType_, __m128>(left),
                 _Cast_::template cast<_VectorType_, __m128>(right)));
 
         else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpeq_pd(
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmpeq_pd(
                 _Cast_::template cast<_VectorType_, __m128d>(left),
                 _Cast_::template cast<_VectorType_, __m128d>(right)));
     }
@@ -98,7 +96,7 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline int compareLess(
+    static simd_stl_always_inline _VectorType_ compareLess(
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
@@ -117,30 +115,30 @@ public:
             const auto signBits32       = _mm_srai_epi32(combinedMask, 31);
             const auto signBits64       = _mm_shuffle_epi32(signBits32, 0xF5);
 
-            return _Convert_::template convertToMask<_DesiredType_>(signBits64);
+            return _Cast_::template cast<__m128i, _VectorType_>(signBits64);
         }
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmplt_epi32(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi32(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmplt_epi16(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi16(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmplt_epi8(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi8(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmplt_ps(
+            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmplt_ps(
                 _Cast_::template cast<_VectorType_, __m128>(left),
                 _Cast_::template cast<_VectorType_, __m128>(right)));
 
         else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmplt_pd(
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmplt_pd(
                 _Cast_::template cast<_VectorType_, __m128d>(left),
                 _Cast_::template cast<_VectorType_, __m128d>(right)));
     }
@@ -148,7 +146,7 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline int compareGreater(
+    static simd_stl_always_inline _VectorType_ compareGreater(
         _VectorType_ left,
         _VectorType_ right) noexcept
     {
@@ -169,30 +167,30 @@ public:
             const auto combinedMask = _mm_or_si128(greaterMask, equalAndGreater);
             const auto finalMask = _mm_shuffle_epi32(combinedMask, 0xF5);
 
-            return _Convert_::template convertToMask<_DesiredType_>(finalMask);
+            return _Cast_::template cast<__m128i, _VectorType_>(finalMask);
         }
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpgt_epi32(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi32(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpgt_epi16(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi16(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpgt_epi8(
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi8(
                 _Cast_::template cast<_VectorType_, __m128i>(left),
                 _Cast_::template cast<_VectorType_, __m128i>(right)));
 
         else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpgt_ps(
+            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmpgt_ps(
                 _Cast_::template cast<_VectorType_, __m128>(left),
                 _Cast_::template cast<_VectorType_, __m128>(right)));
 
         else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Convert_::template convertToMask<_DesiredType_>(_mm_cmpgt_pd(
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmpgt_pd(
                 _Cast_::template cast<_VectorType_, __m128d>(left),
                 _Cast_::template cast<_VectorType_, __m128d>(right)));
     }

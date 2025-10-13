@@ -10,8 +10,8 @@ class SimdConvert;
 
 template <>
 class SimdConvert<arch::CpuFeature::SSE2> {
-    using _Cast_        = SimdCast<arch::CpuFeature::SSE2>;
-   using _ElementWise_  = SimdElementWise<arch::CpuFeature::SSE2>;
+    using _Cast_         = SimdCast<arch::CpuFeature::SSE2>;
+    using _ElementWise_  = SimdElementWise<arch::CpuFeature::SSE2>;
 public:
     template <
         typename _DesiredType_,

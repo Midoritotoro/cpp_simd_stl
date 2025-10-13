@@ -12,9 +12,28 @@ class SimdArithmetic;
 
 template <>
 class SimdArithmetic<arch::CpuFeature::SSE2> {
-   using _Cast_            = SimdCast<arch::CpuFeature::SSE2>;
-   using _ElementAccess_   = SimdElementAccess<arch::CpuFeature::SSE2>;
+   using _Cast_             = SimdCast<arch::CpuFeature::SSE2>;
+   using _ElementAccess_    = SimdElementAccess<arch::CpuFeature::SSE2>;
+   using _MemoryAccess_     = SimdMemoryAccess<arch::CpuFeature::SSE2>;
 public:
+    template <
+        typename _DesiredType_,
+        typename _DesiredOutputType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredOutputType_ reduce(_VectorType_ vector) noexcept {
+        constexpr auto vectorLength = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        _DesiredType_ vectorArray[vectorLength];
+        _MemoryAccess_::storeUnaligned<_DesiredType_>(vectorArray, vector);
+
+        _DesiredOutputType_ out = 0;
+
+        for (auto i = 0; i < vectorLength; ++i)
+            out += vectorArray[i];
+
+        return out;
+    }
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -315,14 +334,14 @@ private:
 
             const auto multiplierBroadcasted = _ElementAccess_::template broadcast<_VectorType_>(uint64(adjustedMultiplier));
 
-            auto lowProduct = _mm_mul_epu32(dividendAsInt32, multiplierBroadcasted);    // Умножаем элементы [0] и [2] на multiplier
+            auto lowProduct = _mm_mul_epu32(dividendAsInt32, multiplierBroadcasted);    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [0] пїЅ [2] пїЅпїЅ multiplier
 
             if constexpr (useRoundDown)
                 lowProduct = _mm_add_epi64(lowProduct, multiplierBroadcasted);
 
-            auto lowProductShifted = _mm_srli_epi64(lowProduct, 32);                   // Получаем старшие 32 бита результата умножения
-            auto highParts = _mm_srli_epi64(dividendAsInt32, 32);              // Получаем элементы [1] и [3] из исходного вектора
-            auto highProduct = _mm_mul_epu32(highParts, multiplierBroadcasted);  // Умножаем элементы [1] и [3] на multiplier
+            auto lowProductShifted = _mm_srli_epi64(lowProduct, 32);                   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 32 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            auto highParts = _mm_srli_epi64(dividendAsInt32, 32);              // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [1] пїЅ [3] пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            auto highProduct = _mm_mul_epu32(highParts, multiplierBroadcasted);  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [1] пїЅ [3] пїЅпїЅ multiplier
 
             if constexpr (useRoundDown)
                 highProduct = _mm_add_epi64(highProduct, multiplierBroadcasted);
@@ -402,7 +421,7 @@ private:
             constexpr uint32 absoluteDivisor = _Divisor_ > 0 ? uint32_t(_Divisor_) : uint32_t(-_Divisor_);
 
             if constexpr ((absoluteDivisor & (absoluteDivisor - 1)) == 0) {
-                // Делитель — степень двойки
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 constexpr auto shiftAmount = math::CountTrailingZeroBits(absoluteDivisor);
                 __m128i signBits;
 
@@ -505,7 +524,10 @@ class SimdArithmetic<arch::CpuFeature::SSE3> :
 template <>
 class SimdArithmetic<arch::CpuFeature::SSSE3> :
     public SimdArithmetic<arch::CpuFeature::SSE3>
-{};
+{
+public:
+
+};
 
 template <>
 class SimdArithmetic<arch::CpuFeature::SSE41> :
@@ -515,6 +537,65 @@ class SimdArithmetic<arch::CpuFeature::SSE41> :
 template <>
 class SimdArithmetic<arch::CpuFeature::SSE42> :
     public SimdArithmetic<arch::CpuFeature::SSE41>
-{};
+{
+    using _MemoryAccess_    = SimdMemoryAccess<arch::CpuFeature::SSE42>;
+    using _Cast_            = SimdCast<arch::CpuFeature::SSE42>;
+public:
+    template <
+        typename _DesiredType_, 
+        typename _DesiredOutputType_,
+        typename _VectorType_> 
+    static simd_stl_always_inline _DesiredOutputType_ reduce(_VectorType_ vector) noexcept { 
+        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
+    #ifdef simd_stl_processor_x86_32
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si32(vector)) +
+                    static_cast<_DesiredOutputType_>(_mm_extract_epi32(vector, 2));
+    #else
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si64(vector)) + 
+                static_cast<_DesiredOutputType_>(_mm_extract_epi64(vector, 1));
+    #endif // simd_stl_processor_x86_32
+        }
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>) { 
+            const auto reduce4 = _mm_hadd_epi32(vector, _mm_setzero_si128());    // (0+1),(2+3),0,0
+            const auto reduce5 = _mm_hadd_epi32(reduce4, _mm_setzero_si128());   // (0+...+3),0,0,0
+
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si32(reduce5));
+        }
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) { 
+            const auto reduce2 = _mm_hadd_epi16(vector, _mm_setzero_si128());
+            const auto reduce3 = _mm_unpacklo_epi16(reduce2, _mm_setzero_si128());
+
+            const auto reduce4 = _mm_hadd_epi32(reduce3, _mm_setzero_si128()); // (0+1),(2+3),0,0
+            const auto reduce5 = _mm_hadd_epi32(reduce4, _mm_setzero_si128()); // (0+...+3),0,0,0
+
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si32(reduce5));
+        }
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            const auto reduce1 = _mm_sad_epu8(vector, _mm_setzero_si128());
+
+#ifdef simd_stl_processor_x86_32
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si32(reduce1)) +
+                static_cast<_DesiredOutputType_>(_mm_extract_epi32(reduce1, 2));
+#else
+            return static_cast<_DesiredOutputType_>(_mm_cvtsi128_si64(reduce1)) +
+                static_cast<_DesiredOutputType_>(_mm_extract_epi64(reduce1, 1));
+#endif
+        }
+        else { 
+            constexpr auto vectorLength = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+            _DesiredType_ vectorArray[vectorLength];
+            _MemoryAccess_::storeUnaligned<_DesiredType_>(vectorArray, vector);
+
+            _DesiredOutputType_ out = 0;
+
+            for (auto i = 0; i < vectorLength; ++i)
+                out += vectorArray[i];
+
+            return out;
+        }
+    }
+
+};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

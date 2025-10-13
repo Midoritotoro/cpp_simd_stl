@@ -92,11 +92,11 @@ public:
 
     static constexpr auto _Generation = _SimdGeneration_;
 
-    using value_type = _Element_;
-    using vector_type = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>;
+    using value_type    = _Element_;
+    using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>;
 
-    using size_type = int;
-    using mask_type = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_>;
+    using size_type     = uint32;
+    using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_>;
 
     basic_simd() noexcept;
 
@@ -561,6 +561,34 @@ public:
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskLessEqual(const basic_simd& right) const noexcept;
+
+    
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> notEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> equal(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> greater(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> less(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> greaterEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> lessEqual(const basic_simd& right) const noexcept;
+
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> toMask() const noexcept;
+
+    template <
+        typename _DesiredOutputType_,
+        typename _DesiredType_ = value_type>
+    simd_stl_always_inline _DesiredOutputType_ reduce() const noexcept;
 
     template <typename _ElementType_ = _Element_>
     static constexpr int width() noexcept;
@@ -1223,7 +1251,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isEqual(const basic_simd& right) const noexcept {
     const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
-    return (mask == math::MaximumIntegralLimit<decltype(mask)>());
+    return (toMask<_DesiredType_>(mask) == math::MaximumIntegralLimit<decltype(mask)>());
 }
 
 template <
@@ -1233,8 +1261,10 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_>
     basic_simd<_SimdGeneration_, _Element_>::maskNotEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
-    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
@@ -1244,8 +1274,10 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
-    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
@@ -1255,8 +1287,10 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskGreater(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
-    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
@@ -1266,8 +1300,10 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskLess(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
-    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
@@ -1277,8 +1313,10 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskGreaterEqual(const basic_simd& right) const noexcept 
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
-    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
@@ -1288,8 +1326,92 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
     basic_simd<_SimdGeneration_, _Element_>::maskLessEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
+    const auto mask = basic_simd::simdCompare::template compare
+        <_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
+
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
+}
+
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::notEqual(const basic_simd& right) const noexcept 
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::equal(const basic_simd& right) const noexcept
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::greater(const basic_simd& right) const noexcept
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::less(const basic_simd& right) const noexcept 
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::greaterEqual(const basic_simd& right) const noexcept 
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::lessEqual(const basic_simd& right) const noexcept 
+{ 
+    return simdCompare::template compare<_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
+    basic_simd<_SimdGeneration_, _Element_>::toMask() const noexcept 
+{ 
+    const auto mask = simdConvert::template convertToMask<_DesiredType_>(_vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <
+    typename _DesiredOutputType_,
+    typename _DesiredType_>
+simd_stl_always_inline _DesiredOutputType_ basic_simd<_SimdGeneration_, _Element_>::reduce() const noexcept {
+    return simdArithmetic::template reduce<_DesiredType_, _DesiredOutputType_>(_vector);
 }
 
 template <
