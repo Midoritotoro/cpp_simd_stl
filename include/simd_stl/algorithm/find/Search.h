@@ -6,6 +6,7 @@
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
 
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <src/simd_stl/type_traits/OperatorWrappers.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -14,7 +15,7 @@ template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
 	class _Function_> 
-simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
@@ -94,13 +95,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2) noexcept
 {
-	return simd_stl::algorithm::search(first1, last1, first2, last2, std::equal_to<>{});
+	return simd_stl::algorithm::search(first1, last1, first2, last2, type_traits::equal_to<>{});
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

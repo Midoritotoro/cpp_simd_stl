@@ -134,6 +134,7 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/algorithm/find/Find.h
     include/simd_stl/algorithm/find/Search.h
+    include/simd_stl/algorithm/find/Contains.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h
