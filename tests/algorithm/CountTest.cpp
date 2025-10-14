@@ -19,7 +19,9 @@ int main() {
     {
         std::vector<int> v = { 1, 2, 3, 2, 4, 2 };
         for (int val : {2, 4, 5}) {
-            Assert(simd_stl::algorithm::count(v.begin(), v.end(), val) == std::count(v.begin(), v.end(), val));
+            auto first = simd_stl::algorithm::count(v.begin(), v.end(), val);
+            auto second = std::count(v.begin(), v.end(), val);
+            Assert(first == second);
         }
     }
 

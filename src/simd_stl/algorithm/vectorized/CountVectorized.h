@@ -17,6 +17,16 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
+template <typename _Type_> 
+constexpr int maximumCount() noexcept {
+    if      constexpr (numeric::is_epu32_v<_Type_> || numeric::is_epi32_v<_Type_>)
+        return 0x1FFF'FFFF;
+    else if constexpr (numeric::is_epi16_v<_Type_> || numeric::is_epu16_v<_Type_>)
+        return 0x7FFF;
+    else if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
+        return 0xFF;
+}
+
 template <class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline sizetype CountScalar(
     const void* firstPointer,
@@ -45,28 +55,25 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype CountVectorizedI
     using _SimdType_        = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
     const auto size         = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize  = size & (~(_SimdType_::template width() - 1));
+    auto alignedSize        = size & (~(_SimdType_::template width() - 1));
 
     sizetype count = 0;
 
+
     if (alignedSize != 0) {
         const auto comparand = _SimdType_(value);
-
         const void* stopAt = firstPointer;
+
         AdvanceBytes(stopAt, alignedSize);
 
         do {
-            auto countVector = _SimdType_();
-
-            const auto loaded   = _SimdType_::loadUnaligned(firstPointer);
-            const auto compared = loaded.equal(comparand);
-
-            countVector -= loaded;
-            count += countVector.template reduce<sizetype, _Type_>();
+            const auto compared = comparand.maskEqual(_SimdType_::loadUnaligned(firstPointer));
+            count += compared.countSet();
 
             AdvanceBytes(firstPointer, _SimdType_::template width());
         } while (firstPointer != stopAt);
     }
+   
 
     return CountScalar(firstPointer, lastPointer, count, value);
 }
