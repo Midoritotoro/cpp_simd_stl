@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/type_traits/IteratorCategory.h>
+#include <src/simd_stl/type_traits/OperatorWrappers.h>
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
@@ -52,7 +53,7 @@ constexpr bool can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, 
 template <
 	class _FirstElement_, 
 	class _SecondElement_>
-constexpr bool can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, std::equal_to<>> =
+constexpr bool can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, type_traits::equal_to<>> =
 	can_memcmp_elements_v<_FirstElement_, _SecondElement_>;
 
 #if simd_stl_has_cxx20

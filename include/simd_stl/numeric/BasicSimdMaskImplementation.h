@@ -27,7 +27,10 @@ public:
 	static constexpr uint8 usedBits = sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>) / sizeof(_Element_);
 
 	static constexpr simd_stl_always_inline bool allOf(const mask_type mask) noexcept {
-		return (mask == math::MaximumIntegralLimit<mask_type>());
+			if constexpr (usedBits == (sizeof(mask_type) * 8))
+				return (mask == math::MaximumIntegralLimit<mask_type>());
+			else
+				return (mask == (1 << usedBits));
 	}
 
 	static constexpr simd_stl_always_inline bool anyOf(const mask_type mask) noexcept {

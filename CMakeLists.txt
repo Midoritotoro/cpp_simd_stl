@@ -21,7 +21,7 @@ if (NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
 
-option(CPP_SIMD_STL_INSTALL "��������� ���� ��� ��������� ����������" ${PROJECT_IS_TOP_LEVEL})
+option(CPP_SIMD_STL_INSTALL "" ${PROJECT_IS_TOP_LEVEL})
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 set(PRIVATE_SOURCES  
@@ -136,6 +136,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/Search.h
     include/simd_stl/algorithm/find/Contains.h
     include/simd_stl/algorithm/find/Count.h
+    include/simd_stl/algorithm/find/Mismatch.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

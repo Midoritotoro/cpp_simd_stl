@@ -17,16 +17,6 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-template <typename _Type_> 
-constexpr int maximumCount() noexcept {
-    if      constexpr (numeric::is_epu32_v<_Type_> || numeric::is_epi32_v<_Type_>)
-        return 0x1FFF'FFFF;
-    else if constexpr (numeric::is_epi16_v<_Type_> || numeric::is_epu16_v<_Type_>)
-        return 0x7FFF;
-    else if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
-        return 0xFF;
-}
-
 template <class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline sizetype CountScalar(
     const void* firstPointer,
@@ -88,8 +78,8 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype CountVectorized(
          return FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value);
      else if (arch::ProcessorFeatures::AVX2())
          return FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value);*/
-    /*else*/ if (arch::ProcessorFeatures::SSE42())
-        return CountVectorizedInternal<arch::CpuFeature::SSE42, _Type_>(firstPointer, lastPointer, value);
+    /*else*/ if (arch::ProcessorFeatures::SSE2())
+        return CountVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value);
 
     sizetype count = 0;
     return CountScalar(firstPointer, lastPointer, count, value);
