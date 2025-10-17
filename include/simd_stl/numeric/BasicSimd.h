@@ -368,11 +368,11 @@ public:
     */
 
     /**
-            * @brief Выполняет поэлементное сложение двух векторов.
-            * @param left Левый вектор-операнд.
-            * @param right Правый вектор-операнд.
-            * @return Новый вектор, содержащий сумму элементов `left` и `right`.
-        */
+        * @brief Выполняет поэлементное сложение двух векторов.
+        * @param left Левый вектор-операнд.
+        * @param right Правый вектор-операнд.
+        * @return Новый вектор, содержащий сумму элементов `left` и `right`.
+    */
     simd_stl_always_inline friend basic_simd operator+ <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;

@@ -30,7 +30,7 @@ public:
 			if constexpr (usedBits == (sizeof(mask_type) * 8))
 				return (mask == math::MaximumIntegralLimit<mask_type>());
 			else
-				return (mask == (1 << usedBits));
+				return mask == ((mask_type(1) << usedBits) - 1);
 	}
 
 	static constexpr simd_stl_always_inline bool anyOf(const mask_type mask) noexcept {

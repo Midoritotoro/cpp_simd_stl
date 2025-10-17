@@ -94,7 +94,7 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
         value = value | (value >> 2);
         value = value | (value >> 4);
 
-        return _BitHacksPopulationCount(~value);
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
     }
 }
 

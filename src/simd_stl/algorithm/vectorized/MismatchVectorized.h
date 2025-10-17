@@ -45,7 +45,9 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype MismatchVectoriz
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    auto alignedSize        = (size & (~sizetype(_SimdType_::width() - 1)));
+    const auto bytes        = size * sizeof(_Type_);
+
+    auto alignedSize        = (bytes & (~sizetype(_SimdType_::width() - 1)));
     auto mismatchPosition   = sizetype(0);
 
     if (alignedSize != 0) {
@@ -58,16 +60,14 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype MismatchVectoriz
 
             const auto comparedMask = loadedFirst.maskEqual(loadedSecond);
 
-            if ((~comparedMask.unwrap()) != 0) {
-                mismatchPosition += comparedMask.countTrailingZeroBits();
-                return mismatchPosition / sizeof(_Type_);
-            }
+            if (comparedMask.allOf() == false)
+                return (mismatchPosition / sizeof(_Type_)) + comparedMask.countTrailingOneBits();
         }
     }
 
-    return (mismatchPosition == size)
-        ? mismatchPosition
-        : MismatchScalar<_Type_>(firstRangeBegin, secondRangeBegin, mismatchPosition, size - mismatchPosition);
+    return (mismatchPosition == bytes)
+        ? (mismatchPosition / sizeof(_Type_))
+        : MismatchScalar<_Type_>(firstRangeBegin, secondRangeBegin, mismatchPosition, bytes);
 }
 
 

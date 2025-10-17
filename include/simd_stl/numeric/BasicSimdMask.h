@@ -65,18 +65,87 @@ public:
 	}
 
 	/**
+		* @return Количество конечных единичных битов в маске.
+	*/
+	constexpr simd_stl_always_inline size_type countTrailingOneBits() const noexcept {
+		return implementation::countTrailingZeroBits(~_mask);
+	}
+
+	/**
+		* @return Количество ведущих единичных битов в маске.
+	*/
+	constexpr simd_stl_always_inline size_type countLeadingOneBits() const noexcept {
+		return implementation::countLeadingZeroBits(~_mask);
+	}
+
+	/**
 		* @return Числовое значение маски.
 	*/	
 	constexpr simd_stl_always_inline mask_type unwrap() const noexcept {
 		return _mask;
 	}
+
+	constexpr simd_stl_always_inline bool operator==(const basic_simd_mask& other) const noexcept {
+		return _mask == other._mask;
+	}
+
+	constexpr simd_stl_always_inline bool operator!=(const basic_simd_mask& other) const noexcept {
+		return _mask != other._mask;
+	}
+
+	constexpr simd_stl_always_inline bool operator<(const basic_simd_mask& other) const noexcept {
+		return _mask < other._mask;
+	}
+
+	constexpr simd_stl_always_inline bool operator<=(const basic_simd_mask& other) const noexcept {
+		return _mask <= other._mask;
+	}
+
+	constexpr simd_stl_always_inline bool operator>(const basic_simd_mask& other) const noexcept {
+		return _mask > other._mask;
+	}
+
+	constexpr simd_stl_always_inline bool operator>=(const basic_simd_mask& other) const noexcept {
+		return _mask >= other._mask;
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask operator~() const noexcept {
+		return basic_simd_mask{ mask_type(~_mask) };
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask operator&(const basic_simd_mask& other) const noexcept {
+		return basic_simd_mask{ mask_type(_mask & other._mask) };
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask operator|(const basic_simd_mask& other) const noexcept {
+		return basic_simd_mask{ mask_type(_mask | other._mask) };
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask operator^(const basic_simd_mask& other) const noexcept {
+		return basic_simd_mask{ mask_type(_mask ^ other._mask) };
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask& operator&=(const basic_simd_mask& other) noexcept {
+		_mask &= other._mask;
+		return *this;
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask& operator|=(const basic_simd_mask& other) noexcept {
+		_mask |= other._mask;
+		return *this;
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask& operator^=(const basic_simd_mask& other) noexcept {
+		_mask ^= other._mask;
+		return *this;
+	}
+
+	constexpr simd_stl_always_inline explicit operator bool() const noexcept {
+		return anyOf();
+	}
 private:
 	mask_type _mask = 0;
 };
-
-//basic_simd_mask& operator>>(const int8 shift) noexcept {
-
-//}
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 
