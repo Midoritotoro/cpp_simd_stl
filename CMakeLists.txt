@@ -25,18 +25,7 @@ option(CPP_SIMD_STL_INSTALL "" ${PROJECT_IS_TOP_LEVEL})
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 set(PRIVATE_SOURCES  
-    src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.cpp
-    src/simd_stl/algorithm/vectorized/ContainsVectorized.cpp
-    src/simd_stl/algorithm/vectorized/CountVectorized.cpp
-    src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.cpp
-    src/simd_stl/algorithm/vectorized/FindLastVectorized.cpp
-    src/simd_stl/algorithm/vectorized/FindRangeVectorized.cpp
-    src/simd_stl/algorithm/vectorized/MismatchVectorized.cpp
-    src/simd_stl/algorithm/vectorized/MinMaxVectorized.cpp
-    src/simd_stl/algorithm/vectorized/ReplaceVectorized.cpp
-    src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.cpp
-    src/simd_stl/algorithm/vectorized/ReverseVectorized.cpp
-    src/simd_stl/algorithm/vectorized/SwapRangesVectorized.cpp
+    
 )
 
 set(PRIVATE_HEADERS 
@@ -55,6 +44,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.h
     src/simd_stl/algorithm/vectorized/ReverseVectorized.h
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
+    src/simd_stl/algorithm/vectorized/EqualVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h

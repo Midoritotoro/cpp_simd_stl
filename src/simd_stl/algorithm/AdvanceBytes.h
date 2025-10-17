@@ -42,7 +42,6 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 size_t ByteLength(
 }
 
 template <class _ContiguousIterator_>
-
 inline simd_stl_constexpr_cxx20 sizetype IteratorsDifference(
     _ContiguousIterator_ firstIterator,
     _ContiguousIterator_ lastIterator) noexcept
