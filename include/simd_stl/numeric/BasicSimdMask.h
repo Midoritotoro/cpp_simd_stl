@@ -78,6 +78,10 @@ public:
 		return implementation::countLeadingZeroBits(~_mask);
 	}
 
+	constexpr simd_stl_always_inline void clearLeftMostSetBit() noexcept {
+		_mask = _mask & (_mask - 1);
+	}
+
 	/**
 		* @return Числовое значение маски.
 	*/	

@@ -38,7 +38,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
 		type_traits::is_iterator_random_ranges_v<_SecondForwardIteratorUnwrappedType_>
-	) {
+	) 
+	{
 		auto first1Unwrapped		= __unwrapIterator(first1);
 		const auto last1Unwrapped	= __unwrapIterator(last1);
 
@@ -48,7 +49,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 		const auto first1Address	= std::to_address(first1Unwrapped);
 		const auto first2Address	= std::to_address(first2Unwrapped);
 
-		auto firstRangeLength = IteratorsDifference(first1Unwrapped, last1Unwrapped);
+		auto firstRangeLength		= IteratorsDifference(first1Unwrapped, last1Unwrapped);
 		const auto secondRangeLength = IteratorsDifference(first2Unwrapped, last2Unwrapped);
 
 		if (firstRangeLength < secondRangeLength)
@@ -66,7 +67,10 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 			}
 		}
 
-		const auto searched = _Search<arch::CpuFeature::None>()(first1Address, firstRangeLength, first2Address, secondRangeLength);
+		const auto searched = _Search<arch::CpuFeature::None>()(
+			first1Address, firstRangeLength, first2Address,
+			secondRangeLength, type_traits::passFunction(function));
+
 		return (simd_stl_unlikely(searched == nullptr)) ? last1 : first1 + (reinterpret_cast<const _Value_*>(searched) - first1Address);
 	}
 
@@ -102,6 +106,17 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_SecondForwardIterator_ last2) noexcept
 {
 	return simd_stl::algorithm::search(first1, last1, first2, last2, type_traits::equal_to<>{});
+}
+
+template <
+	class _ForwardIterator_, 
+	class _Searcher_>
+simd_stl_nodiscard simd_stl_always_inline _ForwardIterator_ search(
+	const _ForwardIterator_ first, 
+	const _ForwardIterator_ last,
+	const _Searcher_&		searcher) noexcept
+{
+	return searcher(first, last).first;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -20,7 +20,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_FirstIterator_, _SecondIterator_> equal(
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	_FirstIterator_			first1,
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2,
@@ -29,39 +29,49 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 	__verifyRange(first1, last1);
 
 #if defined(simd_stl_cpp_msvc)
-	using _FirstIteratorUnwrappedType_ = std::_Unwrapped_t<_FirstIterator_>;
+	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
 	using _SecondIteratorUnwrappedType_ = std::_Unwrapped_t<_SecondIterator_>;
 #else 
-	using _FirstIteratorUnwrappedType_ = _FirstIterator_;
+	using _FirstIteratorUnwrappedType_	= _FirstIterator_;
 	using _SecondIteratorUnwrappedType_ = _SecondIterator_;
 #endif // defined(simd_stl_cpp_msvc) 
 
-	auto first1Unwrapped		 = __unwrapIterator(first1);
-	const auto last1Unwrapped	 = __unwrapIterator(last1);
+	auto first1Unwrapped		= __unwrapIterator(first1);
+	const auto last1Unwrapped	= __unwrapIterator(last1);
 
-	const auto length			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
-	auto first2Unwrapped		= __unwrapSizedIterator(first2, length);
+	auto first2Unwrapped		= __unwrapIterator(first2);
 
-	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
-		_FirstIteratorUnwrappedType_, _SecondIteratorUnwrappedType_, _Predicate_>)
+	if constexpr (type_traits::is_iterator_random_ranges_v<_FirstIteratorUnwrappedType_>
+		&& type_traits::is_iterator_random_ranges_v<_SecondIteratorUnwrappedType_>)
 	{
-#if simd_stl_has_cxx20
-		if (type_traits::is_constant_evaluated() == false)
-#endif
-		{
-			using _ValueType_ = type_traits::IteratorValueType<_FirstIterator_>;
+		const auto length = IteratorsDifference(first1Unwrapped, last1Unwrapped);
 
-			return EqualVectorized<_ValueType_>(
-				std::to_address(first1Unwrapped),
-				std::to_address(first2Unwrapped),
-				length);
+		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+			_FirstIteratorUnwrappedType_, _SecondIteratorUnwrappedType_, _Predicate_>)
+		{
+#if simd_stl_has_cxx20
+			if (type_traits::is_constant_evaluated() == false)
+#endif
+			{
+				using _ValueType_ = type_traits::IteratorValueType<_FirstIterator_>;
+
+				return EqualVectorized<_ValueType_>(
+					std::to_address(first1Unwrapped), std::to_address(first2Unwrapped), length);
+			}
+		}
+		else {
+			for (sizetype current = 0; current < length; ++current)
+				if (predicate(*first1Unwrapped++, *first2Unwrapped++) == false)
+					return false;
+
+			return true;
 		}
 	}
 
 	for (; first1Unwrapped != last1Unwrapped; ++first1Unwrapped, ++first2Unwrapped)
 		if (predicate(*first1Unwrapped, *first2Unwrapped) == false)
 			return false;
-
+	
 	return true;
 }
 
@@ -77,6 +87,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	_Predicate_				predicate) noexcept
 {
 	__verifyRange(first1, last1);
+	__verifyRange(first2, last2);
 
 #if defined(simd_stl_cpp_msvc)
 	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
