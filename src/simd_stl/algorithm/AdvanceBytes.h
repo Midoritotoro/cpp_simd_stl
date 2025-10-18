@@ -46,17 +46,19 @@ inline simd_stl_constexpr_cxx20 sizetype IteratorsDifference(
     _ContiguousIterator_ firstIterator,
     _ContiguousIterator_ lastIterator) noexcept
 {
-    const auto pointerLikeAddress1 = std::to_address(firstIterator);
-    const auto pointerLikeAddress2 = std::to_address(lastIterator);
-
     if constexpr (std::is_pointer_v<_ContiguousIterator_>)
         return static_cast<sizetype>(lastIterator - firstIterator);
 
+    const auto pointerLikeAddress1 = std::to_address(firstIterator);
+    const auto pointerLikeAddress2 = std::to_address(lastIterator);
+
+    using _IteratorValueType_ = type_traits::IteratorValueType<_ContiguousIterator_>;
+
     return static_cast<sizetype>(
-        const_cast<const unsigned char*>(
-            reinterpret_cast<const volatile unsigned char*>(pointerLikeAddress1)) -
-        const_cast<const unsigned char*>(
-            reinterpret_cast<const volatile unsigned char*>(pointerLikeAddress2))
+        const_cast<const _IteratorValueType_*>(
+            reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress1)) -
+        const_cast<const _IteratorValueType_*>(
+            reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress2))
     );
 }
 

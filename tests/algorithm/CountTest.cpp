@@ -47,15 +47,15 @@ int main() {
     }
 
     {
-       /* const char* arr[] = { "a", "b", "a", "c" };
+        const char* arr[] = { "a", "b", "a", "c" };
         for (const char* val : { arr[0], arr[1], "x" }) {
             Assert(simd_stl::algorithm::count(std::begin(arr), std::end(arr), val) == std::count(std::begin(arr), std::end(arr), val));
-        }*/
+        }
     }
 
     {
-       /* const void* arr[] = { nullptr, (void*)0x1, nullptr };
-        Assert(simd_stl::algorithm::count(std::begin(arr), std::end(arr), nullptr) == std::count(std::begin(arr), std::end(arr), nullptr));*/
+       const void* arr[] = { nullptr, (void*)0x1, nullptr };
+       Assert(simd_stl::algorithm::count(std::begin(arr), std::end(arr), nullptr) == std::count(std::begin(arr), std::end(arr), nullptr));
     }
 
     return 0;

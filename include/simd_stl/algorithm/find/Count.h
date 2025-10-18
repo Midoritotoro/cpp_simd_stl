@@ -16,34 +16,60 @@ template <
 	class _Iterator_,
 	class _Type_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 sizetype count(
-	_Iterator_			first,
+	const _Iterator_	first,
 	const _Iterator_	last,
 	const _Type_&		value) noexcept
 {
 	__verifyRange(first, last);
 
 #if defined(simd_stl_cpp_msvc)
-	using _IteratorType_ = std::_Unwrapped_t<_Iterator_>;
+	using _IteratorUnwrappedType_ = std::_Unwrapped_t<_Iterator_>;
 #else 
-	using _IteratorType_ = _Iterator_;
+	using _IteratorUnwrappedType_ = _Iterator_;
 #endif // defined(simd_stl_cpp_msvc) 
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorType_, _Type_>) {
-		auto firstUnwrapped			= __unwrapIterator(first);
-		const auto lastUnwrapped	= __unwrapIterator(last);
+	auto firstUnwrapped			= __unwrapIterator(first);
+	const auto lastUnwrapped	= __unwrapIterator(last);
 
+	if constexpr (type_traits::is_iterator_random_ranges_v<_IteratorUnwrappedType_>) {
+		const auto length = ByteLength(firstUnwrapped, lastUnwrapped);
+
+		if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
 #if simd_stl_has_cxx20
-		if (type_traits::is_constant_evaluated() == false)
+			if (type_traits::is_constant_evaluated() == false)
 #endif
-		{
-			return CountVectorized(std::to_address(firstUnwrapped), std::to_address(lastUnwrapped), value);
+			{
+				return CountVectorized<_Type_>(std::to_address(firstUnwrapped), length, value);
+			}
 		}
 	}
 
-    sizetype count = 0;
+    type_traits::IteratorDifferenceType<_Iterator_> count = 0;
 
-	for (; first != last; ++first)
-		count += (*first == value);
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		count += (*firstUnwrapped == value);
+
+	return count;
+}
+
+template <
+	class _InputIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 type_traits::IteratorDifferenceType<_InputIterator_> count_if(
+	_InputIterator_			first,
+	const _InputIterator_	last,
+	_Predicate_ 			predicate) noexcept
+{
+	__verifyRange(first, last);
+
+	auto firstUnwrapped			= __unwrapIterator(first);
+	const auto lastUnwrapped	= __unwrapIterator(last);
+
+	auto count = type_traits::IteratorDifferenceType<_InputIterator_>(0);
+
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		if (predicate(*firstUnwrapped))
+			++count;
 
 	return count;
 }

@@ -61,11 +61,11 @@ int main() {
         auto pred = [](char a, char b) { return std::tolower(a) == std::tolower(b); };
         check_search(s.begin(), s.end(), sub.begin(), sub.end(), pred);
     }
-    //{
-    //    std::list<int> a{ 1,2,3,4,5,6 };
-    //    std::list<int> b{ 3,4 };
-    //    check_search(a.begin(), a.end(), b.begin(), b.end());
-    //}
+    {
+        std::list<int> a{ 1,2,3,4,5,6 };
+        std::list<int> b{ 3,4 };
+        check_search(a.begin(), a.end(), b.begin(), b.end());
+    }
     {
         std::vector<int> a(10000, 1);
         a[5000] = 42; a[5001] = 43; a[5002] = 44;

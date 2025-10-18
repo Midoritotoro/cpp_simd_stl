@@ -51,7 +51,6 @@ using deduce_superior_basic_simd_type = std::conditional_t<
     >;
         
 
-
 /**
     * @class basic_simd
     * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
@@ -74,7 +73,7 @@ template <
     typename			_Element_ = int32>
 class basic_simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
-    static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
+    static_assert(type_traits::__is_vector_type_supported_v<std::decay_t<_Element_>>);
 
     friend BasicSimdElementReference;
 public:

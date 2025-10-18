@@ -7,16 +7,28 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <typename _Element_>
-constexpr bool is_epi64_v = sizeof(_Element_) == 8 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
+constexpr bool is_epi64_v =  
+	((std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>) 
+		|| std::is_pointer_v<_Element_>
+		|| std::is_same_v<_Element_, std::nullptr_t>) && sizeof(_Element_) == 8;
 
 template <typename _Element_>
-constexpr bool is_epu64_v = sizeof(_Element_) == 8 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
+constexpr bool is_epu64_v = 
+	((std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>) 
+		|| std::is_pointer_v<_Element_> 
+		|| std::is_same_v<_Element_, std::nullptr_t>) && sizeof(_Element_) == 8;
 
 template <typename _Element_>
-constexpr bool is_epi32_v = sizeof(_Element_) == 4 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;
+constexpr bool is_epi32_v = 
+	((std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>) 
+		|| std::is_pointer_v<_Element_>
+		|| std::is_same_v<_Element_, std::nullptr_t>) && sizeof(_Element_) == 4;
 
 template <typename _Element_>
-constexpr bool is_epu32_v = sizeof(_Element_) == 4 && std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>;
+constexpr bool is_epu32_v = 
+	((std::is_unsigned_v<_Element_> && !std::is_floating_point_v<_Element_>)
+		|| std::is_pointer_v<_Element_>
+		|| std::is_same_v<_Element_, std::nullptr_t>) && sizeof(_Element_) == 4;
 
 template <typename _Element_>
 constexpr bool is_epi16_v = sizeof(_Element_) == 2 && std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>;

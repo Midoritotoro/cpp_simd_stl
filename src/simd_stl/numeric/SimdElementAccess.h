@@ -2,7 +2,23 @@
 
 #include <src/simd_stl/numeric/SimdMemoryAccess.h>
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
+
+template <typename _PointerType_>
+using __deduce_pointer_address_type = std::conditional_t<
+    std::is_pointer_v<_PointerType_> || std::is_same_v<std::decay_t<_PointerType_>, std::nullptr_t>,
+    uintptr_t, _PointerType_>;
+
+template <typename _PointerType_>
+constexpr __deduce_pointer_address_type<_PointerType_> pointerAddress(_PointerType_ pointer) noexcept {
+    if constexpr (std::is_same_v<std::decay_t<_PointerType_>, std::nullptr_t>)
+        return 0;
+    else if constexpr (std::is_pointer_v<_PointerType_>)
+        return reinterpret_cast<uintptr>(pointer);
+    else
+        return pointer;
+}
 
 template <arch::CpuFeature _SimdGeneration_>
 class SimdElementAccess;
@@ -149,9 +165,9 @@ public:
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ broadcast(_DesiredType_ value) noexcept {
         if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi64x(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi64x(pointerAddress(value)));
         else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi32(value));
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi32(pointerAddress(value)));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
             return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi16(value));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)

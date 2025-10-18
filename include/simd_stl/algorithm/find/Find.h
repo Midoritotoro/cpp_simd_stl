@@ -54,4 +54,62 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ fi
 	return first;
 }
 
+template <
+	class _InputIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if_not(
+	_InputIterator_			first, 
+	const _InputIterator_	last, 
+	_Predicate_				predicate) noexcept(noexcept(
+		std::is_nothrow_invocable_v<
+		_Predicate_,
+		type_traits::IteratorValueType<_InputIterator_>>))
+{
+	__verifyRange(first, last);
+
+	auto firstUnwrapped			= __unwrapIterator(first);
+	const auto lastUnwrapped	= __unwrapIterator(last);
+
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		if (predicate(*firstUnwrapped) == false)
+			break;
+
+#if defined(simd_stl_cpp_msvc)
+	std::_Seek_wrapped(first, firstUnwrapped);
+#else 
+	first = firstUnwrapped;
+#endif // defined(simd_stl_cpp_msvc)
+
+	return first;
+}
+
+template <
+	class _InputIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if(
+	_InputIterator_			first, 
+	const _InputIterator_	last, 
+	_Predicate_				predicate) noexcept(noexcept(
+		std::is_nothrow_invocable_v<
+		_Predicate_,
+		type_traits::IteratorValueType<_InputIterator_>>))
+{
+	__verifyRange(first, last);
+
+	auto firstUnwrapped			= __unwrapIterator(first);
+	const auto lastUnwrapped	= __unwrapIterator(last);
+
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		if (predicate(*firstUnwrapped))
+			break;
+
+#if defined(simd_stl_cpp_msvc)
+	std::_Seek_wrapped(first, firstUnwrapped);
+#else 
+	first = firstUnwrapped;
+#endif // defined(simd_stl_cpp_msvc)
+
+	return first;
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END
