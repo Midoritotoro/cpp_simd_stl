@@ -145,6 +145,34 @@ struct _Invocable_type<_ProbablyCallable_(*)(_Args_...), void> {
 };
 
 template <typename _Type_>
-using invocable_type = typename callable_type<std::decay_t<_Type_>>::type;
+using invocable_type = typename _Invocable_type<std::decay_t<_Type_>>::type;
+
+
+template <
+    class       _Invocable_, 
+    class...    _Args_>
+class _Is_nothrow_invocable {
+private:
+    template <class _SomeInvocable_>
+    static auto check(int) -> std::bool_constant<
+        std::is_nothrow_invocable_v<_SomeInvocable_, _Args_...>
+    >;
+
+    template <class _SomeInvocable_>
+    static auto check(...) -> std::bool_constant<
+        std::is_nothrow_invocable_v<
+            decltype(&_SomeInvocable_::operator()), _SomeInvocable_&, _Args_...
+        >
+    >;
+
+public:
+    static constexpr bool value = decltype(check<_Invocable_>(0))::value;
+};
+
+template <
+    class       _Invocable_,
+    class...    _Args_>
+inline constexpr bool is_nothrow_invocable_v = _Is_nothrow_invocable<_Invocable_, _Args_...>::value;
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

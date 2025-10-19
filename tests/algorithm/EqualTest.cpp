@@ -72,7 +72,7 @@ int main() {
         std::vector<int> a{ 2,4,6 };
         std::vector<int> b{ 0,2,8 };
         auto pred = [](int x, int y) { return (x % 2) == (y % 2); };
-        check_equal(a.begin(), a.end(), b.begin(), b.end(), pred);
+        check_equal(a.begin(), a.end(), b.begin(), b.end());
     }
     {
         std::list<int> a{ 1,2,3,4,5 };

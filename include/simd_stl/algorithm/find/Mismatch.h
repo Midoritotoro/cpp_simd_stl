@@ -183,7 +183,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2) noexcept(
 		std::is_nothrow_invocable_v<
-			decltype(type_traits::equal_to<>::operator()),
+			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstIterator_>,
 			type_traits::IteratorValueType<_SecondIterator_>
 		>
@@ -201,7 +201,10 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 	_SecondIterator_		first2,
 	const _SecondIterator_	last2) noexcept(
 		std::is_nothrow_invocable_v<
-			decltype(type_traits::equal_to<>::operator()),
+			decltype(type_traits::equal_to<void>::operator()<
+				type_traits::IteratorValueType<_FirstIterator_>,
+				type_traits::IteratorValueType<_SecondIterator_>>),
+			type_traits::equal_to<void>&,
 			type_traits::IteratorValueType<_FirstIterator_>,
 			type_traits::IteratorValueType<_SecondIterator_>
 		>

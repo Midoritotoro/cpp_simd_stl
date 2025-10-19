@@ -47,7 +47,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 
 	auto first2Unwrapped		= __unwrapIterator(first2);
 
-	if constexpr (type_traits::is_iterator_random_ranges_v<_FirstIteratorUnwrappedType_>
+	if constexpr (
+		type_traits::is_iterator_random_ranges_v<_FirstIteratorUnwrappedType_>
 		&& type_traits::is_iterator_random_ranges_v<_SecondIteratorUnwrappedType_>)
 	{
 		const auto length = IteratorsDifference(first1Unwrapped, last1Unwrapped);
@@ -160,7 +161,9 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2) noexcept(
 		std::is_nothrow_invocable_v<
-			decltype(type_traits::equal_to<>::operator()),
+			decltype(type_traits::equal_to<void>::operator()<
+				type_traits::IteratorValueType<_FirstIterator_>,
+				type_traits::IteratorValueType<_SecondIterator_>>),
 			type_traits::IteratorValueType<_FirstIterator_>,
 			type_traits::IteratorValueType<_SecondIterator_>
 		>
@@ -177,8 +180,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2,
 	const _SecondIterator_	last2) noexcept(
-		std::is_nothrow_invocable_v<
-			decltype(type_traits::equal_to<>::operator()),
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstIterator_>,
 			type_traits::IteratorValueType<_SecondIterator_>
 		>

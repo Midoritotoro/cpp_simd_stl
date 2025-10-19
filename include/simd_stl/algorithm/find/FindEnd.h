@@ -80,8 +80,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2) noexcept(
-		std::is_nothrow_invocable_v<
-			decltype(type_traits::equal_to<>::operator()),
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
 			type_traits::IteratorValueType<_SecondForwardIterator_>
 		>
