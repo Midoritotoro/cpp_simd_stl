@@ -21,18 +21,18 @@ protected:
     __m128i sign;
 public:
     SimdDivisor() = default;
-    simd_stl_constexpr_cxx20 SimdDivisor(int32 d) noexcept {
+    SimdDivisor(int32 d) noexcept {
         set(d);
     }
 
-    simd_stl_constexpr_cxx20 SimdDivisor(int32 m, int32 s1, int32 sgn) noexcept {
+    SimdDivisor(int32 m, int32 s1, int32 sgn) noexcept {
         multiplier = _mm_set1_epi32(m);
         firstShift = _mm_cvtsi32_si128(s1);
 
         sign = _mm_set1_epi32(sgn);
     }
 
-    simd_stl_constexpr_cxx20 void set(int32 d) noexcept {
+    void set(int32 d) noexcept {
         int32 sh, m;
         const int32 d1 = ::abs(d);
 
@@ -61,15 +61,15 @@ public:
             sign = _mm_set1_epi32(0);
     }
 
-    simd_stl_constexpr_cxx20 __m128i getMultiplier() const noexcept {
+    __m128i getMultiplier() const noexcept {
         return multiplier;
     }
 
-    simd_stl_constexpr_cxx20 __m128i getFirstShiftCount() const noexcept {
+    __m128i getFirstShiftCount() const noexcept {
         return firstShift;
     }
 
-    simd_stl_constexpr_cxx20 __m128i getDivisorSign() const noexcept {
+    __m128i getDivisorSign() const noexcept {
         return sign;
     }
 };
@@ -83,18 +83,18 @@ protected:
     __m128i secondShift;
 public:
     SimdDivisor() = default;
-    simd_stl_constexpr_cxx20 SimdDivisor(uint32 d) noexcept {
+    SimdDivisor(uint32 d) noexcept {
         set(d);
     }
 
-    simd_stl_constexpr_cxx20 SimdDivisor(uint32 m, int32 s1, int32 s2) noexcept {
+    SimdDivisor(uint32 m, int32 s1, int32 s2) noexcept {
         multiplier = _mm_set1_epi32((int32)m);
 
         firstShift = _mm_setr_epi32(s1, 0, 0, 0);
         secondShift = _mm_setr_epi32(s2, 0, 0, 0);
     }
 
-    simd_stl_constexpr_cxx20 void set(uint32 d) noexcept {
+    void set(uint32 d) noexcept {
         uint32 L, L2, sh1, sh2, m;
         switch (d) {
         case 0:
@@ -120,15 +120,15 @@ public:
         secondShift = _mm_setr_epi32((int32)sh2, 0, 0, 0);
     }
 
-    simd_stl_constexpr_cxx20 __m128i getMultiplier() const noexcept {
+    __m128i getMultiplier() const noexcept {
         return multiplier;
     }
 
-    simd_stl_constexpr_cxx20 __m128i getFirstShiftCount() const noexcept {
+    __m128i getFirstShiftCount() const noexcept {
         return firstShift;
     }
 
-    simd_stl_constexpr_cxx20 __m128i getSecondShiftCount() const noexcept {
+    __m128i getSecondShiftCount() const noexcept {
         return secondShift;
     }
 };

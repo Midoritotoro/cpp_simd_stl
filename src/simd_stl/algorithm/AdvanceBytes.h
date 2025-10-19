@@ -2,6 +2,7 @@
 
 #include <simd_stl/compatibility/Inline.h>
 #include <simd_stl/SimdStlNamespace.h>
+#include <src/simd_stl/type_traits/IteratorCheck.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -28,7 +29,7 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
         reinterpret_cast<const volatile unsigned char*>(target)) + offset);
 }
 
-simd_stl_always_inline simd_stl_constexpr_cxx20 size_t ByteLength(
+simd_stl_always_inline size_t ByteLength(
     const void* first,
     const void* last) noexcept
 {

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.29 FATAL_ERROR)
+cmake_minimum_required (VERSION 4.1  FATAL_ERROR)
 
 project ("cpp_simd_stl"
     VERSION 1.0.0
@@ -25,7 +25,7 @@ option(CPP_SIMD_STL_INSTALL "" ${PROJECT_IS_TOP_LEVEL})
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 set(PRIVATE_SOURCES  
-    
+    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
 )
 
 set(PRIVATE_HEADERS 
@@ -128,6 +128,8 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/Count.h
     include/simd_stl/algorithm/find/Mismatch.h
     include/simd_stl/algorithm/find/FindFirstOf.h
+    include/simd_stl/algorithm/find/StartsWith.h
+    include/simd_stl/algorithm/find/EndsWith.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h
