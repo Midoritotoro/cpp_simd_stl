@@ -127,6 +127,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/Contains.h
     include/simd_stl/algorithm/find/Count.h
     include/simd_stl/algorithm/find/Mismatch.h
+    include/simd_stl/algorithm/find/FindFirstOf.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

@@ -34,7 +34,12 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool contains
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif
+		{
+			if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
+				return false;
+
 			return ContainsVectorized(std::to_address(firstUnwrapped), std::to_address(lastUnwrapped), value);
+		}
 	}
 
 	for (; first != last; ++first)

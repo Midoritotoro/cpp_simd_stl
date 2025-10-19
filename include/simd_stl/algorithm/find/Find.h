@@ -3,10 +3,8 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <simd_stl/compatibility/Nodiscard.h>
-#include <simd_stl/compatibility/Inline.h>
-
 #include <src/simd_stl/algorithm/vectorized/FindVectorized.h>
+
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 
@@ -23,12 +21,12 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ fi
 	__verifyRange(first, last);
 
 #if defined(simd_stl_cpp_msvc)
-	using _IteratorType_ = std::_Unwrapped_t<_Iterator_>;
+	using _IteratorUnwrappedType_ = std::_Unwrapped_t<_Iterator_>;
 #else 
-	using _IteratorType_ = _Iterator_;
+	using _IteratorUnwrappedType_ = _Iterator_;
 #endif // defined(simd_stl_cpp_msvc) 
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorType_, _Type_>) {
+	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
 		auto firstUnwrapped			= __unwrapIterator(first);
 		const auto lastUnwrapped	= __unwrapIterator(last);
 
@@ -36,6 +34,9 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ fi
 		if (type_traits::is_constant_evaluated() == false)
 #endif
 		{
+			if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
+				return last;
+
 			const auto firstAddress = std::to_address(firstUnwrapped);
 			const auto position = FindVectorized(firstAddress, std::to_address(lastUnwrapped), value);
 

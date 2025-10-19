@@ -77,6 +77,9 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype EqualVectorized(
     
     if (arch::ProcessorFeatures::SSE2())
         return EqualVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstRangeBegin, secondRangeBegin, size);
+
+    auto byteOffset = sizetype(0);
+    return EqualScalar<_Type_>(firstRangeBegin, secondRangeBegin, byteOffset, size * sizeof(_Type_));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -3,6 +3,7 @@
 #include <simd_stl/compatibility/CompilerDetection.h>
 #include <simd_stl/SimdStlNamespace.h>
 
+#include <simd_stl/math/IntegralTypesConversions.h>
 #include <xutility>
 
 #if !defined(__unwrapIterator) 

@@ -7,7 +7,9 @@ set(cpp_simd_stl_DIR "C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/out/
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#if(PROJECT_IS_TOP_LEVEL)
 find_package(cpp_simd_stl)
+#endif()
 
 
 add_subdirectory(algorithm)

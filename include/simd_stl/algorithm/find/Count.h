@@ -39,6 +39,9 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 sizetype coun
 			if (type_traits::is_constant_evaluated() == false)
 #endif
 			{
+				if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
+					return 0;
+
 				return CountVectorized<_Type_>(std::to_address(firstUnwrapped), length, value);
 			}
 		}

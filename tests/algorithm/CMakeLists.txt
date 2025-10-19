@@ -5,11 +5,11 @@ project(cpp_simd_stlTestsAlgorithm LANGUAGES CXX)
 
 set(cpp_simd_stl_DIR "C:/Users/danya/source/repos/Midoritotoro/cpp_simd_stl/out/build")
 
-if (PROJECT_IS_TOP_LEVEL)
+# if (PROJECT_IS_TOP_LEVEL)
     find_package(cpp_simd_stl REQUIRED COMPONENTS
         cpp_simd_stl 
    )
-endif()
+# endif()
 
 enable_testing()
 macro(cpp_simd_stl_algorithm_add_test filename)

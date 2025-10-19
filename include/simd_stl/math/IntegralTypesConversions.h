@@ -75,4 +75,53 @@ constexpr inline bool ConvertIntegral(
 	return true;
 }
 
+// Имеет ли смысл сравнение _Type_ value с _InputIterator_::value_type
+template <
+    class _InputIterator_,
+    class _Type_>
+simd_stl_nodiscard simd_stl_always_inline constexpr bool couldCompareEqualToValueType(const _Type_& value) noexcept {
+    if constexpr (std::disjunction_v<
+#ifdef __cpp_lib_byte
+        std::is_same<_Type_, std::byte>,
+#endif // defined(__cpp_lib_byte)
+        std::is_same<_Type_, bool>, std::is_pointer<_Type_>, std::is_same<_Type_, std::nullptr_t>>) 
+    {
+        return true;
+    } 
+    else {
+        using _ElementType_ = type_traits::IteratorValueType<_InputIterator_>;
+        static_assert(std::is_integral_v<_ElementType_> && std::is_integral_v<_Type_>);
+
+        if constexpr (std::is_same_v<_ElementType_, bool>) {
+            return value == true || value == false;
+        } 
+		else if constexpr (std::is_signed_v<_ElementType_>) {
+            constexpr auto minimum = MinimumIntegralLimit<_ElementType_>();
+            constexpr auto maximum = MaximumIntegralLimit<_ElementType_>();
+
+            if constexpr (std::is_signed_v<_Type_>) {
+                return minimum <= value && value <= maximum;
+            } 
+			else {
+                if constexpr (_ElementType_{-1} == static_cast<_Type_>(-1)) 
+                    return value <= maximum || static_cast<_Type_>(minimum) <= value;
+                else
+                    return value <= maximum;
+            }
+        } else {
+            constexpr auto maximum = MaximumIntegralLimit<_ElementType_>();
+
+            if constexpr (std::is_unsigned_v<_Type_>) {
+                return value <= maximum;
+            } 
+			else {
+                if constexpr (_Type_{-1} == static_cast<_ElementType_>(-1))
+                    return value <= maximum;
+                else
+                    return 0 <= value && value <= maximum;
+            }
+        }
+    }
+}
+
 __SIMD_STL_MATH_NAMESPACE_END
