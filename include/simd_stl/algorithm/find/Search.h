@@ -14,13 +14,19 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
-	class _Function_> 
+	class _Predicate_> 
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2,
-	_Function_				function) noexcept
+	_Predicate_				function) noexcept(
+		std::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
@@ -56,7 +62,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 			return last1;
 	
 		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
-			_FirstForwardIteratorUnwrappedType_, _SecondForwardIteratorUnwrappedType_, _Function_>)
+			_FirstForwardIteratorUnwrappedType_, _SecondForwardIteratorUnwrappedType_, _Predicate_>)
 		{
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
@@ -103,7 +109,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2) noexcept
+	_SecondForwardIterator_ last2) noexcept(
+		std::is_nothrow_invocable_v<
+			decltype(type_traits::equal_to<>::operator()),
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	return simd_stl::algorithm::search(first1, last1, first2, last2, type_traits::equal_to<>{});
 }
@@ -114,7 +126,13 @@ template <
 simd_stl_nodiscard simd_stl_always_inline _ForwardIterator_ search(
 	const _ForwardIterator_ first, 
 	const _ForwardIterator_ last,
-	const _Searcher_&		searcher) noexcept
+	const _Searcher_&		searcher) noexcept(
+		std::is_nothrow_invocable_v<
+			type_traits::invocable_type<_Searcher_>,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	return searcher(first, last).first;
 }

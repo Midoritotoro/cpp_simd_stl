@@ -79,7 +79,6 @@ template <
 // checks the convertibility of _Source_ to _Destination_
 constexpr inline bool is_pointer_address_convertible_v = std::is_void_v<_Source_>
     || std::is_void_v<_Destination_>
-    // is_same_v is required for function pointers to work
     || std::is_same_v<
         std::remove_cv_t<_Source_>, 
         std::remove_cv_t<_Destination_>>
@@ -108,19 +107,44 @@ constexpr bool is_pointer_address_comparable_v = can_compare_with_operator_equal
         (is_pointer_address_convertible_v<_FirstType_, _SecondType_> 
     ||  is_pointer_address_convertible_v<_SecondType_, _FirstType_>);
 
-
-
-
-
 template <
 	class		_Ty,
 	class...	_Types>
-constexpr inline bool is_any_of_v = // true if and only if _Ty is in _Types
+constexpr inline bool is_any_of_v =
 #if simd_stl_has_cxx17
     (std::is_same_v<_Ty, _Types> || ...);
 #else
     std::disjunction_v<std::is_same<_Ty, _Types>...>;
 #endif
 
+
+template <
+    typename _Type_, 
+    typename = void>
+struct _Invocable_type {
+    using type = void;
+};
+
+template <typename _Type_>
+struct _Invocable_type<_Type_, std::void_t<decltype(&_Type_::operator())>> {
+    using type = _Type_;
+};
+
+template <
+    typename    _ProbablyCallable_,
+    typename... _Args_>
+struct _Invocable_type<_ProbablyCallable_(_Args_...), void> {
+    using type = _ProbablyCallable_(_Args_ ...);
+};
+
+template <
+    typename    _ProbablyCallable_,
+    typename... _Args_>
+struct _Invocable_type<_ProbablyCallable_(*)(_Args_...), void> {
+    using type = _ProbablyCallable_(_Args_...);
+};
+
+template <typename _Type_>
+using invocable_type = typename callable_type<std::decay_t<_Type_>>::type;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

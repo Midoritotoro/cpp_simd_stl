@@ -19,7 +19,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	const _FirstForwardIterator_	last1, 
 	const _SecondForwardIterator_	first2,
 	const _SecondForwardIterator_	last2, 
-	_Predicate_						predicate) noexcept
+	_Predicate_						predicate) noexcept(
+		std::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
@@ -118,7 +124,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	const _FirstForwardIteator_		first1,
 	const _FirstForwardIteator_		last1,
 	const _SecondForwardIteator_	first2,
-	const _SecondForwardIteator_	last2) noexcept
+	const _SecondForwardIteator_	last2) noexcept(
+		std::is_nothrow_invocable_v<
+			decltype(type_traits::equal_to<>::operator()),
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	return simd_stl::algorithm::find_first_of(first1, last1, first2, last2, type_traits::equal_to<>{});
 }

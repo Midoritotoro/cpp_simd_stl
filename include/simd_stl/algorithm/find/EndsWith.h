@@ -14,32 +14,38 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
-	class _Function_>
+	class _Predicate_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2,
-	_Function_				predicate) noexcept
+	_Predicate_				predicate) noexcept(
+		std::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
 #if defined(simd_stl_cpp_msvc) 
-	using _FirstForwardIteratorUnwrappedType_ = std::_Unwrapped_t<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_ = std::_Unwrapped_t<_SecondForwardIterator_>;
+	using _FirstForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondForwardIterator_>;
 #else
-	using _FirstForwardIteratorUnwrappedType_ = _FirstForwardIterator_;
-	using _SecondForwardIteratorUnwrappedType_ = _SecondForwardIterator_;
+	using _FirstForwardIteratorUnwrappedType_	= _FirstForwardIterator_;
+	using _SecondForwardIteratorUnwrappedType_	= _SecondForwardIterator_;
 #endif // defined(simd_stl_cpp_msvc)
 
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
 
-	auto first1Unwrapped = __unwrapIterator(first1);
-	auto first2Unwrapped = __unwrapIterator(first2);
+	auto first1Unwrapped	= __unwrapIterator(first1);
+	auto first2Unwrapped	= __unwrapIterator(first2);
 
-	auto last1Unwrapped = __unwrapIterator(last1);
-	auto last2Unwrapped = __unwrapIterator(last2);
+	auto last1Unwrapped		= __unwrapIterator(last1);
+	auto last2Unwrapped		= __unwrapIterator(last2);
 
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
@@ -113,7 +119,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2) noexcept
+	_SecondForwardIterator_ last2) noexcept(
+		std::is_nothrow_invocable_v<
+			decltype(type_traits::equal_to<>::operator()),
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
 {
 	return simd_stl::algorithm::ends_with(first1, last1, first2, last2, type_traits::equal_to<>{});
 }

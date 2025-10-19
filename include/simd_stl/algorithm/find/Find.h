@@ -61,10 +61,10 @@ template <
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if_not(
 	_InputIterator_			first, 
 	const _InputIterator_	last, 
-	_Predicate_				predicate) noexcept(noexcept(
+	_Predicate_				predicate) noexcept(
 		std::is_nothrow_invocable_v<
 		_Predicate_,
-		type_traits::IteratorValueType<_InputIterator_>>))
+		type_traits::IteratorValueType<_InputIterator_>>)
 {
 	__verifyRange(first, last);
 
@@ -90,10 +90,10 @@ template <
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if(
 	_InputIterator_			first, 
 	const _InputIterator_	last, 
-	_Predicate_				predicate) noexcept(noexcept(
+	_Predicate_				predicate) noexcept(
 		std::is_nothrow_invocable_v<
 		_Predicate_,
-		type_traits::IteratorValueType<_InputIterator_>>))
+		type_traits::IteratorValueType<_InputIterator_>>)
 {
 	__verifyRange(first, last);
 

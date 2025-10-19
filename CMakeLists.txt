@@ -130,6 +130,10 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/FindFirstOf.h
     include/simd_stl/algorithm/find/StartsWith.h
     include/simd_stl/algorithm/find/EndsWith.h
+    include/simd_stl/algorithm/find/AllOf.h
+    include/simd_stl/algorithm/find/NoneOf.h
+    include/simd_stl/algorithm/find/AnyOf.h
+    include/simd_stl/algorithm/find/FindEnd.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

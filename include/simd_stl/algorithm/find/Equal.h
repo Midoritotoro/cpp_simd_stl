@@ -24,7 +24,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	_FirstIterator_			first1,
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2,
-	_Predicate_				predicate) noexcept
+	_Predicate_				predicate) noexcept(
+		std::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
 {
 	__verifyRange(first1, last1);
 
@@ -84,7 +90,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2,
 	const _SecondIterator_	last2,
-	_Predicate_				predicate) noexcept
+	_Predicate_				predicate) noexcept(
+		std::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
 {
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
@@ -146,7 +158,13 @@ template <
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	_FirstIterator_			first1,
 	const _FirstIterator_	last1,
-	_SecondIterator_		first2) noexcept
+	_SecondIterator_		first2) noexcept(
+		std::is_nothrow_invocable_v<
+			decltype(type_traits::equal_to<>::operator()),
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
 {
 	return simd_stl::algorithm::equal(first1, last1, first2, type_traits::equal_to<>{});
 }
@@ -158,7 +176,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	_FirstIterator_			first1,
 	const _FirstIterator_	last1,
 	_SecondIterator_		first2,
-	const _SecondIterator_	last2) noexcept
+	const _SecondIterator_	last2) noexcept(
+		std::is_nothrow_invocable_v<
+			decltype(type_traits::equal_to<>::operator()),
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
 {
 	return simd_stl::algorithm::equal(first1, last1, first2, last2, type_traits::equal_to<>{});
 }
