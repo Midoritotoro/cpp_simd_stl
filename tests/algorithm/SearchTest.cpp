@@ -15,7 +15,7 @@ void check_search(It1 first1, It1 last1, It2 first2, It2 last2, Pred pred) {
     Assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
 }
 
-int main() {
+ge int main() {
     {
         std::vector<int> a, b;
         check_search(a.begin(), a.end(), b.begin(), b.end());

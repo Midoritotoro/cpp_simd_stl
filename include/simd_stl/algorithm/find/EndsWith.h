@@ -21,7 +21,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2,
 	_Predicate_				predicate) noexcept(
-		std::is_nothrow_invocable_v<
+		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
 			type_traits::IteratorValueType<_SecondForwardIterator_>
@@ -93,8 +93,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 		return true;
 	}
 	else if constexpr (
-		type_traits::is_iterator_forward_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
-		type_traits::is_iterator_forward_ranges_v<_SecondForwardIteratorUnwrappedType_>
+		type_traits::is_iterator_bidirectional_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
+		type_traits::is_iterator_bidirectional_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	)
 	{
 		while (last2Unwrapped != first2Unwrapped) {

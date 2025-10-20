@@ -114,14 +114,14 @@ private:
 
 		if (mainLength <= 0)
 			return nullptr;
+		
+		using _SimdType_ = numeric::basic_simd<arch::CpuFeature::SSE2, _Type_>;
+		constexpr auto subSizeInBytes = sizeof(_Type_) * needleLength;
 
-		if constexpr (needleLength < 16)
+		if constexpr (subSizeInBytes > sizeof(_SimdType_))
 			return _Search<arch::CpuFeature::None>()(mainRange, mainLength, subRange, needleLength, type_traits::equal_to<>{});
 
-		using _SimdType_ = numeric::basic_simd<arch::CpuFeature::SSE2, _Type_>;
-
 		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
-		constexpr auto subSizeInBytes	= sizeof(_Type_) * needleLength;
 
 		const auto first	= _SimdType_(subRange[0]);
 		const auto last		= _SimdType_(subRange[needleLength - 1]);
@@ -138,7 +138,7 @@ private:
 
 			auto mask = equalFirst & equalLast;
 
-			while (mask.noneOf()) {
+			while (mask.anyOf()) {
 				const auto bitpos = mask.countTrailingZeroBits();
 
 				if (memcmpLike(mainRangeChar + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + (sizeof(_Type_))))
@@ -184,7 +184,7 @@ private:
 
 			auto mask = equalFirst & equalLast;
 
-			while (mask.noneOf()) {
+			while (mask.anyOf()) {
 				const auto bitpos = mask.countTrailingZeroBits();
 
 				if (memcmp(charMainRange + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + 1, subInBytes - (2 * sizeof(_Type_))) == 0)

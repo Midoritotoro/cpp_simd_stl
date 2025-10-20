@@ -20,7 +20,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	const _SecondForwardIterator_	first2,
 	const _SecondForwardIterator_	last2, 
 	_Predicate_						predicate) noexcept(
-		std::is_nothrow_invocable_v<
+		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
 			type_traits::IteratorValueType<_SecondForwardIterator_>

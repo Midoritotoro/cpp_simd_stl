@@ -45,6 +45,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/ReverseVectorized.h
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
     src/simd_stl/algorithm/vectorized/EqualVectorized.h
+    src/simd_stl/algorithm/vectorized/FindEndVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h

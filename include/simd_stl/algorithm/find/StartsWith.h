@@ -21,7 +21,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool starts_w
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2,
 	_Predicate_				predicate) noexcept(
-		std::is_nothrow_invocable_v<
+		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
 			type_traits::IteratorValueType<_SecondForwardIterator_>
@@ -81,7 +81,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool starts_w
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2) noexcept(
-		std::is_nothrow_invocable_v<
+		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
 			type_traits::IteratorValueType<_SecondForwardIterator_>
