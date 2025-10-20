@@ -109,4 +109,13 @@ constexpr inline bool is_iterator_parallel_v = is_iterator_forward_ranges_v<_Ite
 #endif // !defined(__simd_stl_require_parallel_iterator)
 
 
+template <class _Iterator_> 
+using _Unwrapped_iterator_type = 
+#if defined(simd_stl_cpp_msvc)
+	std::_Unwrapped_t<_Iterator_>
+#else
+	_Iterator_
+#endif // defined(simd_stl_cpp_msvc)
+	;
+
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

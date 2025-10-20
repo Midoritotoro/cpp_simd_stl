@@ -41,10 +41,12 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ fi
 			const auto position = FindVectorized(firstAddress, std::to_address(lastUnwrapped), value);
 
 			if constexpr (std::is_pointer_v<_Iterator_>)
-				return reinterpret_cast<const _Type_*>(position);
+				__seekWrappedIterator(first, reinterpret_cast<const _Type_*>(position));
 			else
-				return first + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
-					reinterpret_cast<const _Type_*>(position) - firstAddress);
+				__seekWrappedIterator(first, first + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
+					reinterpret_cast<const _Type_*>(position) - firstAddress));
+
+			return first;
 		}
 	}
 

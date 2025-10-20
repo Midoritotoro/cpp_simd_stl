@@ -8,6 +8,8 @@
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
 
+#include <src/simd_stl/algorithm/vectorized/FindEndVectorized.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -30,13 +32,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
-#if defined(simd_stl_cpp_msvc) 
-	using _FirstForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondForwardIterator_>;
-#else
-	using _FirstForwardIteratorUnwrappedType_	= _FirstForwardIterator_;
-	using _SecondForwardIteratorUnwrappedType_	= _SecondForwardIterator_;
-#endif // defined(simd_stl_cpp_msvc)
+	using _FirstForwardIteratorUnwrappedType_	= type_traits::_Unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= type_traits::_Unwrapped_iterator_type<_SecondForwardIterator_>;
 
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
@@ -55,8 +52,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 		const auto first1Address	= std::to_address(first1Unwrapped);
 		const auto first2Address	= std::to_address(first2Unwrapped);
 
-		auto firstRangeLength		= IteratorsDifference(first1Unwrapped, last1Unwrapped);
-		const auto secondRangeLength = IteratorsDifference(first2Unwrapped, last2Unwrapped);
+		auto firstRangeLength			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
+		const auto secondRangeLength	= IteratorsDifference(first2Unwrapped, last2Unwrapped);
 
 		if (firstRangeLength < secondRangeLength)
 			return last1;
@@ -64,7 +61,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
 			_FirstForwardIteratorUnwrappedType_, _SecondForwardIteratorUnwrappedType_, _Predicate_>)
 		{
-
+			// const auto position = FindEndVectorized
 		}
 
 		
@@ -87,7 +84,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 		>
 	)
 {
-
+	return simd_stl::algorithm::find_end(first1, last1, first2, last2, type_traits::equal_to<>{});
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

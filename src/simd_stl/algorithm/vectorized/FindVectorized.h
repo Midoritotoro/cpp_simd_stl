@@ -29,7 +29,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* FindScalar(
     while (pointer != lastPointer && *pointer != value)
         ++pointer;
 
-    return pointer;
+    return (pointer == lastPointer) ? lastPointer : pointer;
 }
 
 template <
@@ -61,7 +61,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* FindVectorize
         } while (firstPointer != stopAt);
     }
 
-    return (firstPointer == lastPointer) ? nullptr : FindScalar(firstPointer, lastPointer, value);
+    return (firstPointer == lastPointer) ? lastPointer : FindScalar(firstPointer, lastPointer, value);
 }
 
 template <class _Type_>

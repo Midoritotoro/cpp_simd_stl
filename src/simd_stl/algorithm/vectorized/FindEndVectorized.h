@@ -132,28 +132,26 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindEndVectorizedInternal(
+simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVectorizedInternal(
     const void*     firstPointer,
     const sizetype  firstRangeLength,
     const void*     secondPointer,
     const sizetype  secondRangeLength) noexcept
 {
-   
+   /* switch (secondRangeLength) {
+        case 1: return std::find_last;
+    }*/
 
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindEndVectorized(
+simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVectorized(
     const void*     firstPointer,
     const sizetype  firstRangeLength,
     const void*     secondPointer,
     const sizetype  secondRangeLength) noexcept
 {
-    /* if (arch::ProcessorFeatures::AVX512F())
-         return FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value);
-     else if (arch::ProcessorFeatures::AVX2())
-         return FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value);*/
-    /*else*/ if (arch::ProcessorFeatures::SSE2())
+    if (arch::ProcessorFeatures::SSE2())
         return FindEndVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(
             firstPointer, firstRangeLength, secondPointer, secondRangeLength);
 

@@ -21,3 +21,11 @@
 #    define __unwrapSizedIterator(iterator, length)	::std::move(iterator)
 #  endif // defined(simd_stl_cpp_msvc)
 #endif // !defined(__unwrapSizedIterator)
+
+#if !defined(__seekWrappedIterator)
+#  if defined(simd_stl_cpp_msvc)
+#    define __seekWrappedIterator(from, to) ::std::_Seek_wrapped(from, to)
+#  else
+#    define __seekWrappedIterator(from, to)	from = ::std::move(to);
+#  endif // defined(simd_stl_cpp_msvc)
+#endif // !defined(__seekWrappedIterator)
