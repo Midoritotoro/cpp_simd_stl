@@ -32,9 +32,6 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
         const void* const   source,                                                 \
         sizetype            size) noexcept                                          \
     {                                                                               \
-        DebugAssert(destination != nullptr);                                        \
-        DebugAssert(source != nullptr);                                             \
-        DebugAssert(size > 0);                                                      \
         copyType* dest          = reinterpret_cast<copyType*>(destination);         \
         const copyType* src     = reinterpret_cast<const copyType*>(source);        \
         while (size--) { copyCommand; }                                             \
@@ -63,12 +60,12 @@ public:
     __SIMD_STL_DEFINE_DEFAULT_MEMCPY(1, 2, 4)
 #endif
 
-    __SIMD_STL_DEFINE_MEMCPY(1, false, char, SIMD_STL_ECHO(*dest++ = *src++;));
-    __SIMD_STL_DEFINE_MEMCPY(2, false, char, SIMD_STL_ECHO(*dest++ = *src++;));
-    __SIMD_STL_DEFINE_MEMCPY(4, false, char, SIMD_STL_ECHO(*dest++ = *src++;));
+    __SIMD_STL_DEFINE_MEMCPY(1, false, uint8, SIMD_STL_ECHO(*dest++ = *src++;));
+    __SIMD_STL_DEFINE_MEMCPY(2, false, uint16, SIMD_STL_ECHO(*dest++ = *src++;));
+    __SIMD_STL_DEFINE_MEMCPY(4, false, uint32, SIMD_STL_ECHO(*dest++ = *src++;));
 
 #if defined(simd_stl_processor_x86_64)
-    __SIMD_STL_DEFINE_MEMCPY(8, false, char, SIMD_STL_ECHO(*dest++ = *src++;));
+    __SIMD_STL_DEFINE_MEMCPY(8, false, uint64, SIMD_STL_ECHO(*dest++ = *src++;));
 #endif
 };
 
@@ -169,7 +166,7 @@ public:
 };
 
 template <arch::CpuFeature _SimdGeneration_>
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInternal(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorizedInternal(
     const void*     source,
     void*           destination,
     sizetype	    bytes) noexcept
@@ -179,14 +176,12 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
 }
 
 template <>
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInternal<arch::CpuFeature::None>(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorizedInternal<arch::CpuFeature::None>(
     const void*     source,
     void*           destination,
     sizetype	    bytes) noexcept
 {
     using _None_ = MemcpyImplementationInternal<arch::CpuFeature::None>;
-
-    void* returnval = destination;
     sizetype offset = 0;
 
     while (bytes)
@@ -225,12 +220,10 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
             bytes &= 7;
         }
     }
-
-    return returnval;
 }
 
 template <>
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInternal<arch::CpuFeature::SSE2>(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorizedInternal<arch::CpuFeature::SSE2>(
     const void* source,
     void*       destination,
     sizetype    size) noexcept
@@ -238,7 +231,6 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
     using _None_ = MemcpyImplementationInternal<arch::CpuFeature::None>;
     using _Sse_ = MemcpyImplementationInternal<arch::CpuFeature::SSE2>;
 
-    void* returnval = destination;
     sizetype offset = 0;
 
     while (size)
@@ -317,12 +309,10 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
             size &= 255;
         }
     }
-
-    return returnval;
 }
 
 template <>
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInternal<arch::CpuFeature::AVX>(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorizedInternal<arch::CpuFeature::AVX>(
     const void* source,
     void*       destination,
     sizetype    size) noexcept
@@ -332,7 +322,6 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
     using _Sse_ = MemcpyImplementationInternal<arch::CpuFeature::SSE2>;
     using _Avx_ = MemcpyImplementationInternal<arch::CpuFeature::AVX>;
 
-    void* returnval = destination;
     sizetype offset = 0;
 
     while (size)
@@ -419,12 +408,10 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
             size &= 511;
         }
     }
-
-    return returnval;
 }
 
 template <>
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInternal<arch::CpuFeature::AVX512F>(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorizedInternal<arch::CpuFeature::AVX512F>(
     const void* source,
     void*       destination,
     sizetype    size) noexcept
@@ -435,7 +422,6 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
     using _Avx_ = MemcpyImplementationInternal<arch::CpuFeature::AVX>;
     using _Avx512F_ = MemcpyImplementationInternal<arch::CpuFeature::AVX512F>;
 	
-    void* returnval = destination;
     sizetype offset = 0;
 
     while (size)
@@ -569,13 +555,10 @@ simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorizedInter
             source = (char*)source + offset;
             size &= 32767;
         }
-
     }
-
-    return returnval;
 }
 
-simd_stl_declare_const_function simd_stl_always_inline void* CopyVectorized(
+simd_stl_declare_const_function simd_stl_always_inline void CopyVectorized(
 	const void*	from,
 	void*		to,
 	sizetype	bytes) noexcept

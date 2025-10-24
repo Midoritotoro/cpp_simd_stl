@@ -69,14 +69,14 @@ template <
             && is_iterator_contiguous_v<_DestinationIterator_>
             && !is_iterator_volatile_v<_SourceIterator_>
             && !is_iterator_volatile_v<_DestinationIterator_>>
-    struct IteratorMoveCategory : 
-        TrivialCategory<
-            IteratorValueType<_SourceIterator_>, 
-            IteratorValueType<_DestinationIterator_>,
-    std::remove_reference_t<
-        IteratorReferenceType<_SourceIterator_>>&&,
-        IteratorReferenceType<_DestinationIterator_>
-    > 
+struct IteratorMoveCategory : 
+    TrivialCategory<
+        IteratorValueType<_SourceIterator_>, 
+        IteratorValueType<_DestinationIterator_>,
+std::remove_reference_t<
+    IteratorReferenceType<_SourceIterator_>>&&,
+    IteratorReferenceType<_DestinationIterator_>
+> 
 {};
 
 template <
@@ -94,14 +94,14 @@ template <
         is_iterator_contiguous_v<_SourceIterator_> 
             && is_iterator_contiguous_v<_DestinationIterator_>
             && !is_iterator_volatile_v<_SourceIterator_>
-            && !is_iterator_volatile_v<_DestinationIterator_>>
-    struct IteratorCopyCategory :
-        TrivialCategory <
-            IteratorValueType<_SourceIterator_>,
-            IteratorValueType<_DestinationIterator_>,
-            IteratorReferenceType<_SourceIterator_>,
-            IteratorReferenceType<_DestinationIterator_>
-        > 
+        && !is_iterator_volatile_v<_DestinationIterator_>>
+struct IteratorCopyCategory :
+    TrivialCategory <
+        IteratorValueType<_SourceIterator_>,
+        IteratorValueType<_DestinationIterator_>,
+        IteratorReferenceType<_SourceIterator_>,
+        IteratorReferenceType<_DestinationIterator_>
+    > 
 {};
 
 template <
@@ -138,4 +138,3 @@ using SentinelCopyCategory = std::conditional_t<
     FalseTrivialCategory>;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
-

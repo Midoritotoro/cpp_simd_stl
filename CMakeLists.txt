@@ -139,6 +139,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/FindLast.h
 
     include/simd_stl/algorithm/copy/Copy.h
+    include/simd_stl/algorithm/copy/CopyN.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

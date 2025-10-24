@@ -19,22 +19,36 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
     _InputIterator_     last,
     _OutputIterator_    destination) noexcept
 {
-    using _ValueType_ = type_traits::IteratorValueType<_InputIterator_>;
     __verifyRange(first, last);
 
     auto firstUnwrapped         = __unwrapIterator(first);
     const auto lastUnwrapped    = __unwrapIterator(last);
 
     const auto difference       = IteratorsDifference(firstUnwrapped, lastUnwrapped);
-    auto destinationUnwrapped   = __unwrapSizedIterator(destination, difference);
 
-    const void* result = CopyVectorized(
-        std::to_address(firstUnwrapped), 
-        std::to_address(destinationUnwrapped), sizeof(_ValueType_) * difference);
+    if constexpr (type_traits::IteratorCopyCategory<_InputIterator_, _OutputIterator_>::BitcopyAssignable) {
+        auto destinationUnwrapped = __unwrapSizedIterator(destination, difference);
 
-    __seekWrappedIterator(destination, reinterpret_cast<const _ValueType_*>(result));
+        auto firstAddress       = std::to_address(firstUnwrapped);
+        const auto lastAddress  = std::to_address(lastUnwrapped);
+
+        const auto byteLength   = ByteLength(firstAddress, lastAddress);
+        auto destinationAddress = std::to_address(destinationUnwrapped);
+
+        CopyVectorized(firstAddress, destinationAddress, byteLength);
+        __seekWrappedIterator(destination, destination + difference);
+    }
+    else {
+        auto destinationUnwrapped = __unwrapIterator(destination);
+
+        for (; firstUnwrapped != lastUnwrapped; ++destinationUnwrapped, ++firstUnwrapped)
+            *destinationUnwrapped = *firstUnwrapped;
+
+
+        __seekWrappedIterator(destination, destinationUnwrapped);
+    }
+
     return destination;
-   // return copy_if(first, last, destination, type_traits::...<>{});
 }
 
 template <

@@ -39,6 +39,12 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 	constexpr bool is_iterator_contiguous_v = std::is_pointer_v<_Iterator_>;
 #endif
 
+template <
+	class _FirstIterator_,
+	class _SecondIterator_>
+constexpr bool are_iterators_contiguous = is_iterator_contiguous_v<_FirstIterator_> 
+	&& is_iterator_contiguous_v<_SecondIterator_>;
+
 template <class _Iterator_>
 constexpr inline bool is_iterator_volatile_v = std::is_volatile_v<std::remove_reference_t<std::iter_reference_t<_Iterator_>>>;
 
