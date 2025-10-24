@@ -8,8 +8,6 @@
 #include <random>
 #include <simd_stl/algorithm/find/FindLast.h>
 
-
-
 int main() {
     {
         std::vector<int> v;
@@ -54,5 +52,6 @@ int main() {
         v[15] = 0xCAFEBABE;
         Assert(simd_stl::algorithm::find_last(v.begin(), v.end(), 0xCAFEBABEull) == v.end() - 1);
     }
+
     return 0;
 }

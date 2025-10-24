@@ -3,6 +3,7 @@
 #include <simd_stl/compatibility/Inline.h>
 #include <simd_stl/SimdStlNamespace.h>
 #include <src/simd_stl/type_traits/IteratorCheck.h>
+#include <simd_stl/Types.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -65,7 +66,7 @@ simd_stl_always_inline size_t ByteLength(
 }
 
 template <class _ContiguousIterator_>
-inline simd_stl_constexpr_cxx20 sizetype IteratorsDifference(
+constexpr inline sizetype IteratorsDifference(
     _ContiguousIterator_ firstIterator,
     _ContiguousIterator_ lastIterator) noexcept
 {

@@ -46,6 +46,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
     src/simd_stl/algorithm/vectorized/EqualVectorized.h
     src/simd_stl/algorithm/vectorized/FindEndVectorized.h
+    src/simd_stl/algorithm/vectorized/CopyVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -136,6 +137,8 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/find/AnyOf.h
     include/simd_stl/algorithm/find/FindEnd.h
     include/simd_stl/algorithm/find/FindLast.h
+
+    include/simd_stl/algorithm/copy/Copy.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

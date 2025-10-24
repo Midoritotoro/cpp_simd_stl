@@ -14,6 +14,14 @@
 #  endif // defined(simd_stl_cpp_msvc) 
 #endif // !defined(__unwrapIterator)
 
+#if !defined(__unwrapUnverifiedIterator) 
+#  if defined(simd_stl_cpp_msvc)
+#    define __unwrapUnverifiedIterator(iterator) ::std::_Get_unwrapped_unverified(iterator)
+#  else
+#    define __unwrapUnverifiedIterator(iterator) ::std::move(iterator)
+#  endif // defined(simd_stl_cpp_msvc) 
+#endif // !defined(__unwrapUnverifiedIterator)
+
 #if !defined(__unwrapSizedIterator)
 #  if defined(simd_stl_cpp_msvc)
 #    define __unwrapSizedIterator(iterator, length) ::std::_Get_unwrapped_n(iterator, length)

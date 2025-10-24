@@ -48,7 +48,7 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
         value = value | (value >> 16);
         value = value | (value >> 32);
 
-        return _BitHacksPopulationCount(~value);
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
 	}
     else if constexpr (sizeof(_IntegralType_) == 4) {
         value = value | (value >> 1);
@@ -59,7 +59,7 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
 
         value = value | (value >> 16);
         
-        return _BitHacksPopulationCount(~value);
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
     }
     else if constexpr (sizeof(_IntegralType_) == 2) {
         value = value | (value >> 1);
@@ -68,7 +68,7 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
         value = value | (value >> 4);
         value = value | (value >> 8);
 
-        return _BitHacksPopulationCount(~value);
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
     }
     else if constexpr (sizeof(_IntegralType_) == 1) {
         // 0b00001101

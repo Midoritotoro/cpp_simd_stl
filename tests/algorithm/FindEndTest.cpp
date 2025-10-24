@@ -13,14 +13,14 @@ template <typename It1, typename It2>
 void check_find_end(It1 first1, It1 last1, It2 first2, It2 last2) {
     auto std_res  = std::find_end(first1, last1, first2, last2);
     auto simd_res = simd_stl::algorithm::find_end(first1, last1, first2, last2);
-    assert(std_res == simd_res);
+    Assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_find_end(It1 first1, It1 last1, It2 first2, It2 last2, Pred pred) {
     auto std_res  = std::find_end(first1, last1, first2, last2, pred);
     auto simd_res = simd_stl::algorithm::find_end(first1, last1, first2, last2, pred);
-    assert(std_res == simd_res);
+    Assert(std_res == simd_res);
 }
 
 int main() {

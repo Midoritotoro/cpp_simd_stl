@@ -22,7 +22,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_FirstForwardIterator_	last1,
 	_SecondForwardIterator_ first2,
 	_SecondForwardIterator_ last2,
-	_Predicate_				function) noexcept(
+	_Predicate_				predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
@@ -37,34 +37,95 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
+
+	auto first1Unwrapped		= __unwrapIterator(first1);
+	const auto last1Unwrapped	= __unwrapIterator(last1);
+
+	const auto first2Unwrapped	= __unwrapIterator(first2);
+	const auto last2Unwrapped	= __unwrapIterator(last2);
 		
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
 		type_traits::is_iterator_random_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	) 
 	{
-		auto first1Unwrapped		= __unwrapIterator(first1);
-		const auto last1Unwrapped	= __unwrapIterator(last1);
-
-		const auto first2Unwrapped	= __unwrapIterator(first2);
-		const auto last2Unwrapped	= __unwrapIterator(last2);
-
-		const auto first1Address	= std::to_address(first1Unwrapped);
-		const auto first2Address	= std::to_address(first2Unwrapped);
-
 		auto firstRangeLength			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
 		const auto secondRangeLength	= IteratorsDifference(first2Unwrapped, last2Unwrapped);
 
-		if (firstRangeLength < secondRangeLength)
+		if (firstRangeLength < secondRangeLength || secondRangeLength == 0)
 			return last1;
 	
 		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
 			_FirstForwardIteratorUnwrappedType_, _SecondForwardIteratorUnwrappedType_, _Predicate_>)
 		{
-			// const auto position = FindEndVectorized
-		}
+			const auto first1Address = std::to_address(first1Unwrapped);
+			const auto first2Address = std::to_address(first2Unwrapped);
 
-		
+			const auto position = FindEndVectorized<_Value_>(first1Address, firstRangeLength, first2Address, secondRangeLength);
+
+			if constexpr (std::is_pointer_v<_FirstForwardIterator_>)
+				__seekWrappedIterator(first1, reinterpret_cast<const _Value_*>(position));
+			else
+				__seekWrappedIterator(first1, first1 + static_cast<type_traits::IteratorDifferenceType<_FirstForwardIterator_>>(
+					reinterpret_cast<const _Value_*>(position) - first1Address));
+
+			return first1;
+		}
+	}
+	else if constexpr (
+		type_traits::is_iterator_bidirectional_ranges_v<_FirstForwardIteratorUnwrappedType_> && 
+		type_traits::is_iterator_bidirectional_ranges_v<_SecondForwardIteratorUnwrappedType_>)
+	{
+		for (auto candidateUnwrapped = last1Unwrapped;; --candidateUnwrapped) {
+			auto next1Unwrapped = candidateUnwrapped;
+			auto next2Unwrapped = last2Unwrapped;
+
+			for (;;) {
+				if (first2Unwrapped == next2Unwrapped) {
+					__seekWrappedIterator(first1, next1Unwrapped);
+					return first1;
+				}
+
+				if (first1Unwrapped == next1Unwrapped)
+					return last1;
+
+				--next1Unwrapped;
+				--next2Unwrapped;
+
+				if (predicate(*next1Unwrapped, *next2Unwrapped) == false)
+					break;
+			}
+		}
+	}
+	else
+	{
+		auto resultUnwrapped = last1Unwrapped;
+
+		for (;;) {
+			auto next1Unwrapped = first1Unwrapped;
+			auto next2Unwrapped = first2Unwrapped;
+
+			for (;;) {
+				const auto needleEnd = (next2Unwrapped == last2Unwrapped);
+				if (needleEnd)
+					resultUnwrapped = first1Unwrapped;
+
+				if (next1Unwrapped == last1Unwrapped) {
+					__seekWrappedIterator(first1, resultUnwrapped);
+					return first1;
+				}
+
+				if (needleEnd || predicate(*next1Unwrapped, *next2Unwrapped) == false)
+
+					++next1Unwrapped;
+				++next2Unwrapped;
+			}
+
+			++first1Unwrapped;
+
+			__seekWrappedIterator(first1, resultUnwrapped);
+			return first1;
+		}
 	}
 }
 
