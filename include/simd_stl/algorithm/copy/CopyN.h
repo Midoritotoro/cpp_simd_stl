@@ -24,25 +24,25 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_n(
 
     __verifyRange(first, last);
 
-    auto firstUnwrapped         = __unwrapIterator(first);
+    auto firstUnwrapped         = _UnwrapIterator(first);
     const auto bytes = sizeof(_ValueType_) * elementsCount;
 
     if constexpr (type_traits::IteratorCopyCategory<_InputIterator_, _OutputIterator_>::BitcopyAssignable) {
-        auto destinationUnwrapped = __unwrapSizedIterator(destination, elementsCount);
+        auto destinationUnwrapped = _UnwrapIteratorOffset(destination, elementsCount);
 
         auto firstAddress       = std::to_address(firstUnwrapped);
         auto destinationAddress = std::to_address(destinationUnwrapped);
 
         CopyVectorized(firstAddress, destinationAddress, bytes);
-        __seekWrappedIterator(destination, destination + elementsCount);
+        _SeekPossiblyWrappedIterator(destination, destination + elementsCount);
     }
     else {
-        auto destinationUnwrapped = __unwrapIterator(destination);
+        auto destinationUnwrapped = _UnwrapIterator(destination);
 
         for (_SizeType_ current = 0; current < elementsCount; ++destinationUnwrapped, ++firstUnwrapped)
             *destinationUnwrapped = *firstUnwrapped;
 
-        __seekWrappedIterator(destination, destinationUnwrapped);
+        _SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
     }
 
     return destination;

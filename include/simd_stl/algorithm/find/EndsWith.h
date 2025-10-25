@@ -30,22 +30,17 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
-#if defined(simd_stl_cpp_msvc) 
-	using _FirstForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondForwardIterator_>;
-#else
-	using _FirstForwardIteratorUnwrappedType_	= _FirstForwardIterator_;
-	using _SecondForwardIteratorUnwrappedType_	= _SecondForwardIterator_;
-#endif // defined(simd_stl_cpp_msvc)
+	using _FirstForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondForwardIterator_>;
 
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
 
-	auto first1Unwrapped	= __unwrapIterator(first1);
-	auto first2Unwrapped	= __unwrapIterator(first2);
+	auto first1Unwrapped	= _UnwrapIterator(first1);
+	auto first2Unwrapped	= _UnwrapIterator(first2);
 
-	auto last1Unwrapped		= __unwrapIterator(last1);
-	auto last2Unwrapped		= __unwrapIterator(last2);
+	auto last1Unwrapped		= _UnwrapIterator(last1);
+	auto last2Unwrapped		= _UnwrapIterator(last2);
 
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&

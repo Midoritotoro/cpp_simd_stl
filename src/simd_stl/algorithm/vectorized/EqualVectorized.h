@@ -38,7 +38,7 @@ simd_stl_declare_const_function simd_stl_always_inline bool EqualScalar(
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype EqualVectorizedInternal(
+simd_stl_declare_const_function simd_stl_always_inline bool EqualVectorizedInternal(
     const void* const   firstRangeBegin,
     const void* const   secondRangeBegin,
     const sizetype      size) noexcept
@@ -69,7 +69,7 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype EqualVectorizedI
 
 
 template <typename _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype EqualVectorized(
+simd_stl_declare_const_function simd_stl_always_inline bool EqualVectorized(
     const void* const   firstRangeBegin,
     const void* const   secondRangeBegin,
     const sizetype      size) noexcept

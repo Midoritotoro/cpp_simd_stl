@@ -34,18 +34,13 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 {
 	__verifyRange(first1, last1);
 
-#if defined(simd_stl_cpp_msvc)
-	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
-	using _SecondIteratorUnwrappedType_ = std::_Unwrapped_t<_SecondIterator_>;
-#else 
-	using _FirstIteratorUnwrappedType_	= _FirstIterator_;
-	using _SecondIteratorUnwrappedType_ = _SecondIterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	using _FirstIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstIterator_>;
+	using _SecondIteratorUnwrappedType_ = unwrapped_iterator_type<_SecondIterator_>;
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	const auto last1Unwrapped	= _UnwrapIterator(last1);
 
-	auto first2Unwrapped		= __unwrapIterator(first2);
+	auto first2Unwrapped		= _UnwrapIterator(first2);
 
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstIteratorUnwrappedType_>
@@ -102,19 +97,14 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
 
-#if defined(simd_stl_cpp_msvc)
-	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
-	using _SecondIteratorUnwrappedType_ = std::_Unwrapped_t<_SecondIterator_>;
-#else 
-	using _FirstIteratorUnwrappedType_	= _FirstIterator_;
-	using _SecondIteratorUnwrappedType_ = _SecondIterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	using _FirstIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstIterator_>;
+	using _SecondIteratorUnwrappedType_ = unwrapped_iterator_type<_SecondIterator_>;
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	const auto last1Unwrapped	= _UnwrapIterator(last1);
 
-	auto first2Unwrapped		= __unwrapIterator(first2);
-	const auto last2Unwrapped	= __unwrapIterator(last2);
+	auto first2Unwrapped		= _UnwrapIterator(first2);
+	const auto last2Unwrapped	= _UnwrapIterator(last2);
 
 	if constexpr (type_traits::is_iterator_random_ranges_v<_FirstIteratorUnwrappedType_>
 		&& type_traits::is_iterator_random_ranges_v<_SecondIteratorUnwrappedType_>)

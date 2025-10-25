@@ -20,17 +20,12 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool contains
 	const _Type_&		value) noexcept
 {
 	__verifyRange(first, last);
+	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
 
-#if defined(simd_stl_cpp_msvc)
-	using _IteratorUnwrappedType_ = std::_Unwrapped_t<_Iterator_>;
-#else 
-	using _IteratorUnwrappedType_ = _Iterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	auto firstUnwrapped			= _UnwrapIterator(first);
+	const auto lastUnwrapped	= _UnwrapIterator(last);
 
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
-		auto firstUnwrapped			= __unwrapIterator(first);
-		const auto lastUnwrapped	= __unwrapIterator(last);
-
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif
@@ -42,8 +37,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool contains
 		}
 	}
 
-	for (; first != last; ++first)
-		if (*first == value)
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		if (*firstUnwrapped == value)
 			return true;
 
 	return false;

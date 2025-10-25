@@ -114,14 +114,112 @@ constexpr inline bool is_iterator_parallel_v = is_iterator_forward_ranges_v<_Ite
     static_assert(simd_stl::type_traits::is_iterator_parallel_v<_Iterator_>, "Parallel algorithms require forward iterators or stronger.")
 #endif // !defined(__simd_stl_require_parallel_iterator)
 
+template <
+    class _Iterator_,
+    class = void>
+constexpr bool _Allow_inheriting_unwrap_v = true;
 
-template <class _Iterator_> 
-using _Unwrapped_iterator_type = 
-#if defined(simd_stl_cpp_msvc)
-	std::_Unwrapped_t<_Iterator_>
-#else
-	_Iterator_
-#endif // defined(simd_stl_cpp_msvc)
-	;
+template <class _Iterator_>
+constexpr bool _Allow_inheriting_unwrap_v<_Iterator_, std::void_t<typename _Iterator_::_Prevent_inheriting_unwrap>> =
+    std::is_same_v<_Iterator_, typename _Iterator_::_Prevent_inheriting_unwrap>;
+
+template <
+    class _Iterator_,
+    class _Sentinel_ = _Iterator_,
+    class = void>
+constexpr bool is_range_verifiable_v = false;
+
+template <
+    class _Iterator_, 
+    class _Sentinel_>
+constexpr bool is_range_verifiable_v<
+    _Iterator_, _Sentinel_,
+    std::void_t<decltype(_VerifyRange(
+        std::declval<const _Iterator_&>(), std::declval<const _Sentinel_&>()))>> = _Allow_inheriting_unwrap_v<_Iterator_>;
+
+template <
+    class _Iterator_, 
+    class = void>
+constexpr bool is_iterator_unwrappable_v = false;
+
+template <class _Iterator_>
+constexpr bool is_iterator_unwrappable_v<_Iterator_,
+    std::void_t<decltype(std::declval<std::remove_cvref_t<_Iterator_>&>()._Seek_to(std::declval<_Iterator_>()._Unwrapped()))>> =
+    _Allow_inheriting_unwrap_v<std::remove_cvref_t<_Iterator_>>;
+
+template <
+    class _Iterator_, 
+    class = void>
+constexpr bool is_nothrow_unwrappable_v = false;
+
+template <class _Iterator_>
+constexpr bool is_nothrow_unwrappable_v<_Iterator_, std::void_t<decltype(std::declval<_Iterator_>()._Unwrapped())>> =
+    noexcept(std::declval<_Iterator_>()._Unwrapped());
+
+template <
+    class _Iterator_,
+    class = bool>
+constexpr bool can_unwrap_when_unverified_v = false;
+
+template <class _Iterator_>
+constexpr bool can_unwrap_when_unverified_v<_Iterator_, decltype(static_cast<bool>(_Iterator_::_Unwrap_when_unverified))> =
+    static_cast<bool>(_Iterator_::_Unwrap_when_unverified);
+
+template <class _Iterator_>
+constexpr bool is_possibly_unverified_iterator_unwrappable_v =
+    type_traits::is_iterator_unwrappable_v<_Iterator_> && can_unwrap_when_unverified_v<std::remove_cvref_t<_Iterator_>>;
+
+template <
+    class _Iterator_,
+    class = void>
+constexpr bool is_offset_verifiable_v = false;
+
+template <class _Iterator_>
+constexpr bool is_offset_verifiable_v
+    <_Iterator_, std::void_t<decltype(std::declval<const _Iterator_&>()._Verify_offset(type_traits::IteratorDifferenceType<_Iterator_>{}))>> = true;
+
+template <
+    class _Iterator_,
+    class = void>
+constexpr bool is_offset_nothrow_verifiable_v = false;
+
+template <class _Iterator_>
+constexpr bool is_offset_nothrow_verifiable_v
+    <_Iterator_, std::void_t<decltype(std::declval<const _Iterator_&>()._Verify_offset(type_traits::IteratorDifferenceType<_Iterator_>{}))>> = 
+        noexcept(std::declval<const _Iterator_&>()._Verify_offset(type_traits::IteratorDifferenceType<_Iterator_>{}));
+
+template <class _Iterator_>
+constexpr bool is_iterator_unwrappable_for_offset_v = 
+    type_traits::is_iterator_unwrappable_v<_Iterator_> && is_offset_verifiable_v<std::remove_cvref_t<_Iterator_>>;
+
+template <class _Iterator_>
+constexpr bool is_iterator_nothrow_unwrappable_for_offset_v = 
+    type_traits::is_nothrow_unwrappable_v<_Iterator_> && is_offset_nothrow_verifiable_v<std::remove_cvref_t<_Iterator_>>;
+
+template <
+    class _Iterator_, 
+    class _UnwrappedIterator_,
+    class = void>
+constexpr bool is_wrapped_iterator_seekable_v = false;
+
+template <
+    class _Iterator_, 
+    class _UnwrappedIterator_>
+constexpr bool is_wrapped_iterator_seekable_v
+    <_Iterator_, _UnwrappedIterator_, std::void_t<decltype(std::declval<_Iterator_&>()._Seek_to(std::declval<_UnwrappedIterator_>()))>> = true;
+
+template <
+    class _Iterator_, 
+    class _UnwrappedIterator_,
+    class = void>
+constexpr bool is_wrapped_iterator_nothrow_seekable_v = false;
+
+template <
+    class _Iterator_, 
+    class _UnwrappedIterator_>
+constexpr bool is_wrapped_iterator_nothrow_seekable_v
+    <_Iterator_, _UnwrappedIterator_, std::void_t<decltype(std::declval<_Iterator_&>()._Seek_to(std::declval<_UnwrappedIterator_>()))>> = 
+        noexcept(std::declval<_Iterator_&>()._Seek_to(std::declval<_UnwrappedIterator_>()));
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

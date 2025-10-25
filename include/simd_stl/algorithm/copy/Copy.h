@@ -21,13 +21,13 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
 {
     __verifyRange(first, last);
 
-    auto firstUnwrapped         = __unwrapIterator(first);
-    const auto lastUnwrapped    = __unwrapIterator(last);
+    auto firstUnwrapped         = _UnwrapIterator(first);
+    const auto lastUnwrapped    = _UnwrapIterator(last);
 
     const auto difference       = IteratorsDifference(firstUnwrapped, lastUnwrapped);
 
     if constexpr (type_traits::IteratorCopyCategory<_InputIterator_, _OutputIterator_>::BitcopyAssignable) {
-        auto destinationUnwrapped = __unwrapSizedIterator(destination, difference);
+        auto destinationUnwrapped = _UnwrapIteratorOffset(destination, difference);
 
         auto firstAddress       = std::to_address(firstUnwrapped);
         const auto lastAddress  = std::to_address(lastUnwrapped);
@@ -36,16 +36,16 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
         auto destinationAddress = std::to_address(destinationUnwrapped);
 
         CopyVectorized(firstAddress, destinationAddress, byteLength);
-        __seekWrappedIterator(destination, destination + difference);
+        _SeekPossiblyWrappedIterator(destination, destination + difference);
     }
     else {
-        auto destinationUnwrapped = __unwrapIterator(destination);
+        auto destinationUnwrapped = _UnwrapIterator(destination);
 
         for (; firstUnwrapped != lastUnwrapped; ++destinationUnwrapped, ++firstUnwrapped)
             *destinationUnwrapped = *firstUnwrapped;
 
 
-        __seekWrappedIterator(destination, destinationUnwrapped);
+        _SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
     }
 
     return destination;
@@ -67,10 +67,10 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_if(
 {
     __verifyRange(first, last);
 
-    auto firstUnwrapped         = __unwrapIterator(first);
-    const auto lastUnwrapped    = __unwrapIterator(last);
+    auto firstUnwrapped         = _UnwrapIterator(first);
+    const auto lastUnwrapped    = _UnwrapIterator(last);
 
-    auto destinationUnwrapped   = __unwrapUnverifiedIterator(destination);
+    auto destinationUnwrapped   = _UnwrapUnverifiedIterator(destination);
 
     for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped) {
         if (predicate(*firstUnwrapped)) {
@@ -79,7 +79,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_if(
         }
     }
 
-    __seekWrappedIterator(destination, destinationUnwrapped);
+    _SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
     return destination;
 }
 

@@ -2,9 +2,11 @@
 
 #include <simd_stl/compatibility/Inline.h>
 #include <simd_stl/SimdStlNamespace.h>
+
 #include <src/simd_stl/type_traits/IteratorCheck.h>
 #include <simd_stl/Types.h>
 
+#include <src/simd_stl/utility/Assert.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -66,24 +68,15 @@ simd_stl_always_inline size_t ByteLength(
 }
 
 template <class _ContiguousIterator_>
-constexpr inline sizetype IteratorsDifference(
-    _ContiguousIterator_ firstIterator,
-    _ContiguousIterator_ lastIterator) noexcept
+constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> IteratorsDifference(
+    const _ContiguousIterator_& firstIterator,
+    const _ContiguousIterator_& lastIterator) noexcept
 {
-    if constexpr (std::is_pointer_v<_ContiguousIterator_>)
-        return static_cast<sizetype>(lastIterator - firstIterator);
+    if constexpr (std::is_pointer_v<_ContiguousIterator_> && type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
+        return static_cast<type_traits::IteratorDifferenceType<_ContiguousIterator_>>(lastIterator - firstIterator);
 
-    const auto pointerLikeAddress1 = std::to_address(firstIterator);
-    const auto pointerLikeAddress2 = std::to_address(lastIterator);
-
-    using _IteratorValueType_ = type_traits::IteratorValueType<_ContiguousIterator_>;
-
-    return static_cast<sizetype>(
-        const_cast<const _IteratorValueType_*>(
-            reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress1)) -
-        const_cast<const _IteratorValueType_*>(
-            reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress2))
-    );
+    AssertUnreachable();
+    return -1;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

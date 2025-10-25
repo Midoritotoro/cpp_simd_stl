@@ -32,17 +32,17 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 {
 	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
-	using _FirstForwardIteratorUnwrappedType_	= type_traits::_Unwrapped_iterator_type<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_	= type_traits::_Unwrapped_iterator_type<_SecondForwardIterator_>;
+	using _FirstForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondForwardIterator_>;
 
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	const auto last1Unwrapped	= _UnwrapIterator(last1);
 
-	const auto first2Unwrapped	= __unwrapIterator(first2);
-	const auto last2Unwrapped	= __unwrapIterator(last2);
+	const auto first2Unwrapped	= _UnwrapIterator(first2);
+	const auto last2Unwrapped	= _UnwrapIterator(last2);
 		
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
@@ -64,9 +64,9 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 			const auto position = FindEndVectorized<_Value_>(first1Address, firstRangeLength, first2Address, secondRangeLength);
 
 			if constexpr (std::is_pointer_v<_FirstForwardIterator_>)
-				__seekWrappedIterator(first1, reinterpret_cast<const _Value_*>(position));
+				_SeekPossiblyWrappedIterator(first1, reinterpret_cast<const _Value_*>(position));
 			else
-				__seekWrappedIterator(first1, first1 + static_cast<type_traits::IteratorDifferenceType<_FirstForwardIterator_>>(
+				_SeekPossiblyWrappedIterator(first1, first1 + static_cast<type_traits::IteratorDifferenceType<_FirstForwardIterator_>>(
 					reinterpret_cast<const _Value_*>(position) - first1Address));
 
 			return first1;
@@ -82,7 +82,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 
 			for (;;) {
 				if (first2Unwrapped == next2Unwrapped) {
-					__seekWrappedIterator(first1, next1Unwrapped);
+					_SeekPossiblyWrappedIterator(first1, next1Unwrapped);
 					return first1;
 				}
 
@@ -111,7 +111,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 					resultUnwrapped = first1Unwrapped;
 
 				if (next1Unwrapped == last1Unwrapped) {
-					__seekWrappedIterator(first1, resultUnwrapped);
+					_SeekPossiblyWrappedIterator(first1, resultUnwrapped);
 					return first1;
 				}
 
@@ -123,7 +123,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 
 			++first1Unwrapped;
 
-			__seekWrappedIterator(first1, resultUnwrapped);
+			_SeekPossiblyWrappedIterator(first1, resultUnwrapped);
 			return first1;
 		}
 	}

@@ -30,23 +30,18 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	__verifyRange(first1, last1);
 	__verifyRange(first2, last2);
 
-#if defined(simd_stl_cpp_msvc)
-	using _FirstForwardUnwrappedIterator_	= std::_Unwrapped_t<_FirstForwardIterator_>;
-	using _SecondForwardUnwrappedIterator_	= std::_Unwrapped_t<_SecondForwardIterator_>;
-#else 
-	using _FirstForwardUnwrappedIterator_	= _FirstForwardIterator_;
-	using _SecondForwardUnwrappedIterator_	= _SecondForwardIterator_;
-#endif
+	using _FirstForwardUnwrappedIterator_	= unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardUnwrappedIterator_	= unwrapped_iterator_type<_SecondForwardIterator_>;
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	auto last1Unwrapped			= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	auto last1Unwrapped			= _UnwrapIterator(last1);
 
-	auto first2Unwrapped		= __unwrapIterator(first2);
-	const auto last2Unwrapped	= __unwrapIterator(last2);
+	auto first2Unwrapped		= _UnwrapIterator(first2);
+	const auto last2Unwrapped	= _UnwrapIterator(last2);
 
 	if constexpr (
-		type_traits::is_iterator_random_ranges_v<_SecondForwardUnwrappedIterator_> 
-		&& std::is_same_v<_Predicate_, type_traits::equal_to<>>) 
+		type_traits::is_iterator_random_ranges_v<_SecondForwardUnwrappedIterator_> &&
+		std::is_same_v<_Predicate_, type_traits::equal_to<>>) 
 	{
 		const auto length = IteratorsDifference(first2Unwrapped, last2Unwrapped);
 
@@ -58,7 +53,6 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 				return last1;
 
 			const auto first1Address = std::to_address(first1Unwrapped);
-
 			const void* position = nullptr;
 
 			if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_FirstForwardUnwrappedIterator_, _ValueType_>)
@@ -95,24 +89,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	for (; first1Unwrapped != last1Unwrapped; ++first1Unwrapped) {
         for (auto mid2Unwrapped = first2Unwrapped; mid2Unwrapped != last2Unwrapped; ++mid2Unwrapped) {
             if (predicate(*first1Unwrapped, *mid2Unwrapped)) {
-
-#if defined(simd_stl_cpp_msvc)
-				std::_Seek_wrapped(first1, first1Unwrapped);
-#else 
-				first1 = first1Unwrapped;
-#endif
-
+				_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
                 return first1;
             }
         }
     }
 
-#if defined(simd_stl_cpp_msvc)
-	std::_Seek_wrapped(first1, first1Unwrapped);
-#else 
-	first1 = first1Unwrapped;
-#endif
-
+	_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
     return first1;
 }
 

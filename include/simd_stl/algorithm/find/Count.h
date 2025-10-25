@@ -22,14 +22,10 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 sizetype coun
 {
 	__verifyRange(first, last);
 
-#if defined(simd_stl_cpp_msvc)
-	using _IteratorUnwrappedType_ = std::_Unwrapped_t<_Iterator_>;
-#else 
-	using _IteratorUnwrappedType_ = _Iterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
 
-	auto firstUnwrapped			= __unwrapIterator(first);
-	const auto lastUnwrapped	= __unwrapIterator(last);
+	auto firstUnwrapped			= _UnwrapIterator(first);
+	const auto lastUnwrapped	= _UnwrapIterator(last);
 
 	if constexpr (type_traits::is_iterator_random_ranges_v<_IteratorUnwrappedType_>) {
 		const auto length = ByteLength(firstUnwrapped, lastUnwrapped);
@@ -70,8 +66,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 type_traits::
 {
 	__verifyRange(first, last);
 
-	auto firstUnwrapped			= __unwrapIterator(first);
-	const auto lastUnwrapped	= __unwrapIterator(last);
+	auto firstUnwrapped			= _UnwrapIterator(first);
+	const auto lastUnwrapped	= _UnwrapIterator(last);
 
 	auto count = type_traits::IteratorDifferenceType<_InputIterator_>(0);
 

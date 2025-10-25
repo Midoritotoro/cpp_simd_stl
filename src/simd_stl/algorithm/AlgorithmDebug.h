@@ -3,6 +3,11 @@
 #include <src/simd_stl/utility/Assert.h>
 #include <simd_stl/compatibility/Inline.h>
 
+#include <src/simd_stl/type_traits/IteratorCheck.h>
+#include <src/simd_stl/type_traits/IntegralProperties.h>
+
+#include <simd_stl/math/IntegralTypesConversions.h>
+
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
@@ -12,53 +17,6 @@ simd_stl_constexpr_cxx20 void _VerifyRange(
 {
 	DebugAssertLog(firstPointer <= lastPointer, "transposed pointer range");
 }
-
-#if defined(simd_stl_cpp_msvc)
-
-template <
-	class _Iterator_, 
-	class = void>
-constexpr bool allow_inheriting_unwrap_v = true;
-
-template <class _Iterator_>
-constexpr bool allow_inheriting_unwrap_v
-	<_Iterator_,std::void_t<typename _Iterator_::_Prevent_inheriting_unwrap>> =
-		std::is_same_v<_Iterator_, typename _Iterator_::_Prevent_inheriting_unwrap>;
-
-template <
-	class _Iterator_, 
-	class _Sentinel_ = _Iterator_,
-	class = void>
-constexpr bool is_range_verifiable_v = false;
-
-template <
-	class _Iterator_, 
-	class _Sentinel_>
-constexpr bool is_range_verifiable_v<
-	_Iterator_, _Sentinel_,
-	std::void_t<decltype(_VerifyRange(
-		std::declval<const _Iterator_&>(),
-		std::declval<const _Sentinel_&>()))>> =
-			allow_inheriting_unwrap_v<_Iterator_>;
-
-#else 
-
-template <
-	class _Iterator_, 
-	class _Sentinel_ = _Iterator_,
-	class = void>
-constexpr bool is_range_verifiable_v = false;
-
-template <
-	class _Iterator_, 
-	class _Sentinel_>
-constexpr bool is_range_verifiable_v<
-	_Iterator_, _Sentinel_,
-	std::void_t<decltype(_VerifyRange(
-		std::declval<const _Iterator_&>(),
-		std::declval<const _Sentinel_&>()))>> = true;
-
-#endif
 
 template <
 	class _Iterator_,
@@ -72,7 +30,7 @@ simd_stl_constexpr_cxx20 void _VerifyRange(
 		DebugAssertLog(firstIterator <= lastIterator, "transposed pointer range");
 		return;
 	}
-	else if constexpr (is_range_verifiable_v<_Iterator_, _Sentinel_>) {
+	else if constexpr (type_traits::is_range_verifiable_v<_Iterator_, _Sentinel_>) {
 		_VerifyRange(
 			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(firstIterator))),
 			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(lastIterator))));

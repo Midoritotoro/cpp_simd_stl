@@ -34,19 +34,14 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 {
 	__verifyRange(first1, last1);
 
-#if defined(simd_stl_cpp_msvc)
-	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
-	using _SecondIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondIterator_>;
-#else 
-	using _FirstIteratorUnwrappedType_	= _FirstIterator_;
-	using _SecondIteratorUnwrappedType_ = _SecondIterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	using _FirstIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstIterator_>;
+	using _SecondIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondIterator_>;
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	const auto last1Unwrapped	= _UnwrapIterator(last1);
 
 	const auto length			= IteratorsDifference(first1Unwrapped, last1Unwrapped);
-	auto first2Unwrapped		= __unwrapSizedIterator(first2, length);
+	auto first2Unwrapped		= _UnwrapIteratorOffset(first2, length);
 
 	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
 		_FirstIteratorUnwrappedType_, _SecondIteratorUnwrappedType_, _Predicate_>)
@@ -65,13 +60,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 			first1Unwrapped += static_cast<type_traits::IteratorDifferenceType<_FirstIterator_>>(position);
 			first2Unwrapped += static_cast<type_traits::IteratorDifferenceType<_SecondIterator_>>(position);
 
-#if defined(simd_stl_cpp_msvc)
-			std::_Seek_wrapped(first2, first2Unwrapped);
-			std::_Seek_wrapped(first1, first1Unwrapped);
-#else 
-			first1 = first1Unwrapped;
-			first2 = first2Unwrapped;
-#endif
+			_SeekPossiblyWrappedIterator(first2, first2Unwrapped);
+			_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
 
 			return { first1, first2 };
 		}
@@ -82,13 +72,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 		++first2Unwrapped;
 	}
 
-#if defined(simd_stl_cpp_msvc)
-	std::_Seek_wrapped(first2, first2Unwrapped);
-	std::_Seek_wrapped(first1, first1Unwrapped);
-#else 
-	first1 = first1Unwrapped;
-	first2 = first2Unwrapped;
-#endif
+	_SeekPossiblyWrappedIterator(first2, first2Unwrapped);
+	_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
 
 	return { first1, first2 };
 }
@@ -112,20 +97,14 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 {
 	__verifyRange(first1, last1);
 
-#if defined(simd_stl_cpp_msvc)
-	using _FirstIteratorUnwrappedType_	= std::_Unwrapped_t<_FirstIterator_>;
-	using _SecondIteratorUnwrappedType_	= std::_Unwrapped_t<_SecondIterator_>;
-#else 
-	using _FirstIteratorUnwrappedType_	= _FirstIterator_;
-	using _SecondIteratorUnwrappedType_ = _SecondIterator_;
-#endif // defined(simd_stl_cpp_msvc) 
+	using _FirstIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstIterator_>;
+	using _SecondIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondIterator_>;
 
-	auto first1Unwrapped		= __unwrapIterator(first1);
-	const auto last1Unwrapped	= __unwrapIterator(last1);
+	auto first1Unwrapped		= _UnwrapIterator(first1);
+	const auto last1Unwrapped	= _UnwrapIterator(last1);
 
-	auto first2Unwrapped		= __unwrapIterator(first2);
-	const auto last2Unwrapped	= __unwrapIterator(last2);
-
+	auto first2Unwrapped		= _UnwrapIterator(first2);
+	const auto last2Unwrapped	= _UnwrapIterator(last2);
 
 	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
 		_FirstIteratorUnwrappedType_, _SecondIteratorUnwrappedType_, _Predicate_>)
@@ -147,13 +126,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 			first1Unwrapped += static_cast<type_traits::IteratorDifferenceType<_FirstIterator_>>(position);
 			first2Unwrapped += static_cast<type_traits::IteratorDifferenceType<_SecondIterator_>>(position);
 
-#if defined(simd_stl_cpp_msvc)
-			std::_Seek_wrapped(first1, first1Unwrapped);
-			std::_Seek_wrapped(first2, first2Unwrapped);
-#else 
-			first1 = first1Unwrapped;
-			first2 = first2Unwrapped;
-#endif
+			_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
+			_SeekPossiblyWrappedIterator(first2, first2Unwrapped);
 
 			return { first1, first2 };
 		}
@@ -163,14 +137,9 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 std::pair<_Fi
 		++first1Unwrapped;
 		++first2Unwrapped;
 	}
-
-#if defined(simd_stl_cpp_msvc)
-	std::_Seek_wrapped(first1, first1Unwrapped);
-	std::_Seek_wrapped(first2, first2Unwrapped);
-#else 
-	first1 = first1Unwrapped;
-	first2 = first2Unwrapped;
-#endif
+	 
+	_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
+	_SeekPossiblyWrappedIterator(first2, first2Unwrapped);
 
 	return { first1, first2 };
 }
