@@ -148,7 +148,7 @@ int main() {
         for (int i = 0; i < 1024; ++i) src[i] = i;
         std::vector<int> dst(1024, -1);
 
-        auto out = simd_stl::algorithm::copy(src.begin() + 100, src.begin() + 900, dst.begin() + 50);
+        auto out = std::copy(src.begin() + 100, src.begin() + 900, dst.begin() + 50);
         Assert(out == dst.begin() + 50 + (900 - 100));
         for (int i = 0; i < 50; ++i) Assert(dst[i] == -1);
         for (int i = 0; i < 800; ++i) Assert(dst[50 + i] == src[100 + i]);

@@ -141,8 +141,8 @@ private:
 			while (mask.anyOf()) {
 				const auto bitpos = mask.countTrailingZeroBits();
 
-				if (memcmpLike(mainRangeChar + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + (sizeof(_Type_))))
-					return reinterpret_cast<const _Type_*>(mainRangeChar + i + bitpos);
+				if (memcmpLike(mainRangeChar + i + (bitpos * sizeof(_Type_)) + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + (sizeof(_Type_))))
+					return reinterpret_cast<const _Type_*>(mainRangeChar + i + (bitpos * sizeof(_Type_)));
 
 				mask.clearLeftMostSetBit();
 			}
@@ -187,8 +187,8 @@ private:
 			while (mask.anyOf()) {
 				const auto bitpos = mask.countTrailingZeroBits();
 
-				if (memcmp(charMainRange + i + bitpos + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + 1, subInBytes - (2 * sizeof(_Type_))) == 0)
-					return reinterpret_cast<const _Type_*>(charMainRange + i + bitpos);
+				if (memcmp(charMainRange + i + (bitpos * sizeof(_Type_)) + sizeof(_Type_), reinterpret_cast<const char*>(subRange) + 1, subInBytes - (2 * sizeof(_Type_))) == 0)
+					return reinterpret_cast<const _Type_*>(charMainRange + i + (bitpos * sizeof(_Type_)));
 
 				mask.clearLeftMostSetBit();
 			}

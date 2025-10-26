@@ -72,11 +72,23 @@ constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> Itera
     const _ContiguousIterator_& firstIterator,
     const _ContiguousIterator_& lastIterator) noexcept
 {
-    if constexpr (std::is_pointer_v<_ContiguousIterator_> && type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
-        return static_cast<type_traits::IteratorDifferenceType<_ContiguousIterator_>>(lastIterator - firstIterator);
+    using _DifferenceType_ = type_traits::IteratorDifferenceType<_ContiguousIterator_>;
 
-    AssertUnreachable();
-    return -1;
+    if constexpr (std::is_pointer_v<_ContiguousIterator_> && type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
+        return static_cast<_DifferenceType_>(lastIterator - firstIterator);
+
+    const auto pointerLikeAddress1 = std::to_address(firstIterator);
+    const auto pointerLikeAddress2 = std::to_address(lastIterator);
+
+    using _IteratorValueType_ = type_traits::IteratorValueType<_ContiguousIterator_>;
+
+    const auto firstIteratorAddress = const_cast<const _IteratorValueType_*>(
+        reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress1));
+
+    const auto lastIteratorAddress = const_cast<const _IteratorValueType_*>(
+        reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress2));
+
+    return static_cast<_DifferenceType_>(lastIteratorAddress - firstIteratorAddress);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

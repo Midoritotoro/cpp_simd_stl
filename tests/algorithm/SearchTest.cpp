@@ -5,17 +5,17 @@ template <typename It1, typename It2>
 void check_search(It1 first1, It1 last1, It2 first2, It2 last2) {
     auto std_res = std::search(first1, last1, first2, last2);
     auto simd_res = simd_stl::algorithm::search(first1, last1, first2, last2);
-    Assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
+    Assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_search(It1 first1, It1 last1, It2 first2, It2 last2, Pred pred) {
     auto std_res = std::search(first1, last1, first2, last2, pred);
     auto simd_res = simd_stl::algorithm::search(first1, last1, first2, last2, pred);
-    Assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
+    Assert(simd_res == std_res);
 }
 
-ge int main() {
+int main() {
     {
         std::vector<int> a, b;
         check_search(a.begin(), a.end(), b.begin(), b.end());

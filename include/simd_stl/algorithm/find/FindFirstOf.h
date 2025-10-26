@@ -101,13 +101,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 
 
 template <
-	class _FirstForwardIteator_,
-	class _SecondForwardIteator_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForwardIteator_ find_first_of(
-	const _FirstForwardIteator_		first1,
-	const _FirstForwardIteator_		last1,
-	const _SecondForwardIteator_	first2,
-	const _SecondForwardIteator_	last2) noexcept(
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForwardIterator_ find_first_of(
+	const _FirstForwardIterator_		first1,
+	const _FirstForwardIterator_		last1,
+	const _SecondForwardIterator_		first2,
+	const _SecondForwardIterator_		last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstForwardIterator_>,
