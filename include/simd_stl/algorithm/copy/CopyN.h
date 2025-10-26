@@ -33,7 +33,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_n(
         auto firstAddress       = std::to_address(firstUnwrapped);
         auto destinationAddress = std::to_address(destinationUnwrapped);
 
-        CopyVectorized(firstAddress, destinationAddress, bytes);
+        _MemcpyVectorized(destinationAddress, firstAddress, bytes);
         _SeekPossiblyWrappedIterator(destination, destination + elementsCount);
     }
     else {

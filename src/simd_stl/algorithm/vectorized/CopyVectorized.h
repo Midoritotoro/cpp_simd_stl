@@ -15,7 +15,7 @@
     offset = bytes & -byteCount;                            \
     destination = static_cast<char*>(destination) + offset; \
     source = static_cast<const char*>(source) + offset;     \
-    bytes = (byteCount - 1);
+    bytes &= (byteCount - 1);
 #endif // !defined(__RECALCULATE_REMAINING)
 
 #if !defined(__DISPATCH_VECTORIZED_COPY)
@@ -110,13 +110,7 @@ struct _CopyVectorized<arch::CpuFeature::None, false> {
 };
 
 template <>
-struct _CopyVectorized<arch::CpuFeature::None, true> :
-    _CopyVectorized<arch::CpuFeature::None, false>
-{};
-
-template <>
-struct _CopyVectorized<arch::CpuFeature::SSE2, false> :
-    _CopyVectorized<arch::CpuFeature::None, true>
+struct _CopyVectorized<arch::CpuFeature::SSE2, false>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -126,6 +120,66 @@ struct _CopyVectorized<arch::CpuFeature::SSE2, false> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -209,8 +263,7 @@ struct _CopyVectorized<arch::CpuFeature::SSE2, false> :
 };
 
 template <>
-struct _CopyVectorized<arch::CpuFeature::SSE2, true> :
-    _CopyVectorized<arch::CpuFeature::None, true>
+struct _CopyVectorized<arch::CpuFeature::SSE2, true>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -220,6 +273,66 @@ struct _CopyVectorized<arch::CpuFeature::SSE2, true> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -304,8 +417,7 @@ struct _CopyVectorized<arch::CpuFeature::SSE2, true> :
 };
 
 template <>
-struct _CopyVectorized<arch::CpuFeature::AVX, false> :
-    _CopyVectorized<arch::CpuFeature::None, true>
+struct _CopyVectorized<arch::CpuFeature::AVX, false>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -315,6 +427,66 @@ struct _CopyVectorized<arch::CpuFeature::AVX, false> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -413,8 +585,7 @@ struct _CopyVectorized<arch::CpuFeature::AVX, false> :
 };
 
 template <> 
-struct _CopyVectorized<arch::CpuFeature::AVX, true> :
-    _CopyVectorized<arch::CpuFeature::None, true> 
+struct _CopyVectorized<arch::CpuFeature::AVX, true>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -424,6 +595,66 @@ struct _CopyVectorized<arch::CpuFeature::AVX, true> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -523,8 +754,7 @@ struct _CopyVectorized<arch::CpuFeature::AVX, true> :
 };
 
 template <>
-struct _CopyVectorized<arch::CpuFeature::AVX512F, false> :
-    _CopyVectorized<arch::CpuFeature::None, true>
+struct _CopyVectorized<arch::CpuFeature::AVX512F, false>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -534,6 +764,66 @@ struct _CopyVectorized<arch::CpuFeature::AVX512F, false> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -680,8 +970,7 @@ struct _CopyVectorized<arch::CpuFeature::AVX512F, false> :
 };
 
 template <>
-struct _CopyVectorized<arch::CpuFeature::AVX512F, true> :
-    _CopyVectorized<arch::CpuFeature::None, true>
+struct _CopyVectorized<arch::CpuFeature::AVX512F, true>
 {
     template <sizetype _ElementSize_>
     static void* Copy(
@@ -691,6 +980,66 @@ struct _CopyVectorized<arch::CpuFeature::AVX512F, true> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Copy<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        while (length--)
+            *__destinationByte++ = *__sourceByte++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord  = static_cast<const uint16*>(source);
+        uint16* __destinationWord   = static_cast<uint16*>(destination);
+
+        while (length--)
+            *__destinationWord++ = *__sourceWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord  = static_cast<const uint32*>(source);
+        uint32* __destinationDWord   = static_cast<uint32*>(destination);
+
+        while (length--)
+            *__destinationDWord++ = *__sourceDWord++;
+
+        return destination;
+    }
+
+    template <>
+    static void* Copy<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord  = static_cast<uint64*>(destination);
+
+        while (length--)
+            *__destinationQWord++ = *__sourceQWord++;
+
+        return destination;
     }
 
     template <>
@@ -983,6 +1332,7 @@ struct _CopyVectorized<arch::CpuFeature::AVX2, true>:
     //                              ALIGNED, STREAMING
     // ==============================================================================
 
+
     template <sizetype _ElementSize_>
     static void* CopyStreamAligned(
         void*       destination,
@@ -1212,8 +1562,7 @@ template <
     bool _Aligned_,
     bool _Streaming_>
 struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> {
-    static_cast(_Streaming_, "Streaming not supported for SSE2. ");
-    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+    static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
 
     void operator()(
         void*       destination, 
@@ -1228,7 +1577,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             if (bytes < 2)
             {
                 _VectorizedCopyImplementation_::Copy<1>(destination, source, bytes);
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset; 
+                source = static_cast<const char*>(source) + offset; 
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1293,7 +1645,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE41>
             if (bytes < 2)
             {
                 __DISPATCH_VECTORIZED_COPY(1, 0)
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1343,7 +1698,7 @@ template <
     bool _Aligned_,
     bool _Streaming_>
 struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
-    static_cast(_Streaming_, "Streaming not supported for AVX. ");
+    static_assert(!_Streaming_, "Streaming not supported for AVX. ");
 
     void operator()(
         void*       destination, 
@@ -1358,7 +1713,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             if (bytes < 2)
             {
                 _VectorizedCopyImplementation_::Copy<1>(destination, source, bytes);
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1413,7 +1771,7 @@ template <
     bool _Aligned_,
     bool _Streaming_>
 struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> {
-    static_cast(_Streaming_, "Streaming not supported for AVX. ");
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
     void operator()(
         void*       destination, 
@@ -1428,7 +1786,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> 
             if (bytes < 2)
             {
                 __DISPATCH_VECTORIZED_COPY(1, 0)
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1483,7 +1844,7 @@ template <
     bool _Aligned_,
     bool _Streaming_>
 struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512F> {
-    static_cast(_Streaming_, "Streaming not supported for AVX. ");
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
     void operator()(
         void*       destination, 
@@ -1498,7 +1859,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             if (bytes < 2)
             {
                 __DISPATCH_VECTORIZED_COPY(1, 0)
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset; 
+                source = static_cast<const char*>(source) + offset; 
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1568,7 +1932,7 @@ template <
     bool _Aligned_,
     bool _Streaming_>
 struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> {
-    static_cast(_Streaming_, "Streaming not supported for AVX. ");
+    static_assert(!_Streaming_, "Streaming not supported. ");
 
     void operator()(
         void* destination,
@@ -1583,7 +1947,10 @@ struct _MemcpyVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> 
             if (bytes < 2)
             {
                 __DISPATCH_VECTORIZED_COPY(1, 0)
-                __RECALCULATE_REMAINING(1)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset; 
+                source = static_cast<const char*>(source) + offset; 
+                bytes = 0;
             }
             else if (bytes < 4)
             {
@@ -1621,9 +1988,9 @@ void* _MemcpyVectorizedInternal(
 
     if((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
     {
-        if constexpr (static_cast<int>(_SimdGeneration_) == arch::CpuFeature::SSE41 ||
-            static_cast<int>(_SimdGeneration_) == arch::CpuFeature::AVX2            ||
-            static_cast<int>(_SimdGeneration_) == arch::CpuFeature::AVX512F)
+        if constexpr (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
+            static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
+            static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F))
         {
             if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
                 _MemcpyVectorizedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
@@ -1639,8 +2006,8 @@ void* _MemcpyVectorizedInternal(
 
         if (bytes > alignedBytes)
         {
-            void* destinationWithOffset = static_cast<char*>(destination) + alignedBytes;
-            void* sourceWithOffset = static_cast<const char*>(source) + alignedBytes;
+            void* destinationWithOffset     = static_cast<char*>(destination) + alignedBytes;
+            const void* sourceWithOffset    = static_cast<const char*>(source) + alignedBytes;
 
             _MemcpyVectorizedChooser<false, false, _SimdGeneration_>()(destination, source, alignedBytes);
             _MemcpyVectorizedChooser<false, false, _SimdGeneration_>()(destinationWithOffset, sourceWithOffset, bytes - alignedBytes);
@@ -1669,7 +2036,7 @@ void* _MemcpyVectorized(
     const void* source,
     sizetype    bytes) noexcept
 {
-    if (arch::ProcessorFeatures::AVX512F())
+   /* if (arch::ProcessorFeatures::AVX512F())
         return _MemcpyVectorizedInternal<arch::CpuFeature::AVX512F>(destination, source, bytes);
     else if (arch::ProcessorFeatures::AVX2())
         return _MemcpyVectorizedInternal<arch::CpuFeature::AVX2>(destination, source, bytes);
@@ -1678,8 +2045,9 @@ void* _MemcpyVectorized(
     else if (arch::ProcessorFeatures::SSE41())
         return _MemcpyVectorizedInternal<arch::CpuFeature::SSE41>(destination, source, bytes);
     else if (arch::ProcessorFeatures::SSE2())
+        return _MemcpyVectorizedInternal<arch::CpuFeature::SSE2>(destination, source, bytes);*/
+    if (arch::ProcessorFeatures::SSE2())
         return _MemcpyVectorizedInternal<arch::CpuFeature::SSE2>(destination, source, bytes);
-
     return _MemcpyVectorizedInternal<arch::CpuFeature::None>(destination, source, bytes);
 }
 

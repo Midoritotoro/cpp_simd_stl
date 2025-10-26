@@ -37,7 +37,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _BidirectionalSecondIterator_ co
 
         auto destinationLastChar    = const_cast<char*>(reinterpret_cast<const volatile char*>(std::to_address(destinationLastUnwrapped)));
 
-        AVX_memcpy(destinationLastChar - byteLength, firstAddress, byteLength);
+        _MemcpyVectorized(destinationLastChar - byteLength, firstAddress, byteLength);
         _SeekPossiblyWrappedIterator(destinationLast, destinationLast - difference);
     }
     else {

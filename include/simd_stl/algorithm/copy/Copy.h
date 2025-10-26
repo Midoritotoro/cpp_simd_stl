@@ -35,7 +35,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
         const auto byteLength   = ByteLength(firstAddress, lastAddress);
         auto destinationAddress = std::to_address(destinationUnwrapped);
 
-        AVX_memcpy(destinationAddress, firstAddress, byteLength);
+        _MemcpyVectorized(destinationAddress, firstAddress, byteLength);
         _SeekPossiblyWrappedIterator(destination, destination + difference);
     }
     else {

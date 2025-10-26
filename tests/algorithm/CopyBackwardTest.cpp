@@ -51,19 +51,19 @@ int main() {
         assert(src == dst);
     }
 
-    /*{
+    {
         std::vector<int> v = { 1,2,3,4,5,6,7,8 };
         simd_stl::algorithm::copy_backward(v.begin(), v.begin() + 4, v.begin() + 6);
         std::vector<int> expected = { 1,2,1,2,3,4,7,8 };
         assert(v == expected);
-    }*/
+    }
 
-//{
-//        std::vector<int> v = { 10,20,30,40,50 };
-//        simd_stl::algorithm::copy_backward(v.begin(), v.begin() + 3, v.end());
-//        std::vector<int> expected = { 10,20,10,20,30 };
-//        assert(v == expected);
-//    }    
+    {
+        std::vector<int> v = { 10,20,30,40,50 };
+        simd_stl::algorithm::copy_backward(v.begin(), v.begin() + 3, v.end());
+        std::vector<int> expected = { 10,20,10,20,30 };
+        assert(v == expected);
+    }    
 
     {
         const size_t N = 1'000'000;
