@@ -1,22 +1,8 @@
 #pragma once
 
-#include <src/simd_stl/algorithm/AdvanceBytes.h>
-#include <simd_stl/compatibility/SimdCompatibility.h>
-
-#include <simd_stl/compatibility/FunctionAttributes.h>
-#include <simd_stl/arch/ProcessorFeatures.h>
-
-#include <src/simd_stl/type_traits/SimdTypeCheck.h>
+#include <src/simd_stl/algorithm/vectorized/MoveVectorized.h>
 
 #define __SIMD_STL_COPY_CACHE_SIZE_LIMIT 3*1024*1024
-
-#if !defined(__RECALCULATE_REMAINING)
-#  define __RECALCULATE_REMAINING(byteCount)                \
-    offset = bytes & -byteCount;                            \
-    destination = static_cast<char*>(destination) + offset; \
-    source = static_cast<const char*>(source) + offset;     \
-    bytes &= (byteCount - 1);
-#endif // !defined(__RECALCULATE_REMAINING)
 
 #if !defined(__DISPATCH_VECTORIZED_COPY)
 #  define __DISPATCH_VECTORIZED_COPY(byteCount, shift) \
@@ -1982,7 +1968,7 @@ void* _MemcpyVectorizedInternal(
     if ((((char*)destination > (char*)source) && ((char*)destination < ((char*)source + bytes))) ||
         (((char*)source > (char*)destination) && ((char*)source < ((char*)destination + bytes))))
     {
-        returnValue = memmove(destination, source, bytes);
+        returnValue = _MemmoveVectorizedInternal<_SimdGeneration_>(destination, source, bytes);
         return returnValue;
     }
 
@@ -2013,9 +1999,7 @@ void* _MemcpyVectorizedInternal(
             _MemcpyVectorizedChooser<false, false, _SimdGeneration_>()(destinationWithOffset, sourceWithOffset, bytes - alignedBytes);
         }
         else
-        {
             _MemcpyVectorizedChooser<false, false, _SimdGeneration_>()(destination, source, bytes);
-        }
     }
 
     return returnValue;
@@ -2036,7 +2020,7 @@ void* _MemcpyVectorized(
     const void* source,
     sizetype    bytes) noexcept
 {
-   /* if (arch::ProcessorFeatures::AVX512F())
+    if (arch::ProcessorFeatures::AVX512F())
         return _MemcpyVectorizedInternal<arch::CpuFeature::AVX512F>(destination, source, bytes);
     else if (arch::ProcessorFeatures::AVX2())
         return _MemcpyVectorizedInternal<arch::CpuFeature::AVX2>(destination, source, bytes);
@@ -2045,9 +2029,8 @@ void* _MemcpyVectorized(
     else if (arch::ProcessorFeatures::SSE41())
         return _MemcpyVectorizedInternal<arch::CpuFeature::SSE41>(destination, source, bytes);
     else if (arch::ProcessorFeatures::SSE2())
-        return _MemcpyVectorizedInternal<arch::CpuFeature::SSE2>(destination, source, bytes);*/
-    if (arch::ProcessorFeatures::SSE2())
         return _MemcpyVectorizedInternal<arch::CpuFeature::SSE2>(destination, source, bytes);
+
     return _MemcpyVectorizedInternal<arch::CpuFeature::None>(destination, source, bytes);
 }
 

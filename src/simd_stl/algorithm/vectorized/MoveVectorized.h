@@ -1,3943 +1,2525 @@
-//void * memmove_16bit(void *dest, const void *src, size_t len)
-//{
-//  const uint16_t* s = (uint16_t*)src;
-//  uint16_t* d = (uint16_t*)dest;
-//
-//  const uint16_t *nexts = s + len;
-//  uint16_t *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      *d++ = *s++;
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      *--nextd = *--nexts;
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 32-bit (4 bytes at a time - 1 pixel in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/4), so it's "# of 32-bits"
-//
-//void * memmove_32bit(void *dest, const void *src, size_t len)
-//{
-//  const uint32_t* s = (uint32_t*)src;
-//  uint32_t* d = (uint32_t*)dest;
-//
-//  const uint32_t *nexts = s + len;
-//  uint32_t *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      *d++ = *s++;
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      *--nextd = *--nexts;
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 64-bit (8 bytes at a time - 2 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/8), so it's "# of 64-bits"
-//
-//void * memmove_64bit(void *dest, const void *src, size_t len)
-//{
-//  const uint64_t* s = (uint64_t*)src;
-//  uint64_t* d = (uint64_t*)dest;
-//
-//  const uint64_t *nexts = s + len;
-//  uint64_t *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      *d++ = *s++;
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      *--nextd = *--nexts;
-//    }
-//  }
-//  return dest;
-//}
-//
-////-----------------------------------------------------------------------------
-//// SSE2 Unaligned:
-////-----------------------------------------------------------------------------
-//
-//// SSE2 (128-bit, 16 bytes at a time - 4 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/16), so it's "# of 128-bits"
-//
-//void * memmove_128bit_u(void *dest, const void *src, size_t len)
-//{
-//  const __m128i_u* s = (__m128i_u*)src;
-//  __m128i_u* d = (__m128i_u*)dest;
-//
-//  const __m128i_u *nexts = s + len;
-//  __m128i_u *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts));
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 32 bytes at a time
-//void * memmove_128bit_32B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m128i_u* s = (__m128i_u*)src;
-//  __m128i_u* d = (__m128i_u*)dest;
-//
-//  const __m128i_u *nexts = s + (len << 1);
-//__m128i_u *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 1
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 1
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_128bit_64B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m128i_u* s = (__m128i_u*)src;
-//  __m128i_u* d = (__m128i_u*)dest;
-//
-//  const __m128i_u *nexts = s + (len << 2);
-//  __m128i_u *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 1
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 2
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 3
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 1
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 2
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 3
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_128bit_128B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m128i_u* s = (__m128i_u*)src;
-//  __m128i_u* d = (__m128i_u*)dest;
-//
-//  const __m128i_u *nexts = s + (len << 3);
-//  __m128i_u *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 1
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 2
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 3
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 4
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 5
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 6
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 7
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 1
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 2
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 3
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 4
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 5
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 6
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 7
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// For fun: 1 load->store for every xmm register
-//// 256 bytes
-//void * memmove_128bit_256B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m128i_u* s = (__m128i_u*)src;
-//  __m128i_u* d = (__m128i_u*)dest;
-//
-//  const __m128i_u *nexts = s + (len << 4);
-//  __m128i_u *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 1
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 2
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 3
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 4
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 5
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 6
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 7
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 8
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 9
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 10
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 11
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 12
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 13
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 14
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 15
-//      _mm_storeu_si128(d++, _mm_lddqu_si128(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 1
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 2
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 3
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 4
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 5
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 6
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 7
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 8
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 9
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 10
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 11
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 12
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 13
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 14
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 15
-//      _mm_storeu_si128(--nextd, _mm_lddqu_si128(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//
-////-----------------------------------------------------------------------------
-//// AVX+ Unaligned:
-////-----------------------------------------------------------------------------
-//
-//// AVX (256-bit, 32 bytes at a time - 8 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/32), so it's "# of 256-bits"
-//// Sandybridge and Ryzen and up, Haswell and up for better performance
-//
-//#ifdef __AVX__
-//
-//void * memmove_256bit_u(void *dest, const void *src, size_t len)
-//{
-//  const __m256i_u* s = (__m256i_u*)src;
-//  __m256i_u* d = (__m256i_u*)dest;
-//
-//  const __m256i_u *nexts = s + len;
-//  __m256i_u *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts));
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_256bit_64B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m256i_u* s = (__m256i_u*)src;
-//  __m256i_u* d = (__m256i_u*)dest;
-//
-//  const __m256i_u *nexts = s + (len << 1);
-//  __m256i_u *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 1
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 1
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_256bit_128B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m256i_u* s = (__m256i_u*)src;
-//  __m256i_u* d = (__m256i_u*)dest;
-//
-//  const __m256i_u *nexts = s + (len << 2);
-//  __m256i_u *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 1
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 2
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 3
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 1
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 2
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 3
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_256bit_256B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m256i_u* s = (__m256i_u*)src;
-//  __m256i_u* d = (__m256i_u*)dest;
-//
-//  const __m256i_u *nexts = s + (len << 3);
-//  __m256i_u *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 1
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 2
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 3
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 4
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 5
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 6
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 7
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 1
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 2
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 3
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 4
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 5
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 6
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 7
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// For fun:
-//// 512 bytes at a time, one load->store for every ymm register (there are 16)
-//void * memmove_256bit_512B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m256i_u* s = (__m256i_u*)src;
-//  __m256i_u* d = (__m256i_u*)dest;
-//
-//  const __m256i_u *nexts = s + (len << 4);
-//  __m256i_u *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 1
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 2
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 3
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 4
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 5
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 6
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 7
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 8
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 9
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 10
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 11
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 12
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 13
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 14
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 15
-//      _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 1
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 2
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 3
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 4
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 5
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 6
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 7
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 8
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 9
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 10
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 11
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 12
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 13
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 14
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 15
-//      _mm256_storeu_si256(--nextd, _mm256_lddqu_si256(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//#endif
-//
-//// AVX-512 (512-bit, 64 bytes at a time - 16 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/64), so it's "# of 512-bits"
-//// Requires AVX512F
-//
-//#ifdef __AVX512F__
-//void * memmove_512bit_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + len;
-//  __m512i_u *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts));
-//    }
-//  }
-//
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_512bit_128B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 1);
-//  __m512i_u *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_512bit_256B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 2);
-//  __m512i_u *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 512 bytes (half a KB!!) at a time
-//void * memmove_512bit_512B_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 3);
-//  __m512i_u *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 5
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 6
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 7
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 5
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 6
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 7
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// Alright I'll admit I got a little carried away...
-//
-//// 1024 bytes, or 1 kB
-//void * memmove_512bit_1kB_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 4);
-//  __m512i_u *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 5
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 6
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 7
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 8
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 9
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 10
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 11
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 12
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 13
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 14
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 15
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 5
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 6
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 7
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 8
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 9
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 10
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 11
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 12
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 13
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 14
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 15
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 2048 bytes, or 2 kB
-//void * memmove_512bit_2kB_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 5);
-//  __m512i_u *nextd = d + (len << 5);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 5
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 6
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 7
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 8
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 9
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 10
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 11
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 12
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 13
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 14
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 15
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 16
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 17
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 18
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 19
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 20
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 21
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 22
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 23
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 24
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 25
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 26
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 27
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 28
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 29
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 30
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 31
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 5
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 6
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 7
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 8
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 9
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 10
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 11
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 12
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 13
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 14
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 15
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 16
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 17
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 18
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 19
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 20
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 21
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 22
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 23
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 24
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 25
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 26
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 27
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 28
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 29
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 30
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 31
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 32
-//    }
-//  }
-//  return dest;
-//}
-//
-//// Y'know what? Here's a whole page.
-//// 4096 bytes, or 4 kB
-//void * memmove_512bit_4kB_u(void *dest, const void *src, size_t len)
-//{
-//  const __m512i_u* s = (__m512i_u*)src;
-//  __m512i_u* d = (__m512i_u*)dest;
-//
-//  const __m512i_u *nexts = s + (len << 6);
-//  __m512i_u *nextd = d + (len << 6);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 5
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 6
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 7
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 8
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 9
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 10
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 11
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 12
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 13
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 14
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 15
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 16
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 17
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 18
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 19
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 20
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 21
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 22
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 23
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 24
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 25
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 26
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 27
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 28
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 29
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 30
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 31
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 32
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 1
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 2
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 3
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 4
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 5
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 6
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 7
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 8
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 9
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 10
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 11
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 12
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 13
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 14
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 15
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 16
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 17
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 18
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 19
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 20
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 21
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 22
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 23
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 24
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 25
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 26
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 27
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 28
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 29
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 30
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 31
-//      _mm512_storeu_si512(d++, _mm512_loadu_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 5
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 6
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 7
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 8
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 9
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 10
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 11
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 12
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 13
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 14
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 15
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 16
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 17
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 18
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 19
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 20
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 21
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 22
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 23
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 24
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 25
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 26
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 27
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 28
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 29
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 30
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 31
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 32
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 1
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 2
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 3
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 4
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 5
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 6
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 7
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 8
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 9
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 10
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 11
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 12
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 13
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 14
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 15
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 16
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 17
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 18
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 19
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 20
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 21
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 22
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 23
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 24
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 25
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 26
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 27
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 28
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 29
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 30
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 31
-//      _mm512_storeu_si512(--nextd, _mm512_loadu_si512(--nexts)); // 32
-//    }
-//  }
-//  return dest;
-//}
-//
-//#endif
-//
-//// AVX-1024 support pending existence of the standard. It would be able to fit
-//// an entire 4 kB page in its registers at one time. Imagine that!
-//// (AVX-512 maxes at 2 kB, which is why I only used numbers 1-32 above.)
-//
-////-----------------------------------------------------------------------------
-//// SSE2 Aligned:
-////-----------------------------------------------------------------------------
-//
-//// SSE2 (128-bit, 16 bytes at a time - 4 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/16), so it's "# of 128-bits"
-//
-//void * memmove_128bit_a(void *dest, const void *src, size_t len)
-//{
-//  const __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  const __m128i *nexts = s + len;
-//  __m128i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_store_si128(d++, _mm_load_si128(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts));
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 32 bytes at a time
-//void * memmove_128bit_32B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  const __m128i *nexts = s + (len << 1);
-//  __m128i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 1
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 1
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_128bit_64B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  const __m128i *nexts = s + (len << 2);
-//  __m128i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 1
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 2
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 3
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 1
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 2
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 3
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_128bit_128B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  const __m128i *nexts = s + (len << 3);
-//  __m128i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 1
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 2
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 3
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 4
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 5
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 6
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 7
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 1
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 2
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 3
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 4
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 5
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 6
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 7
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// For fun: 1 load->store for every xmm register (there are 16)
-//// 256 bytes
-//void * memmove_128bit_256B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  const __m128i *nexts = s + (len << 4);
-//  __m128i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 1
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 2
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 3
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 4
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 5
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 6
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 7
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 8
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 9
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 10
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 11
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 12
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 13
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 14
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 15
-//      _mm_store_si128(d++, _mm_load_si128(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 1
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 2
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 3
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 4
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 5
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 6
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 7
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 8
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 9
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 10
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 11
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 12
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 13
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 14
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 15
-//      _mm_store_si128(--nextd, _mm_load_si128(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//
-////-----------------------------------------------------------------------------
-//// AVX+ Aligned:
-////-----------------------------------------------------------------------------
-//
-//// AVX (256-bit, 32 bytes at a time - 8 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/32), so it's "# of 256-bits"
-//// Sandybridge and Ryzen and up
-//
-//#ifdef __AVX__
-//void * memmove_256bit_a(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + len;
-//  __m256i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_store_si256(d++, _mm256_load_si256(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts));
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_256bit_64B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 1);
-//  __m256i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 1
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 1
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_256bit_128B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 2);
-//  __m256i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 1
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 2
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 3
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 1
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 2
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 3
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_256bit_256B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 3);
-//  __m256i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 1
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 2
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 3
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 4
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 5
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 6
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 7
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 1
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 2
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 3
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 4
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 5
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 6
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 7
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// I just wanted to see what doing one move for every ymm register looks like.
-//// There are 16 256-bit (ymm) registers.
-//void * memmove_256bit_512B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 4);
-//  __m256i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 1
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 2
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 3
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 4
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 5
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 6
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 7
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 8
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 9
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 10
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 11
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 12
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 13
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 14
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 15
-//      _mm256_store_si256(d++, _mm256_load_si256(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 1
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 2
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 3
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 4
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 5
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 6
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 7
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 8
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 9
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 10
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 11
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 12
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 13
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 14
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 15
-//      _mm256_store_si256(--nextd, _mm256_load_si256(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//
-//#endif
-//
-//// AVX-512 (512-bit, 64 bytes at a time - 16 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/64), so it's "# of 512-bits"
-//// Requires AVX512F
-//
-//#ifdef __AVX512F__
-//void * memmove_512bit_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + len;
-//  __m512i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts));
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_512bit_128B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 1);
-//  __m512i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_512bit_256B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 2);
-//  __m512i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 512 bytes (half a KB!!) at a time
-//void * memmove_512bit_512B_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 3);
-//  __m512i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd) // Post-increment: use d then increment
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 5
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 6
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 7
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d) // Pre-increment: increment nextd then use
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 5
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 6
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 7
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 8
-//    }
-//  }
-//  return dest;
-//}
-//
-//// The functions below I made just for fun to see what doing one move for every
-//// zmm register looks like. I think the insanity speaks for itself. :)
-//
-//// 1024 bytes, or 1 kB
-//void * memmove_512bit_1kB_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 4);
-//  __m512i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 5
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 6
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 7
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 8
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 9
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 10
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 11
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 12
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 13
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 14
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 15
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 5
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 6
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 7
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 8
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 9
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 10
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 11
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 12
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 13
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 14
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 15
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 16
-//    }
-//  }
-//  return dest;
-//}
-//
-//// 2048 bytes, or 2 kB
-//// AVX512 has 32x 512-bit registers, so......
-//void * memmove_512bit_2kB_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 5);
-//  __m512i *nextd = d + (len << 5);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 5
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 6
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 7
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 8
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 9
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 10
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 11
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 12
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 13
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 14
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 15
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 16
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 17
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 18
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 19
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 20
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 21
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 22
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 23
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 24
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 25
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 26
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 27
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 28
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 29
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 30
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 31
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 5
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 6
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 7
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 8
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 9
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 10
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 11
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 12
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 13
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 14
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 15
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 16
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 17
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 18
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 19
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 20
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 21
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 22
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 23
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 24
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 25
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 26
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 27
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 28
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 29
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 30
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 31
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 32
-//    }
-//  }
-//  return dest;
-//}
-//
-//// Y'know what? Here's a whole page.
-//// 4096 bytes, or 4 kB
-//void * memmove_512bit_4kB_a(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 6);
-//  __m512i *nextd = d + (len << 6);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 5
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 6
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 7
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 8
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 9
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 10
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 11
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 12
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 13
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 14
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 15
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 16
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 17
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 18
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 19
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 20
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 21
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 22
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 23
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 24
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 25
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 26
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 27
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 28
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 29
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 30
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 31
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 32
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 1
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 2
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 3
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 4
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 5
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 6
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 7
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 8
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 9
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 10
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 11
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 12
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 13
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 14
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 15
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 16
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 17
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 18
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 19
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 20
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 21
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 22
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 23
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 24
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 25
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 26
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 27
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 28
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 29
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 30
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 31
-//      _mm512_store_si512(d++, _mm512_load_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 5
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 6
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 7
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 8
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 9
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 10
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 11
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 12
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 13
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 14
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 15
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 16
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 17
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 18
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 19
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 20
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 21
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 22
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 23
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 24
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 25
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 26
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 27
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 28
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 29
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 30
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 31
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 32
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 1
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 2
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 3
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 4
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 5
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 6
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 7
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 8
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 9
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 10
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 11
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 12
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 13
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 14
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 15
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 16
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 17
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 18
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 19
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 20
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 21
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 22
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 23
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 24
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 25
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 26
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 27
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 28
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 29
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 30
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 31
-//      _mm512_store_si512(--nextd, _mm512_load_si512(--nexts)); // 32
-//    }
-//  }
-//  return dest;
-//}
-//
-//#endif
-//
-////-----------------------------------------------------------------------------
-//// SSE4.1 Streaming:
-////-----------------------------------------------------------------------------
-//
-//// SSE4.1 (128-bit, 16 bytes at a time - 4 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/16), so it's "# of 128-bits"
-//
-//void * memmove_128bit_as(void *dest, const void *src, size_t len)
-//{
-//  __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  __m128i *nexts = s + len;
-//  __m128i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts));
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 32 bytes at a time
-//void * memmove_128bit_32B_as(void *dest, const void *src, size_t len)
-//{
-//  __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  __m128i *nexts = s + (len << 1);
-//  __m128i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 1
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 1
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 2
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_128bit_64B_as(void *dest, const void *src, size_t len)
-//{
-//  __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  __m128i *nexts = s + (len << 2);
-//  __m128i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 1
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 2
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 3
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 1
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 2
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 3
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 4
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_128bit_128B_as(void *dest, const void *src, size_t len)
-//{
-//  __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  __m128i *nexts = s + (len << 3);
-//  __m128i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 1
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 2
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 3
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 4
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 5
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 6
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 7
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 1
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 2
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 3
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 4
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 5
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 6
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 7
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 8
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// For fun: 1 load->store for every xmm register (there are 16)
-//// 256 bytes
-//void * memmove_128bit_256B_as(void *dest, const void *src, size_t len)
-//{
-//  __m128i* s = (__m128i*)src;
-//  __m128i* d = (__m128i*)dest;
-//
-//  __m128i *nexts = s + (len << 4);
-//  __m128i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 1
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 2
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 3
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 4
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 5
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 6
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 7
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 8
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 9
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 10
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 11
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 12
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 13
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 14
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 15
-//      _mm_stream_si128(d++, _mm_stream_load_si128(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 1
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 2
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 3
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 4
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 5
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 6
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 7
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 8
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 9
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 10
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 11
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 12
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 13
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 14
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 15
-//      _mm_stream_si128(--nextd, _mm_stream_load_si128(--nexts)); // 16
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-////-----------------------------------------------------------------------------
-//// AVX2+ Streaming:
-////-----------------------------------------------------------------------------
-//
-//// AVX2 (256-bit, 32 bytes at a time - 8 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/32), so it's "# of 256-bits"
-//// Haswell and Ryzen and up
-//
-//#ifdef __AVX2__
-//void * memmove_256bit_as(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + len;
-//  __m256i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts));
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 64 bytes at a time
-//void * memmove_256bit_64B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 1);
-//  __m256i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 1
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 1
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 2
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_256bit_128B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 2);
-//  __m256i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 1
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 2
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 3
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 1
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 2
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 3
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 4
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_256bit_256B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 3);
-//  __m256i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 1
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 2
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 3
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 4
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 5
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 6
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 7
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 1
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 2
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 3
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 4
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 5
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 6
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 7
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 8
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// I just wanted to see what doing one move for every ymm register looks like.
-//// There are 16 256-bit (ymm) registers.
-//void * memmove_256bit_512B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m256i* s = (__m256i*)src;
-//  __m256i* d = (__m256i*)dest;
-//
-//  const __m256i *nexts = s + (len << 4);
-//  __m256i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 1
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 2
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 3
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 4
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 5
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 6
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 7
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 8
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 9
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 10
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 11
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 12
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 13
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 14
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 15
-//      _mm256_stream_si256(d++, _mm256_stream_load_si256(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 1
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 2
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 3
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 4
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 5
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 6
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 7
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 8
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 9
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 10
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 11
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 12
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 13
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 14
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 15
-//      _mm256_stream_si256(--nextd, _mm256_stream_load_si256(--nexts)); // 16
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//#endif
-//
-//// AVX-512 (512-bit, 64 bytes at a time - 16 pixels in a 32-bit linear frame buffer)
-//// Len is (# of total bytes/64), so it's "# of 512-bits"
-//// Requires AVX512F
-//
-//#ifdef __AVX512F__
-//void * memmove_512bit_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + len;
-//  __m512i *nextd = d + len;
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++));
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts));
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 128 bytes at a time
-//void * memmove_512bit_128B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 1);
-//  __m512i *nextd = d + (len << 1);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 256 bytes at a time
-//void * memmove_512bit_256B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 2);
-//  __m512i *nextd = d + (len << 2);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 512 bytes (half a KB!!) at a time
-//void * memmove_512bit_512B_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 3);
-//  __m512i *nextd = d + (len << 3);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd) // Post-increment: use d then increment
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 5
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 6
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 7
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 8
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d) // Pre-increment: increment nextd then use
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 5
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 6
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 7
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 8
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// The functions below I made just for fun to see what doing one move for every
-//// zmm register looks like. I think the insanity speaks for itself. :)
-//
-//// 1024 bytes, or 1 kB
-//void * memmove_512bit_1kB_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 4);
-//  __m512i *nextd = d + (len << 4);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 5
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 6
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 7
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 8
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 9
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 10
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 11
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 12
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 13
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 14
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 15
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 16
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 5
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 6
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 7
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 8
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 9
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 10
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 11
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 12
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 13
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 14
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 15
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 16
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// 2048 bytes, or 2 kB
-//// AVX512 has 32x 512-bit registers, so......
-//void * memmove_512bit_2kB_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 5);
-//  __m512i *nextd = d + (len << 5);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 5
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 6
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 7
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 8
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 9
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 10
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 11
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 12
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 13
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 14
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 15
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 16
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 17
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 18
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 19
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 20
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 21
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 22
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 23
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 24
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 25
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 26
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 27
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 28
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 29
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 30
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 31
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 5
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 6
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 7
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 8
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 9
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 10
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 11
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 12
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 13
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 14
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 15
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 16
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 17
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 18
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 19
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 20
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 21
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 22
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 23
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 24
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 25
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 26
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 27
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 28
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 29
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 30
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 31
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 32
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//// Y'know what? Here's a whole page.
-//// 4096 bytes, or 4 kB
-//void * memmove_512bit_4kB_as(void *dest, const void *src, size_t len)
-//{
-//  const __m512i* s = (__m512i*)src;
-//  __m512i* d = (__m512i*)dest;
-//
-//  const __m512i *nexts = s + (len << 6);
-//  __m512i *nextd = d + (len << 6);
-//
-//  if (d < s)
-//  {
-//    while (d != nextd)
-//    {
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 5
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 6
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 7
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 8
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 9
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 10
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 11
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 12
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 13
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 14
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 15
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 16
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 17
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 18
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 19
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 20
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 21
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 22
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 23
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 24
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 25
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 26
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 27
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 28
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 29
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 30
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 31
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 32
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 1
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 2
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 3
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 4
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 5
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 6
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 7
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 8
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 9
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 10
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 11
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 12
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 13
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 14
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 15
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 16
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 17
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 18
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 19
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 20
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 21
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 22
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 23
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 24
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 25
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 26
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 27
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 28
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 29
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 30
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 31
-//      _mm512_stream_si512(d++, _mm512_stream_load_si512(s++)); // 32
-//    }
-//  }
-//  else
-//  {
-//    while (nextd != d)
-//    {
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 5
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 6
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 7
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 8
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 9
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 10
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 11
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 12
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 13
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 14
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 15
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 16
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 17
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 18
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 19
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 20
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 21
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 22
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 23
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 24
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 25
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 26
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 27
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 28
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 29
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 30
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 31
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 32
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 1
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 2
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 3
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 4
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 5
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 6
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 7
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 8
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 9
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 10
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 11
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 12
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 13
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 14
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 15
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 16
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 17
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 18
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 19
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 20
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 21
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 22
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 23
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 24
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 25
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 26
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 27
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 28
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 29
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 30
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 31
-//      _mm512_stream_si512(--nextd, _mm512_stream_load_si512(--nexts)); // 32
-//    }
-//  }
-//  _mm_sfence();
-//
-//  return dest;
-//}
-//
-//#endif
-//
-////-----------------------------------------------------------------------------
-//// Dispatch Functions:
-////-----------------------------------------------------------------------------
-//
-//// Move arbitrarily large amounts of data (dest addr < src addr)
-//void * memmove_large(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  while(numbytes)
-//  // The biggest sizes will go first for alignment. There's no benefit to using
-//  // aligned loads over unaligned loads here, so all are unaligned.
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes < 2) // 1 byte
-//    {
-//      memmove(dest, src, numbytes);
-//      offset = numbytes & -1;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes = 0;
-//    }
-//    else if(numbytes < 4) // 2 bytes
-//    {
-//      memmove_16bit(dest, src, numbytes >> 1);
-//      offset = numbytes & -2;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1;
-//    }
-//    else if(numbytes < 8) // 4 bytes
-//    {
-//      memmove_32bit(dest, src, numbytes >> 2);
-//      offset = numbytes & -4;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 3;
-//    }
-//    else if(numbytes < 16) // 8 bytes
-//    {
-//      memmove_64bit(dest, src, numbytes >> 3);
-//      offset = numbytes & -8;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 7;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_u(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_u(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_512bit_u(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_512bit_128B_u(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_512bit_256B_u(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else if(numbytes < 1024) // 512 bytes
-//    {
-//      memmove_512bit_512B_u(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//    else if(numbytes < 2048) // 1024 bytes (1 kB)
-//    {
-//      memmove_512bit_1kB_u(dest, src, numbytes >> 10);
-//      offset = numbytes & -1024;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1023;
-//    }
-//    else if(numbytes < 4096) // 2048 bytes (2 kB)
-//    {
-//      memmove_512bit_2kB_u(dest, src, numbytes >> 11);
-//      offset = numbytes & -2048;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 2047;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      memmove_512bit_4kB_u(dest, src, numbytes >> 12);
-//      offset = numbytes & -4096;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 4095;
-//    }
-//#elif __AVX__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_u(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_u(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_256bit_64B_u(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_256bit_128B_u(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_256bit_256B_u(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else // 512 bytes
-//    {
-//      memmove_256bit_512B_u(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//#else // SSE2 only
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_u(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_128bit_32B_u(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_128bit_64B_u(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_128bit_128B_u(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else // 256 bytes
-//    {
-//      memmove_128bit_256B_u(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE, UNALIGNED
-//
-//// Move arbitrarily large amounts of data (dest addr < src addr)
-//// Aligned version
-//void * memmove_large_a(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  while(numbytes)
-//  // The biggest sizes will go first for alignment. There's no benefit to using
-//  // aligned loads over unaligned loads here, so all are unaligned.
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes < 2) // 1 byte
-//    {
-//      memmove(dest, src, numbytes);
-//      offset = numbytes & -1;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes = 0;
-//    }
-//    else if(numbytes < 4) // 2 bytes
-//    {
-//      memmove_16bit(dest, src, numbytes >> 1);
-//      offset = numbytes & -2;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1;
-//    }
-//    else if(numbytes < 8) // 4 bytes
-//    {
-//      memmove_32bit(dest, src, numbytes >> 2);
-//      offset = numbytes & -4;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 3;
-//    }
-//    else if(numbytes < 16) // 8 bytes
-//    {
-//      memmove_64bit(dest, src, numbytes >> 3);
-//      offset = numbytes & -8;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 7;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_a(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_a(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_512bit_a(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_512bit_128B_a(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_512bit_256B_a(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else if(numbytes < 1024) // 512 bytes
-//    {
-//      memmove_512bit_512B_a(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//    else if(numbytes < 2048) // 1024 bytes (1 kB)
-//    {
-//      memmove_512bit_1kB_a(dest, src, numbytes >> 10);
-//      offset = numbytes & -1024;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1023;
-//    }
-//    else if(numbytes < 4096) // 2048 bytes (2 kB)
-//    {
-//      memmove_512bit_2kB_a(dest, src, numbytes >> 11);
-//      offset = numbytes & -2048;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 2047;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      memmove_512bit_4kB_a(dest, src, numbytes >> 12);
-//      offset = numbytes & -4096;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 4095;
-//    }
-//#elif __AVX__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_a(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_a(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_256bit_64B_a(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_256bit_128B_a(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_256bit_256B_a(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else // 512 bytes
-//    {
-//      memmove_256bit_512B_a(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//#else // SSE2 only
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_a(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_128bit_32B_a(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_128bit_64B_a(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_128bit_128B_a(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else // 256 bytes
-//    {
-//      memmove_128bit_256B_a(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE, ALIGNED
-//
-//// Move arbitrarily large amounts of data (dest addr < src addr)
-//// Aligned, streaming version
-//void * memmove_large_as(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  while(numbytes)
-//  // The biggest sizes will go first for alignment. There's no benefit to using
-//  // aligned loads over unaligned loads here, so all are unaligned.
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes < 2) // 1 byte
-//    {
-//      memmove(dest, src, numbytes);
-//      offset = numbytes & -1;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes = 0;
-//    }
-//    else if(numbytes < 4) // 2 bytes
-//    {
-//      memmove_16bit(dest, src, numbytes >> 1);
-//      offset = numbytes & -2;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1;
-//    }
-//    else if(numbytes < 8) // 4 bytes
-//    {
-//      memmove_32bit(dest, src, numbytes >> 2);
-//      offset = numbytes & -4;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 3;
-//    }
-//    else if(numbytes < 16) // 8 bytes
-//    {
-//      memmove_64bit(dest, src, numbytes >> 3);
-//      offset = numbytes & -8;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 7;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_as(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_as(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_512bit_as(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_512bit_128B_as(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_512bit_256B_as(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else if(numbytes < 1024) // 512 bytes
-//    {
-//      memmove_512bit_512B_as(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//    else if(numbytes < 2048) // 1024 bytes (1 kB)
-//    {
-//      memmove_512bit_1kB_as(dest, src, numbytes >> 10);
-//      offset = numbytes & -1024;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 1023;
-//    }
-//    else if(numbytes < 4096) // 2048 bytes (2 kB)
-//    {
-//      memmove_512bit_2kB_as(dest, src, numbytes >> 11);
-//      offset = numbytes & -2048;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 2047;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      memmove_512bit_4kB_as(dest, src, numbytes >> 12);
-//      offset = numbytes & -4096;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 4095;
-//    }
-//#elif __AVX2__
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_as(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_256bit_as(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_256bit_64B_as(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_256bit_128B_as(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else if(numbytes < 512) // 256 bytes
-//    {
-//      memmove_256bit_256B_as(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//    else // 512 bytes
-//    {
-//      memmove_256bit_512B_as(dest, src, numbytes >> 9);
-//      offset = numbytes & -512;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 511;
-//    }
-//#else // SSE4.1 only
-//    else if(numbytes < 32) // 16 bytes
-//    {
-//      memmove_128bit_as(dest, src, numbytes >> 4);
-//      offset = numbytes & -16;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 15;
-//    }
-//    else if(numbytes < 64) // 32 bytes
-//    {
-//      memmove_128bit_32B_as(dest, src, numbytes >> 5);
-//      offset = numbytes & -32;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 31;
-//    }
-//    else if(numbytes < 128) // 64 bytes
-//    {
-//      memmove_128bit_64B_as(dest, src, numbytes >> 6);
-//      offset = numbytes & -64;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 63;
-//    }
-//    else if(numbytes < 256) // 128 bytes
-//    {
-//      memmove_128bit_128B_as(dest, src, numbytes >> 7);
-//      offset = numbytes & -128;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 127;
-//    }
-//    else // 256 bytes
-//    {
-//      memmove_128bit_256B_as(dest, src, numbytes >> 8);
-//      offset = numbytes & -256;
-//      dest = (char *)dest + offset;
-//      src = (char *)src + offset;
-//      numbytes &= 255;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE, ALIGNED, STREAMING
-//
-//// Move arbitrarily large amounts of data in reverse order (ends first)
-//// src addr < dest addr
-//void * memmove_large_reverse(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  void * nextdest = (char *)dest + numbytes;
-//  void * nextsrc = (char *)src + numbytes;
-//
-//  while(numbytes)
-//  // Want smallest sizes to go first, at the tail end, so that the biggest sizes
-//  // are aligned later in this operation (AVX_memmove sets the alignment up for
-//  // this to work).
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes & 1) // 1 byte
-//    {
-//      offset = numbytes & 1;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove(nextdest, nextsrc, 1);
-//      numbytes &= -2;
-//    }
-//    else if(numbytes & 2) // 2 bytes
-//    {
-//      offset = numbytes & 3;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_16bit(nextdest, nextsrc, 1);
-//      numbytes &= -4;
-//    }
-//    else if(numbytes & 4) // 4 bytes
-//    {
-//      offset = numbytes & 7;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_32bit(nextdest, nextsrc, 1);
-//      numbytes &= -8;
-//    }
-//    else if(numbytes & 8) // 8 bytes
-//    {
-//      offset = numbytes & 15;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_64bit(nextdest, nextsrc, 1);
-//      numbytes &= -16;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_128B_u(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_256B_u(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else if(numbytes & 512) // 512 bytes
-//    {
-//      offset = numbytes & 1023;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_512B_u(nextdest, nextsrc, 1);
-//      numbytes &= -1024;
-//    }
-//    else if(numbytes & 1024) // 1024 bytes (1 kB)
-//    {
-//      offset = numbytes & 2047;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_1kB_u(nextdest, nextsrc, 1);
-//      numbytes &= -2048;
-//    }
-//    else if(numbytes & 2048) // 2048 bytes (2 kB)
-//    {
-//      offset = numbytes & 4095;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_2kB_u(nextdest, nextsrc, 1);
-//      numbytes &= -4096;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_4kB_u(nextdest, nextsrc, numbytes >> 12);
-//      numbytes = 0;
-//    }
-//#elif __AVX__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_64B_u(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_128B_u(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_256B_u(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else // 512 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_512B_u(nextdest, nextsrc, numbytes >> 9);
-//      numbytes = 0;
-//    }
-//#else // SSE2 only
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_u(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_32B_u(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_64B_u(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128)// 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_128B_u(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else // 256 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_256B_u(nextdest, nextsrc, numbytes >> 8);
-//      numbytes = 0;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE REVERSE, UNALIGNED
-//
-//// Move arbitrarily large amounts of data in reverse order (ends first)
-//// src addr < dest addr
-//// Aligned version
-//void * memmove_large_reverse_a(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  void * nextdest = (char *)dest + numbytes;
-//  void * nextsrc = (char *)src + numbytes;
-//
-//  while(numbytes)
-//  // Want smallest sizes to go first, at the tail end, so that the biggest sizes
-//  // are aligned later in this operation (AVX_memmove sets the alignment up for
-//  // this to work).
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes & 1) // 1 byte
-//    {
-//      offset = numbytes & 1;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove(nextdest, nextsrc, 1);
-//      numbytes &= -2;
-//    }
-//    else if(numbytes & 2) // 2 bytes
-//    {
-//      offset = numbytes & 3;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_16bit(nextdest, nextsrc, 1);
-//      numbytes &= -4;
-//    }
-//    else if(numbytes & 4) // 4 bytes
-//    {
-//      offset = numbytes & 7;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_32bit(nextdest, nextsrc, 1);
-//      numbytes &= -8;
-//    }
-//    else if(numbytes & 8) // 8 bytes
-//    {
-//      offset = numbytes & 15;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_64bit(nextdest, nextsrc, 1);
-//      numbytes &= -16;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_128B_a(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_256B_a(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else if(numbytes & 512) // 512 bytes
-//    {
-//      offset = numbytes & 1023;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_512B_a(nextdest, nextsrc, 1);
-//      numbytes &= -1024;
-//    }
-//    else if(numbytes & 1024) // 1024 bytes (1 kB)
-//    {
-//      offset = numbytes & 2047;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_1kB_a(nextdest, nextsrc, 1);
-//      numbytes &= -2048;
-//    }
-//    else if(numbytes & 2048) // 2048 bytes (2 kB)
-//    {
-//      offset = numbytes & 4095;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_2kB_a(nextdest, nextsrc, 1);
-//      numbytes &= -4096;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_4kB_a(nextdest, nextsrc, numbytes >> 12);
-//      numbytes = 0;
-//    }
-//#elif __AVX__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_64B_a(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_128B_a(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_256B_a(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else // 512 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_512B_a(nextdest, nextsrc, numbytes >> 9);
-//      numbytes = 0;
-//    }
-//#else // SSE2 only
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_a(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_32B_a(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_64B_a(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128)// 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_128B_a(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else // 256 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_256B_a(nextdest, nextsrc, numbytes >> 8);
-//      numbytes = 0;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE REVERSE, ALIGNED
-//
-//// Move arbitrarily large amounts of data in reverse order (ends first)
-//// src addr < dest addr
-//// Aligned, streaming version
-//void * memmove_large_reverse_as(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest; // memmove is supposed to return the destination
-//  size_t offset = 0; // Offset size needs to match the size of a pointer
-//
-//  void * nextdest = (char *)dest + numbytes;
-//  void * nextsrc = (char *)src + numbytes;
-//
-//  while(numbytes)
-//  // Want smallest sizes to go first, at the tail end, so that the biggest sizes
-//  // are aligned later in this operation (AVX_memmove sets the alignment up for
-//  // this to work).
-//  // NOTE: Each memmove has its own loop so that any one can be used individually.
-//  {
-//    if(numbytes & 1) // 1 byte
-//    {
-//      offset = numbytes & 1;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove(nextdest, nextsrc, 1);
-//      numbytes &= -2;
-//    }
-//    else if(numbytes & 2) // 2 bytes
-//    {
-//      offset = numbytes & 3;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_16bit(nextdest, nextsrc, 1);
-//      numbytes &= -4;
-//    }
-//    else if(numbytes & 4) // 4 bytes
-//    {
-//      offset = numbytes & 7;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_32bit(nextdest, nextsrc, 1);
-//      numbytes &= -8;
-//    }
-//    else if(numbytes & 8) // 8 bytes
-//    {
-//      offset = numbytes & 15;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_64bit(nextdest, nextsrc, 1);
-//      numbytes &= -16;
-//    }
-//#ifdef __AVX512F__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_128B_as(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_256B_as(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else if(numbytes & 512) // 512 bytes
-//    {
-//      offset = numbytes & 1023;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_512B_as(nextdest, nextsrc, 1);
-//      numbytes &= -1024;
-//    }
-//    else if(numbytes & 1024) // 1024 bytes (1 kB)
-//    {
-//      offset = numbytes & 2047;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_1kB_as(nextdest, nextsrc, 1);
-//      numbytes &= -2048;
-//    }
-//    else if(numbytes & 2048) // 2048 bytes (2 kB)
-//    {
-//      offset = numbytes & 4095;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_2kB_as(nextdest, nextsrc, 1);
-//      numbytes &= -4096;
-//    }
-//    else // 4096 bytes (4 kB)
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_512bit_4kB_as(nextdest, nextsrc, numbytes >> 12);
-//      numbytes = 0;
-//    }
-//#elif __AVX2__
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_64B_as(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128) // 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_128B_as(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else if(numbytes & 256) // 256 bytes
-//    {
-//      offset = numbytes & 511;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_256B_as(nextdest, nextsrc, 1);
-//      numbytes &= -512;
-//    }
-//    else // 512 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_256bit_512B_as(nextdest, nextsrc, numbytes >> 9);
-//      numbytes = 0;
-//    }
-//#else // SSE4.1 only
-//    else if(numbytes & 16) // 16 bytes
-//    {
-//      offset = numbytes & 31;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_as(nextdest, nextsrc, 1);
-//      numbytes &= -32;
-//    }
-//    else if(numbytes & 32) // 32 bytes
-//    {
-//      offset = numbytes & 63;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_32B_as(nextdest, nextsrc, 1);
-//      numbytes &= -64;
-//    }
-//    else if(numbytes & 64) // 64 bytes
-//    {
-//      offset = numbytes & 127;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_64B_as(nextdest, nextsrc, 1);
-//      numbytes &= -128;
-//    }
-//    else if(numbytes & 128)// 128 bytes
-//    {
-//      offset = numbytes & 255;
-//      nextdest = (char *)nextdest - offset;
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_128B_as(nextdest, nextsrc, 1);
-//      numbytes &= -256;
-//    }
-//    else // 256 bytes
-//    {
-//      offset = numbytes;
-//      nextdest = (char *)nextdest - offset; // These should match initial src/dest
-//      nextsrc = (char *)nextsrc - offset;
-//      memmove_128bit_256B_as(nextdest, nextsrc, numbytes >> 8);
-//      numbytes = 0;
-//    }
-//#endif
-//  }
-//  return returnval;
-//} // END MEMMOVE LARGE REVERSE, ALIGNED, STREAMING
-//
-////-----------------------------------------------------------------------------
-//// Main Function:
-////-----------------------------------------------------------------------------
-//
-//// General-purpose function to call
-//void * AVX_memmove(void *dest, void *src, size_t numbytes)
-//{
-//  void * returnval = dest;
-//
-//  if((char*)src == (char*)dest)
-//  {
-//    return returnval;
-//  }
-//
-//  if(
-//      ( ((uintptr_t)src & BYTE_ALIGNMENT) == 0 )
-//      &&
-//      ( ((uintptr_t)dest & BYTE_ALIGNMENT) == 0 )
-//    ) // Check alignment
-//  {
-//    if((char *)dest < (char *)src)
-//    {
-//      // This is the fastest case: src and dest are both cache line aligned.
-//      if(numbytes > CACHESIZELIMIT)
-//      {
-//        memmove_large_as(dest, src, numbytes);
-//      }
-//      else
-//      {
-//        memmove_large_a(dest, src, numbytes); // Even if numbytes is small this'll work
-//      }
-//    }
-//    else // src < dest
-//    { // Need to move ends first
-//      if(numbytes > CACHESIZELIMIT)
-//      {
-//        memmove_large_reverse_as(dest, src, numbytes);
-//      }
-//      else
-//      {
-//        memmove_large_reverse_a(dest, src, numbytes);
-//      }
-//    }
-//  }
-//  else // Unaligned
-//  {
-//    size_t numbytes_to_align = (BYTE_ALIGNMENT + 1) - ((uintptr_t)dest & BYTE_ALIGNMENT);
-//
-//    void * destoffset = (char*)dest + numbytes_to_align;
-//    void * srcoffset = (char*)src + numbytes_to_align;
-//
-//    if((char *)dest < (char *)src)
-//    {
-//      if(numbytes > numbytes_to_align)
-//      {
-//        // Get to an aligned position.
-//        // This may be a little slower, but since it'll be mostly scalar operations
-//        // alignment doesn't matter. Worst case it uses two vector functions, and
-//        // this process only needs to be done once per call if dest is unaligned.
-//        memmove_large(dest, src, numbytes_to_align);
-//        // Now this should be faster since stores are aligned.
-//        memmove_large(destoffset, srcoffset, numbytes - numbytes_to_align); // NOTE: Can't use streaming due to potential src misalignment
-//        // On Haswell and up, cross cache line loads have a negligible penalty.
-//        // Thus this will be slower on Sandy & Ivy Bridge, though Ivy Bridge will
-//        // fare a little better (~2x, maybe?). Ryzen should generally fall somewhere
-//        // inbetween Sandy Bridge and Haswell/Skylake on that front.
-//        // NOTE: These are just rough theoretical estimates.
-//      }
-//      else // Small size
-//      {
-//        memmove_large(dest, src, numbytes);
-//      }
-//    }
-//    else // src < dest
-//    {
-//      if(numbytes > numbytes_to_align)
-//      {
-//        // Move bulk, up to lowest alignment line
-//        memmove_large_reverse(destoffset, srcoffset, numbytes - numbytes_to_align);
-//        // Move remainder
-//        memmove_large_reverse(dest, src, numbytes_to_align);
-//      }
-//      else // Small size
-//      {
-//        memmove_large_reverse(dest, src, numbytes);
-//      }
-//    }
-//  }
-//
-//  return returnval;
-//}
+#pragma once
+
+#include <src/simd_stl/algorithm/AdvanceBytes.h>
+#include <simd_stl/compatibility/SimdCompatibility.h>
+
+#include <simd_stl/compatibility/FunctionAttributes.h>
+#include <simd_stl/arch/ProcessorFeatures.h>
+
+#include <src/simd_stl/type_traits/SimdTypeCheck.h>
+
+#define __SIMD_STL_COPY_CACHE_SIZE_LIMIT 3*1024*1024
+
+#if !defined(__DISPATCH_VECTORIZED_MOVE)
+#  define __DISPATCH_VECTORIZED_MOVE(byteCount, shift) \
+    if constexpr (_Streaming_)  {   \
+        _VectorizedMoveImplementation_::MoveStreamAligned<byteCount>(destination, source, bytes >> shift); \
+    }\
+    else {  \
+        _VectorizedMoveImplementation_::Move<byteCount>(destination, source, bytes >> shift); \
+    }
+#endif // !defined(__DISPATCH_VECTORIZED_MOVE)
+
+#if !defined(__DISPATCH_VECTORIZED_REVERSED_MOVE)
+#  define __DISPATCH_VECTORIZED_REVERSED_MOVE(byteCount, shift) \
+    if constexpr (_Streaming_)  {   \
+        _VectorizedMoveImplementation_::MoveStreamAligned<byteCount>(nextDestination, nextSource, 1); \
+    }\
+    else {  \
+        _VectorizedMoveImplementation_::Move<byteCount>(nextDestination, nextSource, 1); \
+    }
+#endif // !defined(__DISPATCH_VECTORIZED_REVERSED_MOVE)
+
+#if !defined(__RECALCULATE_REMAINING)
+#  define __RECALCULATE_REMAINING(byteCount)       \
+    offset = bytes & -byteCount;                            \
+    destination = static_cast<char*>(destination) + offset; \
+    source = static_cast<const char*>(source) + offset;     \
+    bytes &= (byteCount - 1);
+#endif // !defined(__RECALCULATE_REMAINING)
+
+#if !defined(__REVERSED_MEMMOVE_CALL_WITH_DISPATCH)
+#  define __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(byteCount)                \
+    offset = bytes & ((byteCount * 2) - 1);              \
+    nextDestination = (char *)nextDestination - offset;     \
+    nextSource = (char *)nextSource - offset;               \
+    __DISPATCH_VECTORIZED_REVERSED_MOVE(byteCount, 0);      \
+    bytes &= -(byteCount << 1);
+#endif // !defined(__REVERSED_MEMMOVE_CALL_WITH_DISPATCH)
+
+#if !defined(__REVERSED_MEMMOVE_CALL)
+#  define __REVERSED_MEMMOVE_CALL(byteCount)                \
+    offset = bytes & ((byteCount * 2) - 1);              \
+    nextDestination = (char *)nextDestination - offset;     \
+    nextSource = (char *)nextSource - offset;               \
+    _VectorizedMoveImplementation_::Move<byteCount>(nextDestination, nextSource, 1); \
+    bytes &= -(byteCount << 1);
+#endif // !defined(__REVERSED_MEMMOVE_CALL)
+
+__SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    bool                _Aligned_>
+struct _MoveVectorized;
+
+template <bool _Aligned_>
+struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
+    _MoveVectorized<arch::CpuFeature::None, false> 
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 1);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 1);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 2);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 2);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 3);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 3);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 4);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 4);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
+    _MoveVectorized<arch::CpuFeature::None, true> 
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 1);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 1);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 2);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 2);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 3);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 3);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 4);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 4);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX, true>:
+    _MoveVectorized<arch::CpuFeature::None, true> 
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + length;
+        __m256i* nextDestination    = __ymmWordDestination + length;
+
+        if (__ymmWordDestination < __ymmWordSource)
+            while (__ymmWordDestination != nextDestination)
+                _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++));
+        else
+            while (nextDestination != __ymmWordDestination)
+                _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 1);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 1);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 2);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 2);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 3);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 3);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 4);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 4);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX, false>:
+    _MoveVectorized<arch::CpuFeature::None, true> 
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + length;
+        __m256i* nextDestination    = __ymmWordDestination + length;
+
+        if (__ymmWordDestination < __ymmWordSource)
+            while (__ymmWordDestination != nextDestination)
+                _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++));
+        else
+            while (nextDestination != __ymmWordDestination)
+                _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 1);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 1);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 2);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 2);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 3);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 3);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 4);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 4);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
+    _MoveVectorized<arch::CpuFeature::None, false>
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + length;
+        __m512i* nextDestination    = __zmmWordDestination + length;
+
+        if (__zmmWordDestination < __zmmWordSource)
+            while (__zmmWordDestination != nextDestination)
+                _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++));
+        else
+            while (nextDestination != __zmmWordDestination)
+                _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 1);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 1);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 2);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 2);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 3);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 3);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<1024>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 4);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 4);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2048>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 5);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 5);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4096>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 6);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 6);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_storeu_si512(__zmmWordDestination++, _mm512_loadu_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_storeu_si512(--nextDestination, _mm512_loadu_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
+    _MoveVectorized<arch::CpuFeature::None, false>
+{
+    template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + length;
+        __m512i* nextDestination    = __zmmWordDestination + length;
+
+        if (__zmmWordDestination < __zmmWordSource)
+            while (__zmmWordDestination != nextDestination)
+                _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++));
+        else
+            while (nextDestination != __zmmWordDestination)
+                _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 1);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 1);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 2);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 2);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 3);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 3);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<1024>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 4);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 4);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2048>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 5);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 5);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4096>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 6);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 6);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_store_si512(__zmmWordDestination++, _mm512_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_store_si512(--nextDestination, _mm512_load_si512(--nextSource)));
+            }
+        }
+
+        return destination;
+    }
+
+    template <sizetype    _ElementSize_>
+    static void* MoveStreamAligned(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* MoveStreamAligned<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + length;
+        __m512i* nextDestination    = __zmmWordDestination + length;
+
+        if (__zmmWordDestination < __zmmWordSource)
+            while (__zmmWordDestination != nextDestination)
+                _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++));
+        else
+            while (nextDestination != __zmmWordDestination)
+                _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource));
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 1);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 1);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 2);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 2);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 3);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 3);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<1024>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 4);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 4);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<2048>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 5);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 5);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(32, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<4096>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m512i* __zmmWordSource  = reinterpret_cast<const __m512i*>(source);
+        __m512i* __zmmWordDestination   = reinterpret_cast<__m512i*>(destination);
+
+        const __m512i* nextSource   = __zmmWordSource + (length << 6);
+        __m512i* nextDestination    = __zmmWordDestination + (length << 6);
+
+        if (__zmmWordDestination < __zmmWordSource) {
+            while (__zmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_stream_si512(__zmmWordDestination++, _mm512_stream_load_si512(__zmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __zmmWordDestination) {
+                __SIMD_STL_REPEAT_N(64, _mm512_stream_si512(--nextDestination, _mm512_stream_load_si512(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
+    _MoveVectorized<arch::CpuFeature::None, false> 
+{
+    template <sizetype    _ElementSize_>
+    static void* MoveStreamAligned(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* MoveStreamAligned<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource));
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 1);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 1);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 2);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 2);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 3);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 3);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + (length << 4);
+        __m128i* nextDestination    = __xmmWordDestination + (length << 4);
+
+        if (__xmmWordDestination < __xmmWordSource) {
+            while (__xmmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __xmmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::SSE41, false> :
+    _MoveVectorized<arch::CpuFeature::SSE2, false>
+{};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX2, false> :
+    _MoveVectorized<arch::CpuFeature::AVX, false>
+{};
+
+template <>
+struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
+    _MoveVectorized<arch::CpuFeature::None, true> 
+{
+    template <sizetype    _ElementSize_>
+    static void* MoveStreamAligned(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* MoveStreamAligned<32>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + length;
+        __m256i* nextDestination    = __ymmWordDestination + length;
+
+        if (__ymmWordDestination < __ymmWordSource)
+            while (__ymmWordDestination != nextDestination)
+                _mm256_stream_si256(__ymmWordDestination++, _mm256_stream_load_si256(__ymmWordSource++));
+        else
+            while (nextDestination != __ymmWordDestination)
+                _mm256_stream_si256(--nextDestination, _mm256_stream_load_si256(--nextSource));
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<64>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 1);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 1);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_stream_si256(__ymmWordDestination++, _mm256_stream_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(2, _mm256_stream_si256(--nextDestination, _mm256_stream_load_si256(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<128>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 2);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 2);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_stream_si256(__ymmWordDestination++, _mm256_stream_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(4, _mm256_stream_si256(--nextDestination, _mm256_stream_load_si256(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<256>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 3);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 3);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_stream_si256(__ymmWordDestination++, _mm256_stream_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(8, _mm256_stream_si256(--nextDestination, _mm256_stream_load_si256(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+
+    template <>
+    static void* MoveStreamAligned<512>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + (length << 4);
+        __m256i* nextDestination    = __ymmWordDestination + (length << 4);
+
+        if (__ymmWordDestination < __ymmWordSource) {
+            while (__ymmWordDestination != nextDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_stream_si256(__ymmWordDestination++, _mm256_stream_load_si256(__ymmWordSource++)));
+            }
+        }
+        else {
+            while (nextDestination != __ymmWordDestination) {
+                __SIMD_STL_REPEAT_N(16, _mm256_stream_si256(--nextDestination, _mm256_stream_load_si256(--nextSource)));
+            }
+        }
+
+        _mm_sfence();
+
+        return destination;
+    }
+};
+
+template <
+    bool                _Aligned_,
+    bool                _Streaming_,
+    arch::CpuFeature    _SimdGeneration_>
+struct _MemmoveVectorizedChooser;
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> {
+    static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
+
+    void operator()(
+        void* destination,
+        const void* source,
+        sizetype    bytes) noexcept
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::SSE2, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                _VectorizedMoveImplementation_::Move<1>(destination, source, bytes);
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                _VectorizedMoveImplementation_::Move<2>(destination, source, bytes >> 1);
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                _VectorizedMoveImplementation_::Move<4>(destination, source, bytes >> 2);
+                __RECALCULATE_REMAINING(4)
+            }
+            else
+            {
+                _VectorizedMoveImplementation_::Move<8>(destination, source, bytes >> 3);
+                __RECALCULATE_REMAINING(8)
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> {
+    static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::SSE2, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                _VectorizedMoveImplementation_::Move<1>(destination, source, bytes);
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset; 
+                source = static_cast<const char*>(source) + offset; 
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                _VectorizedMoveImplementation_::Move<2>(destination, source, bytes >> 1);
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                _VectorizedMoveImplementation_::Move<4>(destination, source, bytes >> 2);
+                __RECALCULATE_REMAINING(4)
+            }
+            else if (bytes < 16)
+            {
+                _VectorizedMoveImplementation_::Move<8>(destination, source, bytes >> 3);
+                __RECALCULATE_REMAINING(8)
+            }
+            else if (bytes < 32)
+            {
+                _VectorizedMoveImplementation_::Move<16>(destination, source, bytes >> 4);
+                __RECALCULATE_REMAINING(16)
+            }
+            else if (bytes < 64)
+            {
+                _VectorizedMoveImplementation_::Move<32>(destination, source, bytes >> 5);
+                __RECALCULATE_REMAINING(32)
+            }
+            else if (bytes < 128)
+            {
+                _VectorizedMoveImplementation_::Move<64>(destination, source, bytes >> 6);
+                __RECALCULATE_REMAINING(64)
+            }
+            else if (bytes < 256)
+            {
+                _VectorizedMoveImplementation_::Move<128>(destination, source, bytes >> 7);
+                __RECALCULATE_REMAINING(128)
+            }
+            else
+            {
+                _VectorizedMoveImplementation_::Move<256>(destination, source, bytes >> 8);
+                __RECALCULATE_REMAINING(256)
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE41> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::SSE41, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                __DISPATCH_VECTORIZED_MOVE(1, 0)
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                __DISPATCH_VECTORIZED_MOVE(2, 1)
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                __DISPATCH_VECTORIZED_MOVE(4, 2)
+                __RECALCULATE_REMAINING(4)
+            }
+            else if (bytes < 16)
+            {
+                __DISPATCH_VECTORIZED_MOVE(8, 3)
+                __RECALCULATE_REMAINING(8)
+            }
+            else if (bytes < 32)
+            {
+                __DISPATCH_VECTORIZED_MOVE(16, 4)
+                __RECALCULATE_REMAINING(16)
+            }
+            else if (bytes < 64)
+            {
+                __DISPATCH_VECTORIZED_MOVE(32, 5)
+                __RECALCULATE_REMAINING(32)
+            }
+            else if (bytes < 128)
+            {
+                __DISPATCH_VECTORIZED_MOVE(64, 6)
+                __RECALCULATE_REMAINING(64)
+            }
+            else if (bytes < 256)
+            {
+                __DISPATCH_VECTORIZED_MOVE(128, 7)
+                __RECALCULATE_REMAINING(128)
+            }
+            else
+            {
+                __DISPATCH_VECTORIZED_MOVE(256, 8)
+                __RECALCULATE_REMAINING(256)
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
+    static_assert(!_Streaming_, "Streaming not supported for AVX. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                _VectorizedMoveImplementation_::Move<1>(destination, source, bytes);
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                _VectorizedMoveImplementation_::Move<2>(destination, source, bytes >> 1);
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                _VectorizedMoveImplementation_::Move<4>(destination, source, bytes >> 2);
+                __RECALCULATE_REMAINING(4)
+            }
+            else if (bytes < 16)
+            {
+                _VectorizedMoveImplementation_::Move<8>(destination, source, bytes >> 3);
+                __RECALCULATE_REMAINING(8)
+            }
+            else if (bytes < 32)
+            {
+                _VectorizedMoveImplementation_::Move<16>(destination, source, bytes >> 4);
+                __RECALCULATE_REMAINING(16)
+            }
+            else if (bytes < 64)
+            {
+                _VectorizedMoveImplementation_::Move<32>(destination, source, bytes >> 5);
+                __RECALCULATE_REMAINING(32)
+            }
+            else if (bytes < 128)
+            {
+                _VectorizedMoveImplementation_::Move<64>(destination, source, bytes >> 6);
+                __RECALCULATE_REMAINING(64)
+            }
+            else if (bytes < 256)
+            {
+                _VectorizedMoveImplementation_::Move<128>(destination, source, bytes >> 7);
+                __RECALCULATE_REMAINING(128)
+            }
+            else if (bytes < 512)
+            {
+                _VectorizedMoveImplementation_::Move<256>(destination, source, bytes >> 8);
+                __RECALCULATE_REMAINING(256)
+            }
+            else
+            {
+                _VectorizedMoveImplementation_::Move<512>(destination, source, bytes >> 9);
+                __RECALCULATE_REMAINING(512)
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX2, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                __DISPATCH_VECTORIZED_MOVE(1, 0);
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                __DISPATCH_VECTORIZED_MOVE(2, 1)
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                __DISPATCH_VECTORIZED_MOVE(4, 2)
+                __RECALCULATE_REMAINING(4)
+            }
+            else if (bytes < 16)
+            {
+                __DISPATCH_VECTORIZED_MOVE(8, 3)
+                __RECALCULATE_REMAINING(8)
+            }
+            else if (bytes < 32)
+            {
+                __DISPATCH_VECTORIZED_MOVE(16, 4)
+                __RECALCULATE_REMAINING(16)
+            }
+            else if (bytes < 64)
+            {
+                __DISPATCH_VECTORIZED_MOVE(32, 5)
+                __RECALCULATE_REMAINING(32)
+            }
+            else if (bytes < 128)
+            {
+                __DISPATCH_VECTORIZED_MOVE(64, 6)
+                __RECALCULATE_REMAINING(64)
+            }
+            else if (bytes < 256)
+            {
+                __DISPATCH_VECTORIZED_MOVE(128, 7)
+                __RECALCULATE_REMAINING(128)
+            }
+            else if (bytes < 512)
+            {
+                __DISPATCH_VECTORIZED_MOVE(256, 8)
+                __RECALCULATE_REMAINING(256)
+            }
+            else
+            {
+                __DISPATCH_VECTORIZED_MOVE(512, 9)
+                __RECALCULATE_REMAINING(512);
+            }
+        }
+    }
+};
+
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512F> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX512F, _Aligned_>;
+        sizetype offset = 0;
+
+        while (bytes)
+        {
+            if (bytes < 2)
+            {
+                __DISPATCH_VECTORIZED_MOVE(1, 0);
+                offset = bytes & -1;
+                destination = static_cast<char*>(destination) + offset;
+                source = static_cast<const char*>(source) + offset;
+                bytes = 0;
+            }
+            else if (bytes < 4)
+            {
+                __DISPATCH_VECTORIZED_MOVE(2, 1)
+                __RECALCULATE_REMAINING(2)
+            }
+            else if (bytes < 8)
+            {
+                __DISPATCH_VECTORIZED_MOVE(4, 2)
+                __RECALCULATE_REMAINING(4)
+            }
+            else if (bytes < 16)
+            {
+                __DISPATCH_VECTORIZED_MOVE(8, 3)
+                __RECALCULATE_REMAINING(8)
+            }
+            else if (bytes < 32)
+            {
+                __DISPATCH_VECTORIZED_MOVE(16, 4)
+                __RECALCULATE_REMAINING(16)
+            }
+            else if (bytes < 64)
+            {
+                __DISPATCH_VECTORIZED_MOVE(32, 5)
+                __RECALCULATE_REMAINING(32)
+            }
+            else if (bytes < 128)
+            {
+                __DISPATCH_VECTORIZED_MOVE(64, 6)
+                __RECALCULATE_REMAINING(64)
+            }
+            else if (bytes < 256)
+            {
+                __DISPATCH_VECTORIZED_MOVE(128, 7)
+                __RECALCULATE_REMAINING(128)
+            }
+            else if (bytes < 512)
+            {
+                __DISPATCH_VECTORIZED_MOVE(256, 8)
+                __RECALCULATE_REMAINING(256)
+            }
+            else if (bytes < 1024)
+            {
+                __DISPATCH_VECTORIZED_MOVE(512, 9)
+                __RECALCULATE_REMAINING(512)
+            }
+            else if (bytes < 2048)
+            {
+                __DISPATCH_VECTORIZED_MOVE(1024, 10)
+                __RECALCULATE_REMAINING(1024)
+            }
+            else if (bytes < 4096)
+            {
+                __DISPATCH_VECTORIZED_MOVE(2048, 11)
+                __RECALCULATE_REMAINING(2048)
+            }
+            else
+            {
+                __DISPATCH_VECTORIZED_MOVE(4096, 12)
+                __RECALCULATE_REMAINING(4096);
+            }
+        }
+    }
+};
+
+template <
+    bool                _Aligned_,
+    bool                _Streaming_,
+    arch::CpuFeature    _SimdGeneration_>
+struct _MemmoveVectorizedReversedChooser {};
+
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> {
+    static_assert(!_Streaming_, "Streaming not supported. ");
+
+    void operator()(
+        void* destination,
+        const void* source,
+        sizetype    bytes) noexcept
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::None, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination   = static_cast<char*>(destination) + bytes;
+        const void* nextSource  = static_cast<const char*>(source) + bytes;
+
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> {
+    static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::SSE2, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination       = static_cast<char*>(destination) + bytes;
+        const void* nextSource      = static_cast<const char*>(source) + bytes;
+
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else if (bytes & 8)
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+            else if (bytes & 16)
+            {
+                __REVERSED_MEMMOVE_CALL(16);
+            }
+            else if (bytes & 32)
+            {
+                __REVERSED_MEMMOVE_CALL(32);
+            }
+            else if (bytes & 64)
+            {
+                __REVERSED_MEMMOVE_CALL(64);
+            }
+            else if (bytes & 128)
+            {
+                __REVERSED_MEMMOVE_CALL(128);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL(256);
+            }
+        }
+    }
+};
+
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE41> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::SSE41, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination   = static_cast<char*>(destination) + bytes;
+        const void* nextSource  = static_cast<const char*>(source) + bytes;
+
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else if (bytes & 8)
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+            else if (bytes & 16)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
+            }
+            else if (bytes & 32)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
+            }
+            else if (bytes & 64)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
+            }
+            else if (bytes & 128)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
+            }
+        }
+    }
+};
+
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
+    static_assert(!_Streaming_, "Streaming not supported for AVX. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination   = static_cast<char*>(destination) + bytes;
+        const void* nextSource  = static_cast<const char*>(source) + bytes;
+
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else if (bytes & 8)
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+            else if (bytes & 16)
+            {
+                __REVERSED_MEMMOVE_CALL(16);
+            }
+            else if (bytes & 32)
+            {
+                __REVERSED_MEMMOVE_CALL(32);
+            }
+            else if (bytes & 64)
+            {
+                __REVERSED_MEMMOVE_CALL(64);
+            }
+            else if (bytes & 128)
+            {
+                __REVERSED_MEMMOVE_CALL(128);
+            }
+            else if (bytes & 256)
+            {
+                __REVERSED_MEMMOVE_CALL(256);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL(512);
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX2, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination   = static_cast<char*>(destination) + bytes;
+        const void* nextSource  = static_cast<const char*>(source) + bytes;
+
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else if (bytes & 8)
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+            else if (bytes & 16)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
+            }
+            else if (bytes & 32)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
+            }
+            else if (bytes & 64)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
+            }
+            else if (bytes & 128)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
+            }
+            else if (bytes & 256)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(512);
+            }
+        }
+    }
+};
+
+template <
+    bool _Aligned_,
+    bool _Streaming_>
+struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512F> {
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+
+    void operator()(
+        void*       destination, 
+        const void* source,
+        sizetype    bytes) noexcept 
+    {
+        using _VectorizedMoveImplementation_ = _MoveVectorized<arch::CpuFeature::AVX512F, _Aligned_>;
+        sizetype offset = 0;
+
+        void* nextDestination   = static_cast<char*>(destination) + bytes;
+        const void* nextSource  = static_cast<const char*>(source) + bytes;
+
+        while (bytes)
+        {
+            if (bytes & 1)
+            {
+                __REVERSED_MEMMOVE_CALL(1);
+            }
+            else if (bytes & 2)
+            {
+                __REVERSED_MEMMOVE_CALL(2);
+            }
+            else if (bytes & 4)
+            {
+                __REVERSED_MEMMOVE_CALL(4);
+            }
+            else if (bytes & 8)
+            {
+                __REVERSED_MEMMOVE_CALL(8);
+            }
+            else if (bytes & 16)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
+            }
+            else if (bytes & 32)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
+            }
+            else if (bytes & 64)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
+            }
+            else if (bytes & 128)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
+            }
+            else if (bytes & 256)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
+            }
+            else if (bytes & 512)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(512);
+            }
+            else if (bytes & 1024)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(1024);
+            }
+            else if (bytes & 2048)
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(2048);
+            }
+            else
+            {
+                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(4096);
+            }
+        }
+    }
+};
+
+template <arch::CpuFeature _SimdGeneration_>
+void* _MemmoveVectorizedInternal(
+    void*       destination,
+    const void* source,
+    sizetype    bytes) noexcept
+{
+    using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
+    void* returnValue = destination;
+
+    constexpr bool _IsStreamingAvailable_ = static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F);
+
+    if((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
+    {
+        if (destination < source) {
+            if constexpr (_IsStreamingAvailable_) {
+                if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
+                    _MemmoveVectorizedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
+                    return returnValue;
+                }
+            }
+
+            _MemmoveVectorizedChooser<true, false, _SimdGeneration_>()(destination, source, bytes);
+        }
+        else {
+            if constexpr (_IsStreamingAvailable_) {
+                if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
+                    _MemmoveVectorizedReversedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
+                    return returnValue;
+                }
+            }
+
+            _MemmoveVectorizedReversedChooser<true, false, _SimdGeneration_>()(destination, source, bytes);
+        }
+    }
+    else
+    {
+        sizetype alignedBytes = (sizeof(_SimdType_)) - ((uintptr)destination & (sizeof(_SimdType_) - 1));
+
+        if (destination < source) {
+            if (bytes > alignedBytes) {
+                void* destinationWithOffset = static_cast<char*>(destination) + alignedBytes;
+                const void* sourceWithOffset = static_cast<const char*>(source) + alignedBytes;
+
+                _MemmoveVectorizedChooser<false, false, _SimdGeneration_>()(destination, source, alignedBytes);
+                _MemmoveVectorizedChooser<false, false, _SimdGeneration_>()(destinationWithOffset, sourceWithOffset, bytes - alignedBytes);
+            }
+            else
+                _MemmoveVectorizedChooser<false, false, _SimdGeneration_>()(destination, source, bytes);
+        }
+        else {
+            if (bytes > alignedBytes)
+            {
+                void* destinationWithOffset = static_cast<char*>(destination) + alignedBytes;
+                const void* sourceWithOffset = static_cast<const char*>(source) + alignedBytes;
+
+                _MemmoveVectorizedReversedChooser<false, false, _SimdGeneration_>()(destinationWithOffset, sourceWithOffset, bytes - alignedBytes);
+                _MemmoveVectorizedReversedChooser<false, false, _SimdGeneration_>()(destination, source, alignedBytes);
+            }
+            else
+                _MemmoveVectorizedReversedChooser<false, false, _SimdGeneration_>()(destination, source, bytes);
+        }
+    }
+
+    return returnValue;
+}
+
+template <>
+void* _MemmoveVectorizedInternal<arch::CpuFeature::None>(
+    void*       destination,
+    const void* source,
+    sizetype    bytes) noexcept
+{
+
+    if (destination < source)
+        _MemmoveVectorizedChooser<false, false, arch::CpuFeature::None>()(destination, source, bytes);
+    else
+        _MemmoveVectorizedReversedChooser<false, false, arch::CpuFeature::None>()(destination, source, bytes);
+
+    return destination;
+}
+
+void* _MemmoveVectorized(
+    void*       destination,
+    const void* source,
+    sizetype    bytes) noexcept
+{
+    if (arch::ProcessorFeatures::AVX512F())
+        return _MemmoveVectorizedInternal<arch::CpuFeature::AVX512F>(destination, source, bytes);
+    else if (arch::ProcessorFeatures::AVX2())
+        return _MemmoveVectorizedInternal<arch::CpuFeature::AVX2>(destination, source, bytes);
+    else if (arch::ProcessorFeatures::AVX())
+        return _MemmoveVectorizedInternal<arch::CpuFeature::AVX>(destination, source, bytes);
+    else if (arch::ProcessorFeatures::SSE41())
+        return _MemmoveVectorizedInternal<arch::CpuFeature::SSE41>(destination, source, bytes);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _MemmoveVectorizedInternal<arch::CpuFeature::SSE2>(destination, source, bytes);
+
+    return _MemmoveVectorizedInternal<arch::CpuFeature::None>(destination, source, bytes);
+}
+
+__SIMD_STL_ALGORITHM_NAMESPACE_END

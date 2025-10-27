@@ -44,7 +44,6 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
         for (; firstUnwrapped != lastUnwrapped; ++destinationUnwrapped, ++firstUnwrapped)
             *destinationUnwrapped = *firstUnwrapped;
 
-
         _SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
     }
 
