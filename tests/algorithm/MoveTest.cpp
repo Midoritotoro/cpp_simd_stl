@@ -91,7 +91,7 @@ int main() {
         assert(v == expected);
     }
     {
-        const size_t N = 1'000'000'0;
+        const size_t N = 1'000'000'00;
         std::vector<int> src(N);
         for (size_t i = 0; i < N; ++i) src[i] = static_cast<int>(i);
 

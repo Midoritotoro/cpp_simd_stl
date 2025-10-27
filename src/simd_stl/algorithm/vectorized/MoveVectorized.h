@@ -66,7 +66,7 @@ struct _MoveVectorized;
 template <bool _Aligned_>
 struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -76,7 +76,7 @@ struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
     }
 
     template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -98,7 +98,7 @@ struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -120,7 +120,7 @@ struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -142,7 +142,7 @@ struct _MoveVectorized<arch::CpuFeature::None, _Aligned_> {
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -169,7 +169,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     _MoveVectorized<arch::CpuFeature::None, false> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -179,7 +179,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -201,7 +201,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -223,7 +223,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -245,7 +245,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -267,7 +267,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -289,7 +289,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -315,7 +315,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -341,7 +341,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -367,7 +367,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -398,7 +398,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     _MoveVectorized<arch::CpuFeature::None, true> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -408,7 +408,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
         template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -430,7 +430,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -452,7 +452,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -474,7 +474,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -496,7 +496,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -518,7 +518,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -544,7 +544,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -570,7 +570,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -596,7 +596,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -627,7 +627,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     _MoveVectorized<arch::CpuFeature::None, true> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -637,7 +637,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
         template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -659,7 +659,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -681,7 +681,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -703,7 +703,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -725,7 +725,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -747,7 +747,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -769,7 +769,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -795,7 +795,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -821,7 +821,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -847,7 +847,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     }
 
     template <>
-    static void* Move<512>(
+    simd_stl_always_inline static void* Move<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -878,7 +878,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     _MoveVectorized<arch::CpuFeature::None, true> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -888,7 +888,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -910,7 +910,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -932,7 +932,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -954,7 +954,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -976,7 +976,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -998,7 +998,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1020,7 +1020,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1046,7 +1046,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1072,7 +1072,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1098,7 +1098,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
-    static void* Move<512>(
+    simd_stl_always_inline static void* Move<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1129,7 +1129,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     _MoveVectorized<arch::CpuFeature::None, false>
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1139,7 +1139,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
         template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1161,7 +1161,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1183,7 +1183,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1205,7 +1205,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1227,7 +1227,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void* destination,
         const void* source,
         sizetype    length) noexcept
@@ -1249,7 +1249,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void* destination,
         const void* source,
         sizetype    length) noexcept
@@ -1271,7 +1271,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1293,7 +1293,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1319,7 +1319,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1345,7 +1345,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<512>(
+    simd_stl_always_inline static void* Move<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1371,7 +1371,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<1024>(
+    simd_stl_always_inline static void* Move<1024>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1397,7 +1397,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<2048>(
+    simd_stl_always_inline static void* Move<2048>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1423,7 +1423,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     }
 
     template <>
-    static void* Move<4096>(
+    simd_stl_always_inline static void* Move<4096>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1454,7 +1454,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     _MoveVectorized<arch::CpuFeature::None, false>
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1464,7 +1464,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
         template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1486,7 +1486,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1508,7 +1508,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1530,7 +1530,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1553,7 +1553,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
 
     
     template <>
-    static void* Move<16>(
+    simd_stl_always_inline static void* Move<16>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -1575,7 +1575,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<32>(
+    simd_stl_always_inline static void* Move<32>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -1597,7 +1597,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<64>(
+    simd_stl_always_inline static void* Move<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1619,7 +1619,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<128>(
+    simd_stl_always_inline static void* Move<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1645,7 +1645,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<256>(
+    simd_stl_always_inline static void* Move<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1671,7 +1671,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<512>(
+    simd_stl_always_inline static void* Move<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1697,7 +1697,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<1024>(
+    simd_stl_always_inline static void* Move<1024>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1723,7 +1723,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<2048>(
+    simd_stl_always_inline static void* Move<2048>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1749,7 +1749,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* Move<4096>(
+    simd_stl_always_inline static void* Move<4096>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1775,7 +1775,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <sizetype    _ElementSize_>
-    static void* MoveStreamAligned(
+    simd_stl_always_inline static void* MoveStreamAligned(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1785,7 +1785,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<64>(
+    simd_stl_always_inline static void* MoveStreamAligned<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1809,7 +1809,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<128>(
+    simd_stl_always_inline static void* MoveStreamAligned<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1837,7 +1837,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<256>(
+    simd_stl_always_inline static void* MoveStreamAligned<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1865,7 +1865,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<512>(
+    simd_stl_always_inline static void* MoveStreamAligned<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1893,7 +1893,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<1024>(
+    simd_stl_always_inline static void* MoveStreamAligned<1024>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1921,7 +1921,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<2048>(
+    simd_stl_always_inline static void* MoveStreamAligned<2048>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1949,7 +1949,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     }
 
     template <>
-    static void* MoveStreamAligned<4096>(
+    simd_stl_always_inline static void* MoveStreamAligned<4096>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -1982,7 +1982,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     _MoveVectorized<arch::CpuFeature::None, false> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -1992,7 +1992,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2014,7 +2014,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2036,7 +2036,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2058,7 +2058,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2080,7 +2080,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <sizetype    _ElementSize_>
-    static void* MoveStreamAligned(
+    simd_stl_always_inline static void* MoveStreamAligned(
         void* destination,
         const void* source,
         sizetype    length) noexcept
@@ -2090,7 +2090,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<16>(
+    simd_stl_always_inline static void* MoveStreamAligned<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2114,7 +2114,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<32>(
+    simd_stl_always_inline static void* MoveStreamAligned<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2142,7 +2142,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<64>(
+    simd_stl_always_inline static void* MoveStreamAligned<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2170,7 +2170,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<128>(
+    simd_stl_always_inline static void* MoveStreamAligned<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2198,7 +2198,7 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<256>(
+    simd_stl_always_inline static void* MoveStreamAligned<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2241,7 +2241,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     _MoveVectorized<arch::CpuFeature::None, true> 
 {
     template <sizetype    _ElementSize_>
-    static void* Move(
+    simd_stl_always_inline static void* Move(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2251,7 +2251,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* Move<1>(
+    simd_stl_always_inline static void* Move<1>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2273,7 +2273,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* Move<2>(
+    simd_stl_always_inline static void* Move<2>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2295,7 +2295,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* Move<4>(
+    simd_stl_always_inline static void* Move<4>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2317,7 +2317,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* Move<8>(
+    simd_stl_always_inline static void* Move<8>(
         void*       destination,
         const void* source,
         sizetype    length) noexcept
@@ -2339,7 +2339,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <sizetype    _ElementSize_>
-    static void* MoveStreamAligned(
+    simd_stl_always_inline static void* MoveStreamAligned(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2349,7 +2349,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<16>(
+    simd_stl_always_inline static void* MoveStreamAligned<16>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2373,7 +2373,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<32>(
+    simd_stl_always_inline static void* MoveStreamAligned<32>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2397,7 +2397,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<64>(
+    simd_stl_always_inline static void* MoveStreamAligned<64>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2425,7 +2425,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<128>(
+    simd_stl_always_inline static void* MoveStreamAligned<128>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2453,7 +2453,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<256>(
+    simd_stl_always_inline static void* MoveStreamAligned<256>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2481,7 +2481,7 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     }
 
     template <>
-    static void* MoveStreamAligned<512>(
+    simd_stl_always_inline static void* MoveStreamAligned<512>(
         void*       destination,
         const void* source, 
         sizetype    length) noexcept
@@ -2521,7 +2521,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> {
     static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void* destination,
         const void* source,
         sizetype    bytes) noexcept
@@ -2564,7 +2564,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> {
     static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -2632,7 +2632,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE41> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -2700,7 +2700,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
     static_assert(!_Streaming_, "Streaming not supported for AVX. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -2773,7 +2773,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -2847,7 +2847,7 @@ template <
 struct _MemmoveVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512F> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -2942,7 +2942,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::None> {
     static_assert(!_Streaming_, "Streaming not supported. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void* destination,
         const void* source,
         sizetype    bytes) noexcept
@@ -2985,7 +2985,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> {
     static_assert(!_Streaming_, "Streaming not supported for SSE2. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -3050,7 +3050,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE41> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -3122,7 +3122,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
     static_assert(!_Streaming_, "Streaming not supported for AVX. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -3190,7 +3190,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX2> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -3264,7 +3264,7 @@ template <
 struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512F> {
     static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
 
-    void operator()(
+    simd_stl_always_inline void operator()(
         void*       destination, 
         const void* source,
         sizetype    bytes) noexcept 
@@ -3345,7 +3345,7 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 };
 
 template <arch::CpuFeature _SimdGeneration_>
-void* _MemmoveVectorizedInternal(
+simd_stl_always_inline void* _MemmoveVectorizedInternal(
     void*       destination,
     const void* source,
     sizetype    bytes) noexcept
@@ -3413,7 +3413,7 @@ void* _MemmoveVectorizedInternal(
 }
 
 template <>
-void* _MemmoveVectorizedInternal<arch::CpuFeature::None>(
+simd_stl_always_inline void* _MemmoveVectorizedInternal<arch::CpuFeature::None>(
     void*       destination,
     const void* source,
     sizetype    bytes) noexcept
