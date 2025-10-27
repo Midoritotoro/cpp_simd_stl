@@ -44,7 +44,7 @@
     nextDestination = (char *)nextDestination - offset;     \
     nextSource = (char *)nextSource - offset;               \
     __DISPATCH_VECTORIZED_REVERSED_MOVE(byteCount, 0);      \
-    bytes &= -(byteCount << 1);
+    bytes &= -(byteCount * 2);
 #endif // !defined(__REVERSED_MEMMOVE_CALL_WITH_DISPATCH)
 
 #if !defined(__REVERSED_MEMMOVE_CALL)
@@ -53,7 +53,7 @@
     nextDestination = (char *)nextDestination - offset;     \
     nextSource = (char *)nextSource - offset;               \
     _VectorizedMoveImplementation_::Move<byteCount>(nextDestination, nextSource, 1); \
-    bytes &= -(byteCount << 1);
+    bytes &= -(byteCount * 2);
 #endif // !defined(__REVERSED_MEMMOVE_CALL)
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -176,6 +176,94 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, false>:
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
     }
 
     template <>
@@ -319,6 +407,94 @@ struct _MoveVectorized<arch::CpuFeature::SSE2, true>:
         return nullptr;
     }
 
+        template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
     template <>
     static void* Move<16>(
         void*       destination,
@@ -458,6 +634,116 @@ struct _MoveVectorized<arch::CpuFeature::AVX, true>:
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+        template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource));
+
+        return destination;
     }
 
     template <>
@@ -602,6 +888,116 @@ struct _MoveVectorized<arch::CpuFeature::AVX, false>:
     }
 
     template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource));
+
+        return destination;
+    }
+
+    template <>
     static void* Move<32>(
         void*       destination,
         const void* source, 
@@ -740,6 +1136,138 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, false> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+        template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<16>(
+        void* destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource = __xmmWordSource + length;
+        __m128i* nextDestination = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_storeu_si128(__xmmWordDestination++, _mm_loadu_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_storeu_si128(--nextDestination, _mm_loadu_si128(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<32>(
+        void* destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource = __ymmWordSource + length;
+        __m256i* nextDestination = __ymmWordDestination + length;
+
+        if (__ymmWordDestination < __ymmWordSource)
+            while (__ymmWordDestination != nextDestination)
+                _mm256_storeu_si256(__ymmWordDestination++, _mm256_lddqu_si256(__ymmWordSource++));
+        else
+            while (nextDestination != __ymmWordDestination)
+                _mm256_storeu_si256(--nextDestination, _mm256_lddqu_si256(--nextSource));
+
+        return destination;
     }
 
     template <>
@@ -933,6 +1461,139 @@ struct _MoveVectorized<arch::CpuFeature::AVX512F, true> :
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+        template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte   = static_cast<const uint8*>(source);
+        uint8* __destinationByte    = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination  = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord   = static_cast<const uint16*>(source);
+        uint16* __destinationWord    = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination  = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord   = static_cast<const uint32*>(source);
+        uint32* __destinationDWord    = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination  = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord   = static_cast<const uint64*>(source);
+        uint64* __destinationQWord    = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination  = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    
+    template <>
+    static void* Move<16>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_store_si128(__xmmWordDestination++, _mm_load_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_store_si128(--nextDestination, _mm_load_si128(--nextSource));
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<32>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const __m256i* __ymmWordSource  = reinterpret_cast<const __m256i*>(source);
+        __m256i* __ymmWordDestination   = reinterpret_cast<__m256i*>(destination);
+
+        const __m256i* nextSource   = __ymmWordSource + length;
+        __m256i* nextDestination    = __ymmWordDestination + length;
+
+        if (__ymmWordDestination < __ymmWordSource)
+            while (__ymmWordDestination != nextDestination)
+                _mm256_store_si256(__ymmWordDestination++, _mm256_load_si256(__ymmWordSource++));
+        else
+            while (nextDestination != __ymmWordDestination)
+                _mm256_store_si256(--nextDestination, _mm256_load_si256(--nextSource));
+
+        return destination;
     }
 
     template <>
@@ -1321,9 +1982,107 @@ struct _MoveVectorized<arch::CpuFeature::SSE41, true>:
     _MoveVectorized<arch::CpuFeature::None, false> 
 {
     template <sizetype    _ElementSize_>
-    static void* MoveStreamAligned(
+    static void* Move(
         void*       destination,
-        const void* source, 
+        const void* source,
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte = static_cast<const uint8*>(source);
+        uint8* __destinationByte = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord = static_cast<const uint16*>(source);
+        uint16* __destinationWord = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord = static_cast<const uint32*>(source);
+        uint32* __destinationDWord = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <sizetype    _ElementSize_>
+    static void* MoveStreamAligned(
+        void* destination,
+        const void* source,
         sizetype    length) noexcept
     {
         AssertUnreachable();
@@ -1482,6 +2241,104 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     _MoveVectorized<arch::CpuFeature::None, true> 
 {
     template <sizetype    _ElementSize_>
+    static void* Move(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        AssertUnreachable();
+        return nullptr;
+    }
+
+    template <>
+    static void* Move<1>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint8* __sourceByte = static_cast<const uint8*>(source);
+        uint8* __destinationByte = static_cast<uint8*>(destination);
+
+        const uint8* nextSource = __sourceByte + length;
+        uint8* nextDestination = __destinationByte + length;
+
+        if (__destinationByte < __sourceByte)
+            while (__destinationByte != nextDestination)
+                *__destinationByte++ = *__sourceByte++;
+        else
+            while (nextDestination != __destinationByte)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<2>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint16* __sourceWord = static_cast<const uint16*>(source);
+        uint16* __destinationWord = static_cast<uint16*>(destination);
+
+        const uint16* nextSource = __sourceWord + length;
+        uint16* nextDestination = __destinationWord + length;
+
+        if (__destinationWord < __sourceWord)
+            while (__destinationWord != nextDestination)
+                *__destinationWord++ = *__sourceWord++;
+        else
+            while (nextDestination != __destinationWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<4>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint32* __sourceDWord = static_cast<const uint32*>(source);
+        uint32* __destinationDWord = static_cast<uint32*>(destination);
+
+        const uint32* nextSource = __sourceDWord + length;
+        uint32* nextDestination = __destinationDWord + length;
+
+        if (__destinationDWord < __sourceDWord)
+            while (__destinationDWord != nextDestination)
+                *__destinationDWord++ = *__sourceDWord++;
+        else
+            while (nextDestination != __destinationDWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <>
+    static void* Move<8>(
+        void*       destination,
+        const void* source,
+        sizetype    length) noexcept
+    {
+        const uint64* __sourceQWord = static_cast<const uint64*>(source);
+        uint64* __destinationQWord = static_cast<uint64*>(destination);
+
+        const uint64* nextSource = __sourceQWord + length;
+        uint64* nextDestination = __destinationQWord + length;
+
+        if (__destinationQWord < __sourceQWord)
+            while (__destinationQWord != nextDestination)
+                *__destinationQWord++ = *__sourceQWord++;
+        else
+            while (nextDestination != __destinationQWord)
+                *--nextDestination = *--nextSource;
+
+        return destination;
+    }
+
+    template <sizetype    _ElementSize_>
     static void* MoveStreamAligned(
         void*       destination,
         const void* source, 
@@ -1489,6 +2346,30 @@ struct _MoveVectorized<arch::CpuFeature::AVX2, true>:
     {
         AssertUnreachable();
         return nullptr;
+    }
+
+    template <>
+    static void* MoveStreamAligned<16>(
+        void*       destination,
+        const void* source, 
+        sizetype    length) noexcept
+    {
+        const __m128i* __xmmWordSource  = reinterpret_cast<const __m128i*>(source);
+        __m128i* __xmmWordDestination   = reinterpret_cast<__m128i*>(destination);
+
+        const __m128i* nextSource   = __xmmWordSource + length;
+        __m128i* nextDestination    = __xmmWordDestination + length;
+
+        if (__xmmWordDestination < __xmmWordSource)
+            while (__xmmWordDestination != nextDestination)
+                _mm_stream_si128(__xmmWordDestination++, _mm_stream_load_si128(__xmmWordSource++));
+        else
+            while (nextDestination != __xmmWordDestination)
+                _mm_stream_si128(--nextDestination, _mm_stream_load_si128(--nextSource));
+
+        _mm_sfence();
+
+        return destination;
     }
 
     template <>
@@ -2072,7 +2953,6 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
         void* nextDestination   = static_cast<char*>(destination) + bytes;
         const void* nextSource  = static_cast<const char*>(source) + bytes;
 
-
         while (bytes)
         {
             if (bytes & 1)
@@ -2089,7 +2969,11 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL(8);
+                offset = bytes;
+                nextDestination = (char*)nextDestination - offset;
+                nextSource = (char*)nextSource - offset;
+                _VectorizedMoveImplementation_::Move<8>(nextDestination, nextSource, bytes >> 3); 
+                bytes = 0;
             }
         }
     }
@@ -2149,7 +3033,11 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL(256);
+                offset = bytes; 
+                nextDestination = (char*)nextDestination - offset;
+                nextSource = (char*)nextSource - offset;
+                _VectorizedMoveImplementation_::Move<256>(nextDestination, nextSource, bytes >> 8);
+                bytes = 0;
             }
         }
     }
@@ -2210,7 +3098,18 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
+                offset = bytes; 
+                nextDestination = (char*)nextDestination - offset; 
+                nextSource = (char*)nextSource - offset;
+                
+                if constexpr (_Streaming_) {
+                    _VectorizedMoveImplementation_::MoveStreamAligned<256>(nextDestination, nextSource, bytes >> 8);
+                }
+                else {
+                    _VectorizedMoveImplementation_::Move<256>(nextDestination, nextSource, bytes >> 8);
+                };                 
+                
+                bytes = 0;
             }
         }
     }
@@ -2275,7 +3174,11 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL(512);
+                offset = bytes; 
+                nextDestination = (char*)nextDestination - offset; 
+                nextSource = (char*)nextSource - offset;
+                _VectorizedMoveImplementation_::Move<512>(nextDestination, nextSource, bytes >> 9);
+                bytes = 0;
             }
         }
     }
@@ -2297,7 +3200,6 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         void* nextDestination   = static_cast<char*>(destination) + bytes;
         const void* nextSource  = static_cast<const char*>(source) + bytes;
-
 
         while (bytes)
         {
@@ -2339,7 +3241,18 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(512);
+                offset = bytes;
+                nextDestination = (char*)nextDestination - offset; 
+                nextSource = (char*)nextSource - offset;
+                
+                if constexpr (_Streaming_) {
+                    _VectorizedMoveImplementation_::MoveStreamAligned<512>(nextDestination, nextSource, bytes >> 9);
+                }
+                else {
+                    _VectorizedMoveImplementation_::Move<512>(nextDestination, nextSource, bytes >> 9);
+                }; 
+
+                bytes = 0;
             }
         }
     }
@@ -2414,7 +3327,18 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
             }
             else
             {
-                __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(4096);
+                offset = bytes; 
+                nextDestination = (char*)nextDestination - offset;
+                nextSource = (char*)nextSource - offset; 
+                
+                if constexpr (_Streaming_) {
+                    _VectorizedMoveImplementation_::MoveStreamAligned<4096>(nextDestination, nextSource, bytes >> 12);
+                }
+                else {
+                    _VectorizedMoveImplementation_::Move<4096>(nextDestination, nextSource, bytes >> 12);
+                }; 
+                
+                bytes = 0;
             }
         }
     }
