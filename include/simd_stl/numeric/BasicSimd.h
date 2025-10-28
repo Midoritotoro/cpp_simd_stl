@@ -19,9 +19,7 @@
 #include <simd_stl/numeric/BasicSimdMask.h>
 
 
-
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
-
 
 template <arch::CpuFeature _SimdGeneration_>
 constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
@@ -32,6 +30,26 @@ constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
 
 template <arch::CpuFeature _SimdGeneration_>
 constexpr bool is_native_mask_store_supported_v = is_native_mask_load_supported_v<_SimdGeneration_>;
+
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr bool is_streaming_load_supported_v = 
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE42)) || 
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2)) || 
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_streaming_store_supported_v =
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::SSE2)       &&
+        static_cast<int8>(_SimdGeneration_) <= static_cast<int8>(arch::CpuFeature::SSE42))  ||
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX)        ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2))   ||
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
+
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr bool is_streaming_supported_v = 
+    is_streaming_load_supported_v<_SimdGeneration_> &&
+    is_streaming_store_supported_v<_SimdGeneration_>;
 
 template <
     arch::CpuFeature _SimdGenerationFirst_,
@@ -64,7 +82,7 @@ using deduce_superior_basic_simd_type = std::conditional_t<
     * - вставка и извлечение
     * - проверка поддержки сета инструкций во времени выполнения
     * 
-    * @tparam _SimdGeneration_ Архитектура SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512 и т.д.).
+    * @tparam _SimdGeneration_ Поколение SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512F и т.д.).
     * @tparam _Element_ Тип элементов вектора ('int', 'float', 'double' и т.д.). По умолчанию 'int'.
 */
 
@@ -97,6 +115,7 @@ public:
     using size_type     = uint32;
     using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_>;
 
+    template <bool _ZeroMemset_ = true>
     basic_simd() noexcept;
 
     /**
@@ -597,6 +616,16 @@ public:
 
     template <typename _ElementType_ = _Element_>
     static constexpr int length() noexcept;
+
+    static constexpr int registersCount() noexcept;
+
+    simd_stl_always_inline static void streamingFence() noexcept;
+    
+    // Если _SimdGeneration_ не поддерживает потоковые загрузки/сохранения, то они будут заменены
+    // на обычные выровненные загрузки/сохранения
+
+    simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
+    simd_stl_always_inline void nonTemporalStore(void* where) noexcept;
 private:
     vector_type _vector;
 };
@@ -605,9 +634,11 @@ private:
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
+template <bool _ZeroMemset_>
 basic_simd<_SimdGeneration_, _Element_>::basic_simd() noexcept
 {
-    _vector = simdElementAccess::template constructZero<vector_type>();
+    if constexpr (_ZeroMemset_)
+        _vector = simdElementAccess::template constructZero<vector_type>();
 }
 
 template <
@@ -1441,6 +1472,39 @@ template <
 template <typename _ElementType_>
 static constexpr int basic_simd<_SimdGeneration_, _Element_>::length() noexcept {
     return size<_ElementType_>();
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+static constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() noexcept {
+    if      constexpr (arch::__is_xmm_v<_SimdGeneration_>)
+        return 8;
+    else if constexpr (arch::__is_ymm_v<_SimdGeneration_>)
+        return 16;
+    else if constexpr (arch::__is_zmm_v<_SimdGeneration_>)
+        return 32;
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+static void basic_simd<_SimdGeneration_, _Element_>::streamingFence() noexcept {
+    return simdMemoryAccess::streamingFence();
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::nonTemporalLoad(const void* where) noexcept {
+    return simdMemoryAccess::nonTemporalLoad(where);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+void basic_simd<_SimdGeneration_, _Element_>::nonTemporalStore(void* where) noexcept {
+    return simdMemoryAccess::nonTemporalStore(where);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -11,6 +11,9 @@
 #include <simd_stl/compatibility/Nodiscard.h>
 #include <simd_stl/compatibility/Inline.h>
 
+#include <iostream>
+
+
 __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 class ProcessorFeatures
@@ -35,6 +38,10 @@ public:
 
     template <arch::CpuFeature _Feature_> 
     simd_stl_nodiscard simd_stl_always_inline static bool isSupported() noexcept;
+
+    //simd_stl_nodiscard simd_stl_always_inline static int L1CacheSize()    noexcept;
+    //simd_stl_nodiscard simd_stl_always_inline static int L2CacheSize()    noexcept;
+    //simd_stl_nodiscard simd_stl_always_inline static int L3CacheSize()    noexcept;
 private:
     class ProcessorFeaturesInternal
     {
@@ -60,6 +67,10 @@ private:
         bool _avx512vl : 1 = false;
 
         bool _popcnt   : 2 = false;
+
+        //int _L1CacheSize = 0;
+        //int _L2CacheSize = 0;
+        //int _L3CacheSize = 0;
     };
 
     static inline ProcessorFeaturesInternal _processorFeaturesInternal;
@@ -89,6 +100,7 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
         _sse    = (leaf1Edx >> 25) & 1;
         _sse2   = (leaf1Edx >> 26) & 1;
 #endif
+
         _sse3   = (leaf1Ecx & 1);
         _ssse3  = (leaf1Ecx >> 9) & 1;
         _sse41  = (leaf1Ecx >> 19) & 1;
@@ -206,5 +218,17 @@ bool ProcessorFeatures::isSupported() noexcept {
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VL))
         return _processorFeaturesInternal._avx512vl;
 }
+
+//int ProcessorFeatures::L1CacheSize() noexcept {
+//    return _processorFeaturesInternal._L1CacheSize;
+//}
+//
+//int ProcessorFeatures::L2CacheSize() noexcept {
+//    return _processorFeaturesInternal._L2CacheSize;
+//}
+//
+//int ProcessorFeatures::L3CacheSize() noexcept {
+//    return _processorFeaturesInternal._L1CacheSize;
+//}
 
 __SIMD_STL_ARCH_NAMESPACE_END

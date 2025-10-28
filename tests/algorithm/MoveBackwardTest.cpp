@@ -9,6 +9,7 @@
 #include <iterator>
 #include <chrono>
 #include <simd_stl/algorithm/copy/MoveBackward.h>
+#include <simd_stl/numeric/BasicSimd.h>
 
 template <typename It1, typename It2>
 void assert_equal(It1 first1, It1 last1, It2 first2) {

@@ -2955,23 +2955,21 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else
-            {
+            else {
                 offset = bytes;
+
                 nextDestination = (char*)nextDestination - offset;
-                nextSource = (char*)nextSource - offset;
+                nextSource      = (char*)nextSource - offset;
+
                 _VectorizedMoveImplementation_::Move<8>(nextDestination, nextSource, bytes >> 3); 
                 bytes = 0;
             }
@@ -2999,43 +2997,37 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else if (bytes & 8)
-            {
+            else if (bytes & 8) {
                 __REVERSED_MEMMOVE_CALL(8);
             }
-            else if (bytes & 16)
-            {
+            else if (bytes & 16) {
                 __REVERSED_MEMMOVE_CALL(16);
             }
-            else if (bytes & 32)
-            {
+            else if (bytes & 32) {
                 __REVERSED_MEMMOVE_CALL(32);
             }
-            else if (bytes & 64)
-            {
+            else if (bytes & 64) {
                 __REVERSED_MEMMOVE_CALL(64);
             }
-            else if (bytes & 128)
-            {
+            else if (bytes & 128) {
                 __REVERSED_MEMMOVE_CALL(128);
             }
             else
             {
                 offset = bytes; 
+
                 nextDestination = (char*)nextDestination - offset;
-                nextSource = (char*)nextSource - offset;
+                nextSource      = (char*)nextSource - offset;
+
                 _VectorizedMoveImplementation_::Move<256>(nextDestination, nextSource, bytes >> 8);
                 bytes = 0;
             }
@@ -3064,50 +3056,40 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else if (bytes & 8)
-            {
+            else if (bytes & 8) {
                 __REVERSED_MEMMOVE_CALL(8);
             }
-            else if (bytes & 16)
-            {
+            else if (bytes & 16) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
             }
-            else if (bytes & 32)
-            {
+            else if (bytes & 32) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
             }
-            else if (bytes & 64)
-            {
+            else if (bytes & 64) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
             }
-            else if (bytes & 128)
-            {
+            else if (bytes & 128) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
             }
-            else
-            {
+            else {
                 offset = bytes; 
+
                 nextDestination = (char*)nextDestination - offset; 
-                nextSource = (char*)nextSource - offset;
+                nextSource      = (char*)nextSource - offset;
                 
-                if constexpr (_Streaming_) {
+                if constexpr (_Streaming_)
                     _VectorizedMoveImplementation_::MoveStreamAligned<256>(nextDestination, nextSource, bytes >> 8);
-                }
-                else {
-                    _VectorizedMoveImplementation_::Move<256>(nextDestination, nextSource, bytes >> 8);
-                };                 
+                else
+                    _VectorizedMoveImplementation_::Move<256>(nextDestination, nextSource, bytes >> 8);              
                 
                 bytes = 0;
             }
@@ -3136,47 +3118,39 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else if (bytes & 8)
-            {
+            else if (bytes & 8) {
                 __REVERSED_MEMMOVE_CALL(8);
             }
-            else if (bytes & 16)
-            {
+            else if (bytes & 16) {
                 __REVERSED_MEMMOVE_CALL(16);
             }
-            else if (bytes & 32)
-            {
+            else if (bytes & 32) {
                 __REVERSED_MEMMOVE_CALL(32);
             }
-            else if (bytes & 64)
-            {
+            else if (bytes & 64) {
                 __REVERSED_MEMMOVE_CALL(64);
             }
-            else if (bytes & 128)
-            {
+            else if (bytes & 128) {
                 __REVERSED_MEMMOVE_CALL(128);
             }
-            else if (bytes & 256)
-            {
+            else if (bytes & 256) {
                 __REVERSED_MEMMOVE_CALL(256);
             }
-            else
-            {
+            else {
                 offset = bytes; 
+
                 nextDestination = (char*)nextDestination - offset; 
-                nextSource = (char*)nextSource - offset;
+                nextSource      = (char*)nextSource - offset;
+
                 _VectorizedMoveImplementation_::Move<512>(nextDestination, nextSource, bytes >> 9);
                 bytes = 0;
             }
@@ -3203,54 +3177,43 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else if (bytes & 8)
-            {
+            else if (bytes & 8) {
                 __REVERSED_MEMMOVE_CALL(8);
             }
-            else if (bytes & 16)
-            {
+            else if (bytes & 16) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
             }
-            else if (bytes & 32)
-            {
+            else if (bytes & 32) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
             }
-            else if (bytes & 64)
-            {
+            else if (bytes & 64) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
             }
-            else if (bytes & 128)
-            {
+            else if (bytes & 128) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
             }
-            else if (bytes & 256)
-            {
+            else if (bytes & 256) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
             }
-            else
-            {
+            else {
                 offset = bytes;
+
                 nextDestination = (char*)nextDestination - offset; 
-                nextSource = (char*)nextSource - offset;
+                nextSource      = (char*)nextSource - offset;
                 
-                if constexpr (_Streaming_) {
+                if constexpr (_Streaming_)
                     _VectorizedMoveImplementation_::MoveStreamAligned<512>(nextDestination, nextSource, bytes >> 9);
-                }
-                else {
+                else
                     _VectorizedMoveImplementation_::Move<512>(nextDestination, nextSource, bytes >> 9);
-                }; 
 
                 bytes = 0;
             }
@@ -3277,66 +3240,52 @@ struct _MemmoveVectorizedReversedChooser<_Aligned_, _Streaming_, arch::CpuFeatur
 
         while (bytes)
         {
-            if (bytes & 1)
-            {
+            if (bytes & 1) {
                 __REVERSED_MEMMOVE_CALL(1);
             }
-            else if (bytes & 2)
-            {
+            else if (bytes & 2) {
                 __REVERSED_MEMMOVE_CALL(2);
             }
-            else if (bytes & 4)
-            {
+            else if (bytes & 4) {
                 __REVERSED_MEMMOVE_CALL(4);
             }
-            else if (bytes & 8)
-            {
+            else if (bytes & 8) {
                 __REVERSED_MEMMOVE_CALL(8);
             }
-            else if (bytes & 16)
-            {
+            else if (bytes & 16) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(16);
             }
-            else if (bytes & 32)
-            {
+            else if (bytes & 32) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(32);
             }
-            else if (bytes & 64)
-            {
+            else if (bytes & 64) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(64);
             }
-            else if (bytes & 128)
-            {
+            else if (bytes & 128) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(128);
             }
-            else if (bytes & 256)
-            {
+            else if (bytes & 256) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(256);
             }
-            else if (bytes & 512)
-            {
+            else if (bytes & 512) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(512);
             }
-            else if (bytes & 1024)
-            {
+            else if (bytes & 1024) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(1024);
             }
-            else if (bytes & 2048)
-            {
+            else if (bytes & 2048) {
                 __REVERSED_MEMMOVE_CALL_WITH_DISPATCH(2048);
             }
-            else
-            {
+            else {
                 offset = bytes; 
+
                 nextDestination = (char*)nextDestination - offset;
-                nextSource = (char*)nextSource - offset; 
+                nextSource      = (char*)nextSource - offset; 
                 
-                if constexpr (_Streaming_) {
+                if constexpr (_Streaming_)
                     _VectorizedMoveImplementation_::MoveStreamAligned<4096>(nextDestination, nextSource, bytes >> 12);
-                }
-                else {
+                else
                     _VectorizedMoveImplementation_::Move<4096>(nextDestination, nextSource, bytes >> 12);
-                }; 
                 
                 bytes = 0;
             }
@@ -3356,6 +3305,8 @@ simd_stl_always_inline void* _MemmoveVectorizedInternal(
     constexpr bool _IsStreamingAvailable_ = static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
         static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
         static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F);
+
+    
 
     if((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
     {

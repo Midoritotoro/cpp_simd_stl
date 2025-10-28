@@ -10,7 +10,25 @@ class SimdMemoryAccess;
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE2> {
     using _ElementWise_ = SimdElementWise<arch::CpuFeature::SSE2>;
+    using _SimdCast_    = SimdCast<arch::CpuFeature::SSE2>;
 public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
+        return loadAligned<_VectorType_, void>(where);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void nonTemporalStore(
+        void*           where,
+        _VectorType_    vector) noexcept 
+    {
+        _mm_stream_si128(static_cast<__m128i*>(where), _SimdCast_::cast<_VectorType_, __m128i>(vector));
+    }
+
+    static simd_stl_always_inline void streamingFence() noexcept {
+        return _mm_sfence();
+    }
+
     template <
         typename _VectorType_,
         typename _DesiredType_>
@@ -39,8 +57,8 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void storeUnaligned(
-        _DesiredType_* where,
-        const _VectorType_      vector) noexcept
+        _DesiredType_*      where,
+        const _VectorType_  vector) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_storeu_si128(reinterpret_cast<__m128i*>(where), vector);
@@ -128,7 +146,13 @@ class SimdMemoryAccess<arch::CpuFeature::SSSE3> :
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE41> :
     public SimdMemoryAccess<arch::CpuFeature::SSSE3>
-{};
+{
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
+        return _SimdCast_::cast<__m128i, _VectorType_>(_mm_stream_load_si128(static_cast<const __m128i*>(where)));
+    }
+};
 
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE42> :
