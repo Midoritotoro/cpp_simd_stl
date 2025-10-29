@@ -2,6 +2,9 @@
 
 #include <src/simd_stl/algorithm/vectorized/MoveVectorized.h>
 
+#include <simd_stl/memory/Intersects.h>
+#include <simd_stl/memory/Alignment.h>
+
 #define __SIMD_STL_COPY_CACHE_SIZE_LIMIT 3*1024*1024
 
 #if !defined(__DISPATCH_VECTORIZED_COPY)
@@ -1963,21 +1966,15 @@ simd_stl_always_inline void* _MemcpyVectorizedInternal(
     sizetype    bytes) noexcept
 {
     using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
+
+    if (memory::intersects(destination, source, bytes)) 
+        return _MemmoveVectorizedInternal<_SimdGeneration_>(destination, source, bytes);
+
     void* returnValue = destination;
 
-    if ((((char*)destination > (char*)source) && ((char*)destination < ((char*)source + bytes))) ||
-        (((char*)source > (char*)destination) && ((char*)source < ((char*)destination + bytes))))
+    if (memory::isAligned(destination, sizeof(_SimdType_)) && memory::isAligned(source, sizeof(_SimdType_)))
     {
-        returnValue = _MemmoveVectorizedInternal<_SimdGeneration_>(destination, source, bytes);
-        return returnValue;
-    }
-
-    if((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
-    {
-        if constexpr (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
-            static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
-            static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F))
-        {
+        if constexpr (type_traits::is_streaming_supported_v<_SimdGeneration_>) {
             if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
                 _MemcpyVectorizedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
                 return returnValue;
@@ -1990,8 +1987,7 @@ simd_stl_always_inline void* _MemcpyVectorizedInternal(
     {
         sizetype alignedBytes = (sizeof(_SimdType_)) - ((uintptr)destination & (sizeof(_SimdType_) - 1));
 
-        if (bytes > alignedBytes)
-        {
+        if (bytes > alignedBytes) {
             void* destinationWithOffset     = static_cast<char*>(destination) + alignedBytes;
             const void* sourceWithOffset    = static_cast<const char*>(source) + alignedBytes;
 

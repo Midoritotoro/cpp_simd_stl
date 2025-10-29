@@ -98,4 +98,23 @@ constexpr void _SeekPossiblyWrappedIterator(
         iterator = std::forward<_UnwrappedIterator_>(unwrappedIterator);
 }
 
+template <
+    class _Iterator_, 
+    class _DifferenceType_>
+simd_stl_nodiscard constexpr decltype(auto) _UnwrapIteratorBytesOffset(
+    _Iterator_&&            iterator,
+    const _DifferenceType_  offsetBytes) noexcept(
+        type_traits::is_possibly_unverified_iterator_unwrappable_v<_Iterator_> == false ||
+        (type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_> == false ||
+            type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_>)
+    )
+{
+    using _ValueType_ = type_traits::IteratorValueType<unwrapped_iterator_type<_Iterator_>>;
+
+    if constexpr (std::is_pointer_v<std::decay_t<_Iterator_>>)
+        return iterator + 0;
+    else
+        return _UnwrapIteratorOffset(std::move(iterator), (offsetBytes / sizeof(_ValueType_)));
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

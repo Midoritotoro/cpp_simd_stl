@@ -3302,16 +3302,10 @@ simd_stl_always_inline void* _MemmoveVectorizedInternal(
     using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
     void* returnValue = destination;
 
-    constexpr bool _IsStreamingAvailable_ = static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F);
-
-    
-
     if((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
     {
         if (destination < source) {
-            if constexpr (_IsStreamingAvailable_) {
+            if constexpr (type_traits::is_streaming_supported_v<_SimdGeneration_>) {
                 if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
                     _MemmoveVectorizedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
                     return returnValue;
@@ -3321,7 +3315,7 @@ simd_stl_always_inline void* _MemmoveVectorizedInternal(
             _MemmoveVectorizedChooser<true, false, _SimdGeneration_>()(destination, source, bytes);
         }
         else {
-            if constexpr (_IsStreamingAvailable_) {
+            if constexpr (type_traits::is_streaming_supported_v<_SimdGeneration_>) {
                 if (bytes > __SIMD_STL_COPY_CACHE_SIZE_LIMIT) {
                     _MemmoveVectorizedReversedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
                     return returnValue;

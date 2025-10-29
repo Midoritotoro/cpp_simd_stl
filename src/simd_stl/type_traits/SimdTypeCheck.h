@@ -99,4 +99,52 @@ template <
 	typename			_Element_>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>) / sizeof(_Element_))>;
 
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
+    !arch::__is_xmm_v<_SimdGeneration_>,
+    arch::__is_ymm_v<_SimdGeneration_>,
+    arch::__is_zmm_v<_SimdGeneration_>
+>;
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_native_mask_store_supported_v = is_native_mask_load_supported_v<_SimdGeneration_>;
+
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr bool is_streaming_load_supported_v = 
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE42)) || 
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2)) || 
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr bool is_streaming_store_supported_v =
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::SSE2)       &&
+        static_cast<int8>(_SimdGeneration_) <= static_cast<int8>(arch::CpuFeature::SSE42))  ||
+    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX)        ||
+        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2))   ||
+    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
+
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr bool is_streaming_supported_v = 
+    is_streaming_load_supported_v<_SimdGeneration_> &&
+    is_streaming_store_supported_v<_SimdGeneration_>;
+
+template <
+    arch::CpuFeature _SimdGenerationFirst_,
+    arch::CpuFeature _SimdGenerationSecond_>
+constexpr bool is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
+
+
+template <
+    class _BasicSimdFrom_,
+    class _BasicSimdTo_>
+using deduce_superior_basic_simd_type = std::conditional_t<
+        is_simd_feature_superior_v<
+            _BasicSimdFrom_::_Generation,
+            _BasicSimdTo_::_Generation>,
+        _BasicSimdFrom_,
+        _BasicSimdTo_
+    >;
+
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

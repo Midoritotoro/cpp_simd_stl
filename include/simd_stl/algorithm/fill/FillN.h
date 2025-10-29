@@ -11,30 +11,28 @@
 
 #include <src/simd_stl/algorithm/AdvanceBytes.h>
 
+
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
     class _ForwardIterator_,
+    class _SizeType_,
     class _Type_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill(
+simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill_n(
     _ForwardIterator_   first,
-    _ForwardIterator_   last,
+    _SizeType_          count,
     const _Type_&       value) noexcept
 {
-    __verifyRange(first, last);
+    auto firstUnwrapped         = _UnwrapIteratorOffset(first, count);
 
-    auto firstUnwrapped         = _UnwrapIterator(first);
-    const auto lastUnwrapped    = _UnwrapIterator(last);
-
-    if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>) {
-        const auto difference = IteratorsDifference(firstUnwrapped, lastUnwrapped);
-        _MemsetVectorized<_Type_>(std::to_address(firstUnwrapped), value, difference);
-    }
+    if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>)
+        _MemsetVectorized<_Type_>(std::to_address(firstUnwrapped), value, count);
     else
-        for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+        for (_SizeType_ current = 0; current < count; ++current, ++firstUnwrapped)
             *firstUnwrapped = value;
 
-    return last;
+    _SeekPossiblyWrappedIterator(first, first + count);
+    return first;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

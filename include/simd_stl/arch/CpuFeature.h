@@ -2,8 +2,8 @@
 
 #include <simd_stl/Types.h>
 
-__SIMD_STL_ARCH_NAMESPACE_BEGIN
 
+__SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 enum class CpuFeature : simd_stl::uchar {
 	None,
@@ -22,7 +22,6 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512PF,
 	AVX512VL
 };
-
 
 template <
 	CpuFeature	Feature,
@@ -48,7 +47,6 @@ template <
 struct Contains {
 	static constexpr bool value = (IsInListHelper<Feature, List>::value || ...);
 };
-
 
 #define __xmm_features arch::CpuFeature::SSE, arch::CpuFeature::SSE2, arch::CpuFeature::SSE3, arch::CpuFeature::SSSE3, arch::CpuFeature::SSE41, arch::CpuFeature::SSE42
 #define __ymm_features arch::CpuFeature::AVX, arch::CpuFeature::AVX2

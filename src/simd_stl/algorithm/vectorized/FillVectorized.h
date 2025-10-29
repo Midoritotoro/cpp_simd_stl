@@ -1,18 +1,9 @@
 #pragma once
 
 #include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/memory/Alignment.h>
 
 #define __SIMD_STL_FILL_CACHE_SIZE_LIMIT 3*1024*1024
-
-#if !defined(__DISPATCH_VECTORIZED_FILL)
-#  define __DISPATCH_VECTORIZED_FILL(byteCount, shift) \
-    if constexpr (_Streaming_)  {   \
-        _VectorizedFillImplementation_::FillStreamAligned<byteCount>(destination, value, bytes >> shift); \
-    }\
-    else {  \
-        _VectorizedFillImplementation_::Fill<byteCount>(destination, value, bytes >> shift); \
-    }
-#endif // !defined(__DISPATCH_VECTORIZED_FILL)
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -20,115 +11,121 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_,
-    bool                _Aligned_>
+    bool                _Aligned_,
+    bool                _Streaming_>
 struct _FillVectorized {
-    using _SimdType_ = numeric::basic_simd<arch::CpuFeature::_SimdGeneration_, _Type_>;
+    static_assert(_Aligned_ >= _Streaming_, "Streaming loads/stores must be aligned. ");
+    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    template <sizetype _ByteCount_>
+    template <sizetype _ElementsCount_>
     simd_stl_always_inline static void Fill(
         _Type_*     destination,
         _Type_      value,
         sizetype    length) noexcept
     {
-        constexpr auto registersCount = _SimdType_::registersCount();
-        constexpr auto repetitions = _ByteCount_ / sizeof(_SimdType_);
+        if constexpr (
+            static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::None) ||
+            sizeof(_Type_) * ) {
+            while (length--)
+                *destination++ = value;
 
-        _SimdType_ vector = _SimdType_::basic_simd<false>();
-        vector.fill(value);
-
-        // if constexpr (_ByteCount_ > (sizeof(_SimdType_) * registersCount)) // не оптимально
-        while (length--) {
-            if constexpr (_Aligned_) {
-                vector.storeAligned(destination);
-            }
-            else if constexpr (_Streaming_) {
-                vector.nonTemporalStore(destination);
-            }
-            else {
-                vector.storeUnaligned(destination);
-            }
+            return;
         }
+        else {
+            constexpr auto registersCount = _SimdType_::registersCount();
 
-        if constexpr (_Streaming_)
-            vector.streamingFence();
-    }
-};
+            _SimdType_ vector/* = _SimdType_::template basic_simd<false>()*/;
+            vector.fill<_Type_>(value);
 
-template <
-    typename    _Type_,
-    bool        _Aligned_>
-struct _FillVectorized<arch::CpuFeature::None, _Type_, _Aligned_> {
-    simd_stl_always_inline static void Fill(
-        _Type_*     destination,
-        _Type_      value,
-        sizetype    length) noexcept
-    {
-        while (length--)
-            *destination++ = value;
-    }
-};
-
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-struct _MemsetVectorizedInternal {
-    void operator()(
-        void*       destination,
-        _Type_      value,
-        sizetype    bytes) noexcept
-    {
-        using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
-        void* returnValue = destination;
-
-        if ((((uintptr)source & (sizeof(_SimdType_) - 1)) == 0) && (((uintptr)destination & (sizeof(_SimdType_) - 1)) == 0))
-        {
-            if constexpr (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
-                static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
-                static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX512F))
-            {
-                if (bytes > __SIMD_STL_FILL_CACHE_SIZE_LIMIT) {
-                    _MemsetVectorizedChooser<true, true, _SimdGeneration_>()(destination, source, bytes);
-                    return returnValue;
-                }
+            while (length--) {
+                if      constexpr (_Streaming_)
+                    vector.nonTemporalStore(destination);
+                else if constexpr (_Aligned_)
+                    vector.storeAligned(destination);
+                else
+                    vector.storeUnaligned(destination);
             }
 
-            _MemsetVectorizedChooser<true, false, _SimdGeneration_>()(destination, source, bytes);
+            if constexpr (_Streaming_)
+                vector.streamingFence();
         }
-        else
-            _MemsetVectorizedChooser<false, false, _SimdGeneration_>()(destination, source, bytes);
-
-        return returnValue;
     }
 };
 
 template <
     arch::CpuFeature    _SimdGeneration_,
+    typename            _Type_,
+    bool                _Aligned_,
+    bool                _Streaming_>
+simd_stl_always_inline void _MemsetVectorizedChooser(
+    _Type_*     destination,
+    _Type_      value,
+    sizetype    count) noexcept
+{
+    sizetype offset = 0;
+
+    const auto bytes = count * sizeof(_Type_);
+
+    while (bytes) {
+        if (bytes == sizeof(_Type_)) {
+            _FillVectorized<_SimdGeneration_, _Type_, _Aligned_, _Streaming_>::template Fill<1>(destination, value, count);
+            offset = bytes & -sizeof(_Type_);
+            destination = static_cast<char*>(destination) + offset;
+            bytes = 0;
+        }
+        else if (bytes == (sizeof(_Type_) << 1)) {
+            _FillVectorized<_SimdGeneration_, _Type_, _Aligned_, _Streaming_>::template Fill<2>(destination, value, count);
+            offset = bytes & -sizeof(_Type_);
+            destination = static_cast<char*>(destination) + offset;
+            bytes &= sizeof(_Type_) - 1;
+        }
+        else {
+
+        }
+    }
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_always_inline void* _MemsetVectorizedInternal(
+simd_stl_always_inline void _MemsetVectorizedInternal(
     void*       destination,
     _Type_      value,
-    sizetype    bytes) noexcept
+    sizetype    count) noexcept
 {
-   
-    return destination;
+    using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
+
+    if constexpr (std::is_same_v<_SimdType_, void> == false) {
+        if (memory::isAligned(destination, sizeof(_SimdType_))) {
+            if constexpr (type_traits::is_streaming_supported_v<_SimdGeneration_>)
+                if (count > __SIMD_STL_FILL_CACHE_SIZE_LIMIT)
+                    return _MemsetVectorizedChooser(static_cast<_Type_*>(destination), value, count);
+
+            return _MemsetVectorizedChooser(static_cast<_Type_*>(destination), value, count);
+        }
+        else {
+            return _MemsetVectorizedChooser(static_cast<_Type_*>(destination), value, count);
+        }
+    }
+
+    _MemsetVectorizedChooser(static_cast<_Type_*>(destination), value, count);
 }
 
 template <typename _Type_>
-void* _MemsetVectorized(
+void _MemsetVectorized(
     void*       destination,
     _Type_      value,
-    sizetype    bytes) noexcept
+    sizetype    count) noexcept
 {
-    if (arch::ProcessorFeatures::AVX512F())
+    /*if (arch::ProcessorFeatures::AVX512F())
         return _MemsetVectorizedInternal<arch::CpuFeature::AVX512F>(destination, value, bytes);
     else if (arch::ProcessorFeatures::AVX2())
         return _MemsetVectorizedInternal<arch::CpuFeature::AVX2>(destination, value, bytes);
     else if (arch::ProcessorFeatures::AVX())
         return _MemsetVectorizedInternal<arch::CpuFeature::AVX>(destination, value, bytes);
-    else if (arch::ProcessorFeatures::SSE41())
+    else *//*if (arch::ProcessorFeatures::SSE41())
         return _MemsetVectorizedInternal<arch::CpuFeature::SSE41>(destination, value, bytes);
-    else if (arch::ProcessorFeatures::SSE2())
+    else */if (arch::ProcessorFeatures::SSE2())
         return _MemsetVectorizedInternal<arch::CpuFeature::SSE2>(destination, value, bytes);
 
     return _MemsetVectorizedInternal<arch::CpuFeature::None>(destination, value, bytes);

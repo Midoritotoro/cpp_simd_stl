@@ -147,7 +147,11 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/copy/MoveBackward.h
 
     include/simd_stl/algorithm/fill/Fill.h
+    include/simd_stl/algorithm/fill/FillN.h
 
+    include/simd_stl/memory/Intersects.h
+    include/simd_stl/memory/PointerToIntegral.h
+    include/simd_stl/memory/Alignment.h
 
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h

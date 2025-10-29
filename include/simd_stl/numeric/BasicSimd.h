@@ -21,54 +21,6 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
-    !arch::__is_xmm_v<_SimdGeneration_>,
-    arch::__is_ymm_v<_SimdGeneration_>,
-    arch::__is_zmm_v<_SimdGeneration_>
->;
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_store_supported_v = is_native_mask_load_supported_v<_SimdGeneration_>;
-
-template <arch::CpuFeature _SimdGeneration_> 
-constexpr bool is_streaming_load_supported_v = 
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE42)) || 
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2)) || 
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_streaming_store_supported_v =
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::SSE2)       &&
-        static_cast<int8>(_SimdGeneration_) <= static_cast<int8>(arch::CpuFeature::SSE42))  ||
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX)        ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2))   ||
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
-
-template <arch::CpuFeature _SimdGeneration_> 
-constexpr bool is_streaming_supported_v = 
-    is_streaming_load_supported_v<_SimdGeneration_> &&
-    is_streaming_store_supported_v<_SimdGeneration_>;
-
-template <
-    arch::CpuFeature _SimdGenerationFirst_,
-    arch::CpuFeature _SimdGenerationSecond_>
-constexpr bool is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
-
-
-template <
-    class _BasicSimdFrom_,
-    class _BasicSimdTo_>
-using deduce_superior_basic_simd_type = std::conditional_t<
-        is_simd_feature_superior_v<
-            _BasicSimdFrom_::_Generation,
-            _BasicSimdTo_::_Generation>,
-        _BasicSimdFrom_,
-        _BasicSimdTo_
-    >;
-        
-
 /**
     * @class basic_simd
     * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
@@ -1104,7 +1056,7 @@ template <
 template <class _BasicSimdTo_>
 simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::safeBitcast(const basic_simd& from) noexcept {
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
-    using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
+    using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
     return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
         typename basic_simd::vector_type,
@@ -1120,7 +1072,7 @@ simd_stl_always_inline _BasicSimdTo_
 basic_simd<_SimdGeneration_, _Element_>::bitcast(const basic_simd& from) const noexcept
 {
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
-    using _SuperiorBasicSimdType_ = deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
+    using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
     return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
         typename basic_simd::vector_type,
@@ -1448,7 +1400,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _ElementType_>
-static constexpr int basic_simd<_SimdGeneration_, _Element_>::width() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_>::width() noexcept {
     static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
 
     constexpr auto width = sizeof(vector_type);
@@ -1459,7 +1411,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _ElementType_>
-static constexpr int basic_simd<_SimdGeneration_, _Element_>::size() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_>::size() noexcept {
     static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
 
     constexpr auto length = (sizeof(vector_type) / sizeof(_ElementType_));
@@ -1470,14 +1422,14 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _ElementType_>
-static constexpr int basic_simd<_SimdGeneration_, _Element_>::length() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_>::length() noexcept {
     return size<_ElementType_>();
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-static constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() noexcept {
     if      constexpr (arch::__is_xmm_v<_SimdGeneration_>)
         return 8;
     else if constexpr (arch::__is_ymm_v<_SimdGeneration_>)
@@ -1489,7 +1441,7 @@ static constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() n
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-static void basic_simd<_SimdGeneration_, _Element_>::streamingFence() noexcept {
+void basic_simd<_SimdGeneration_, _Element_>::streamingFence() noexcept {
     return simdMemoryAccess::streamingFence();
 }
 
