@@ -24,7 +24,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 /**
     * @class basic_simd
     * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
-    * 
+    *
     * Предоставляет высокоуровневый интерфейс для векторных вычислений:
     * - арифметика
     * - побитовые операции
@@ -33,7 +33,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
     * - приведения типов
     * - вставка и извлечение
     * - проверка поддержки сета инструкций во времени выполнения
-    * 
+    *
     * @tparam _SimdGeneration_ Поколение SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512F и т.д.).
     * @tparam _Element_ Тип элементов вектора ('int', 'float', 'double' и т.д.). По умолчанию 'int'.
 */
@@ -578,6 +578,8 @@ public:
 
     simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
     simd_stl_always_inline void nonTemporalStore(void* where) noexcept;
+
+    static simd_stl_always_inline void zeroUpper() noexcept;
 private:
     vector_type _vector;
 };
@@ -1457,6 +1459,14 @@ template <
     typename            _Element_>
 void basic_simd<_SimdGeneration_, _Element_>::nonTemporalStore(void* where) noexcept {
     return simdMemoryAccess::nonTemporalStore(where);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+static void basic_simd<_SimdGeneration_, _Element_>::zeroUpper() noexcept {
+    if constexpr (type_traits::is_zeroupper_required_v<_SimdGeneration_>)
+        _mm256_zeroupper();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

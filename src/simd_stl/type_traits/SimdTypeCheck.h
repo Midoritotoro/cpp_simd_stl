@@ -130,6 +130,11 @@ constexpr bool is_streaming_supported_v =
     is_streaming_load_supported_v<_SimdGeneration_> &&
     is_streaming_store_supported_v<_SimdGeneration_>;
 
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr bool is_zeroupper_required_v =
+    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
+    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX);
+
 template <
     arch::CpuFeature _SimdGenerationFirst_,
     arch::CpuFeature _SimdGenerationSecond_>
@@ -146,5 +151,6 @@ using deduce_superior_basic_simd_type = std::conditional_t<
         _BasicSimdFrom_,
         _BasicSimdTo_
     >;
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
