@@ -15,14 +15,14 @@ struct _SwapRangesVectorizedInternal {
 		_Type_*		second,
 		sizetype	count) noexcept
 	{
-		using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+		using _SimdType_ = numeric::basic_simd<_SimdGeneration_, int>;
 		
 		const auto bytes		= sizeof(_Type_) * count;
 		const auto alignedBytes = bytes & (~(sizeof(_SimdType_) - 1));
 
 		if (alignedBytes != 0) {
 			void* stopAt = first;
-			AdvanceBytes(stopAt, bytes);
+			AdvanceBytes(stopAt, alignedBytes);
 
 			do {
 				const auto loadedFirst = _SimdType_::loadUnaligned(first);
@@ -40,18 +40,11 @@ struct _SwapRangesVectorizedInternal {
 
 		auto remainingCount = (bytes - alignedBytes) / sizeof(_Type_);
 
-		if (remainingCount != 0) {
-			do {
-				_Type_ temp = *first;
+		for (sizetype current = 0; current < remainingCount; ++current) {
+			_Type_ temp = *first;
 
-				*first = *second;
-				*second = *first;
-
-				++first;
-				++second;
-
-				--remainingCount;
-			} while (remainingCount);
+			*first++ = *second;
+			*second++ = temp;
 		}
 	}
 };
@@ -63,18 +56,11 @@ struct _SwapRangesVectorizedInternal<arch::CpuFeature::None, _Type_> {
 		_Type_*		second,
 		sizetype	count) noexcept
 	{
-		if (count != 0) {
-			do {
-				_Type_ temp = *first;
-
-				*first = *second;
-				*second = *first;
-
-				++first;
-				++second;
-
-				--count;
-			} while (count);
+		for (sizetype current = 0; current < count; ++current) {
+			_Type_ temp = *first;
+			
+			*first++ = *second;
+			*second++ = temp;
 		}
 	}
 };
@@ -84,12 +70,12 @@ template <typename _Type_>
 void _SwapRangesVectorized(
 	_Type_*		first,
 	_Type_*		second,
-	sizetype	bytes) noexcept
+	sizetype	count) noexcept
 {
 	if (arch::ProcessorFeatures::SSE2())
-		return _SwapRangesVectorizedInternal<arch::CpuFeature::SSE2, _Type_>()(first, second, bytes);
+		return _SwapRangesVectorizedInternal<arch::CpuFeature::SSE2, _Type_>()(first, second, count);
 
-	return _SwapRangesVectorizedInternal<arch::CpuFeature::None, _Type_>()(first, second, bytes);
+	return _SwapRangesVectorizedInternal<arch::CpuFeature::None, _Type_>()(first, second, count);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

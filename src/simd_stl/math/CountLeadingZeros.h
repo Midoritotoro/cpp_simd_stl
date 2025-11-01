@@ -4,7 +4,7 @@
 
 __SIMD_STL_MATH_NAMESPACE_BEGIN
 
-#if defined (simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+#if defined (simd_stl_processor_x86)
 #  if defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)
 
 #    if !defined(simd_stl_lzcnt_u16)
@@ -34,8 +34,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #    endif // !defined(simd_stl_lzcnt_u64)
 
 #  endif // defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_msvc)
-#endif // defined (simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
-
+#endif // defined (simd_stl_processor_x86)
 
 template <type_traits::standard_unsigned_integral _IntegralType_> 
 constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {

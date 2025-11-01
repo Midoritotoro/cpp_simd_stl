@@ -1,4 +1,4 @@
-#include <cassert>
+#include <cAssert>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -81,4 +81,97 @@ int main() {
             Assert(a2[i] == b2[i]);
         }
     }
+
+    {
+        // === Базовые типы ===
+        std::vector<int> a = { 1,2,3 };
+        std::vector<int> b = { 4,5,6 };
+
+        simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
+
+        Assert((a == std::vector<int>{4, 5, 6}));
+        Assert((b == std::vector<int>{1, 2, 3}));
+    }
+
+    {
+        // === Пользовательские типы ===
+        std::vector<Custom> a = { Custom(1), Custom(2) };
+        std::vector<Custom> b = { Custom(9), Custom(8) };
+
+        simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
+
+        Assert(a[0].x == 9 && a[1].x == 8);
+        Assert(b[0].x == 1 && b[1].x == 2);
+    }
+
+    {
+        // === Частичный диапазон ===
+        std::vector<int> a = { 1,2,3,4 };
+        std::vector<int> b = { 9,8,7,6 };
+
+        simd_stl::algorithm::swap_ranges(a.begin() + 1, a.begin() + 3, b.begin() + 1);
+
+        Assert((a == std::vector<int>{1, 8, 7, 4}));
+        Assert((b == std::vector<int>{9, 2, 3, 6}));
+    }
+
+    {
+        // === swap_ranges с массивами ===
+        int a[3] = { 10,20,30 };
+        int b[3] = { 1,2,3 };
+
+        simd_stl::algorithm::swap_ranges(a, a + 3, b);
+
+        Assert((a[0] == 1 && a[1] == 2 && a[2] == 3));
+        Assert((b[0] == 10 && b[1] == 20 && b[2] == 30));
+    }
+
+    {
+        // === Нулевой диапазон ===
+        std::vector<int> a = { 1,2,3 };
+        std::vector<int> b = { 4,5,6 };
+
+        simd_stl::algorithm::swap_ranges(a.begin(), a.begin(), b.begin()); // ничего не меняется
+
+        Assert((a == std::vector<int>{1, 2, 3}));
+        Assert((b == std::vector<int>{4, 5, 6}));
+    }
+
+    {
+        // === Возврат итератора ===
+        std::vector<int> a = { 1,2,3 };
+        std::vector<int> b = { 4,5,6 };
+
+        auto it = simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
+        Assert(it == b.end());
+    }
+
+    {
+        // === Сравнение с std::swap_ranges ===
+        std::vector<int> a1 = { 1,2,3 };
+        std::vector<int> b1 = { 4,5,6 };
+
+        std::vector<int> a2 = a1;
+        std::vector<int> b2 = b1;
+
+        simd_stl::algorithm::swap_ranges(a1.begin(), a1.end(), b1.begin());
+        std::swap_ranges(a2.begin(), a2.end(), b2.begin());
+
+        Assert(a1 == a2);
+        Assert(b1 == b2);
+    }
+
+    {
+        // === Большие массивы ===
+        constexpr size_t N = 1'000'0;
+        std::vector<int> a(N, 1);
+        std::vector<int> b(N, 2);
+
+        simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
+
+        Assert(std::all_of(a.begin(), a.end(), [](int x) { return x == 2; }));
+        Assert(std::all_of(b.begin(), b.end(), [](int x) { return x == 1; }));
+    }
+
+    return 0;
 }

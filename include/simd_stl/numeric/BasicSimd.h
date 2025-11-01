@@ -101,7 +101,7 @@ public:
         *     basic_simd<SSE2, int8>(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
     */
     template <class _BasicSimdTo_>
-    simd_stl_always_inline _BasicSimdTo_ convert() noexcept;
+    simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
 
     /**
         * @brief Поддержан ли сет инструкций _SimdGeneration_ на текущей машине
@@ -214,13 +214,13 @@ public:
         * @brief Сохраняет вектор в память по невыровненному адресу.
         * @param where Указатель на память для сохранения вектора.
     */
-    simd_stl_always_inline void storeUnaligned(void* where) noexcept;
+    simd_stl_always_inline void storeUnaligned(void* where) const noexcept;
 
     /**
         * @brief Сохраняет вектор в память по выровненному адресу.
         * @param where Указатель на память для сохранения вектора.
     */
-    simd_stl_always_inline void storeAligned(void* where) noexcept;
+    simd_stl_always_inline void storeAligned(void* where) const noexcept;
 
 
     /**
@@ -231,8 +231,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadUnaligned(
-        const void* where,
-        const mask_type     mask) noexcept;
+        const void*                                                                     where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>     mask) noexcept;
 
     /**
         * @brief Загружает вектор из памяти по выровненному адресу, используя маску.
@@ -242,8 +242,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadAligned(
-        const void*     where,
-        const mask_type mask) noexcept;
+        const void*                                                                 where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept;
 
     /**
         * @brief Сохраняет элемент вектора в память по невыровненному адресу, если соответствующий бит маски установлен.
@@ -253,7 +253,7 @@ public:
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
         void*     where,
-        const mask_type mask) noexcept;
+        const mask_type mask) const noexcept;
 
     /**
         * @brief Сохраняет элемент вектора в память по выровненному адресу, если соответствующий бит маски установлен.
@@ -263,7 +263,7 @@ public:
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreAligned(
         void* where,
-        const mask_type mask) noexcept;
+        const mask_type mask) const noexcept;
 
 
     /** 
@@ -577,9 +577,19 @@ public:
     // на обычные выровненные загрузки/сохранения
 
     simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
-    simd_stl_always_inline void nonTemporalStore(void* where) noexcept;
+    simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
 
     static simd_stl_always_inline void zeroUpper() noexcept;
+
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline void compressStoreUnaligned(
+        void*                                                                   where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline void compressStoreAligned(
+        void*                                                                   where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
 private:
     vector_type _vector;
 };
@@ -644,7 +654,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <class _BasicSimdTo_>
-simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::convert() noexcept {
+simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::convert() const noexcept {
     return {};
 }
 
@@ -1086,7 +1096,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::loadUnaligned(const void* where) noexcept
+basic_simd<_SimdGeneration_, _Element_>::loadUnaligned(const void* where)  noexcept
 {
     return simdMemoryAccess::template loadUnaligned<vector_type>(reinterpret_cast<const value_type*>(where));
 }
@@ -1103,14 +1113,14 @@ basic_simd<_SimdGeneration_, _Element_>::loadAligned(const void* where) noexcept
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(void* where) noexcept {
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(void* where) const noexcept {
     simdMemoryAccess::template storeUnaligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(void* where) noexcept {
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(void* where) const noexcept {
     simdMemoryAccess::template storeAligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
@@ -1120,8 +1130,8 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
-    const void*     where,
-    const mask_type mask) noexcept 
+    const void*                                                                 where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
 {
     return simdMemoryAccess::template maskLoadUnaligned(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
@@ -1132,8 +1142,8 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::maskLoadAligned(
-    const void*     where,
-    const mask_type mask) noexcept
+    const void*                                                                 where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
 {
     return simdMemoryAccess::template maskLoadAligned(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
@@ -1144,7 +1154,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreUnaligned(
     void*           where,
-    const mask_type mask) noexcept
+    const mask_type mask) const noexcept
 {
     simdMemoryAccess::template maskStoreUnaligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
 }
@@ -1155,7 +1165,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreAligned(
     void*           where,
-    const mask_type mask) noexcept
+    const mask_type mask) const noexcept
 {
     simdMemoryAccess::template maskStoreAligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
 }
@@ -1457,16 +1467,39 @@ basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>:
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-void basic_simd<_SimdGeneration_, _Element_>::nonTemporalStore(void* where) noexcept {
+void basic_simd<_SimdGeneration_, _Element_>::nonTemporalStore(void* where) const noexcept {
     return simdMemoryAccess::nonTemporalStore(where);
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
-static void basic_simd<_SimdGeneration_, _Element_>::zeroUpper() noexcept {
+void basic_simd<_SimdGeneration_, _Element_>::zeroUpper() noexcept {
     if constexpr (type_traits::is_zeroupper_required_v<_SimdGeneration_>)
         _mm256_zeroupper();
+}
+
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_> 
+void basic_simd<_SimdGeneration_, _Element_>::compressStoreUnaligned(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_> 
+void basic_simd<_SimdGeneration_, _Element_>::compressStoreAligned(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+{
+
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

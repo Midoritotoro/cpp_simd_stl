@@ -54,7 +54,7 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
         reinterpret_cast<const volatile unsigned char*>(target)) + offset);
 }
 
-simd_stl_always_inline size_t ByteLength(
+simd_stl_always_inline sizetype ByteLength(
     const void* first,
     const void* last) noexcept
 {
@@ -64,7 +64,7 @@ simd_stl_always_inline size_t ByteLength(
     const auto lastChar     = const_cast<const unsigned char*>(
         reinterpret_cast<const volatile unsigned char*>(last));
 
-    return static_cast<std::size_t>(lastChar - firstChar);
+    return static_cast<sizetype>(lastChar - firstChar);
 }
 
 template <class _ContiguousIterator_>
@@ -74,7 +74,7 @@ constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> Itera
 {
     using _DifferenceType_ = type_traits::IteratorDifferenceType<_ContiguousIterator_>;
 
-    if constexpr (std::is_pointer_v<_ContiguousIterator_> && type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
+    if constexpr (std::is_pointer_v<_ContiguousIterator_> || type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
         return static_cast<_DifferenceType_>(lastIterator - firstIterator);
 
     const auto pointerLikeAddress1 = std::to_address(firstIterator);

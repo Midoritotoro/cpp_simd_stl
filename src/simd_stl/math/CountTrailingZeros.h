@@ -14,7 +14,7 @@
 
 __SIMD_STL_MATH_NAMESPACE_BEGIN
 
-#if defined (simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+#if defined (simd_stl_processor_x86)
 #  if defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu)
 
 #    if !defined(simd_stl_tzcnt_u32)
@@ -36,7 +36,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #    endif // !defined(simd_stl_tzcnt_u64)
 
 #  endif // defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_msvc)
-#endif // defined (simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+#endif // defined (simd_stl_processor_x86)
 
 constexpr inline int _BitHacksCountTrailingZeroBits32Bit(uint32 value) noexcept {
     auto result = uint32(32);
@@ -116,7 +116,7 @@ constexpr inline int _BitHacksCountTrailingZeroBits(_IntegralType_ value) noexce
     }
 }
 
-#if defined (simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+#if defined (simd_stl_processor_x86)
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
 simd_stl_constexpr_cxx20 simd_stl_always_inline int _BsfCountTrailingZeroBits(_IntegralType_ value) noexcept {
@@ -145,6 +145,6 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline int _TzcntCountTrailingZeroBits(
         return _BitHacksCountTrailingZeroBits(value);
 }
 
-#endif // defined(simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+#endif // defined(simd_stl_processor_x86)
 
 __SIMD_STL_MATH_NAMESPACE_END
