@@ -39,7 +39,7 @@ public:
             _DesiredType_ sourceVector[8], result[8];
 
             _mm_storeu_si128(
-                reinterpret_cast<__m128*>(sourceVector),
+                reinterpret_cast<__m128i*>(sourceVector),
                 _Cast_::template cast<_VectorType_, __m128i>(vector));
 
             auto index = basic_simd_permute_mask<_Indices_...>::template unwrap<_Feature, _DesiredType_>();
@@ -53,7 +53,7 @@ public:
             _DesiredType_ sourceVector[16], result[16];
 
             _mm_storeu_si128(
-                reinterpret_cast<__m128*>(sourceVector), 
+                reinterpret_cast<__m128i*>(sourceVector), 
                 _Cast_::template cast<_VectorType_, __m128i>(vector));
 
             auto index = basic_simd_permute_mask<_Indices_...>::template unwrap<_Feature, _DesiredType_>();
@@ -85,7 +85,7 @@ public:
             _DesiredType_ sourceVector[8], result[8];
 
             _mm_storeu_si128(
-                reinterpret_cast<__m128*>(sourceVector),
+                reinterpret_cast<__m128i*>(sourceVector),
                 _Cast_::template cast<_VectorType_, __m128i>(vector));
 
             for (int j = 0; j < 8; j++)
@@ -97,7 +97,7 @@ public:
             _DesiredType_ sourceVector[16], result[16];
 
             _mm_storeu_si128(
-                reinterpret_cast<__m128*>(sourceVector), 
+                reinterpret_cast<__m128i*>(sourceVector), 
                 _Cast_::template cast<_VectorType_, __m128i>(vector));
 
             for (int32 j = 0; j < 16; j++) 
@@ -115,21 +115,24 @@ public:
         _VectorType_                                                    secondVector,
         type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>   mask) noexcept
     {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
-            return _Cast_::cast<__m128i, _VectorType_>(_mm_shuffle_pd(
+       /* if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
+            return _Cast_::cast<__m128d, _VectorType_>(_mm_shuffle_pd(
                 _Cast_::cast<_VectorType_, __m128d>(secondVector),
-                _Cast_::cast<_VectorType_, __m128d>(firstVector), ~mask)
+                _Cast_::cast<_VectorType_, __m128d>(firstVector), (~mask))
             );
         }
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>) {
-            const __m128i shuffle = _mm_setr_epi32(0, 0, 0x01010101, 0x01010101);
-            __m128i v = _mm_shuffle_epi8(_mm_cvtsi32_si128(mask), shuffle);  // SSSE3 pshufb
+        else*/ {
+            constexpr auto length = sizeof(__m128i) / sizeof(_DesiredType_);
 
-            const __m128i bitselect = _mm_setr_epi8(
-                1, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1U << 7,
-                1, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1U << 7);
-            v = _mm_and_si128(v, bitselect);
-            v = _mm_min_epu8(v, _mm_set1_epi8(1));
+            _DesiredType_ first[length], second[length], result[length];
+
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(first), _Cast_::template cast<_VectorType_, __m128i>(firstVector));
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(second), _Cast_::template cast<_VectorType_, __m128i>(secondVector));
+            
+            for (auto current = 0; current < length; ++current)
+                result[current] = ((mask >> current) & 1) ? second[current] : first[current];
+        
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
         }
     }
 };

@@ -1133,7 +1133,7 @@ basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
     const void*                                                                 where,
     const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
 {
-    return simdMemoryAccess::template maskLoadUnaligned(reinterpret_cast<const _DesiredType_*>(where), mask);
+    return simdMemoryAccess::template maskLoadUnaligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
 
 template <
@@ -1145,7 +1145,7 @@ basic_simd<_SimdGeneration_, _Element_>::maskLoadAligned(
     const void*                                                                 where,
     const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
 {
-    return simdMemoryAccess::template maskLoadAligned(reinterpret_cast<const _DesiredType_*>(where), mask);
+    return simdMemoryAccess::template maskLoadAligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
 
 template <

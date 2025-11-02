@@ -131,8 +131,8 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
-        const auto loaded   = loadUnaligned(where);
-        const auto blended  = _ElementWise_::template blend<_DesiredType_>(vector, loaded, mask);
+        const auto loaded   = loadUnaligned<_VectorType_>(where);
+        const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
 
         storeUnaligned(where, blended);
     }
@@ -145,29 +145,44 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
-        
+        const auto loaded   = loadAligned<_VectorType_>(where);
+        const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
+
+        storeAligned(where, blended);
     }
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
+        typename _VectorType_,
+        typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ maskLoadUnaligned(
         const _DesiredType_*                                                where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                  vector) noexcept
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask) noexcept
     {
-        
+        const auto zeros    = _mm_setzero_si128();
+        const auto loaded   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(where));
+
+        const auto blended  = _ElementWise_::template blend<_DesiredType_>(
+            _SimdCast_::template cast<__m128i, _VectorType_>(zeros), 
+            _SimdCast_::template cast<__m128i, _VectorType_>(loaded), mask);
+
+        return blended;
     }
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void maskLoadAligned(
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ maskLoadAligned(
         const _DesiredType_*                                                where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
-        _VectorType_                                                        vector) noexcept
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask) noexcept
     {
+        const auto zeros    = _mm_setzero_si128();
+        const auto loaded   = _mm_load_si128(reinterpret_cast<const __m128i*>(where));
 
+        const auto blended  = _ElementWise_::template blend<_DesiredType_>(
+            _SimdCast_::template cast<__m128i, _VectorType_>(zeros), 
+            _SimdCast_::template cast<__m128i, _VectorType_>(loaded), mask);
+
+        return blended;
     }
 };
 

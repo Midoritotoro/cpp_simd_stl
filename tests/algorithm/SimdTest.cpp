@@ -204,27 +204,57 @@ void testMethods() {
         (void)raw; // smoke‑check
     }
 
-    
+    // --- maskLoad/maskStore aligned/unaligned ---
     {
-        alignas(16) T arr[4] = {10,20,30,40};
-        Simd v = Simd::maskLoadAligned(arr, 0b1010);
-        T out[4] = {};
-        v.storeAligned(out);
-        T expected[4] = { 10, 0, 0, 40 };
-        for (int i = 0; i < 4; ++i) Assert(out[i] == expected[i]);
+        using Simd = simd_stl::numeric::basic_simd<Arch, T>;
+        constexpr size_t N = Simd::size();
+        alignas(64) T src[N];
+        alignas(64) T dst[N];
 
-        Simd v2 = Simd::maskLoadAligned(arr, 0b1010);
-        T out2[4] = {};
-        v2.storeUnaligned(out2);
-        for (int i = 0; i < 4; ++i) Assert(out2[i] == expected[i]);
-    }
+        for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
+        for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(100 + i);
 
-    {
-        T arr[4] = { 0, 0, 0, 0 };
-        Simd v(42);
-        v.maskStoreUnaligned(arr, 0b1001);
-        T expected[4] = { 42, 0, 0, 42 };
-        Assert(std::equal(arr, arr + 4, expected));
+        typename Simd::mask_type mask = 0;
+        for (size_t i = 0; i < N; ++i)
+            if (i % 2 == 0)
+                mask |= (typename Simd::mask_type(1) << i);
+
+        Simd loaded_unaligned = Simd::maskLoadUnaligned(src, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(loaded_unaligned.extract<T>(i) == src[i]);
+            else
+                Assert(loaded_unaligned.extract<T>(i) == T(0));
+        }
+
+        // --- maskLoadAligned ---
+        Simd loaded_aligned = Simd::maskLoadAligned(src, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(loaded_aligned.extract<T>(i) == src[i]);
+            else
+                Assert(loaded_aligned.extract<T>(i) == T(0));
+        }
+
+        // --- maskStoreUnaligned ---
+        Simd v(77);
+        v.maskStoreUnaligned(dst, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(dst[i] == T(77));
+            else
+                Assert(dst[i] == T(100 + i)); // не изменён
+        }
+
+        // --- maskStoreAligned ---
+        for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i); 
+        v.maskStoreAligned(dst, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(dst[i] == T(77));
+            else
+                Assert(dst[i] == T(200 + i));
+        }
     }
 }
 
