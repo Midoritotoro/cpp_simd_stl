@@ -204,15 +204,32 @@ void testMethods() {
         (void)raw; // smoke‑check
     }
 
+    
+    {
+        alignas(16) T arr[4] = {10,20,30,40};
+        Simd v = Simd::maskLoadAligned(arr, 0b1010);
+        T out[4] = {};
+        v.storeAligned(out);
+        T expected[4] = { 10, 0, 0, 40 };
+        for (int i = 0; i < 4; ++i) Assert(out[i] == expected[i]);
+
+        Simd v2 = Simd::maskLoadAligned(arr, 0b1010);
+        T out2[4] = {};
+        v2.storeUnaligned(out2);
+        for (int i = 0; i < 4; ++i) Assert(out2[i] == expected[i]);
+    }
 
     {
-
+        T arr[4] = { 0, 0, 0, 0 };
+        Simd v(42);
+        v.maskStoreUnaligned(arr, 0b1001);
+        T expected[4] = { 42, 0, 0, 42 };
+        Assert(std::equal(arr, arr + 4, expected));
     }
 }
 
 
 int main() {
-    
     testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
     testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 

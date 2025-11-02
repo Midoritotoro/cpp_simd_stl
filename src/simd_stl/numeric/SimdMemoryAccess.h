@@ -9,6 +9,32 @@ class SimdMemoryAccess;
 
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE2> {
+    template <typename _IntegralSimdElementsMask_> 
+    using shuffle_mask_type = std::conditional_t<
+        sizeof(_IntegralSimdElementsMask_) == 1, unsigned int,
+            std::conditional_t<sizeof(_IntegralSimdElementsMask_) == 2, unsigned long long, void>>;
+
+    template <
+        size_t      _ElementsCount_,
+        typename    _IntegralSimdElementsMask_>
+    inline shuffle_mask_type<_IntegralSimdElementsMask_> toShuffleMask(typename std::type_identity<_IntegralSimdElementsMask_>::type mask) noexcept { 
+        using _ResultType_ = shuffle_mask_type<_IntegralSimdElementsMask_>;
+
+        auto result = _ResultType_(0);
+        auto destinationOffset = 0;
+
+        constexpr auto step = math::CountTrailingZeroBits(_ElementsCount_);
+
+        for (auto current = 0; current < _ElementsCount_; ++current) {
+            if ((mask >> current) & 1) {
+                result |= static_cast<_ResultType_>(current & (_ElementsCount_ - 1)) << destinationOffset;
+                destinationOffset += step;
+            }
+        }
+
+        return result;
+    }
+
     static constexpr auto _Feature = arch::CpuFeature::SSE2;
 
     using _ElementWise_ = SimdElementWise<_Feature>;
@@ -101,20 +127,23 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreUnaligned(
-        _DesiredType_*                                                              where,
-        const type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                          vector) noexcept
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
     {
-        
+        const auto loaded   = loadUnaligned(where);
+        const auto blended  = _ElementWise_::template blend<_DesiredType_>(vector, loaded, mask);
+
+        storeUnaligned(where, blended);
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreAligned(
-        _DesiredType_*                                                              where,
-        const type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                          vector) noexcept
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
     {
         
     }
@@ -123,9 +152,9 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const _DesiredType_*                                                        where,
-        const type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                          vector) noexcept
+        const _DesiredType_*                                                where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
     {
         
     }
@@ -134,11 +163,11 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void maskLoadAligned(
-        const _DesiredType_*                                                        where,
-        const type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_> mask,
-        _VectorType_                                                                vector) noexcept
+        const _DesiredType_*                                                where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        _VectorType_                                                        vector) noexcept
     {
-        
+
     }
 };
 
