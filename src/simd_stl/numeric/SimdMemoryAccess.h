@@ -7,6 +7,56 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <arch::CpuFeature _SimdGeneration_>
 class SimdMemoryAccess;
 
+namespace detail::SSE {
+    template <
+        sizetype _VerticalSize_,
+        sizetype _HorizontalSize_>
+    struct ShuffleTables {
+        uint8 shuffle[_VerticalSize_][_HorizontalSize_];
+        uint8 size[_VerticalSize_];
+    };
+
+    template <
+        sizetype _VerticalSize_,
+        sizetype _HorizontalSize_>
+    constexpr auto makeShuffleTables(
+        const uint32 multiplier, 
+        const uint32 elementGroupStride) noexcept
+    {
+        ShuffleTables<_VerticalSize_, _HorizontalSize_> result;
+
+        for (uint32 verticalIndex = 0; verticalIndex != _VerticalSize_; ++verticalIndex) {
+            uint32 activeGroupCount = 0;
+
+            for (uint32 horizontalIndex = 0; horizontalIndex != _HorizontalSize_ / elementGroupStride; ++horizontalIndex) {
+                if ((verticalIndex & (1 << horizontalIndex)) == 0) {
+                    for (uint32 elementOffset = 0; elementOffset != elementGroupStride; ++elementOffset)
+                        result.shuffle[verticalIndex][activeGroupCount * elementGroupStride + elementOffset] = 
+                            static_cast<uint8>(horizontalIndex * elementGroupStride + elementOffset);
+                    
+                    ++activeGroupCount;
+                }
+            }
+
+            result.size[verticalIndex] = static_cast<uint8>(activeGroupCount * multiplier);
+
+         
+            for (; activeGroupCount != _HorizontalSize_ / elementGroupStride; ++activeGroupCount)
+                for (uint32 elementOffset = 0; elementOffset != elementGroupStride; ++elementOffset)
+                    result.shuffle[verticalIndex][activeGroupCount * elementGroupStride + elementOffset] = 
+                        static_cast<uint8>(activeGroupCount * elementGroupStride + elementOffset);
+        }
+
+        return result;
+    }
+
+    constexpr auto tables8Bit   = makeShuffleTables<256, 8>(1, 1);
+    constexpr auto tables16Bit  = makeShuffleTables<256, 16>(2, 2);
+    constexpr auto tables32Bit  = makeShuffleTables<16, 16>(4, 4);
+    constexpr auto tables64Bit  = makeShuffleTables<4, 16>(8, 8);
+} // namespace detail
+
+
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE2> {
     template <typename _IntegralSimdElementsMask_> 
@@ -40,17 +90,6 @@ class SimdMemoryAccess<arch::CpuFeature::SSE2> {
     using _ElementWise_ = SimdElementWise<_Feature>;
     using _SimdCast_    = SimdCast<_Feature>;
 public:
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void compressStoreUnaligned(
-        void*                                                           where,
-        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>   mask,
-        _VectorType_                                                    vector) noexcept
-    {
-        
-    }
-
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
         return loadAligned<_VectorType_, void>(where);
@@ -184,6 +223,96 @@ public:
 
         return blended;
     }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
+    {
+        __m128i shuffle;
+
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+
+        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        return where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreAligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
+    {
+        __m128i shuffle;
+
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+
+        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        return where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector,
+        const _VectorType_                                                  sourceVector) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector,
+        const _VectorType_                                                  sourceVector) noexcept
+    {
+        
+    }
 };
 
 template <>
@@ -194,7 +323,102 @@ class SimdMemoryAccess<arch::CpuFeature::SSE3> :
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSSE3> :
     public SimdMemoryAccess<arch::CpuFeature::SSE3>
-{};
+{
+    static constexpr auto _Feature = arch::CpuFeature::SSSE3;
+    
+    using _Cast_        = SimdCast<_Feature>;
+    using _ElementWise_ = SimdElementWise<_Feature>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
+    {
+        __m128i shuffle;
+
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+
+        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        return where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreAligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector) noexcept
+    {
+        __m128i shuffle;
+
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+
+        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        return where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector,
+        const _VectorType_                                                  sourceVector) noexcept
+    {
+        if (mask != )
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
+        _DesiredType_*                                                      where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const _VectorType_                                                  vector,
+        const _VectorType_                                                  sourceVector) noexcept
+    {
+        
+    }
+};
 
 template <>
 class SimdMemoryAccess<arch::CpuFeature::SSE41> :

@@ -21,6 +21,8 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+
+
 /**
     * @class basic_simd
     * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
@@ -582,14 +584,31 @@ public:
     static simd_stl_always_inline void zeroUpper() noexcept;
 
     template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline void compressStoreUnaligned(
+    simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         void*                                                                   where,
         type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline void compressStoreAligned(
+    simd_stl_always_inline _DesiredType_* compressStoreAligned(
         void*                                                                   where,
         type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
+        void*                                                                   where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+        const basic_simd&                                                       source) const noexcept;
+
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
+        void*                                                                   where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+        const basic_simd&                                                       source) const noexcept;
+
+    template <
+        sizetype _Mask,
+        typename _DesiredType_ = _Element_>
+    simd_stl_always_inline void blend(const basic_simd& vector) noexcept;
 private:
     vector_type _vector;
 };
@@ -1484,9 +1503,32 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _DesiredType_> 
-void basic_simd<_SimdGeneration_, _Element_>::compressStoreUnaligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreUnaligned(
     void*                                                                   where,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+{
+    return simdMemoryAccess::template compressStoreUnaligned<_DesiredType_>(where, mask, _vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_> 
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreAligned(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+{
+    return simdMemoryAccess::template compressStoreAligned<_DesiredType_>(where, mask, _vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_> 
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeUnaligned(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+    const basic_simd&                                                       source) const noexcept
 {
 
 }
@@ -1495,10 +1537,21 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
 template <typename _DesiredType_> 
-void basic_simd<_SimdGeneration_, _Element_>::compressStoreAligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeAligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+    const basic_simd&                                                       source) const noexcept
 {
+
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <
+    sizetype _Mask,
+    typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::blend(const basic_simd& vector) noexcept {
 
 }
 

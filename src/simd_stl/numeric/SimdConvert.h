@@ -27,8 +27,8 @@ public:
     }
 
     template <
-        typename _MaskType_,
-        typename _VectorType_>
+        typename _VectorType_,
+        typename _MaskType_>
     static simd_stl_always_inline _VectorType_ convertFromMask(_MaskType_ mask) noexcept {
         if (is_epi32_v<_MaskType_> || is_epu32_v<_MaskType_>) {
             const auto shuffle = _mm_setr_epi32(0, 0, 0x01010101, 0x01010101);
@@ -66,8 +66,8 @@ class SimdConvert<arch::CpuFeature::SSSE3> :
 {
 public:
     template <
-        typename _MaskType_,
-        typename _VectorType_>
+        typename _VectorType_,
+        typename _MaskType_>
     static simd_stl_always_inline _VectorType_ convertFromMask(_MaskType_ mask) noexcept {
         if (is_epi32_v<_MaskType_> || is_epu32_v<_MaskType_>) {
             const auto shuffle = _mm_setr_epi32(0, 0, 0x01010101, 0x01010101);

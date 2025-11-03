@@ -145,7 +145,48 @@ class SimdElementWise<arch::CpuFeature::SSE3> :
 template <>
 class SimdElementWise<arch::CpuFeature::SSSE3> :
     public SimdElementWise<arch::CpuFeature::SSE3>
-{};
+{
+    static constexpr auto _Feature = arch::CpuFeature::SSSE3;
+
+    using _Cast_    = SimdCast<_Feature>;
+    using _Convert_ = SimdConvert<_Feature>;
+public:
+   /* template <
+        typename    _DesiredType_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ shuffle(
+        _VectorType_                                                            vector,
+        type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_>   mask) noexcept
+    {
+        if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
+                _Cast_::template cast<_VectorType_, __m128d>(vector),
+                _Cast_::template cast<_VectorType_, __m128d>(vector), mask)
+            );
+        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_> || is_ps_v<_DesiredType_>)
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                _Cast_::template cast<_VectorType_, __m128i>(vector), mask)
+            );
+        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
+            _DesiredType_ sourceVector[8], result[8];
+
+            _mm_storeu_si128(
+                reinterpret_cast<__m128i*>(sourceVector),
+                _Cast_::template cast<_VectorType_, __m128i>(vector));
+
+            for (int j = 0; j < 8; j++)
+                result[j] = sourceVector[(mask >> (j * 3)) & 0x07];
+
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
+        }
+        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi8(
+                _Cast_::template cast<_VectorType_, __m128i>(vector),
+                _Convert_::template convertFromMask<__m128i>(mask)
+            ));
+        }
+    }*/
+};
 
 template <>
 class SimdElementWise<arch::CpuFeature::SSE41> :
