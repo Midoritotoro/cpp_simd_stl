@@ -135,5 +135,71 @@ int main() {
         assert(v.size() == N - N / 10);
     }
 
+    {
+        std::vector<int> v = { 1, 2, 3, 4, 5, 6 };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });
+
+        std::vector<int> expected = { 1, 3, 5 };
+        assert(std::equal(v.begin(), new_end, expected.begin()));
+    }
+
+    {
+        std::vector<int> v = { 7, 7, 7 };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](int x) { return true; });
+
+        assert(new_end == v.begin());
+    }
+
+    {
+        std::vector<int> v = { 1, 2, 3 };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](int x) { return false; });
+
+        assert(new_end == v.end());
+        assert(std::equal(v.begin(), v.end(), std::vector<int>{1, 2, 3}.begin()));
+    }
+
+    {
+        std::vector<int> v;
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](int x) { return x > 0; });
+
+        assert(new_end == v.begin());
+    }
+
+    {
+        std::vector<int> v = { 10, 20, 30, 40, 50 };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](int x) { return x >= 30; });
+
+        std::vector<int> expected = { 10, 20 };
+        assert(std::equal(v.begin(), new_end, expected.begin()));
+    }
+
+    {
+        std::vector<std::string> v = { "a", "b", "c", "b", "d" };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](const std::string& s) { return s == "b"; });
+
+        std::vector<std::string> expected = { "a", "c", "d" };
+        assert(std::equal(v.begin(), new_end, expected.begin()));
+    }
+
+    {
+        std::vector<int> v = { 0, 1, 2, 3, 4, 5 };
+        size_t index = 0;
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [&](int) { return index++ % 2 == 0; });
+
+        std::vector<int> expected = { 1, 3, 5 };
+        assert(std::equal(v.begin(), new_end, expected.begin()));
+    }
+
+    {
+        struct Item { int id; char tag; };
+        std::vector<Item> v = { {1,'a'}, {2,'b'}, {3,'a'}, {4,'c'} };
+        auto new_end = simd_stl::algorithm::remove_if(v.begin(), v.end(), [](const Item& item) { return item.tag == 'a'; });
+
+        std::vector<Item> expected = { {2,'b'}, {4,'c'} };
+        assert(std::equal(v.begin(), new_end, expected.begin(), [](const Item& a, const Item& b) {
+            return a.id == b.id && a.tag == b.tag;
+            }));
+    }
+
     return 0;
 }

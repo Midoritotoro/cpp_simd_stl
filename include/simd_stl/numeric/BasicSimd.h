@@ -1247,7 +1247,6 @@ basic_simd<_SimdGeneration_, _Element_>::operator<<=(const uint32 shift) noexcep
     return *this;
 }
 
-
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
@@ -1344,7 +1343,6 @@ simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_>
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
-
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -1507,7 +1505,7 @@ _DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreUnaligned(
     void*                                                                   where,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreUnaligned<_DesiredType_>(where, mask, _vector);
+    return simdMemoryAccess::template compressStoreUnaligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
@@ -1518,7 +1516,7 @@ _DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreAligned(
     void*                                                                   where,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreAligned<_DesiredType_>(where, mask, _vector);
+    return simdMemoryAccess::template compressStoreAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
@@ -1530,7 +1528,7 @@ _DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeUnalig
     type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
     const basic_simd&                                                       source) const noexcept
 {
-
+    return simdMemoryAccess::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
 }
 
 template <
@@ -1542,7 +1540,7 @@ _DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeAligne
     type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
     const basic_simd&                                                       source) const noexcept
 {
-
+    return simdMemoryAccess::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
 }
 
 template <

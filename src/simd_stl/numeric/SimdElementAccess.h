@@ -53,7 +53,6 @@ public:
                     _mm_andnot_si128(mask, _Cast_::template cast<_VectorType_, __m128i>(vector))));
         }
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            // _mm_insert_epi16 ������� ����� ������� ����������
             switch (position) {
                 case 0:
                     vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 0));
@@ -72,7 +71,6 @@ public:
                 case 7:
                     vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 7));
             }
-
         }
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
             const int8 maskArray[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
@@ -108,7 +106,6 @@ public:
         const uint8     where) noexcept
     {
         if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            // _mm_extract_epi16 ������� ����� ������� ����������
             switch (where) {
                 case 0:
                     return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 0));

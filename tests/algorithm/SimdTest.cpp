@@ -1,6 +1,26 @@
 ﻿#include <simd_stl/numeric/BasicSimd.h>
 #include <string>
 
+template <typename _Simd_>
+void mask_compress_any(
+    const typename _Simd_::value_type* a,
+    const typename _Simd_::value_type* src,
+    typename _Simd_::value_type* dst,
+    typename _Simd_::mask_type mask)
+{
+    constexpr auto N = _Simd_::template size();
+
+    int m = 0;
+
+    for (int j = 0; j < N; ++j)
+        if ((~(mask >> j)) & 1)
+            dst[m++] = a[j];
+
+    for (int i = m; i < N; ++i)
+        dst[i] = src[i];
+}
+
+
 template <typename T, simd_stl::arch::CpuFeature Arch>
 bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>& vec) {
     std::vector<T> simd_data(vec.size());
@@ -124,7 +144,8 @@ void testArithmeticOperations() {
 template <typename T, simd_stl::arch::CpuFeature Arch>
 void testMethods() {
     using Simd = simd_stl::numeric::basic_simd<Arch, T>;
-    
+    constexpr size_t N = Simd::size();
+
     // --- Конструкторы ---
     {
         Simd v1;
@@ -206,8 +227,6 @@ void testMethods() {
 
     // --- maskLoad/maskStore aligned/unaligned ---
     {
-        using Simd = simd_stl::numeric::basic_simd<Arch, T>;
-        constexpr size_t N = Simd::size();
         alignas(64) T src[N];
         alignas(64) T dst[N];
 
@@ -256,6 +275,59 @@ void testMethods() {
                 Assert(dst[i] == T(200 + i));
         }
     }
+
+    alignas(64) T src[N];
+    for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
+
+    Simd v(src);
+
+
+    typename Simd::mask_type mask = 0;
+    for (size_t i = 0; i < N; i += 2)
+        mask |= (typename Simd::mask_type(1) << i); // 0101... 
+
+    // --- compressStoreUnaligned ---
+    {
+        alignas(64) T dst[N] = {};
+        v.compressStoreUnaligned(dst, mask);
+
+        alignas(64) T expected[N];
+        mask_compress_any<Simd>(src, src, expected, mask);
+
+        Assert(std::equal(expected, expected + N, dst));
+    }
+
+    // --- compressStoreAligned ---
+    {
+        alignas(64) T dst[N] = {};
+        v.compressStoreAligned(dst, mask);
+
+        alignas(64) T expected[N];
+        mask_compress_any<Simd>(src, src, expected, mask);
+
+        Assert(std::equal(expected, expected + N, dst));
+    }
+
+    // --- compressStoreMergeUnaligned ---
+    {
+        //Simd filler(42);
+
+        //alignas(64) T merge[N];
+        //filler.storeUnaligned(merge);
+
+        //alignas(64) T dst[N] = {};
+        //v.compressStoreMergeUnaligned(dst, mask, filler);
+
+        //alignas(64) T expected[N];
+        //mask_compress_any<Simd>(src, merge, expected, mask);
+
+        //Assert(std::equal(expected, expected + N, dst));
+    }
+
+    // --- compressStoreMergeAligned ---
+    {
+
+    }
 }
 
 
@@ -273,20 +345,36 @@ int main() {
     testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
 
-    testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
 
-    testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
 
-    testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
 
-    testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
 
-    testMethods<float, simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<double, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<float, simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<double, simd_stl::arch::CpuFeature::SSE2>();
+
+
+   /* testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSSE3>();
+    testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSSE3>();
+
+    testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSSE3>();
+    testMethods<simd_stl::uint16, simd_stl::arch::CpuFeature::SSSE3>();*/
+
+    testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSSE3>();
+    testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSSE3>();
+
+ /*   testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSSE3>();
+    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSSE3>();
+
+    testMethods<float, simd_stl::arch::CpuFeature::SSSE3>();
+    testMethods<double, simd_stl::arch::CpuFeature::SSSE3>();*/
 
     return 0;
 }

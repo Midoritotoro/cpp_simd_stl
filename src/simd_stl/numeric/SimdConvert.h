@@ -17,7 +17,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline uint32 convertToMask(_VectorType_ vector) noexcept {
         if      constexpr (is_pd_v<_DesiredType_> || is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return mm_movemask_pd(_Cast_::template cast<_VectorType_, __m128d>(vector));
+            return _mm_movemask_pd(_Cast_::template cast<_VectorType_, __m128d>(vector));
         else if constexpr (is_ps_v<_DesiredType_> || is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
             return _mm_movemask_ps(_Cast_::template cast<_VectorType_, __m128>(vector));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)

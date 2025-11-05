@@ -1,6 +1,10 @@
 #pragma once 
 
 #include <src/simd_stl/numeric/SimdElementWise.h>
+#include <simd_stl/numeric/BasicSimdMask.h>
+
+#include <src/simd_stl/algorithm/AdvanceBytes.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -89,6 +93,7 @@ class SimdMemoryAccess<arch::CpuFeature::SSE2> {
 
     using _ElementWise_ = SimdElementWise<_Feature>;
     using _SimdCast_    = SimdCast<_Feature>;
+    using _SimdConvert_ = SimdConvert<_Feature>;
 public:
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
@@ -229,30 +234,34 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>       mask,
         const _VectorType_                                                  vector) noexcept
     {
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8) {
+        if      constexpr (sizeof(_DesiredType_) == 8)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
+        else if constexpr (sizeof(_DesiredType_) == 4)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 2) {
+        else if constexpr (sizeof(_DesiredType_) == 2)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 1) {
+        else if constexpr (sizeof(_DesiredType_) == 1)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
-        }
 
-        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        const auto destination  = _ElementWise_::template shuffle<uint8>(
+            _SimdCast_::template cast<_VectorType_, __m128i>(vector),
+            _SimdConvert_::template convertToMask<_DesiredType_>(shuffle));
+
         _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 1) 
+            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
 
         return where;
     }
@@ -267,25 +276,29 @@ public:
     {
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 2) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 1) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
-        }
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
 
-        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        const auto destination  = _ElementWise_::template shuffle<uint8>(
+            _SimdCast_::template cast<_VectorType_, __m128i>(vector),
+            _SimdConvert_::template convertToMask<_DesiredType_>(shuffle));
+
         _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 1) 
+            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
 
         return where;
     }
@@ -294,24 +307,34 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
-        _DesiredType_*                                                      where,
+        _DesiredType_* where,
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
+        basic_simd_mask<_Feature, _DesiredType_> simdMask = mask;
 
+        if (simdMask.allOf() == false)
+            storeUnaligned(where, sourceVector);
+
+        return compressStoreUnaligned(where, mask, vector);
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
-        _DesiredType_*                                                      where,
+        _DesiredType_* where,
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
-        
+        basic_simd_mask<_Feature, _DesiredType_> simdMask = mask;
+
+        if (simdMask.allOf() == false)
+            storeAligned(where, sourceVector);
+
+        return compressStoreAligned(where, mask, vector);
     }
 };
 
@@ -339,25 +362,26 @@ public:
     {
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8) {
+        if      constexpr (sizeof(_DesiredType_) == 8)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
+        else if constexpr (sizeof(_DesiredType_) == 4)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 2) {
+        else if constexpr (sizeof(_DesiredType_) == 2)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 1) {
+        else if constexpr (sizeof(_DesiredType_) == 1)
             shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
-        }
 
-        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
         _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
 
         return where;
     }
@@ -372,25 +396,26 @@ public:
     {
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 2) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        }
-        else if constexpr (sizeof(_DesiredType_) == 1) {
-            shuffle = _mm_load_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
-            AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
-        }
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
 
-        const auto destination  = _ElementWise_::template shuffle<uint8>(vector, shuffle);
+        const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
         _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
 
         return where;
     }
@@ -404,7 +429,38 @@ public:
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
-        if (mask != )
+        __m128i shuffle;
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+
+        auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+        uint8 bytesOffset = 0;
+
+        if      constexpr (sizeof(_DesiredType_) == 8)
+            bytesOffset = detail::SSE::tables64Bit.size[mask];
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            bytesOffset = detail::SSE::tables32Bit.size[mask];
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            bytesOffset = detail::SSE::tables16Bit.size[mask];
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            bytesOffset = detail::SSE::tables8Bit.size[mask];
+
+        switch (bytesOffset) {
+            default: return where;
+        }
+
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+        AdvanceBytes(where, bytesOffset);
+
+
+        return where;
     }
 
     template <
@@ -416,7 +472,7 @@ public:
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
-        
+        return where;
     }
 };
 

@@ -50,6 +50,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/MoveVectorized.h
     src/simd_stl/algorithm/vectorized/FillVectorized.h
     src/simd_stl/algorithm/vectorized/RemoveVectorized.h
+    src/simd_stl/algorithm/vectorized/RemoveCopyVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -153,6 +154,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/swap/Swap.h
 
     include/simd_stl/algorithm/remove/Remove.h
+    include/simd_stl/algorithm/remove/RemoveCopy.h
 
     include/simd_stl/memory/Intersects.h
     include/simd_stl/memory/PointerToIntegral.h
