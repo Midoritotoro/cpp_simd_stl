@@ -224,6 +224,8 @@ public:
     */
     simd_stl_always_inline void storeAligned(void* where) const noexcept;
 
+    static simd_stl_always_inline basic_simd loadUpperHalf(const void* where) noexcept;
+    static simd_stl_always_inline basic_simd loadLowerHalf(const void* where) noexcept;
 
     /**
         * @brief Загружает вектор из памяти по невыровненному адресу, используя маску.
@@ -582,6 +584,16 @@ public:
     simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
 
     static simd_stl_always_inline void zeroUpper() noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline _DesiredType_* compressStoreLowerHalf(
+        void* where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline _DesiredType_* compressStoreUpperHalf(
+        void* where,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
@@ -1146,6 +1158,20 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligne
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Element_>
+basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::loadUpperHalf(const void* where) noexcept {
+    return simdMemoryAccess::template loadUpperHalf<vector_type>(where);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::loadLowerHalf(const void* where) noexcept {
+    return simdMemoryAccess::template loadLowerHalf<vector_type>(where);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
 template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
 basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
@@ -1496,6 +1522,27 @@ void basic_simd<_SimdGeneration_, _Element_>::zeroUpper() noexcept {
         _mm256_zeroupper();
 }
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreLowerHalf(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept 
+{
+    return simdMemoryAccess::template compressStoreLowerHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreUpperHalf(
+    void*                                                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept 
+{
+    return simdMemoryAccess::template compressStoreUpperHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+}
 
 template <
     arch::CpuFeature    _SimdGeneration_,

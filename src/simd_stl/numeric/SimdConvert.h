@@ -21,7 +21,8 @@ public:
         else if constexpr (is_ps_v<_DesiredType_> || is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
             return _mm_movemask_ps(_Cast_::template cast<_VectorType_, __m128>(vector));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _mm_movemask_epi8(_mm_srli_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 8));
+            // return _mm_movemask_epi8(_mm_srli_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 8));
+            return _mm_movemask_epi8(_mm_packs_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), _mm_setzero_si128()));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
             return _mm_movemask_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector));
     }

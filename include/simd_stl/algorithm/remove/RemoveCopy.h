@@ -1,11 +1,7 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
-
-#include <src/simd_stl/algorithm/vectorized/RemoveVectorized.h>
-
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <src/simd_stl/algorithm/vectorized/RemoveCopyVectorized.h>
+#include <simd_stl/algorithm/find/Find.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -31,7 +27,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterat
 	auto destinationUnwrapped	= _UnwrapIterator(destination);
 
 	if constexpr (
-		type_traits::is_vectorized_find_algorithm_safe_v<_InputIteratorUnwrappedType_, _Type_> &&
+		type_traits::is_vectorized_find_algorithm_safe_v<_InputIteratorUnwrappedType_, _Type_>	&&
+		type_traits::is_vectorized_find_algorithm_safe_v<_OutputIteratorUnwrappedType_, _Type_> &&
 		type_traits::IteratorCopyCategory<_InputIteratorUnwrappedType_, _OutputIteratorUnwrappedType_>::BitcopyAssignable)
 	{
 #if simd_stl_has_cxx20
@@ -39,19 +36,19 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterat
 #endif
 		{
 			if (math::couldCompareEqualToValueType<_InputIteratorUnwrappedType_>(value) == false)
-				return last;
+				return destination;
 
 			const auto destinationAddress = std::to_address(destinationUnwrapped);
-			const auto position = _RemoveCopyVectorized(
-				std::to_address(firstUnwrapped), std::to_address(lastUnwrapped),
-				destinationAddress, value);
+			auto position = _RemoveCopyVectorized<type_traits::IteratorValueType<_InputIteratorUnwrappedType_>>(
+				std::to_address(firstUnwrapped), std::to_address(lastUnwrapped), destinationAddress, value);
 
-			if constexpr (std::is_pointer_v<_Iterator_>)
-				_SeekPossiblyWrappedIterator(destination, reinterpret_cast<const _Type_*>(position));
+			if constexpr (std::is_pointer_v<_OutputIterator_>)
+				destinationUnwrapped = reinterpret_cast<type_traits::IteratorValueType<_OutputIteratorUnwrappedType_>*>(position);
 			else
-				_SeekPossiblyWrappedIterator(destination, destination + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
-					reinterpret_cast<const _Type_*>(position) - destinationAddress));
+				destinationUnwrapped += static_cast<type_traits::IteratorDifferenceType<_OutputIteratorUnwrappedType_>>(
+					reinterpret_cast<type_traits::IteratorValueType<_OutputIteratorUnwrappedType_>*>(position) - destinationAddress);
 
+			_SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
 			return destination;
 		}
 	}
@@ -84,12 +81,10 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterat
 
 	auto destinationUnwrapped	= _UnwrapIterator(destination);
 
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped) {
-		const auto firstValue = std::move(*firstUnwrapped);
+	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+		if (predicate(*firstUnwrapped) == false)
+			*destinationUnwrapped++ = std::move(*firstUnwrapped);
 
-		if (predicate(value) == false)
-			*destinationUnwrapped++ = std::move(firstValue);
-	}
 
 	_SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
 	return destination;

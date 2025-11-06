@@ -198,7 +198,16 @@ int main() {
         std::vector<Item> expected = { {2,'b'}, {4,'c'} };
         assert(std::equal(v.begin(), new_end, expected.begin(), [](const Item& a, const Item& b) {
             return a.id == b.id && a.tag == b.tag;
-            }));
+        }));
+    }
+
+    {
+        std::vector<unsigned char> v = { 0, 1, 4, 3, 4, 5, 4, 7, 4, 9, 4, 11, 4, 13, 4, 15 };
+        size_t index = 0;
+        auto new_end = simd_stl::algorithm::remove(v.begin(), v.end(), 4);
+
+        std::vector<int> expected = { 0, 1, 3, 5, 7, 9, 11, 13, 15 };
+        assert(std::equal(v.begin(), new_end, expected.begin()));
     }
 
     return 0;

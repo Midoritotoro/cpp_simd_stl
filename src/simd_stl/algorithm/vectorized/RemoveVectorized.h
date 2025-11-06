@@ -16,6 +16,18 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
+template <class _Simd_>
+constexpr int removeStep() noexcept {
+    using _ValueType_ = typename _Simd_::value_type;
+
+    if constexpr (arch::__is_xmm_v<_Simd_::_Generation>) {
+        if constexpr (numeric::is_epi8_v<_ValueType_> || numeric::is_epu8_v<_ValueType_>)
+            return 8;
+        else
+            return 16;
+    }
+}
+
 template <class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline const void* _RemoveScalar(
     void*       first,
@@ -46,8 +58,10 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
+    constexpr auto step = removeStep<_SimdType_>();
+
     const auto size         = ByteLength(first, last);
-    const auto alignedSize  = size & (~(sizeof(_SimdType_) - 1));
+    const auto alignedSize  = size & (~(step - 1));
 
     void* current = first;
 
@@ -58,15 +72,25 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
         AdvanceBytes(stopAt, alignedSize);
 
         do {
-            const auto loaded = _SimdType_::loadUnaligned(current);
+            _SimdType_ loaded /*= _SimdType_::template basic_simd<false>()*/;
+
+            if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
+                loaded = _SimdType_::loadLowerHalf(current);
+            else 
+                loaded = _SimdType_::loadUnaligned(current);
+
             const auto mask = comparand.maskEqual(loaded);
 
-            first = loaded.compressStoreUnaligned(first, mask.unwrap());
-            AdvanceBytes(current, sizeof(_SimdType_));
+            if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
+                first = loaded.compressStoreLowerHalf(first, mask.unwrap());
+            else
+                first = loaded.compressStoreUnaligned(first, mask.unwrap());
+            
+            AdvanceBytes(current, step);
         } while (current != stopAt);
     }
 
-    return (first == last) ? last : _RemoveScalar<_Type_>(first, current, last, value);
+    return (current == last) ? first : _RemoveScalar<_Type_>(first, current, last, value);
 }
 
 template <class _Type_>

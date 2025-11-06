@@ -34,13 +34,14 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 				return last;
 
 			const auto firstAddress = std::to_address(firstUnwrapped);
-			const auto position		= _RemoveVectorized(firstAddress, std::to_address(lastUnwrapped), value);
+			const auto position		= _RemoveVectorized<
+				type_traits::IteratorValueType<_IteratorUnwrappedType_>>(firstAddress, std::to_address(lastUnwrapped), value);
 
 			if constexpr (std::is_pointer_v<_Iterator_>)
 				_SeekPossiblyWrappedIterator(first, reinterpret_cast<const _Type_*>(position));
 			else
 				_SeekPossiblyWrappedIterator(first, first + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
-					reinterpret_cast<const _Type_*>(position) - firstAddress));
+					reinterpret_cast<const _Type_*>(position) - reinterpret_cast<const _Type_*>(firstAddress)));
 
 			return first;
 		}
