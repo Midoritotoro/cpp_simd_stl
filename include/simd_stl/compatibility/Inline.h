@@ -30,7 +30,7 @@
 #  if simd_stl_has_cxx20
 #    define simd_stl_constexpr_cxx20 constexpr
 #  else
-#    define simd_stl_constexpr_cxx20 inline
+#    define simd_stl_constexpr_cxx20 simd_stl_always_inline
 #  endif // simd_stl_has_cxx20
 #endif // !defined(simd_stl_constexpr_cxx20)
 

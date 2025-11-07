@@ -107,6 +107,8 @@ public:
         }
     }
 
+
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -115,13 +117,13 @@ public:
         _VectorType_                                                    secondVector,
         type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>   mask) noexcept
     {
-       /* if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
+/*        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
             return _Cast_::cast<__m128d, _VectorType_>(_mm_shuffle_pd(
                 _Cast_::cast<_VectorType_, __m128d>(secondVector),
                 _Cast_::cast<_VectorType_, __m128d>(firstVector), (~mask))
             );
         }
-        else*/ {
+        else */{
             constexpr auto length = sizeof(__m128i) / sizeof(_DesiredType_);
 
             _DesiredType_ first[length], second[length], result[length];
@@ -133,6 +135,46 @@ public:
                 result[current] = ((mask >> current) & 1) ? second[current] : first[current];
         
             return _Cast_::template cast<__m128i, _VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ reverse(_VectorType_ vector) noexcept {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            const auto casted = _Cast_::template cast<_VectorType_, __m128d>(vector);
+            return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(casted, casted, 0b01));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                _Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                _Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
+
+            vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shufflehi_epi16(vector, 0b00011011));
+            vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shufflelo_epi16(vector, 0b00011011));
+
+            return vector;
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            vector = _Cast_::template cast<__m128i, _VectorType_>(
+                _mm_or_si128(
+                    _mm_srli_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 8),
+                    _mm_slli_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 8)
+                )
+            );
+
+            vector = _Cast_::template cast<__m128i, _VectorType_>(
+                _mm_shufflelo_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
+
+            vector = _Cast_::template cast<__m128i, _VectorType_>(
+                _mm_shufflehi_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
+  
+            return _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
+                _Cast_::template cast<_VectorType_, __m128i>(vector), 0x4E));
         }
     }
 };

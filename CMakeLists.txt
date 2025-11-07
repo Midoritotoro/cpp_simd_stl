@@ -156,6 +156,10 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/remove/Remove.h
     include/simd_stl/algorithm/remove/RemoveCopy.h
 
+    include/simd_stl/algorithm/replace/Replace.h
+
+    include/simd_stl/algorithm/order/Reverse.h
+
     include/simd_stl/memory/Intersects.h
     include/simd_stl/memory/PointerToIntegral.h
     include/simd_stl/memory/Alignment.h

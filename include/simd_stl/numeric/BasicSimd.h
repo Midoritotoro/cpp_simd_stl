@@ -621,6 +621,9 @@ public:
         sizetype _Mask,
         typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(const basic_simd& vector) noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline void reverse() noexcept;
 private:
     vector_type _vector;
 };
@@ -1596,8 +1599,16 @@ template <
 template <
     sizetype _Mask,
     typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::blend(const basic_simd& vector) noexcept {
+void basic_simd<_SimdGeneration_, _Element_>::blend(const basic_simd& vector) noexcept {
 
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    typename            _Element_>
+template <typename _DesiredType_>
+void basic_simd<_SimdGeneration_, _Element_>::reverse() noexcept {
+    _vector = simdElementWise::template reverse<_DesiredType_>(_vector);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

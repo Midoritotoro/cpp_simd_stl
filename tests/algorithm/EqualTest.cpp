@@ -6,6 +6,7 @@
 #include <iostream>
 #include <simd_stl/algorithm/find/Equal.h>
 
+
 // Вспомогательная функция для проверки
 template <typename It1, typename It2>
 void check_equal(It1 first1, It1 last1, It2 first2, It2 last2) {
