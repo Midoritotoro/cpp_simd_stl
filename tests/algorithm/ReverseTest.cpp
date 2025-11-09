@@ -116,33 +116,33 @@ void test_reverse_edge_cases() {
 }
 
 int main() {
-   /* test_reverse_large_vector<uint8_t>();
+    test_reverse_large_vector<uint8_t>();
     test_reverse_large_vector<int16_t>();
     test_reverse_large_vector<int32_t>();
-    test_reverse_large_vector<int64_t>();*/
+    test_reverse_large_vector<int64_t>();
     test_reverse_large_vector<float>();
     test_reverse_large_vector<double>();
 
-    //test_reverse_large_array<uint8_t, 512>();
-    //test_reverse_large_array<int16_t, 256>();
-    //test_reverse_large_array<int32_t, 256>();
-    //test_reverse_large_array<int64_t, 128>();
-    //test_reverse_large_array<float, 256>();
-    //test_reverse_large_array<double, 128>();
+    test_reverse_large_array<uint8_t, 512>();
+    test_reverse_large_array<int16_t, 256>();
+    test_reverse_large_array<int32_t, 256>();
+    test_reverse_large_array<int64_t, 128>();
+    test_reverse_large_array<float, 256>();
+    test_reverse_large_array<double, 128>();
 
-    //test_reverse_large_deque<int32_t>();
-    //test_reverse_large_deque<double>();
+    test_reverse_large_deque<int32_t>();
+    test_reverse_large_deque<double>();
 
-    //test_reverse_large_list<int32_t>();
-    //test_reverse_large_list<uint8_t>();
+    test_reverse_large_list<int32_t>();
+    test_reverse_large_list<uint8_t>();
 
-    //test_reverse_sizes<uint8_t>();
-    //test_reverse_sizes<int32_t>();
-    //test_reverse_sizes<double>();
+    test_reverse_sizes<uint8_t>();
+    test_reverse_sizes<int32_t>();
+    test_reverse_sizes<double>();
 
-    //test_reverse_edge_cases<uint8_t>();
-    //test_reverse_edge_cases<int64_t>();
-    //test_reverse_edge_cases<float>();
+    test_reverse_edge_cases<uint8_t>();
+    test_reverse_edge_cases<int64_t>();
+    test_reverse_edge_cases<float>();
 
     {
         const size_t N = 3000;

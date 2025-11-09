@@ -151,8 +151,8 @@ public:
                 _Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
-            vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shuffle_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(vector), 0b00011011));
+            vector = _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
+                _Cast_::template cast<_VectorType_, __m128d>(vector), _Cast_::template cast<_VectorType_, __m128d>(vector), 0b01));
 
             vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shufflehi_epi16(vector, 0b00011011));
             vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_shufflelo_epi16(vector, 0b00011011));

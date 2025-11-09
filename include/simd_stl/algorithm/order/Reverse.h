@@ -18,12 +18,15 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
     auto firstUnwrapped = _UnwrapIterator(first);
     auto lastUnwrapped  = _UnwrapIterator(last);
 
-    if constexpr (type_traits::is_iterator_random_ranges_v<_BidirectionalUnwrappedIterator_>) {
+    if constexpr (
+        type_traits::is_iterator_contiguous_v<_BidirectionalUnwrappedIterator_> &&
+        type_traits::__is_vector_type_supported_v<type_traits::IteratorValueType<_BidirectionalUnwrappedIterator_>>) 
+    {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif
         {
-            _ReverseVectorized<type_traits::IteratorValueType<_BidirectionalUnwrappedIterator_>>(
+            return _ReverseVectorized<type_traits::IteratorValueType<_BidirectionalUnwrappedIterator_>>(
                 std::to_address(firstUnwrapped), std::to_address(lastUnwrapped));
         }
     }

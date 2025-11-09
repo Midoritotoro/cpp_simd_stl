@@ -159,6 +159,8 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/replace/Replace.h
 
     include/simd_stl/algorithm/order/Reverse.h
+    include/simd_stl/algorithm/order/ReverseCopy.h
+
 
     include/simd_stl/memory/Intersects.h
     include/simd_stl/memory/PointerToIntegral.h

@@ -55,8 +55,8 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
 }
 
 simd_stl_always_inline sizetype ByteLength(
-    const void* first,
-    const void* last) noexcept
+    const volatile void* first,
+    const volatile void* last) noexcept
 {
     const auto firstChar    = const_cast<const unsigned char*>(
         reinterpret_cast<const volatile unsigned char*>(first));

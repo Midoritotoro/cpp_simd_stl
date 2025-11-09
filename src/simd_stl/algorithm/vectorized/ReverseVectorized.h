@@ -31,25 +31,24 @@ simd_stl_declare_const_function simd_stl_always_inline void __ReverseVectorized_
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
     const auto size         = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize  = size & (~(sizeof(_SimdType_) - 1));
+    const auto alignedSize  = size & (~((sizeof(_SimdType_) << 1) - 1));
 
     if (alignedSize != 0) {
         void* stopAt = firstPointer;
-        AdvanceBytes(stopAt, alignedSize >> 1);
+        AdvanceBytes(stopAt, alignedSize / 2);
 
         do {
-            RewindBytes(lastPointer, sizeof(_SimdType_));
-
             auto loadedBegin  = _SimdType_::loadUnaligned(firstPointer);
-            auto loadedEnd    = _SimdType_::loadUnaligned(lastPointer);
+            auto loadedEnd    = _SimdType_::loadUnaligned(static_cast<char*>(lastPointer) - sizeof(_SimdType_));
 
             loadedBegin.reverse();
             loadedEnd.reverse();
 
-            loadedBegin.storeUnaligned(lastPointer);
+            loadedBegin.storeUnaligned(static_cast<char*>(lastPointer) - sizeof(_SimdType_));
             loadedEnd.storeUnaligned(firstPointer);
 
             AdvanceBytes(firstPointer, sizeof(_SimdType_));
+            RewindBytes(lastPointer, sizeof(_SimdType_));
         } while (firstPointer != stopAt);
     }
 
@@ -62,8 +61,8 @@ void _ReverseVectorized(
     void* firstPointer,
     void* lastPointer) noexcept
 {
-    //if (arch::ProcessorFeatures::SSE2())
-    //    return __ReverseVectorized__<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer);
+    if (arch::ProcessorFeatures::SSE2())
+        return __ReverseVectorized__<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer);
 
     __ReverseScalar__<_Type_>(firstPointer, lastPointer);
 }
