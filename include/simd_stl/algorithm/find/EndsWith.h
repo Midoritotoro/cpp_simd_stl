@@ -125,4 +125,46 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	return simd_stl::algorithm::ends_with(first1, last1, first2, last2, type_traits::equal_to<>{});
 }
 
+template <
+	class _ExecutionPolicy_,
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
+	_ExecutionPolicy_&&,
+	_FirstForwardIterator_	first1,
+	_FirstForwardIterator_	last1,
+	_SecondForwardIterator_ first2,
+	_SecondForwardIterator_ last2,
+	_Predicate_				predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::ends_with(first1, last1, first2, last2, type_traits::passFunction(predicate));
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
+	_ExecutionPolicy_&&,
+	_FirstForwardIterator_	first1,
+	_FirstForwardIterator_	last1,
+	_SecondForwardIterator_ first2,
+	_SecondForwardIterator_ last2) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::ends_with(first1, last1, first2, last2);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

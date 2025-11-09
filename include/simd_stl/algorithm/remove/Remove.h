@@ -97,5 +97,32 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 	return first;
 }
 
+template <
+	class _ExecutionPolicy_,
+	class _Iterator_,
+	class _Type_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove(
+	_ExecutionPolicy_&&,
+	_Iterator_		first,
+	_Iterator_		last,
+	const _Type_&	value) noexcept
+{
+	return simd_stl::algorithm::remove(first, last, value);
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _Iterator_,
+	class _UnaryPredicate_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove_if(
+	_ExecutionPolicy_&&,
+	_Iterator_			first,
+	_Iterator_			last,
+	_UnaryPredicate_	predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
+		type_traits::IteratorValueType<_Iterator_>>)
+{
+	return simd_stl::algorithm::remove_if(first, last, type_traits::passFunction(predicate));
+}
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

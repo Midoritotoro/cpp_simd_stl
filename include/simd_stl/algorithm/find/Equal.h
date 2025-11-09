@@ -147,9 +147,9 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
-	_FirstIterator_			first1,
-	const _FirstIterator_	last1,
-	_SecondIterator_		first2) noexcept(
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstIterator_>,
@@ -164,10 +164,10 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
-	_FirstIterator_			first1,
-	const _FirstIterator_	last1,
-	_SecondIterator_		first2,
-	const _SecondIterator_	last2) noexcept(
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2,
+	_SecondIterator_	last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::IteratorValueType<_FirstIterator_>,
@@ -176,6 +176,90 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 	)
 {
 	return simd_stl::algorithm::equal(first1, last1, first2, last2, type_traits::equal_to<>{});
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstIterator_,
+	class _SecondIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
+	_ExecutionPolicy_&&,
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2,
+	_Predicate_			predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::equal(first1, last1, first2, type_traits::passFunction(predicate));
+}
+
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstIterator_,
+	class _SecondIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
+	_ExecutionPolicy_&&,
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2,
+	_SecondIterator_	last2,
+	_Predicate_			predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::equal(first1, last1, first2, last2, type_traits::passFunction(predicate));
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstIterator_,
+	class _SecondIterator_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
+	_ExecutionPolicy_&&,
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::equal(first1, last1, first2);
+}
+
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstIterator_,
+	class _SecondIterator_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
+	_ExecutionPolicy_&&,
+	_FirstIterator_		first1,
+	_FirstIterator_		last1,
+	_SecondIterator_	first2,
+	_SecondIterator_	last2) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
+			type_traits::IteratorValueType<_FirstIterator_>,
+			type_traits::IteratorValueType<_SecondIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::equal(first1, last1, first2, last2);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

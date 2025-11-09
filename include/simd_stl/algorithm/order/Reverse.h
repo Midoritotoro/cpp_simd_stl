@@ -35,4 +35,15 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
         simd_stl::algorithm::iter_swap(firstUnwrapped, lastUnwrapped);
 }
 
+template <
+    class _ExecutionPolicy_,
+    class _BidirectionalIterator_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
+    _ExecutionPolicy_&&,
+    _BidirectionalIterator_ first,
+    _BidirectionalIterator_ last) noexcept
+{
+    return simd_stl::algorithm::reverse(first, last);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

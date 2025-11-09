@@ -9,7 +9,7 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-template <typename _Type_>
+template <class _Type_>
 constexpr void swap(
 	_Type_& first,
 	_Type_& second) noexcept(
@@ -69,7 +69,7 @@ inline constexpr bool is_trivially_swappable_v<std::byte> = true;
 
 
 template <
-	typename _Type_,
+	class _Type_,
 	sizetype _Length_> 
 constexpr void swap(
 	_Type_ (&first)[_Length_],
@@ -91,8 +91,8 @@ constexpr void swap(
 }
 
 template <
-	typename _FirstForwardIterator_,
-	typename _SecondForwardIterator_>
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_>
 constexpr _FirstForwardIterator_ swap_ranges(
 	_FirstForwardIterator_	first1,
 	_FirstForwardIterator_	last1,
@@ -130,5 +130,17 @@ constexpr _FirstForwardIterator_ swap_ranges(
 	return first2;
 }
 
+template <
+	class _ExecutionPolicy_,	
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_>
+constexpr _FirstForwardIterator_ swap_ranges(
+	_ExecutionPolicy_&&,
+	_FirstForwardIterator_	first1,
+	_FirstForwardIterator_	last1,
+	_SecondForwardIterator_ first2) noexcept
+{
+	return simd_stl::algorithm::swap_ranges(first1, last1, first2);
+}
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

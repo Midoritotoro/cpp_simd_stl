@@ -41,9 +41,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
     _ForwardIterator_                                   last,
     _UnaryPredicate_                                    predicate,
     const typename std::type_identity<_Type_>::type&    newValue) noexcept(
-        type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-            typename std::type_identity<_Type_>::type>
-        )
+        type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
 {
     __verifyRange(first, last);
 
@@ -53,6 +51,37 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
     for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
         if (predicate(*firstUnwrapped))
             *firstUnwrapped = newValue;
+}
+
+
+template <
+    class _ExecutionPolicy_,
+    class _ForwardIterator_,
+    class _Type_ = std::iterator_traits<_ForwardIterator_>::value_type>
+simd_stl_constexpr_cxx20 simd_stl_always_inline void replace(
+    _ExecutionPolicy_&&,
+    _ForwardIterator_                                   first,
+    _ForwardIterator_                                   last,
+    const typename std::type_identity<_Type_>::type&    oldValue,
+    const typename std::type_identity<_Type_>::type&    newValue) noexcept
+{
+    return simd_stl::algorithm::replace(first, last, oldValue, newValue);
+}
+
+template <
+    class _ExecutionPolicy_,
+    class _ForwardIterator_,
+    class _UnaryPredicate_,
+    class _Type_ = std::iterator_traits<_ForwardIterator_>::value_type>
+simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
+    _ExecutionPolicy_&&,
+    _ForwardIterator_                                   first,
+    _ForwardIterator_                                   last,
+    _UnaryPredicate_                                    predicate,
+    const typename std::type_identity<_Type_>::type&    newValue) noexcept(
+        type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
+{
+    return simd_stl::algorithm::replace_if(first, last, type_traits::passFunction(predicate), newValue);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -44,4 +44,16 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool contains
 	return false;
 }
 
+template <
+	class _ExecutionPolicy_,
+	class _Iterator_,
+	class _Type_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool contains(
+	_Iterator_			first,
+	const _Iterator_	last,
+	const _Type_&		value) noexcept
+{
+	return simd_stl::algorithm::contains(first, last, value);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

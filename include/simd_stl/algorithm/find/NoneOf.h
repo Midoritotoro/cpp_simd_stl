@@ -11,13 +11,32 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline bool none_of(
     _InputIterator_ first,
     _InputIterator_ last,
     _Predicate_     predicate) noexcept(
-        type_traits::is_nothrow_invocable_v<
-		    _Predicate_,
-		    type_traits::IteratorValueType<_InputIterator_>
+            type_traits::is_nothrow_invocable_v<
+		        _Predicate_,
+		        type_traits::IteratorValueType<_InputIterator_>
         >
     )
 {
     return (simd_stl::algorithm::find_if(first, last, type_traits::passFunction(predicate)) == last);
+}
+
+
+template <
+    class _ExecutionPolicy_,
+    class _InputIterator_, 
+    class _Predicate_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline bool none_of(
+    _ExecutionPolicy_&&,
+    _InputIterator_ first,
+    _InputIterator_ last,
+    _Predicate_     predicate) noexcept(
+            type_traits::is_nothrow_invocable_v<
+                _Predicate_,
+                type_traits::IteratorValueType<_InputIterator_>
+        >
+     )
+{
+    return simd_stl::algorithm::none_of(first, last, type_traits::passFunction(predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

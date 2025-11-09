@@ -13,8 +13,6 @@
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
 template <class _Function_>
-// pass function object by value as a reference
-// FunctionReference is an aggregate so it can be enregistered, unlike reference_wrapper
 struct FunctionReference {
     _Function_& _function;
 
@@ -38,7 +36,7 @@ simd_stl_nodiscard constexpr auto passFunction(_Function_& function) noexcept
     if constexpr (passByValue)
         return function;
     else
-        return FunctionReference{ function }; // pass functor by "reference"
+        return FunctionReference{ function };
 }
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

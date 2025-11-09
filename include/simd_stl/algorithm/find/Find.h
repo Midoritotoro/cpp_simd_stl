@@ -108,4 +108,17 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterato
 	return first;
 }
 
+template <
+	class _ExecutionPolicy_,
+	class _Iterator_,
+	class _Type_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find(
+	_ExecutionPolicy_&&,
+	_Iterator_			first,
+	const _Iterator_	last,
+	const _Type_&		value) noexcept
+{
+	return simd_stl::algorithm::find(first, last, value);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

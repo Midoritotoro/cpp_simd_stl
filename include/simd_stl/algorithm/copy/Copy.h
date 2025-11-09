@@ -82,5 +82,37 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_if(
     return destination;
 }
 
+template <
+    class _ExecutionPolicy_,
+    class _InputIterator_,
+    class _OutputIterator_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy(
+    _ExecutionPolicy_&&,
+    _InputIterator_     first,
+    _InputIterator_     last,
+    _OutputIterator_    destination) noexcept
+{
+    return simd_stl::algorithm::copy(first, last, destination);
+}
+
+template <
+    class _ExecutionPolicy_,
+    class _InputIterator_,
+    class _OutputIterator_,
+    class _Predicate_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_if(
+    _ExecutionPolicy_&&,
+    _InputIterator_     first,
+    _InputIterator_     last,
+    _OutputIterator_    destination,
+    _Predicate_         predicate) noexcept(
+        type_traits::is_nothrow_invocable_v<
+        _Predicate_,
+        type_traits::IteratorValueType<_InputIterator_>
+        >)
+{
+    return simd_stl::algorithm::copy_if(first, last, destination, type_traits::passFunction(predicate));
+}
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

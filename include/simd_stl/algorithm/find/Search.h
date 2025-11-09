@@ -131,4 +131,65 @@ simd_stl_nodiscard simd_stl_always_inline _ForwardIterator_ search(
 	return searcher(first, last).first;
 }
 
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_,
+	class _Predicate_> 
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
+	_ExecutionPolicy_&&,
+	_FirstForwardIterator_	first1,
+	_FirstForwardIterator_	last1,
+	_SecondForwardIterator_ first2,
+	_SecondForwardIterator_ last2,
+	_Predicate_				function) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::search(first1, last1, first2, last2, type_traits::passFunction(function));
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _FirstForwardIterator_,
+	class _SecondForwardIterator_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForwardIterator_ search(
+	_ExecutionPolicy_&&,
+	_FirstForwardIterator_	first1,
+	_FirstForwardIterator_	last1,
+	_SecondForwardIterator_ first2,
+	_SecondForwardIterator_ last2) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			type_traits::equal_to<>,
+			type_traits::IteratorValueType<_FirstForwardIterator_>,
+			type_traits::IteratorValueType<_SecondForwardIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::search(first1, last1, first2, last2);
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _ForwardIterator_, 
+	class _Searcher_>
+simd_stl_nodiscard simd_stl_always_inline _ForwardIterator_ search(
+	_ExecutionPolicy_&&,
+	_ForwardIterator_	first, 
+	_ForwardIterator_	last,
+	const _Searcher_&	searcher) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			type_traits::invocable_type<_Searcher_>,
+			type_traits::IteratorValueType<_ForwardIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::search(first, last, searcher);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -113,4 +113,54 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterato
 	return last;
 }
 
+template <
+	class _ExecutionPolicy_,
+	class _Iterator_,
+	class _Type_>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find_last(
+	_ExecutionPolicy_&&,
+	_Iterator_			first,
+	const _Iterator_	last,
+	const _Type_&		value) noexcept
+{
+	return simd_stl::algorithm::find_last(first, last, value);
+}
+
+
+template <
+	class _ExecutionPolicy_,
+	class _InputIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if_not(
+	_ExecutionPolicy_&&,
+	_InputIterator_	first, 
+	_InputIterator_	last, 
+	_Predicate_		predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_InputIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::find_last_if_not(first, last, type_traits::passFunction(predicate));
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _InputIterator_,
+	class _Predicate_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if(
+	_ExecutionPolicy_&&,
+	_InputIterator_	first, 
+	_InputIterator_	last,
+	_Predicate_		predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_,
+			type_traits::IteratorValueType<_InputIterator_>
+		>
+	)
+{
+	return simd_stl::algorithm::find_last_if(first, last, type_traits::passFunction(predicate));
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -53,4 +53,17 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ move(
     return destination;
 }
 
+template <
+    class _ExecutionPolicy_,
+    class _InputIterator_,
+    class _OutputIterator_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ move(
+    _ExecutionPolicy_&&,
+    _InputIterator_     first,
+    _InputIterator_     last,
+    _OutputIterator_    destination) noexcept
+{
+    return simd_stl::algorithm::move(first, last, destination);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

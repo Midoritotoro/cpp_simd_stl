@@ -37,4 +37,17 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill(
     return last;
 }
 
+template <
+    class _ExecutionPolicy_,
+    class _ForwardIterator_,
+    class _Type_>
+simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill(
+    _ExecutionPolicy_&&,
+    _ForwardIterator_   first,
+    _ForwardIterator_   last,
+    const _Type_&       value) noexcept
+{
+    return simd_stl::algorithm::fill(first, last, value);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END

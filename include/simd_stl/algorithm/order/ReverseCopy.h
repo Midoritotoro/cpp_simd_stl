@@ -47,4 +47,17 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_
         *destinationUnwrapped = std::move(*--lastUnwrapped);
 }
 
+template <
+    class _ExecutionPolicy_,
+    class _FirstBidirectionalIterator_,
+    class _SecondBidirectionalIterator_>
+simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_copy(
+    _ExecutionPolicy_&&,
+    _FirstBidirectionalIterator_    first,
+    _FirstBidirectionalIterator_    last,
+    _SecondBidirectionalIterator_   destination) noexcept
+{
+    return simd_stl::algorithm::reverse_copy(first, last, destination);
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END
