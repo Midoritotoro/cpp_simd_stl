@@ -91,6 +91,9 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdIntegralTypesCheck.h
     src/simd_stl/numeric/SimdMemoryAccess.h
 
+    src/simd_stl/concurrency/WindowsThread.h
+    src/simd_stl/concurrency/ThreadYield.h
+
 
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchLoop.h
@@ -108,6 +111,10 @@ set(PUBLIC_HEADERS
     include/simd_stl/arch/ProcessorDetection.h
     include/simd_stl/arch/CpuId.h
     include/simd_stl/arch/CpuFeature.h
+    include/simd_stl/arch/ProcessorInformation.h
+
+    include/simd_stl/concurrency/Thread.h
+    include/simd_stl/concurrency/Mutex.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h

@@ -91,4 +91,40 @@ constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> Itera
     return static_cast<_DifferenceType_>(lastIteratorAddress - firstIteratorAddress);
 }
 
+template <
+    class _Char_, 
+    class _UnsignedIntegralType_>
+simd_stl_nodiscard _Char_* UnsignedIntegralToBuffer(
+    _Char_*                 end,
+    _UnsignedIntegralType_  value) noexcept
+{ 
+    static_assert(std::is_unsigned_v<_UnsignedIntegralType_>);
+
+#if defined(simd_stl_os_win)
+    auto truncated = value;
+#else
+
+    if constexpr (sizeof(_UnsignedIntegralType_) > 4) {
+        while (value > 0xFFFFFFFFU) {
+            auto chunk = static_cast<unsigned long>(value % 1000000000);
+            value /= 1000000000;
+
+            for (int current = 0; current != 9; ++current) {
+                *--end = static_cast<_Char_>('0' + chunk % 10);
+                chunk /= 10;
+            }
+        }
+    }
+
+    auto truncated = static_cast<unsigned long>(_UVal);
+#endif // ^^^ !defined(_WIN64) ^^^
+
+    do {
+        *--end = static_cast<_Char_>('0' + truncated % 10);
+        truncated /= 10;
+    } while (truncated != 0);
+
+    return end;
+}
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END
