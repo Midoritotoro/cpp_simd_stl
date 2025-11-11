@@ -93,8 +93,7 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/concurrency/WindowsThread.h
     src/simd_stl/concurrency/ThreadYield.h
-
-
+    
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchLoop.h
     src/simd_stl/algorithm/FixedMemcmp.h
@@ -115,6 +114,8 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/concurrency/Thread.h
     include/simd_stl/concurrency/Mutex.h
+    include/simd_stl/concurrency/ThreadHandle.h
+    include/simd_stl/concurrency/ThreadId.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h
@@ -168,6 +169,8 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/order/Reverse.h
     include/simd_stl/algorithm/order/ReverseCopy.h
 
+
+    include/simd_stl/system/Handle.h
 
     include/simd_stl/memory/Intersects.h
     include/simd_stl/memory/PointerToIntegral.h

@@ -68,4 +68,16 @@ using sdword_t      = long32;
 using qword_t       = uint64;
 using sqword_t      = int64;
 
+#if defined(simd_stl_os_windows) 
+  using system_bool_t = BOOL;
+#else 
+  using system_bool_t = bool;
+#endif
+  
+#if defined(simd_stl_os_windows)
+  using system_handle_t = void*;
+#else
+  using system_handle_t = void*;
+#endif // defined(simd_stl_os_windows)
+
 __SIMD_STL_NAMESPACE_END

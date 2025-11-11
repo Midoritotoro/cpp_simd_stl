@@ -4,9 +4,30 @@
 
 #if defined(simd_stl_os_win) 
 
+#if !defined(_DLL)
+#  include <process.h> // _beginthreadex && _endthreadex
+#else
+   simd_stl_disable_warning_msvc(6258)
+#endif // !defined(_DLL)
+
 #include <Windows.h>
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
+
+struct _ThreadType {
+    void* handle = nullptr;
+    dword_t id = 0;
+};
+
+enum class _ThreadResult: uint8 {
+    _Error,
+    _Success
+};
+
+enum _ThreadCreationFlags : dword_t {
+    _RunAfterCreation = 0,
+    _SuspendAfterCreation = CREATE_SUSPENDED
+};
 
 simd_stl_nodiscard dword_t _CurrentThreadId() noexcept {
 	return GetCurrentThreadId();
@@ -20,8 +41,121 @@ simd_stl_nodiscard void* _CurrentThread() noexcept {
 	return GetCurrentThread();
 }
 
+_ThreadResult _WaitForThread(void* handle) noexcept {
+    if (WaitForSingleObjectEx(handle, INFINITE, FALSE) == WAIT_FAILED)
+        return _ThreadResult::_Error;
+
+    return _ThreadResult::_Success;
+}
+
+int _ThreadPriority(void* handle) noexcept {
+    return GetThreadPriority(handle);
+}
+
 void _CurrentThreadSleep(dword_t milliseconds) noexcept {
 	Sleep(milliseconds);
+}
+
+template <class _IdType_>
+constexpr bool is_valid_thread_id_type = (sizeof(_IdType_) >= sizeof(DWORD)) && std::is_integral_v<_IdType_>;
+
+template <
+    class           _Tuple_,
+    sizetype ...    _Indices_>
+uint32 simd_stl_stdcall _ThreadTaskInvoke(void* raw) noexcept {
+    const std::unique_ptr<_Tuple_> args(static_cast<_Tuple_*>(raw));
+
+    _Tuple_& tuple = *args.get();
+    std::invoke(std::move(std::get<_Indices_>(tuple))...);
+
+    return 0;
+}
+
+template <
+    class       _Tuple_,
+    size_t...   _Indices_>
+static constexpr auto _GetThreadTaskInvoker(std::index_sequence<_Indices_...>) noexcept {
+    return &_ThreadTaskInvoke<_Tuple_, _Indices_...>;
+}
+
+template <
+    class       _Task_,
+    class...    _Args_>
+_ThreadType simd_stl_stdcall _CreateThread(
+    _Task_&&                task,
+    _Args_&& ...            args,
+    _ThreadCreationFlags    creation,
+    dword_t                 stackSize) noexcept
+{
+    _ThreadType result;
+    using _Tuple_ = std::tuple<std::decay_t<_Task_>, std::decay_t<_Args_>...>;
+
+    auto decayCopied = std::make_unique<_Tuple_>(std::forward<_Task_>(_Routine),  std::forward<_Args_>(_Args_)...);
+    constexpr auto invoker = _GetThreadTaskInvoker<_Tuple_>(std::make_index_sequence<1 + sizeof...(_Args_)>{});
+
+    auto threadId = dword_t(0);
+
+#if defined(simd_stl_cpp_msvc) && !defined(_DLL)
+    // -MT || -MTd 
+
+    result.handle = reinterpret_cast<HANDLE>(
+        _beginthreadex(
+            nullptr, stackSize, invoker, decayCopied.get(), creation,
+            reinterpret_cast<uint32*>(&threadId)
+        )
+    );
+#else
+    // -MD || -MDd
+
+    result.handle = CreateThread(
+        nullptr, stackSize, reinterpret_cast<LPTHREAD_START_ROUTINE>(invoker),
+        reinterpret_cast<LPVOID>(decayCopied.get()),
+        creation, reinterpret_cast<LPDWORD>(&threadId));
+
+#endif // defined(simd_stl_cpp_msvc) && !defined(_DLL)
+
+    if (simd_stl_likely(result.handle != nullptr)) {
+        result.id = threadId;
+        simd_stl_unused(decayCopied.release());
+    }
+    else {
+        result.id = 0;
+    }
+
+    return result;
+}
+
+bool _ResumeSuspendedThread(void* handle) noexcept {
+    return ResumeThread(handle) != -1;
+}
+
+dword_t _ThreadExitCode(void* handle) {
+    dword_t exitCode = 0;
+    GetExitCodeThread(handle, &exitCode);
+
+    return exitCode;
+}
+
+void simd_stl_stdcall _DetachThread(void* handle) noexcept {
+#if defined(simd_stl_cpp_msvc) && !defined(_DLL)
+    // -MT || -MTd 
+    _endthreadex(_ThreadExitCode(handle));
+    CloseHandle(handle);
+#else
+    // -MD || -MDd
+    ExitThread(_ThreadExitCode(handle));
+#endif
+}   
+
+dword_t simd_stl_stdcall _TerminateThread(void* handle) noexcept {
+#if defined(simd_stl_cpp_msvc) && !defined(_DLL)
+    // -MT || -MTd 
+    _DetachThread(_PHandle);
+    return true;
+#else
+    // -MD || -MDd
+    return TerminateThread(handle, _ThreadExitCode(handle));
+#endif
 }
 
 template <
@@ -45,129 +179,36 @@ simd_stl_always_inline auto _ToAbsoluteTime(const std::chrono::duration<_TickCou
     return absoluteTime;
 }
 
-class WindowsThread {
-	class WindowsThreadId;
-public:
-	using native_handle_type		= void*;
-	using thread_id_wrapper_type	= WindowsThreadId;
 
-	simd_stl_always_inline thread_id_wrapper_type get_id() noexcept;
-};
+int _ToNativePriority(thread::Priority) {
+    switch (_Priority) {
+    case WindowsThread::IdlePriority:
+        return THREAD_PRIORITY_IDLE;
 
-class WindowsThread::WindowsThreadId {
-public:
-	using thread_id_type = dword_t;
+    case WindowsThread::LowestPriority:
+        return THREAD_PRIORITY_LOWEST;
 
-	WindowsThreadId() noexcept;
-	WindowsThreadId(thread_id_type id) noexcept;
+    case WindowsThread::LowPriority:
+        return THREAD_PRIORITY_BELOW_NORMAL;
 
-#if simd_stl_has_cxx20
-	simd_stl_always_inline friend std::strong_ordering operator<=>(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
-#else
-	simd_stl_always_inline friend bool operator==(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
-	simd_stl_always_inline friend bool operator!=(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
+    case WindowsThread::NormalPriority:
+        return THREAD_PRIORITY_NORMAL;
 
-	simd_stl_always_inline friend bool operator<(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
-	simd_stl_always_inline friend bool operator>(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
+    case WindowsThread::HighPriority:
+        return THREAD_PRIORITY_ABOVE_NORMAL;
 
-	simd_stl_always_inline friend bool operator<=(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
-	simd_stl_always_inline friend bool operator>=(const WindowsThreadId& left, const WindowsThreadId& right) noexcept;
-#endif // simd_stl_has_cxx20
+    case WindowsThread::HighestPriority:
+        return THREAD_PRIORITY_HIGHEST;
 
-	template <
-		class _Char_,
-		class _Traits_>
-	friend std::basic_ostream<_Char_, _Traits_>& operator<<(
-		std::basic_ostream<_Char_, _Traits_>&	stream,
-		concurrency::thread::id					id);
+    case WindowsThread::TimeCriticalPriority:
+        return THREAD_PRIORITY_TIME_CRITICAL;
 
-	simd_stl_nodiscard simd_stl_always_inline thread_id_type id() const noexcept;
-private:
-	thread_id_type _id = 0;
-};
+    case WindowsThread::InheritPriority:
+        return GetThreadPriority(GetCurrentThread());
+    }
 
-WindowsThread::WindowsThreadId::WindowsThreadId() noexcept {}
-
-WindowsThread::WindowsThreadId::WindowsThreadId(thread_id_type id) noexcept:
-	_id(id)
-{}
-
-#if simd_stl_has_cxx20
-
-std::strong_ordering operator<=>(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept
-{
-	return left._id <=> right._id;
-}
-
-#else
-
-bool operator==(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept 
-{
-	return left._id == right._id;
-}
-
-bool operator!=(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept
-{
-	return left._id != right._id;
-}
-
-bool operator<(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept
-{
-	return left._id < right._id;
-}
-
-bool operator>(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept
-{
-	return left._id > right._id;
-}
-
-bool operator<=(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept 
-{
-	return left._id <= right._id;
-}
-
-bool operator>=(
-	const WindowsThread::thread_id_wrapper_type& left,
-	const WindowsThread::thread_id_wrapper_type& right) noexcept
-{
-	return left._id >= right._id;
-}
-
-#endif // simd_stl_has_cxx20
-
-simd_stl_nodiscard simd_stl_always_inline WindowsThread::thread_id_wrapper_type::thread_id_type
-	WindowsThread::thread_id_wrapper_type::id() const noexcept
-{
-	return _id;
-}
-
-template <
-	class _Char_, 
-	class _Traits_>
-std::basic_ostream<_Char_, _Traits_>& operator<<(
-	std::basic_ostream<_Char_, _Traits_>&	stream, 
-	concurrency::thread::id					id)
-{
-	static_assert(sizeof(concurrency::thread::id) == 4);
-	_Char_ buffer[11];
-
-	_Char_* end = std::end(buffer);
-	*--end = static_cast<_Char_>('\0');
-
-	end = algorithm::UnsignedIntegralToBuffer(end, id._id);
-	return stream << end;
+    AssertUnreachable();
+    return EGENERIC;
 }
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END
