@@ -56,9 +56,6 @@ void _CurrentThreadSleep(dword_t milliseconds) noexcept {
 	Sleep(milliseconds);
 }
 
-template <class _IdType_>
-constexpr bool is_valid_thread_id_type = (sizeof(_IdType_) >= sizeof(DWORD)) && std::is_integral_v<_IdType_>;
-
 template <
     class           _Tuple_,
     sizetype ...    _Indices_>
@@ -137,25 +134,19 @@ dword_t _ThreadExitCode(void* handle) {
 }
 
 void simd_stl_stdcall _DetachThread(void* handle) noexcept {
-#if defined(simd_stl_cpp_msvc) && !defined(_DLL)
-    // -MT || -MTd 
-    _endthreadex(_ThreadExitCode(handle));
     CloseHandle(handle);
-#else
-    // -MD || -MDd
-    ExitThread(_ThreadExitCode(handle));
-#endif
 }   
 
 dword_t simd_stl_stdcall _TerminateThread(void* handle) noexcept {
-#if defined(simd_stl_cpp_msvc) && !defined(_DLL)
-    // -MT || -MTd 
-    _DetachThread(_PHandle);
-    return true;
-#else
-    // -MD || -MDd
     return TerminateThread(handle, _ThreadExitCode(handle));
-#endif
+}
+
+void simd_stl_stdcall _SetThreadPriority(
+    void*   handle,
+    int     priority) noexcept 
+{
+    if (!SetThreadPriority(handle, priority))
+        printf("simd_stl::concurrency::_SetThreadPriority: Failed to set thread priority.");
 }
 
 template <
@@ -177,38 +168,6 @@ simd_stl_always_inline auto _ToAbsoluteTime(const std::chrono::duration<_TickCou
     }
 
     return absoluteTime;
-}
-
-
-int _ToNativePriority(thread::Priority) {
-    switch (_Priority) {
-    case WindowsThread::IdlePriority:
-        return THREAD_PRIORITY_IDLE;
-
-    case WindowsThread::LowestPriority:
-        return THREAD_PRIORITY_LOWEST;
-
-    case WindowsThread::LowPriority:
-        return THREAD_PRIORITY_BELOW_NORMAL;
-
-    case WindowsThread::NormalPriority:
-        return THREAD_PRIORITY_NORMAL;
-
-    case WindowsThread::HighPriority:
-        return THREAD_PRIORITY_ABOVE_NORMAL;
-
-    case WindowsThread::HighestPriority:
-        return THREAD_PRIORITY_HIGHEST;
-
-    case WindowsThread::TimeCriticalPriority:
-        return THREAD_PRIORITY_TIME_CRITICAL;
-
-    case WindowsThread::InheritPriority:
-        return GetThreadPriority(GetCurrentThread());
-    }
-
-    AssertUnreachable();
-    return EGENERIC;
 }
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END
