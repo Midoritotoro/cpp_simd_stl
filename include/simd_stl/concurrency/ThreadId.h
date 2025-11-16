@@ -2,6 +2,7 @@
 
 #include <simd_stl/Types.h>
 #include <simd_stl/compatibility/Compatibility.h>
+#include <src/simd_stl/algorithm/AdvanceBytes.h>
 #include <ostream>
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN

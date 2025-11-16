@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <simd_stl/system/Handle.h>
+#include <simd_stl/algorithm/swap/Swap.h>
+
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
@@ -30,6 +32,32 @@ public:
 		deleter_type		deleter = CloseHandle) noexcept:	
 			system::handle(handle, autoDelete, deleter)
 	{}
+
+	simd_stl_always_inline thread_handle& operator=(const thread_handle& other) noexcept {
+		_nativeHandle = other._nativeHandle;
+		return *this;
+	}
+
+	simd_stl_always_inline thread_handle& operator=(const native_handle_type other) noexcept {
+		_nativeHandle = other;
+		return *this;
+	}
 };
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END
+
+__SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
+
+template <>
+void swap<concurrency::thread_handle>(
+	concurrency::thread_handle& first,
+	concurrency::thread_handle& second) noexcept
+{
+	concurrency::thread_handle temp = first;
+	temp.setAutoDelete(false);
+
+	first = std::move(second);
+	second = std::move(temp);
+}
+
+__SIMD_STL_ALGORITHM_NAMESPACE_END

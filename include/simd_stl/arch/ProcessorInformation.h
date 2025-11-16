@@ -25,13 +25,21 @@ private:
 
         ProcessorInformationInternal() noexcept {
 #if defined(simd_stl_os_win)
-            dword_t length = 0;
-            SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX processorInformationExtended;
+#  if defined(simd_stl_os_win64)
+            constexpr auto length = 48;
+#  else 
+            constexpr auto length = 44;
+#  endif
 
-            char* informationBuffer = reinterpret_cast<char*>(&processorInformationExtended);
-            Assert(GetLogicalProcessorInformationEx(RelationProcessorPackage, &processorInformationExtended, &length));
+            uint8 buffer[length];
+            uint8* informationBuffer = reinterpret_cast<uint8*>(&buffer);
+            
+            dword_t bufferLength = length;
 
-            while (length > 0) {
+            Assert(GetLogicalProcessorInformationEx(RelationProcessorPackage, 
+                reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(informationBuffer), &bufferLength));
+
+            while (bufferLength > 0) {
                 const auto information  = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(informationBuffer);
                 const auto informationSize = information->Size;
 
@@ -39,7 +47,7 @@ private:
                     _logicalProcessors += math::PopulationCount(information->Processor.GroupMask[i].Mask);
 
                 informationBuffer += informationSize;
-                length -= informationSize;
+                bufferLength -= informationSize;
             }
         }
 #endif // defined(simd_stl_os_win)

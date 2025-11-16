@@ -15,6 +15,9 @@ public:
 
 	handle(native_handle_type handle) noexcept;
 
+	simd_stl_always_inline handle& operator=(const handle& other) noexcept;
+	simd_stl_always_inline handle& operator=(const native_handle_type other) noexcept;
+
 	handle(
 		native_handle_type	handle,
 		bool				autoDelete,
@@ -33,8 +36,6 @@ public:
 
 	simd_stl_always_inline bool destroy() noexcept;
 	simd_stl_nodiscard simd_stl_always_inline bool available() const noexcept;
-
-	simd_stl_always_inline handle& operator=(const handle& other) noexcept;
 	
 	simd_stl_always_inline friend bool operator==(
 		const handle& left,
@@ -50,9 +51,9 @@ protected:
 	bool _autoDelete = true;
 };
 
-handle::handle() {}
+handle::handle() noexcept {}
 
-handle::~handle() {
+handle::~handle() noexcept {
 	if (_autoDelete)
 		destroy();
 }
@@ -70,6 +71,11 @@ handle::handle(
 	_autoDelete(autoDelete),
 	_deleter(std::move(deleter))
 {}
+
+handle& handle::operator=(const native_handle_type other) noexcept {
+	_nativeHandle = other;
+	return *this;
+}
 
 void handle::setDeleter(deleter_type deleter) noexcept {
 	_deleter = std::move(deleter);
@@ -108,7 +114,11 @@ bool handle::destroy() noexcept {
 	if (_nativeHandle != nullptr) {
 		_deleter(_nativeHandle);
 		_nativeHandle = nullptr;
+
+		return true;
 	}
+
+	return false;
 }
 
 bool handle::available() const noexcept {
@@ -116,11 +126,8 @@ bool handle::available() const noexcept {
 }
 
 handle& handle::operator=(const handle& other) noexcept {
-	if (_nativeHandle == other._nativeHandle)
-		return *this;
-
-	destroy();
 	_nativeHandle = other._nativeHandle;
+	return *this;
 }
 
 simd_stl_nodiscard bool operator==(

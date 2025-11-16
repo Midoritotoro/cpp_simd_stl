@@ -34,7 +34,7 @@ constexpr void iter_swap(
 }
 
 #if defined(simd_stl_cpp_clang) || defined(__EDG__)
-	void swap() = delete; // Block unqualified name lookup
+	void swap() = delete;
 #else
 	void swap();
 #endif

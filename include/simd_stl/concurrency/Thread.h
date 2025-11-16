@@ -10,12 +10,15 @@
 #include <simd_stl/concurrency/ThreadHandle.h>
 
 #include <src/simd_stl/concurrency/ThreadYield.h>
-#include <simd_stl/algorithm/swap/Swap.h>
-
 #include <chrono>
-
+#include <thread>
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
+
+template <typename _Task_> 
+constexpr bool __methods_overload_enable_v = 
+    (std::is_object_v<std::decay_t<_Task_>> || std::is_member_pointer_v<_Task_> == false)
+     && type_traits::is_invocable_type_v<std::decay_t<_Task_>>;
 
 
 class thread final {
@@ -27,8 +30,10 @@ public:
 	using id			= thread_id;
 
 	simd_stl_nodiscard_constructor thread() noexcept;
-	simd_stl_nodiscard_constructor thread(handle_type handle) noexcept;
     simd_stl_nodiscard_constructor thread(thread&& other) noexcept;
+
+    thread(const thread&) = delete;
+    thread& operator=(const thread&) = delete;
 
     ~thread() noexcept;
 
@@ -107,7 +112,8 @@ public:
     */
     template <
         class       _Task_,
-        class...    _Args_>
+        class...    _Args_,
+        typename = std::enable_if_t<>>
     void start(
         _Task_&&        task,
         _Args_&&...     args);
@@ -130,7 +136,8 @@ public:
     template <
         class       _Owner_,
         class       _Method_,
-        class ...   _Args_>
+        class ...   _Args_,
+        typename = std::enable_if_t<std::is_object_v<std::decay_t<_Owner_>>>>
     void start(
         _Owner_*        owner,
         _Method_&&      routine,
@@ -154,22 +161,26 @@ private:
     Priority _priority = defaultStackPriority;
 };
 
+constexpr auto p = __methods_overload_enable_v<decltype(&strlen)>;
+
 thread::thread() noexcept {}
 
-thread::thread(thread&& other) noexcept:
+thread::thread(thread&& other) noexcept :
     _handle(std::exchange(other._handle, {})),
-    _id(std::exchange(other._id, {}))
-{}
-
-thread::thread(handle_type handle) noexcept :
-    _handle(handle)
+    _id(std::exchange(other._id, {})),
+    _terminateOnDestroy(std::exchange(other._terminateOnDestroy, {})),
+    _stackSize(std::exchange(other._stackSize, {})),
+    _priority(std::exchange(other._priority, {}))
 {
-    _id = _ThreadId(handle.nativeHandle());
+    DebugAssert(!other.joinable());
+    _joinable = std::exchange(other._joinable, {});
 }
 
 thread::~thread() noexcept {
-    if (joinable())
-        std::terminate();
+    if (joinable() && _terminateOnDestroy)
+        _TerminateThread(_handle.nativeHandle());
+    else
+        _handle.destroy();
 }
 
 void thread::setTerminateOnDestroy(bool terminateOnDestroy) noexcept {
@@ -189,11 +200,7 @@ sizetype thread::stackSize() const noexcept {
 }
 
 void thread::setPriority(Priority priority) noexcept {
-    DebugAssert(_handle.available());
     _priority = priority;
-
-    if (joinable() == false)
-        _SetThreadPriority(_handle.nativeHandle(), static_cast<int>(priority));
 }
 
 Priority thread::priority() const noexcept {
@@ -203,19 +210,40 @@ Priority thread::priority() const noexcept {
 void thread::swap(thread& other) noexcept {
     algorithm::swap(_handle, other._handle);
     algorithm::swap(_id, other._id);
+    algorithm::swap(_stackSize, other._stackSize);
+    algorithm::swap(_joinable, other._joinable);
+    algorithm::swap(_priority, other._priority);
+    algorithm::swap(_terminateOnDestroy, other._terminateOnDestroy);
 }
 
 void thread::join() {
-    if (joinable() == false)
-        std::terminate();
+    if (_handle.available() == false)
+        return;
+
+    const auto result = _WaitForThread(_handle.nativeHandle());
+    DebugAssert(result != _ThreadResult::_Error);
+
+    _handle.destroy();
+    _joinable = false;
+    _id = 0;
 }
 
 void thread::detach() {
+    _handle.setAutoDelete(false);
+    concurrency::_DetachThread(_handle.nativeHandle());
 
+    _id = 0;
+    _handle.setNativeHandle(nullptr, false);
 }
 
 void thread::terminate() {
-    _TerminateThread(_handle.nativeHandle());
+    if (_handle.available()) {
+        concurrency::_TerminateThread(_handle.nativeHandle());
+
+        _handle.destroy();
+        _id = 0;
+        _joinable = false;
+    }
 }
 
 thread::handle_type thread::handle() noexcept {
@@ -223,7 +251,7 @@ thread::handle_type thread::handle() noexcept {
 }
 
 bool thread::isCurrentThread() const noexcept {
-    return (this_thread::get_id().id() == _CurrentThreadId());
+    return (concurrency::_CurrentThreadId() == _id.id());
 }
 
 uint32 thread::hardwareConcurrency() noexcept {
@@ -236,7 +264,7 @@ bool thread::joinable() const noexcept {
 
 thread& thread::operator=(thread&& other) noexcept {
     if (joinable())
-        std::terminate();
+        terminate();
 
     _id     = std::exchange(other._id, {});
     _handle = std::exchange(other._handle, {});
@@ -247,54 +275,77 @@ thread& thread::operator=(thread&& other) noexcept {
 
 template <
     class       _Task_,
-    class...    _Args_>
+    class...    _Args_,
+    typename>
 void thread::start(
     _Task_&&    task,
     _Args_&&... args)
 {
-    if (_handle.available()) {
-        _ResumeSuspendedThread(_handle.nativeHandle());
-    }
+    if (_handle.available())
+        terminate();
 
-    const auto result = _CreateThread(
-        std::forward<_Task_>(task), std::forward<_Args_>(args)...,
-        _ThreadCreationFlags::_RunAfterCreation, _stackSize);
+    const auto result = concurrency::_CreateThread(
+        _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
+        std::forward<_Task_>(task), std::forward<_Args_>(args)...);
+
+    concurrency::_SetThreadPriority(result.handle, _priority);
+
+    _joinable = true;
 
     _handle = result.handle;
-    _id     = result.id;
+    _id = result.id;
+
+    _handle.setDeleter(CloseHandle);
+    concurrency::_ResumeSuspendedThread(result.handle);
 }
 
 template <
     class       _Owner_,
     class       _Method_,
-    class ...   _Args_>
+    class ...   _Args_,
+    typename>
 void thread::start(
     _Owner_*        owner,
     _Method_&&      routine,
     _Args_&& ...    args)
 {
-    const auto result = _CreateThread(
+    if (_handle.available())
+        terminate();
+
+   /* auto bound = [owner, routine = std::forward<_Method_>(routine)]
+    (auto&&... callArgs) -> decltype(auto) {
+        return (owner->*routine)(std::forward<decltype(callArgs)>(callArgs)...);
+        };*/
+
+    const auto result = concurrency::_CreateThread(
+        _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
         std::bind(
             std::forward<_Method_>(routine),
             owner,
-            std::forward<_Args_>(args)...),
-        _ThreadCreationFlags::_RunAfterCreation, defaultStackSize);
+            std::placeholders::_1), std::forward<_Args_>(args)...);
+
+    concurrency::_SetThreadPriority(result.handle, _priority);
+
+    _joinable = true;
 
     _handle = result.handle;
     _id = result.id;
+
+    _handle.setDeleter(CloseHandle);
+    concurrency::_ResumeSuspendedThread(result.handle);
 }
 
 namespace this_thread {
     Priority get_priority() noexcept {
-        return static_cast<Priority>(_ThreadPriority(_CurrentThread()));
+        return static_cast<Priority>(concurrency::_ThreadPriority(concurrency::_CurrentThread()));
     }
 
     thread_id get_id() noexcept {
-        return _CurrentThreadId();
+        return concurrency::_CurrentThreadId();
     }
 
     simd_stl_always_inline void yield() noexcept {
-        _Yield();
+        concurrency::_Yield();
     }
 
     template <
@@ -309,15 +360,15 @@ namespace this_thread {
             if (absoluteTime <= now)
                 return;
 
-            uint32 ms = 0;
-            const uint32 remainingTime = (absoluteTime - now);
+            std::chrono::milliseconds ms;
+            const auto remainingTime = (absoluteTime - now);
 
-            if (remainingTime < maximumSleepMs)
+            if (remainingTime > maximumSleepMs)
                 ms = maximumSleepMs;
             else
-                ms = std::chrono::ceil<std::chrono::milliseconds>(remainingTime).count();
+                ms = std::chrono::ceil<std::chrono::milliseconds>(remainingTime);
 
-            _CurrentThreadSleep(ms);
+            _Thrd_sleep_for(ms.count());
         }
     }
 
@@ -325,7 +376,7 @@ namespace this_thread {
         class _TickCountType_,
         class _Period_>
     void sleep_for(const std::chrono::duration<_TickCountType_, _Period_>& relativeTime) {
-        sleep_until(_ToAbsoluteTime(relativeTime));
+        sleep_until(concurrency::_ToAbsoluteTime(relativeTime));
     }
 } // namespace this_thread
 

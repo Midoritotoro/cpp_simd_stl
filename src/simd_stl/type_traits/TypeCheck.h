@@ -118,9 +118,7 @@ constexpr inline bool is_any_of_v =
 #endif
 
 
-template <
-    typename _Type_, 
-    typename = void>
+template <typename _Type_, typename = void>
 struct _Invocable_type {
     using type = void;
 };
@@ -130,23 +128,26 @@ struct _Invocable_type<_Type_, std::void_t<decltype(&_Type_::operator())>> {
     using type = _Type_;
 };
 
-template <
-    typename    _ProbablyCallable_,
-    typename... _Args_>
-struct _Invocable_type<_ProbablyCallable_(_Args_...), void> {
-    using type = _ProbablyCallable_(_Args_ ...);
+template <typename _Type_>
+struct _Invocable_type<_Type_, std::enable_if_t<std::is_class_v<_Type_>>> {
+    using type = _Type_;
 };
 
-template <
-    typename    _ProbablyCallable_,
-    typename... _Args_>
-struct _Invocable_type<_ProbablyCallable_(*)(_Args_...), void> {
-    using type = _ProbablyCallable_(_Args_...);
+template <typename R, typename... Args>
+struct _Invocable_type<R(*)(Args...), void> {
+    using type = R(Args...);
+};
+
+template <typename R, typename... Args>
+struct _Invocable_type<R(Args...), void> {
+    using type = R(Args...);
 };
 
 template <typename _Type_>
 using invocable_type = typename _Invocable_type<std::decay_t<_Type_>>::type;
 
+template <typename _Type_>
+constexpr inline bool is_invocable_type_v = !std::is_same_v<typename invocable_type<std::decay_t<_Type_>>, void>;
 
 template <
     class       _Invocable_, 
@@ -172,7 +173,12 @@ public:
 template <
     class       _Invocable_,
     class...    _Args_>
-inline constexpr bool is_nothrow_invocable_v = _Is_nothrow_invocable<_Invocable_, _Args_...>::value;
+inline constexpr bool is_nothrow_invocable_v = _Is_nothrow_invocable<std::decay_t<_Invocable_>, _Args_...>::value;
+
+template <
+    class       _Type_,
+    class ...   _Args_>
+inline constexpr bool is_invocable_object_v = std::is_object_v<std::decay<_Type_>> && is_nothrow_invocable_v<_Type_>;
 
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

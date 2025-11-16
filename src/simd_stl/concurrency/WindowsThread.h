@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <simd_stl/compatibility/Compatibility.h>
+#include <chrono>
+#include <type_traits>
 
 #if defined(simd_stl_os_win) 
 
@@ -79,15 +81,15 @@ template <
     class       _Task_,
     class...    _Args_>
 _ThreadType simd_stl_stdcall _CreateThread(
-    _Task_&&                task,
-    _Args_&& ...            args,
     _ThreadCreationFlags    creation,
-    dword_t                 stackSize) noexcept
+    dword_t                 stackSize,
+    _Task_&&                task,
+    _Args_&& ...            args) noexcept
 {
     _ThreadType result;
     using _Tuple_ = std::tuple<std::decay_t<_Task_>, std::decay_t<_Args_>...>;
 
-    auto decayCopied = std::make_unique<_Tuple_>(std::forward<_Task_>(_Routine),  std::forward<_Args_>(_Args_)...);
+    auto decayCopied = std::make_unique<_Tuple_>(std::forward<_Task_>(task),  std::forward<_Args_>(args)...);
     constexpr auto invoker = _GetThreadTaskInvoker<_Tuple_>(std::make_index_sequence<1 + sizeof...(_Args_)>{});
 
     auto threadId = dword_t(0);

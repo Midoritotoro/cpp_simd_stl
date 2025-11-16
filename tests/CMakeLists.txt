@@ -12,3 +12,4 @@ find_package(cpp_simd_stl)
 
 add_subdirectory(algorithm)
 add_subdirectory(math)
+add_subdirectory(concurrency)
