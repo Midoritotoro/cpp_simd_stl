@@ -20,3 +20,5 @@
 
 #include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
+
+#include <src/simd_stl/type_traits/Invoke.h>

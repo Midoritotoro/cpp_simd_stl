@@ -79,6 +79,7 @@ set(PRIVATE_HEADERS
     "src/simd_stl/type_traits/IsVirtualBaseOf.h"
     src/simd_stl/type_traits/OperatorWrappers.h
     src/simd_stl/type_traits/Invoke.h
+    src/simd_stl/type_traits/FunctionInformation.h
 
     "src/simd_stl/utility/Assert.h"
 

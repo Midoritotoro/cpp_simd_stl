@@ -27,7 +27,7 @@ int main() {
         simd_stl::concurrency::thread t;
         Worker w;
         std::atomic<int> counter{ 0 };
-        t.start(&w, &Worker::work, std::ref(counter), 5);
+        t.start(&Worker::work, &w, std::ref(counter), 5);
         t.join();
         assert(counter.load() == 5);
     }

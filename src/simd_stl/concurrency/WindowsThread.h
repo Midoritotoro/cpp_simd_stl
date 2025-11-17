@@ -2,7 +2,7 @@
 
 #include <simd_stl/compatibility/Compatibility.h>
 #include <chrono>
-#include <type_traits>
+#include <src/simd_stl/type_traits/Invoke.h>
 
 #if defined(simd_stl_os_win) 
 
@@ -65,7 +65,7 @@ uint32 simd_stl_stdcall _ThreadTaskInvoke(void* raw) noexcept {
     const std::unique_ptr<_Tuple_> args(static_cast<_Tuple_*>(raw));
 
     _Tuple_& tuple = *args.get();
-    std::invoke(std::move(std::get<_Indices_>(tuple))...);
+    type_traits::invoke(std::move(std::get<_Indices_>(tuple))...);
 
     return 0;
 }

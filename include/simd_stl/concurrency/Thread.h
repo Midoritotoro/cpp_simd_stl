@@ -15,12 +15,6 @@
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-template <typename _Task_> 
-constexpr bool __methods_overload_enable_v = 
-    (std::is_object_v<std::decay_t<_Task_>> || std::is_member_pointer_v<_Task_> == false)
-     && type_traits::is_invocable_type_v<std::decay_t<_Task_>>;
-
-
 class thread final {
 public:
     static constexpr auto defaultStackSize      = 1024 * 1024; // 1 Mb
@@ -98,57 +92,68 @@ public:
      */
     void terminate();
 
+    /**
+     * @brief Запускает новый поток выполнения, исполняющий переданную задачу.
+     *
+     * Принимает вызываемый объект
+     * и создаёт поток, который будет выполнять его без дополнительных аргументов.
+     *
+     * @tparam _Task_ Тип вызываемого объекта.
+     * @param task    Вызываемый объект, который будет выполнен в новом потоке.
+     */
+    template <class _Task_>
+    inline void start(_Task_&& task);
 
-    /*
-     * @brief Запускает новый поток выполнения, связанный с данным объектом.
+    /**
+     * @brief Запускает новый поток выполнения, исполняющий переданную задачу
+     *        с аргументами, аналогично std::invoke.
      *
-     * Вызов создаёт поток, который начинает выполнение указанной задачи.
+     * Данный метод принимает вызываемый объект
+     * и аргументы, которые будут переданы при вызове. Первый аргумент используется
+     * как объект для вызова указателя на метод или как первый параметр функции,
+     * остальные аргументы передаются далее.
      *
-     * @tparam _Task_   Тип вызываемого объекта (функция, лямбда, функциональный объект).
-     * @tparam _Args_   Типы аргументов, передаваемых в задачу.
+     * @tparam _Task_          Тип вызываемого объекта.
+     * @tparam _FirstArgument_ Тип первого аргумента.
+     * @tparam _Args_          Типы остальных аргументов.
      *
-     * @param task      Вызываемый объект, определяющий задачу для нового потока.
-     * @param args      Аргументы, которые будут переданы в вызываемый объект.
-    */
+     * @param task          Вызываемый объект, который будет выполнен в новом потоке.
+     * @param firstArgument Первый аргумент, используемый для вызова (например, объект для метода).
+     * @param args          Дополнительные аргументы, передаваемые вызываемому объекту.
+     */
     template <
         class       _Task_,
-        class...    _Args_,
-        typename = std::enable_if_t<>>
-    void start(
-        _Task_&&        task,
-        _Args_&&...     args);
-
-
-    /*
-     * @brief Запускает новый поток выполнения, связанный с данным объектом.
-     *
-     * Вызов создаёт поток, который начинает выполнение указанного метода
-     * заданного объекта.
-     *
-     * @tparam _Owner_  Тип класса, которому принадлежит метод.
-     * @tparam _Method_ Тип вызываемого метода (указатель на член‑функцию).
-     * @tparam _Args_   Типы аргументов, передаваемых в метод.
-     *
-     * @param owner     Указатель на объект, для которого будет вызван метод.
-     * @param routine   Указатель на член‑функцию класса _Owner_, выполняемую в новом потоке.
-     * @param args      Аргументы, которые будут переданы в метод.
-    */
-    template <
-        class       _Owner_,
-        class       _Method_,
-        class ...   _Args_,
-        typename = std::enable_if_t<std::is_object_v<std::decay_t<_Owner_>>>>
-    void start(
-        _Owner_*        owner,
-        _Method_&&      routine,
-        _Args_&& ...    args);
+        class       _FirstArgument_,
+        class...    _Args_>
+    inline void start(
+        _Task_&&            task,
+        _FirstArgument_&&   firstArgument,
+        _Args_&& ...        args);
 
 
     simd_stl_nodiscard simd_stl_always_inline bool joinable() const noexcept;
 
+    /**
+     * @brief Возвращает количество аппаратных потоков выполнения,
+     *        доступных на текущей системе.
+     * @return Количество аппаратных потоков.
+     */
     simd_stl_nodiscard simd_stl_always_inline static uint32 hardwareConcurrency() noexcept;
+
+    /**
+     * @brief Возвращает системный дескриптор потока.
+     * @return Дескриптор потока.
+     */
     simd_stl_nodiscard simd_stl_always_inline handle_type handle() noexcept;
 
+
+    /**
+    * @brief Проверяет, соответствует ли данный объект текущему потоку выполнения.
+    *
+    * Возвращает true, если объект управляет текущим выполняющимся потоком.
+    *
+    * @return Значение, указывающее на совпадение с текущим потоком.
+    */
     simd_stl_nodiscard simd_stl_always_inline bool isCurrentThread() const noexcept;
 private:
     handle_type _handle;
@@ -160,8 +165,6 @@ private:
     sizetype _stackSize = defaultStackSize;
     Priority _priority = defaultStackPriority;
 };
-
-constexpr auto p = __methods_overload_enable_v<decltype(&strlen)>;
 
 thread::thread() noexcept {}
 
@@ -272,21 +275,15 @@ thread& thread::operator=(thread&& other) noexcept {
     return *this;
 }
 
-
-template <
-    class       _Task_,
-    class...    _Args_,
-    typename>
-void thread::start(
-    _Task_&&    task,
-    _Args_&&... args)
+template <class _Task_>
+void thread::start(_Task_&& task)
 {
     if (_handle.available())
         terminate();
 
     const auto result = concurrency::_CreateThread(
         _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
-        std::forward<_Task_>(task), std::forward<_Args_>(args)...);
+        std::forward<_Task_>(task));
 
     concurrency::_SetThreadPriority(result.handle, _priority);
 
@@ -300,29 +297,21 @@ void thread::start(
 }
 
 template <
-    class       _Owner_,
-    class       _Method_,
-    class ...   _Args_,
-    typename>
+    class       _Task_,
+    class       _FirstArgument_,
+    class...    _Args_>
 void thread::start(
-    _Owner_*        owner,
-    _Method_&&      routine,
-    _Args_&& ...    args)
+    _Task_&&            task,
+    _FirstArgument_&&   firstArgument,
+    _Args_&& ...        args)
 {
     if (_handle.available())
         terminate();
 
-   /* auto bound = [owner, routine = std::forward<_Method_>(routine)]
-    (auto&&... callArgs) -> decltype(auto) {
-        return (owner->*routine)(std::forward<decltype(callArgs)>(callArgs)...);
-        };*/
-
     const auto result = concurrency::_CreateThread(
         _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
-        std::bind(
-            std::forward<_Method_>(routine),
-            owner,
-            std::placeholders::_1), std::forward<_Args_>(args)...);
+        std::forward<_Task_>(task), std::forward<_FirstArgument_>(firstArgument), 
+        std::forward<_Args_>(args)...);
 
     concurrency::_SetThreadPriority(result.handle, _priority);
 
@@ -368,7 +357,7 @@ namespace this_thread {
             else
                 ms = std::chrono::ceil<std::chrono::milliseconds>(remainingTime);
 
-            _Thrd_sleep_for(ms.count());
+            _CurrentThreadSleep(ms.count());
         }
     }
 
