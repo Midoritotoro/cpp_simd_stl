@@ -312,7 +312,7 @@ template <
 inline constexpr bool is_nothrow_invocable_r = _Select_invoke_traits<_Callable_, _Args_...>::_Is_nothrow_invocable_r::value;
 
 template <class _Callable_>
-constexpr auto invoke(_Callable_&& callable) noexcept(is_nothrow_invocable_v<_Callable_>)
+constexpr auto invoke(_Callable_&& callable) noexcept(static_cast<_Callable_&&>(callable)())
     -> decltype(static_cast<_Callable_&&>(callable)())
 {
     static_assert(is_invocable_v<_Callable_>, "invoke argument is not callable");

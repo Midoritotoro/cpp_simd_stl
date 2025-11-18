@@ -95,6 +95,8 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/concurrency/WindowsThread.h
     src/simd_stl/concurrency/ThreadYield.h
+    src/simd_stl/concurrency/WindowsThreadPool.h
+    src/simd_stl/concurrency/WindowsThreadPoolTasks.h
     
     src/simd_stl/algorithm/vectorized/SearchVectorized.h
     src/simd_stl/algorithm/vectorized/traits/SearchLoop.h
@@ -118,6 +120,18 @@ set(PUBLIC_HEADERS
     include/simd_stl/concurrency/Mutex.h
     include/simd_stl/concurrency/ThreadHandle.h
     include/simd_stl/concurrency/ThreadId.h
+    include/simd_stl/concurrency/ThreadPool.h
+    include/simd_stl/concurrency/Execution.h
+
+    include/simd_stl/concurrency/algorithm/find/ParallelFind.h
+    include/simd_stl/concurrency/algorithm/find/ParallelFindIf.h
+    include/simd_stl/concurrency/algorithm/find/ParallelFindIfNot.h
+
+    include/simd_stl/concurrency/algorithm/find/ParallelAllOf.h
+    include/simd_stl/concurrency/algorithm/find/ParallelAnyOf.h
+    include/simd_stl/concurrency/algorithm/find/ParallelNoneOf.h
+
+    include/simd_stl/concurrency/ThreadPoolTasks.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h

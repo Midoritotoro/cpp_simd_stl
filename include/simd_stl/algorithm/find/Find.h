@@ -6,6 +6,7 @@
 #include <src/simd_stl/algorithm/vectorized/FindVectorized.h>
 
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -111,14 +112,12 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterato
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find(
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+simd_stl_nodiscard _Iterator_ find(
 	_ExecutionPolicy_&&,
 	_Iterator_			first,
 	const _Iterator_	last,
-	const _Type_&		value) noexcept
-{
-	return simd_stl::algorithm::find(first, last, value);
-}
+	const _Type_&		value) noexcept;
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
