@@ -6,86 +6,54 @@
 #  include <src/simd_stl/concurrency/WindowsThreadPool.h>
 #endif // defined(simd_stl_os_windows)
 
+#include <simd_stl/concurrency/ThreadPoolTasks.h>
+
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-class thread_pool {
+class _ThreadPoolExecutor {
 #if defined(simd_stl_os_windows)
 	using implementation = WindowsThreadPool;
 #endif // defined(simd_stl_os_windows)
 public:
-	thread_pool(sizetype threads = arch::ProcessorInformation::hardwareConcurrency()) noexcept;
-	~thread_pool() noexcept;
+	class thread_pool_executor;
+	using executor_type = thread_pool_executor;
+
+	~_ThreadPoolExecutor() noexcept;
 
 	template <class _Task_>
-	void submit(_Task_&& task) noexcept;
+	_ThreadPoolExecutor(_Task_&& task) noexcept;
 
-	template <
-		class		_Task_,
-		class		_FirstArgument_,
-		class ...	_Args_>
-	void submit(
-		_Task_&&			task,
-		_FirstArgument_&&	firstArgument,
-		_Args_&& ...		args);
+	void submit() noexcept;
 
-	template <
-		class		_TaskType_,
-		class		_Task_,
-		class		_FirstArgument_,
-		class ...	_Args_>
-	void parallelize(
-		_Task_&&			task,
-		_FirstArgument_&&	firstArgument,
-		_Args_&& ...		args);
+	template <class _Task_> 
+	void post(_Task_&& task) noexcept;
 
-	simd_stl_nodiscard bool wait_all() noexcept;
+	simd_stl_nodiscard bool join() noexcept;
 private:
-	_ThreadPool*		_pool = nullptr;
-	_ThreadPoolWork*	_work = nullptr;
+	_ThreadPoolWork* _work = nullptr;
 };
 
-thread_pool::thread_pool(sizetype threads) noexcept {
-	_pool = implementation::create();
-	implementation::setThreadsCount(_pool, threads);
-}
-
-thread_pool::~thread_pool() noexcept {
-	implementation::close(_pool);
+template <class _Task_>
+_ThreadPoolExecutor::_ThreadPoolExecutor(_Task_&& task) noexcept {
+	post(std::move(task));
 }
 
 template <class _Task_>
-void thread_pool::submit(_Task_&& task) noexcept {
-	
+void _ThreadPoolExecutor::post(_Task_&& task) noexcept {
+	_work = implementation::createWork(std::move(task));
 }
 
-template <
-	class		_Task_,
-	class		_FirstArgument_,
-	class ...	_Args_>
-void thread_pool::submit(
-	_Task_&&			task,
-	_FirstArgument_&&	firstArgument,
-	_Args_&& ...		args) 
-{
-
+void _ThreadPoolExecutor::submit() noexcept {
+	implementation::submit(_work);
 }
 
-template <
-	class		_TaskType_,
-	class		_Task_,
-	class		_FirstArgument_,
-	class ...	_Args_>
-void thread_pool::parallelize(
-	_Task_&&			task,
-	_FirstArgument_&&	firstArgument,
-	_Args_&& ...		args)
-{
-
+_ThreadPoolExecutor::~_ThreadPoolExecutor() noexcept {
+	implementation::closeWork(_work);
 }
 
-bool thread_pool::wait_all() noexcept {
-
+bool _ThreadPoolExecutor::join() noexcept {
+	implementation::waitFor(_work);
 }
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END

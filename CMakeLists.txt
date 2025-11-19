@@ -55,6 +55,10 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
 
+    src/simd_stl/algorithm/unchecked/FindUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindIfUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindIfNotUnchecked.h
+
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h
     src/simd_stl/math/PopulationCount.h
@@ -132,6 +136,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/concurrency/algorithm/find/ParallelNoneOf.h
 
     include/simd_stl/concurrency/ThreadPoolTasks.h
+    include/simd_stl/concurrency/ThreadPoolExecutor.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h

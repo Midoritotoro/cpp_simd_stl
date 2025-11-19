@@ -193,7 +193,7 @@ struct _SelectInvoker<_Callable_, _Object_, _RemovedQualifiers_, false, false> {
 template <
     class _Callable_,
     class _Object_>
-using invoker_type = typename _SelectInvoker<_Callable_, _Object_>::type;
+using _Invoker_type = typename _SelectInvoker<_Callable_, _Object_>::type;
 
 template <
     class _From_, 
@@ -274,7 +274,7 @@ template <
     class       _Callable_, 
     class       _FirstType_, 
     class...    _Args_>
-using _Decltype_invoke_nonzero = decltype(invoker_type<_Callable_, _FirstType_>::call(
+using _Decltype_invoke_nonzero = decltype(_Invoker_type<_Callable_, _FirstType_>::call(
     std::declval<_Callable_>(), std::declval<_FirstType_>(), std::declval<_Args_>()...));
 
 template <
@@ -282,8 +282,9 @@ template <
     class       _FirstType_, 
     class...    _Args_>
 struct _Invoke_traits_nonzero<std::void_t<_Decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>>, _Callable_, _FirstType_, _Args_...>:
-    _Invoke_common_traits<_Decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>, noexcept(invoker_type<_Callable_, _FirstType_>::call(
-            std::declval<_Callable_>(), std::declval<_FirstType_>(), std::declval<_Args_>()...))> {};
+    _Invoke_common_traits<_Decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>, noexcept(_Invoker_type<_Callable_, _FirstType_>::call(
+            std::declval<_Callable_>(), std::declval<_FirstType_>(), std::declval<_Args_>()...))>
+{};
 
 template <
     class       _Callable_,
@@ -312,14 +313,14 @@ template <
 inline constexpr bool is_nothrow_invocable_r = _Select_invoke_traits<_Callable_, _Args_...>::_Is_nothrow_invocable_r::value;
 
 template <class _Callable_>
-constexpr auto invoke(_Callable_&& callable) noexcept(static_cast<_Callable_&&>(callable)())
+constexpr auto invoke(_Callable_&& callable) noexcept(noexcept(static_cast<_Callable_&&>(callable)()))
     -> decltype(static_cast<_Callable_&&>(callable)())
 {
     static_assert(is_invocable_v<_Callable_>, "invoke argument is not callable");
     return static_cast<_Callable_&&>(callable)();
 }
 
-#define __INVOKER_CALL invoker_type<_Callable_, _FirstArgument_>::call( \
+#define __INVOKER_CALL _Invoker_type<_Callable_, _FirstArgument_>::call( \
     static_cast<_Callable_&&>(callable), \
     static_cast<_FirstArgument_&&>(firstArgument), \
     static_cast<_Args_&&>(args)...) 

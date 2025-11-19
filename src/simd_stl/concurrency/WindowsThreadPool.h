@@ -12,53 +12,25 @@
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-using _ThreadPool		= TP_POOL;
 using _ThreadPoolWork	= TP_WORK;
-using _WorkCallback_	= void (__stdcall *)(PTP_CALLBACK_INSTANCE, PVOID, PTP_WORK);
-
 
 class WindowsThreadPool {
 public:
-	static void setThreadsCount(
-		_ThreadPool*	pool, 
-		dword_t			count) noexcept
-	{
-		setMinimumThreadsCount(pool, count);
-		setMaximumThreadsCount(pool, count);
+	template <class _Task_> 
+	static _ThreadPoolWork* createWork(_Task_&& task) noexcept {
+		return CreateThreadpoolWork(&_Task_::threadPoolCallback, &task, nullptr);
 	}
 
-	static void setMinimumThreadsCount(
-		_ThreadPool*	pool, 
-		dword_t			minimum) noexcept
-	{
-		DebugAssert(pool != nullptr);
-		SetThreadpoolThreadMinimum(pool, minimum);
+	static void closeWork(_ThreadPoolWork* work) noexcept {
+		CloseThreadpoolWork(work);
 	}
 
-	static void setMaximumThreadsCount(
-		_ThreadPool*	pool,
-		dword_t			maximum) noexcept
-	{
-		DebugAssert(pool != nullptr);
-		SetThreadpoolThreadMaximum(pool, maximum);
+	static void submit(_ThreadPoolWork* work) noexcept {
+		SubmitThreadpoolWork(work);
 	}
 
-	static _ThreadPool* create() noexcept {
-		return CreateThreadpool(nullptr);
-	}
-	
-	template <
-		class		_Task_,
-		class ...	_Args_>
-	static _ThreadPoolWork* createWork(
-		_Task_&&		task,
-		_Args_&& ...	args) noexcept 
-	{
-
-	}
-
-	static void close(_ThreadPool* pool) noexcept {
-		CloseThreadpool(pool);
+	static void waitFor(_ThreadPoolWork* work) noexcept {
+		WaitForThreadpoolWorkCallbacks(work, true);
 	}
 };
 

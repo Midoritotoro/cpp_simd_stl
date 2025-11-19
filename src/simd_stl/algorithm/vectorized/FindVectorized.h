@@ -65,7 +65,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* FindVectorize
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindVectorized(
+simd_stl_declare_const_function simd_stl_always_inline _Type_* _FindVectorized(
     const void* firstPointer,
     const void* lastPointer,
     _Type_      value) noexcept
@@ -75,9 +75,10 @@ simd_stl_declare_const_function simd_stl_always_inline const void* FindVectorize
     else if (arch::ProcessorFeatures::AVX2())
         return FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value);*/
     /*else*/ if (arch::ProcessorFeatures::SSE2())
-        return FindVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value);
+        return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+            FindVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value)));
 
-    return FindScalar(firstPointer, lastPointer, value);
+    return const_cast<_Type_*>(static_cast<const volatile _Type_*>(FindScalar(firstPointer, lastPointer, value)));
 }
 
 

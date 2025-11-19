@@ -1,4 +1,4 @@
-#include <simd_stl/algorithm/find/Find.h>
+﻿#include <simd_stl/algorithm/find/Find.h>
 
 #include <iostream>
 #include <iomanip>
@@ -81,7 +81,79 @@ void testFind() {
     Assert(*simd_result10 == 42);
 }
 
+void testFindIf() {
+    std::vector<int> v{ 1, 2, 3, 4, 5 };
+    {
+        auto it = simd_stl::algorithm::find_if(v.begin(), v.end(),
+            [](int x) { return x > 3; });
+        Assert(it != v.end());
+        Assert(*it == 4);
+    }
+
+    {
+        auto it = simd_stl::algorithm::find_if(v.begin(), v.end(),
+            [](int x) { return x == 1; });
+        Assert(it == v.begin());
+        Assert(*it == 1);
+    }
+
+    {
+        auto it = simd_stl::algorithm::find_if(v.begin(), v.end(),
+            [](int x) { return x == 5; });
+        Assert(it != v.end());
+        Assert(*it == 5);
+    }
+
+    {
+        auto it = simd_stl::algorithm::find_if(v.begin(), v.end(),
+            [](int x) { return x == 99; });
+        Assert(it == v.end());
+    }
+
+    {
+        std::vector<int> empty;
+        auto it = simd_stl::algorithm::find_if(empty.begin(), empty.end(),
+            [](int) { return true; });
+        Assert(it == empty.end());
+    }
+
+}
+
+void testFindIfNot() {
+    std::vector<int> v{ 1, 2, 3, 4, 5 };
+
+    {
+        auto it = simd_stl::algorithm::find_if_not(v.begin(), v.end(),
+            [](int x) { return x == 1; });
+        Assert(it != v.end());
+        Assert(*it == 2);
+    }
+
+    {
+        auto it = simd_stl::algorithm::find_if_not(v.begin(), v.end(),
+            [](int x) { return x < 5; });
+        Assert(it != v.end());
+        Assert(*it == 5);
+    }
+
+    {
+        auto it = simd_stl::algorithm::find_if_not(v.begin(), v.end(),
+            [](int x) { return x < 10; });
+        Assert(it == v.end());
+    }
+
+    {
+        std::vector<int> empty;
+        auto it = simd_stl::algorithm::find_if_not(empty.begin(), empty.end(),
+            [](int) { return false; });
+        Assert(it == empty.end());
+    }
+}
+
 int main() {
     testFind();
+    testFindIf();
+    testFindIfNot();
+
     return 0;
 }
