@@ -17,7 +17,7 @@ using _ThreadPoolWork	= TP_WORK;
 class WindowsThreadPool {
 public:
 	template <class _Task_> 
-	static _ThreadPoolWork* createWork(_Task_&& task) noexcept {
+	static _ThreadPoolWork* createWork(_Task_& task) noexcept {
 		return CreateThreadpoolWork(&_Task_::threadPoolCallback, reinterpret_cast<PVOID>(&task), nullptr);
 	}
 

@@ -17,13 +17,13 @@ public:
 	~_ThreadPoolExecutor() noexcept;
 
 	template <class _Task_>
-	_ThreadPoolExecutor(_Task_&& task) noexcept;
+	_ThreadPoolExecutor(_Task_& task) noexcept;
 
 	void submit() noexcept;
 	void submitForChunks(uint32 submissions) noexcept;
 
 	template <class _Task_> 
-	void createTask(_Task_&& task) noexcept;
+	void createTask(_Task_& task) noexcept;
 
 	void join() noexcept;
 private:
@@ -31,13 +31,13 @@ private:
 };
 
 template <class _Task_>
-_ThreadPoolExecutor::_ThreadPoolExecutor(_Task_&& task) noexcept {
-	createTask(std::move(task));
+_ThreadPoolExecutor::_ThreadPoolExecutor(_Task_& task) noexcept {
+	createTask(task);
 }
 
 template <class _Task_>
-void _ThreadPoolExecutor::createTask(_Task_&& task) noexcept {
-	_work = implementation::createWork(std::move(task));
+void _ThreadPoolExecutor::createTask(_Task_& task) noexcept {
+	_work = implementation::createWork(task);
 }
 
 void _ThreadPoolExecutor::submit() noexcept {

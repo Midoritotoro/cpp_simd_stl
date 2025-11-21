@@ -223,30 +223,7 @@ public:
     {
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 2)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 1)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
-
-        const auto destination  = _ElementWise_::template shuffle<uint8>(
-            _SimdCast_::template cast<_VectorType_, __m128i>(vector),
-            _SimdConvert_::template convertToMask<_DesiredType_>(shuffle));
-
-        _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
-
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 2)
-            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 1) 
-            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
-
+        
         return where;
     }
 
@@ -344,11 +321,11 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
+        static_assert(sizeof(_DesiredType_) != 8);
+
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            shuffle = loadLowerHalf<__m128i>(detail::SSE::tables64Bit.shuffle[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (sizeof(_DesiredType_) == 4)
             shuffle = loadLowerHalf<__m128i>(detail::SSE::tables32Bit.shuffle[mask]);
         else if constexpr (sizeof(_DesiredType_) == 2)
             shuffle = loadLowerHalf<__m128i>(detail::SSE::tables16Bit.shuffle[mask]);
@@ -358,9 +335,7 @@ public:
         const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
         _mm_storel_epi64(reinterpret_cast<__m128i*>(where), destination);
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (sizeof(_DesiredType_) == 4)
             algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
         else if constexpr (sizeof(_DesiredType_) == 2)
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
@@ -378,11 +353,10 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
+        static_assert(sizeof(_DesiredType_) != 8);
         __m128i shuffle;
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            shuffle = loadUpperHalf<__m128i>(detail::SSE::tables64Bit.shuffle[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+       if constexpr (sizeof(_DesiredType_) == 4)
             shuffle = loadUpperHalf<__m128i>(detail::SSE::tables32Bit.shuffle[mask]);
         else if constexpr (sizeof(_DesiredType_) == 2)
             shuffle = loadUpperHalf<__m128i>(detail::SSE::tables16Bit.shuffle[mask]);
@@ -392,9 +366,7 @@ public:
         const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
         _mm_storeh_pd(reinterpret_cast<double*>(where), _Cast_::template cast<__m128i, __m128d>(destination));
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (sizeof(_DesiredType_) == 4)
             algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
         else if constexpr (sizeof(_DesiredType_) == 2)
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
@@ -412,28 +384,48 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
-        __m128i shuffle;
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 2)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 1)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
 
-        const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
-        _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
-
-        if      constexpr (sizeof(_DesiredType_) == 8)
             algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
             algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 2)
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(where), destination);
+
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 1)
-            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            const auto start = where;
+
+
+            const auto shifted = _mm_movehl_ps(
+                _Cast_::template cast<__m128i, __m128>(_mm_slli_si128(_Cast_::template cast<_VectorType_, __m128i>(vector), 8)),
+                _Cast_::template cast<_VectorType_, __m128>(vector));
+
+            where = compressStoreLowerHalf(where, mask & 0xFF, vector);
+            where = compressStoreLowerHalf(where, (mask >> 8) & 0xFF, shifted);
+
+            const auto remainingElements = sizeof(__m128i) - (where - start);
+
+            auto mask = (1u << remainingElements) - 1u;
+            mask = ~mask;
+
+            maskStoreUnaligned(start, mask, vector);
+        }
 
         return where;
     }
@@ -446,33 +438,50 @@ public:
         const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
         const _VectorType_                                                  vector) noexcept
     {
-        __m128i shuffle;
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
 
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 2)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
-        else if constexpr (sizeof(_DesiredType_) == 1)
-            shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables8Bit.shuffle[mask]));
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
 
-        const auto destination  = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
-        _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
-
-        if      constexpr (sizeof(_DesiredType_) == 8)
             algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
             algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 2)
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
-        else if constexpr (sizeof(_DesiredType_) == 1)
-            algorithm::AdvanceBytes(where, detail::SSE::tables8Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            const auto start = where;
+
+            const auto shifted = _mm_movehl_ps(
+                _Cast_::template cast<__m128i, __m128>(_mm_slli_si128(_Cast_::template cast<_VectorType_, __m128i>(vector), 8)),
+                _Cast_::template cast<_VectorType_, __m128>(vector));
+
+            where = compressStoreLowerHalf(where, mask & 0xFF, vector);
+            where = compressStoreLowerHalf(where, (mask >> 8) & 0xFF, shifted);
+
+            const auto remainingElements = sizeof(__m128i) - (where - start);
+
+            auto mask = (1u << remainingElements) - 1u;
+            mask = ~mask;
+
+            maskStoreAligned(start, mask, vector);
+        }
 
         return where;
     }
-
-
 
     template <
         typename _DesiredType_,
@@ -483,6 +492,48 @@ public:
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables64Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+            algorithm::AdvanceBytes(where, detail::SSE::tables64Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables32Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+            algorithm::AdvanceBytes(where, detail::SSE::tables32Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            auto shuffle = _mm_loadu_si128(reinterpret_cast<const __m128i*>(detail::SSE::tables16Bit.shuffle[mask]));
+
+            const auto destination = _mm_shuffle_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector), shuffle);
+            _mm_store_si128(reinterpret_cast<__m128i*>(where), destination);
+
+            algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            const auto start = where;
+
+            const auto shifted = _mm_movehl_ps(
+                _Cast_::template cast<__m128i, __m128>(_mm_slli_si128(_Cast_::template cast<_VectorType_, __m128i>(vector), 8)),
+                _Cast_::template cast<_VectorType_, __m128>(vector));
+
+            where = compressStoreLowerHalf(where, mask & 0xFF, vector);
+            where = compressStoreLowerHalf(where, (mask >> 8) & 0xFF, shifted);
+
+            const auto remainingElements = sizeof(__m128i) - (where - start);
+
+            auto mask = (1u << remainingElements) - 1u;
+            mask = ~mask;
+
+            maskStoreAligned(start, mask, vector);
+        }
+
         return where;
     }
 

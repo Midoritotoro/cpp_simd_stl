@@ -3,6 +3,8 @@
 #include <simd_stl/algorithm/find/Find.h>
 #include <simd_stl/concurrency/ThreadPool.h>
 
+#include <mutex>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -43,6 +45,20 @@ struct _Range {
 //	}
 //};
 
+template <class _Work>
+void _Run_available_chunked_work(_Work& _Operation) {
+	while (_Operation.processChunk() == _CancellationToken::_Running) { // process while there are chunks remaining
+	}
+}
+
+template <class _Work>
+void _Run_chunked_parallel_work(_Work& _Operation) {
+	concurrency::_ThreadPoolExecutor _Work_op{ _Operation };
+
+	_Work_op.submitForChunks(_Operation.partitions());
+	_Run_available_chunked_work(_Operation);
+}
+
 template <
 	class _UncheckedIterator_,
 	class _FindFunction_,
@@ -56,6 +72,7 @@ class _ParallelFindChunked {
 	std::atomic<_CancellationToken> _cancellationToken;
 
 	std::pair<std::atomic<uint32>, std::atomic<_UncheckedIterator_>> _result;
+	std::mutex _mutex;
 
 	_UncheckedIterator_ _last;
 
@@ -76,7 +93,7 @@ public:
 			_value(value),
 			_function(std::move(function))
 	{
-		const auto length = distance(firstUnwrapped, lastUnwrapped);
+		const auto length	= distance(firstUnwrapped, lastUnwrapped);
 		const auto division = std::div(length, hardwareThreads);
 
 		if (length > hardwareThreads) {
@@ -98,72 +115,30 @@ public:
 	
 
 	_CancellationToken processChunk() noexcept {
-		if (_cancellationToken.load(std::memory_order_relaxed) == _CancellationToken::_Cancelling)
-			return _CancellationToken::_Cancelling;
-		
-		const auto currentPartitionNumber = _processedPartitions.load(std::memory_order_relaxed);
+		const auto currentPartitionNumber	= _processedPartitions.load(std::memory_order_relaxed);
 		
 		const auto resultIterator			= _result.second.load(std::memory_order_relaxed);
 		const auto resultPartitionNumber	= _result.first.load(std::memory_order_relaxed);
 
-		if (resultIterator != _last && resultPartitionNumber < currentPartitionNumber) {
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+		if (resultIterator != _last && resultPartitionNumber < currentPartitionNumber)
 			return _CancellationToken::_Cancelling;
-		}
 
-		const auto partition = _partitions[currentPartitionNumber];
-		const auto findResult = type_traits::invoke(_function, partition.first, partition.last, _value);
+		const auto partition	= _partitions[currentPartitionNumber];
+		const auto findResult	= type_traits::invoke(_function, partition.first, partition.last, _value);
 
 		if (findResult != partition.last) {
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			std::lock_guard guard(_mutex);
 
 			_result.first.store(currentPartitionNumber, std::memory_order_release);
 			_result.second.store(findResult, std::memory_order_release);
 
-			return _CancellationToken::_Cancelling;
+			return _CancellationToken::_Running;
 		}
 
 		_processedPartitions.fetch_add(1, std::memory_order_acq_rel);
 		
-		if (_processedPartitions == _partitions.size()) {
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+		if (_processedPartitions == _partitions.size())
 			return _CancellationToken::_Cancelling;
-		}
-
-		return _CancellationToken::_Running;
-	}
-
-	void processRemaining() noexcept {
-		if (_cancellationToken.load(std::memory_order_relaxed) == _CancellationToken::_Cancelling)
-			return _CancellationToken::_Cancelling;
-		
-		const auto currentPartitionNumber = _processedPartitions.load(std::memory_order_relaxed);
-		
-		const auto resultIterator			= _result.second.load(std::memory_order_relaxed);
-		const auto resultPartitionNumber	= _result.first.load(std::memory_order_relaxed);
-
-		if (resultIterator != _last && resultPartitionNumber < currentPartitionNumber) {
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
-			return _CancellationToken::_Cancelling;
-		}
-
-		const auto partition = _partitions[currentPartitionNumber];
-		const auto findResult = type_traits::invoke(_function, partition.last, partition.last + _remaining, _value);
-
-		if (findResult != partition.last) {
-			_result.first.store(currentPartitionNumber, std::memory_order_release);
-			_result.second.store(findResult, std::memory_order_release);
-
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
-			return _CancellationToken::_Cancelling;
-		}
-
-		_processedPartitions.fetch_add(1, std::memory_order_acq_rel);
-		
-		if (_processedPartitions == _partitions.size()) {
-			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
-			return _CancellationToken::_Cancelling;
-		}
 
 		return _CancellationToken::_Running;
 	}
@@ -171,8 +146,7 @@ public:
 	static void __stdcall threadPoolCallback(
 		PTP_CALLBACK_INSTANCE, PVOID args, PTP_WORK) noexcept
 	{
-		const auto operation = reinterpret_cast<_ParallelFindChunked*>(args);
-		while (operation->processChunk() == _CancellationToken::_Running) {}
+		_Run_available_chunked_work(*static_cast<_ParallelFindChunked*>(args));
 	}
 
 	simd_stl_always_inline uint32 partitions() const noexcept {
@@ -206,22 +180,11 @@ simd_stl_nodiscard _UncheckedIterator_ _ParallelFind(
 				hardwareThreads, firstUnwrapped, lastUnwrapped,
 				type_traits::passFunction(function), value
 			};
-			
-			concurrency::_ThreadPoolExecutor executor(work);
-			
-			auto submissions	= (std::min)(hardwareThreads * _OversubmissionMultiplier, work.partitions());
 
-			while (submissions > 0) {
-				const auto maximumAtTime = submissions > 512 ? 512 : submissions;
+			// auto submissions	= (std::min)(hardwareThreads * _OversubmissionMultiplier, work.partitions());
+			_Run_chunked_parallel_work(work);
 
-				executor.submitForChunks(maximumAtTime);
-				executor.join();
 
-				/*for (int i = 0; i < maximumAtTime; ++i)
-					work.threadPoolCallback(nullptr, &work, nullptr);*/
-
-				submissions -= maximumAtTime;
-			}
 
 			return work.result();
 		}

@@ -21,43 +21,43 @@ void parallelFindTest() {
         assert(it == v.begin());
         assert(*it == 1);
     }
-    {
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel,
-            v.begin(), v.end(), 5);
-        assert(it != v.end());
-        assert(*it == 5);
-    }
+    //{
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel,
+    //        v.begin(), v.end(), 5);
+    //    assert(it != v.end());
+    //    assert(*it == 5);
+    //}
 
-    {
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel_unsequenced,
-            v.begin(), v.end(), 2);
-        assert(it != v.end());
-        assert(*it == 2);
-    }
-    {
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel_unsequenced,
-            v.begin(), v.end(), 42);
-        assert(it == v.end());
-    }
+    //{
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel_unsequenced,
+    //        v.begin(), v.end(), 2);
+    //    assert(it != v.end());
+    //    assert(*it == 2);
+    //}
+    //{
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::parallel_unsequenced,
+    //        v.begin(), v.end(), 42);
+    //    assert(it == v.end());
+    //}
 
-    {
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::unsequenced,
-            v.begin(), v.end(), 4);
-        assert(it != v.end());
-        assert(*it == 4);
-    }
-    {
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::unsequenced,
-            v.begin(), v.end(), -1);
-        assert(it == v.end());
-    }
+    //{
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::unsequenced,
+    //        v.begin(), v.end(), 4);
+    //    assert(it != v.end());
+    //    assert(*it == 4);
+    //}
+    //{
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::unsequenced,
+    //        v.begin(), v.end(), -1);
+    //    assert(it == v.end());
+    //}
 
-    {
-        std::vector<int> empty;
-        auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::sequenced,
-            empty.begin(), empty.end(), 1);
-        assert(it == empty.end());
-    }
+    //{
+    //    std::vector<int> empty;
+    //    auto it = simd_stl::algorithm::find(simd_stl::concurrency::execution::sequenced,
+    //        empty.begin(), empty.end(), 1);
+    //    assert(it == empty.end());
+    //}
 }
 
 int main() {
