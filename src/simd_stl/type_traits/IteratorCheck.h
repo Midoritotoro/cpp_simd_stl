@@ -147,6 +147,9 @@ constexpr bool is_iterator_unwrappable_v<_Iterator_,
     std::void_t<decltype(std::declval<std::remove_cvref_t<_Iterator_>&>()._Seek_to(std::declval<_Iterator_>()._Unwrapped()))>> =
     _Allow_inheriting_unwrap_v<std::remove_cvref_t<_Iterator_>>;
 
+template <class _Iterator_> 
+constexpr bool is_iterator_unwrapped_v = !is_iterator_unwrappable_v<_Iterator_>;
+
 template <
     class _Iterator_, 
     class = void>
@@ -221,5 +224,9 @@ constexpr bool is_wrapped_iterator_nothrow_seekable_v
     <_Iterator_, _UnwrappedIterator_, std::void_t<decltype(std::declval<_Iterator_&>()._Seek_to(std::declval<_UnwrappedIterator_>()))>> = 
         noexcept(std::declval<_Iterator_&>()._Seek_to(std::declval<_UnwrappedIterator_>()));
 
+
+#if !defined(_VerifyUnchecked)
+#  define _VerifyUnchecked(_Iterator) static_assert(simd_stl::type_traits::is_iterator_unwrapped_v<_Iterator>, "Iterators in unchecked-functions must be unwrapped. ");
+#endif // !defined(_VerifyUnchecked)
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

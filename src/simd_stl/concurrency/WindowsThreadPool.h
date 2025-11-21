@@ -18,7 +18,7 @@ class WindowsThreadPool {
 public:
 	template <class _Task_> 
 	static _ThreadPoolWork* createWork(_Task_&& task) noexcept {
-		return CreateThreadpoolWork(&_Task_::threadPoolCallback, &task, nullptr);
+		return CreateThreadpoolWork(&_Task_::threadPoolCallback, reinterpret_cast<PVOID>(&task), nullptr);
 	}
 
 	static void closeWork(_ThreadPoolWork* work) noexcept {

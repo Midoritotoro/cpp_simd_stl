@@ -9,137 +9,225 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 constexpr inline auto _OversubmissionMultiplier = 4;
 constexpr inline auto _OversubscriptionMultiplier = 32;
 
-
 enum class _CancellationToken : uint8 {
 	_Running,
 	_Cancelling
 };
 
-template <
-	class _UnwrappedIterator_, 
-	class _FindFunction_>
-class _ParallelFindTask {
-	_UnwrappedIterator_ _first;
-	_UnwrappedIterator_ _last;
-	
-	_FindFunction_		_function;
-	const type_traits::IteratorValueType<_UnwrappedIterator_>& _value;
-
-	std::atomic<_UnwrappedIterator_*> _outputIterator;
-public:
-	template <class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
-	_ParallelFindTask(
-		_UnwrappedIterator_		first,
-		_UnwrappedIterator_		last,
-		_FindFunction_&&		function,
-		const _Type_&			value,
-		_UnwrappedIterator_&	iterator
-	) noexcept:
-		_first(first),
-		_last(last),
-		_function(function),
-		_value(value),
-		_outputIterator(iterator)
-	{}
-
-	void apply() noexcept {
-		_outputIterator.store(_function(_first, _last, _value), std::memory_order_relaxed);
-	}
+template <class _Iterator_> 
+struct _Range {
+	_Iterator_ first;
+	_Iterator_ last;
 };
 
+//template <
+//	class _UncheckedIterator_,
+//	class _FindFunction_>
+//class _ParallelFindTask {
+//	_VerifyUnchecked(_UncheckedIterator_);
+//
+//	_Range<_UncheckedIterator_> _range;
+//	_FindFunction_				_function;
+//public:
+//	_ParallelFindTask(
+//		_Range<_UncheckedIterator_> range,
+//		_FindFunction_&&			function
+//	) noexcept:
+//		_range(range),
+//		_function(function)
+//	{}
+//
+//	template <class _Type_ = type_traits::IteratorValueType<_UncheckedIterator_>>
+//	auto apply(const _Type_& value) noexcept -> decltype(type_traits::invoke(_function, _range.first, _range.last, _value)) {
+//		return type_traits::invoke(_function, _range.first, _range.last, _value);
+//	}
+//};
+
 template <
-	class _UnwrappedIterator_,
-	class _FindFunction_>
+	class _UncheckedIterator_,
+	class _FindFunction_,
+	class _Type_ = type_traits::IteratorValueType<_UncheckedIterator_>>
 class _ParallelFindChunked {
-	std::vector<_ParallelFindTask<_UnwrappedIterator_, _FindFunction_>> _tasks;
+	_VerifyUnchecked(_UncheckedIterator_);
+
+	std::atomic<uint32> _processedPartitions = 0;
+
+	std::vector<_Range<_UncheckedIterator_>> _partitions;
 	std::atomic<_CancellationToken> _cancellationToken;
 
-	uint32 _current = 0;
+	std::pair<std::atomic<uint32>, std::atomic<_UncheckedIterator_>> _result;
 
-	_UnwrappedIterator_ _result;
+	_UncheckedIterator_ _last;
 
-	sizetype _chunkSize = 0;
-	uint32 _length = 0;
+	sizetype _partitionSize = 0;
+	sizetype _remaining = 0;
+
+	const _Type_& _value;
+	_FindFunction_ _function;
 public:
-	template <class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
 	_ParallelFindChunked(
 		uint32				hardwareThreads,
-		_UnwrappedIterator_ firstUnwrapped,
-		_UnwrappedIterator_	lastUnwrapped,
+		_UncheckedIterator_ firstUnwrapped,
+		_UncheckedIterator_	lastUnwrapped,
 		_FindFunction_&&	function,
 		const _Type_&		value) noexcept:
-			_result(lastUnwrapped)
+			_last(lastUnwrapped),
+			_result(-1, lastUnwrapped),
+			_value(value),
+			_function(std::move(function))
 	{
-		_length = (lastUnwrapped - firstUnwrapped);
+		const auto length = distance(firstUnwrapped, lastUnwrapped);
+		const auto division = std::div(length, hardwareThreads);
 
-		if (_length > hardwareThreads) {
-			_chunkSize = _length / hardwareThreads;
-			_tasks.reserve(_length / _chunkSize);
+		if (length > hardwareThreads) {
+			_partitionSize = division.quot;
+			_remaining = division.rem;
+			_partitions.reserve(hardwareThreads);
 		}
 		else {
-			_chunkSize = 1;
-			_tasks.reserve(_length);
+			_partitionSize = 1;
+			_partitions.reserve(length);
 		}
 
-		for (uint32 current = 0; current < _tasks.size(); ++current)
-			_tasks[current] = _ParallelFindTask(
-				firstUnwrapped + _chunkSize * current,
-				firstUnwrapped + _chunkSize * current + _chunkSize, function, value, _result);
+		for (uint32 current = 0; current < _partitions.capacity(); ++current)
+			_partitions.emplace_back(
+				firstUnwrapped + _partitionSize * current,
+				firstUnwrapped + _partitionSize * current + _partitionSize
+			);
 	}
 	
 
-	void __stdcall processChunk() noexcept {
+	_CancellationToken processChunk() noexcept {
 		if (_cancellationToken.load(std::memory_order_relaxed) == _CancellationToken::_Cancelling)
-			return;
+			return _CancellationToken::_Cancelling;
 		
-		_task[_current].apply();
-		++_current;
+		const auto currentPartitionNumber = _processedPartitions.load(std::memory_order_relaxed);
+		
+		const auto resultIterator			= _result.second.load(std::memory_order_relaxed);
+		const auto resultPartitionNumber	= _result.first.load(std::memory_order_relaxed);
+
+		if (resultIterator != _last && resultPartitionNumber < currentPartitionNumber) {
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			return _CancellationToken::_Cancelling;
+		}
+
+		const auto partition = _partitions[currentPartitionNumber];
+		const auto findResult = type_traits::invoke(_function, partition.first, partition.last, _value);
+
+		if (findResult != partition.last) {
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+
+			_result.first.store(currentPartitionNumber, std::memory_order_release);
+			_result.second.store(findResult, std::memory_order_release);
+
+			return _CancellationToken::_Cancelling;
+		}
+
+		_processedPartitions.fetch_add(1, std::memory_order_acq_rel);
+		
+		if (_processedPartitions == _partitions.size()) {
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			return _CancellationToken::_Cancelling;
+		}
+
+		return _CancellationToken::_Running;
+	}
+
+	void processRemaining() noexcept {
+		if (_cancellationToken.load(std::memory_order_relaxed) == _CancellationToken::_Cancelling)
+			return _CancellationToken::_Cancelling;
+		
+		const auto currentPartitionNumber = _processedPartitions.load(std::memory_order_relaxed);
+		
+		const auto resultIterator			= _result.second.load(std::memory_order_relaxed);
+		const auto resultPartitionNumber	= _result.first.load(std::memory_order_relaxed);
+
+		if (resultIterator != _last && resultPartitionNumber < currentPartitionNumber) {
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			return _CancellationToken::_Cancelling;
+		}
+
+		const auto partition = _partitions[currentPartitionNumber];
+		const auto findResult = type_traits::invoke(_function, partition.last, partition.last + _remaining, _value);
+
+		if (findResult != partition.last) {
+			_result.first.store(currentPartitionNumber, std::memory_order_release);
+			_result.second.store(findResult, std::memory_order_release);
+
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			return _CancellationToken::_Cancelling;
+		}
+
+		_processedPartitions.fetch_add(1, std::memory_order_acq_rel);
+		
+		if (_processedPartitions == _partitions.size()) {
+			_cancellationToken.store(_CancellationToken::_Cancelling, std::memory_order_release);
+			return _CancellationToken::_Cancelling;
+		}
+
+		return _CancellationToken::_Running;
 	}
 
 	static void __stdcall threadPoolCallback(
 		PTP_CALLBACK_INSTANCE, PVOID args, PTP_WORK) noexcept
 	{
-		reinterpret_cast<_ParallelFindChunked*>(args)->processChunk();
+		const auto operation = reinterpret_cast<_ParallelFindChunked*>(args);
+		while (operation->processChunk() == _CancellationToken::_Running) {}
 	}
 
-	simd_stl_always_inline uint32 chunks() const noexcept {
-		return _tasks.size();
+	simd_stl_always_inline uint32 partitions() const noexcept {
+		return _partitions.size();
 	}
 
-	simd_stl_always_inline bool end() const noexcept {
-		return _result != _lastUnwrapped;
+	simd_stl_always_inline _UncheckedIterator_ result() const noexcept {
+		return _result.second.load(std::memory_order_relaxed);
 	}
 };
 
 template <
 	class _ExecutionPolicy_,
-	class _UnwrappedIterator_,
+	class _UncheckedIterator_,
 	class _FindFunction_,
 	class _Type_>
-simd_stl_nodiscard _UnwrappedIterator_ _ParallelFind(
+simd_stl_nodiscard _UncheckedIterator_ _ParallelFind(
 	_ExecutionPolicy_&&,
-	_UnwrappedIterator_			firstUnwrapped,
-	const _UnwrappedIterator_	lastUnwrapped,
+	_UncheckedIterator_			firstUnwrapped,
+	const _UncheckedIterator_	lastUnwrapped,
 	_FindFunction_&&			function,
 	const _Type_&				value) noexcept
 {
-	if constexpr (_ExecutionPolicy_::parallelize) {
+	_VerifyUnchecked(_UncheckedIterator_);
+
+	if constexpr (std::remove_reference_t<_ExecutionPolicy_>::parallelize) {
 		const auto hardwareThreads = arch::ProcessorInformation::hardwareConcurrency();
+
 		if (hardwareThreads > 1) {
-			_ParallelFindChunked<_UnwrappedIterator_, _FindFunction_> work { hardwareThreads, firstUnwrapped, lastUnwrapped, type_traits::passFunction(function), value };
+			_ParallelFindChunked<_UncheckedIterator_, _FindFunction_> work {
+				hardwareThreads, firstUnwrapped, lastUnwrapped,
+				type_traits::passFunction(function), value
+			};
 			
 			concurrency::_ThreadPoolExecutor executor(work);
 			
-			const auto submissions = (std::min)(hardwareThreads * _OversubmissionMultiplier, work.chunks());
+			auto submissions	= (std::min)(hardwareThreads * _OversubmissionMultiplier, work.partitions());
 
-			for (uint32 current = 0; current < submissions; ++current)
-				executor.submit();
+			while (submissions > 0) {
+				const auto maximumAtTime = submissions > 512 ? 512 : submissions;
 
-			executor.join();
+				executor.submitForChunks(maximumAtTime);
+				executor.join();
+
+				/*for (int i = 0; i < maximumAtTime; ++i)
+					work.threadPoolCallback(nullptr, &work, nullptr);*/
+
+				submissions -= maximumAtTime;
+			}
+
+			return work.result();
 		}
 	}
 
-	return function(firstUnwrapped, lastUnwrapped);
+	return function(firstUnwrapped, lastUnwrapped, value);
 }
 
 template <

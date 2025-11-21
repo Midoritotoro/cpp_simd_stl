@@ -135,9 +135,6 @@ set(PUBLIC_HEADERS
     include/simd_stl/concurrency/algorithm/find/ParallelAnyOf.h
     include/simd_stl/concurrency/algorithm/find/ParallelNoneOf.h
 
-    include/simd_stl/concurrency/ThreadPoolTasks.h
-    include/simd_stl/concurrency/ThreadPoolExecutor.h
-
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h
     include/simd_stl/compatibility/CallingConventions.h

@@ -7,6 +7,8 @@
 #include <simd_stl/Types.h>
 
 #include <src/simd_stl/utility/Assert.h>
+#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -89,6 +91,35 @@ constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> Itera
         reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress2));
 
     return static_cast<_DifferenceType_>(lastIteratorAddress - firstIteratorAddress);
+}
+
+template <class _InputIterator_> 
+constexpr inline bool is_nothrow_distance_v = type_traits::is_iterator_random_ranges_v<_InputIterator_> 
+    || std::bool_constant<noexcept(std::declval<std::remove_reference_t<_InputIterator_>&>()++)>::value;
+
+template <
+    class _InputIterator_,
+    class _DifferenceType_ = type_traits::IteratorDifferenceType<_InputIterator_>>
+simd_stl_nodiscard simd_stl_always_inline constexpr type_traits::IteratorDifferenceType<_InputIterator_> distance(
+    _InputIterator_ first,
+    _InputIterator_ last) noexcept(is_nothrow_distance_v<_InputIterator_>)
+{
+    if constexpr (type_traits::is_iterator_random_ranges_v<_InputIterator_>) {
+        return static_cast<_DifferenceType_>(last - first);
+    }
+    else {
+        __verifyRange(first, last);
+
+        auto firstUnwrapped        = _UnwrapIterator(first);
+        const auto lastUnwrapped   = _UnwrapIterator(last);
+
+        auto distance = _DifferenceType_(0);
+
+        for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
+            ++distance;
+
+        return distance;
+    }
 }
 
 template <
