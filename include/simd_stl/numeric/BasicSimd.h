@@ -21,18 +21,6 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_>
-class _SimdTraits:
-    public _SimdCast<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdConvert<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdCompare<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>,
-    public _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>
-{};
 
 /**
     * @class basic_simd
@@ -61,7 +49,6 @@ class basic_simd {
 
     friend BasicSimdElementReference;
 public:
-    using traits = _SimdTraits<_SimdGeneration_, _RegisterPolicy_>;
     using policy = _RegisterPolicy_;
 
     static constexpr auto _Generation = _SimdGeneration_;
@@ -164,42 +151,6 @@ public:
     simd_stl_always_inline void expand(
         basic_simd_mask<_SimdGeneration_, _Element_>    mask,
         const value_type                                value) noexcept;
-
-    /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_SimdGeneration_, _OtherElement_>.
-        * Метод необходим только для компиляции и не занимает время во время выполнения.
-        * @return Результат конвертации.
-    */
-    template <typename _OtherElement_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_, _RegisterPolicy_> bitcast() const noexcept;
-
-    /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
-        * Метод необходим только для компиляции и не занимает время во время выполнения.
-        * @return Результат конвертации.
-    */
-    template <
-        arch::CpuFeature	_OtherSimdGeneration_,
-        typename            _OtherElement_>
-    simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_, _RegisterPolicy_> bitcast() const noexcept;
-
-    /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в _BasicSimdTo_.
-        * Если не происходит преобразование с расширением, то метод необходим только для компиляции и не занимает время во время выполнения.
-        * В противном случае старшая часть результата преобразования с расширением заполняется нулями.
-        * @return Результат конвертации.
-    */
-    template <class _BasicSimdTo_>
-    static simd_stl_always_inline _BasicSimdTo_ safeBitcast(const basic_simd& from) noexcept;
-
-    /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
-        * Метод необходим только для компиляции и не занимает время во время выполнения.
-        * Старшая часть результата преобразования с расширением неопределена.
-        * @return Результат конвертации.
-    */
-    template <class _BasicSimdTo_>
-    simd_stl_always_inline _BasicSimdTo_ bitcast(const basic_simd& from) const noexcept;
 
     /**
         * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type) байт из памяти по невыровненному адресу.
@@ -1118,65 +1069,6 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPol
 {
 
 }   
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _OtherElement_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_, _RegisterPolicy_>
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast() const noexcept
-{
-    return traits::template cast<vector_type, 
-        type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherElement_>>(_vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <
-    arch::CpuFeature	_OtherSimdGeneration_,
-    typename            _OtherElement_>
-simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_, _RegisterPolicy_>
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast() const noexcept
-{
-    return traits::template cast<vector_type, 
-        type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>>(_vector);
-}
-
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <class _BasicSimdTo_>
-simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::safeBitcast(const basic_simd& from) noexcept {
-    static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
-    using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
-
-    return _SimdCast<_SuperiorBasicSimdType_::_Generation, _RegisterPolicy_>::template cast<
-        typename basic_simd::vector_type,
-        typename _BasicSimdTo_::vector_type, true>(from._vector);
-}
-
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <class _BasicSimdTo_>
-simd_stl_always_inline _BasicSimdTo_
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast(const basic_simd& from) const noexcept
-{
-    static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
-    using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
-
-    return _SimdCast<_SuperiorBasicSimdType_::_Generation, _RegisterPolicy_>::template cast<
-        typename basic_simd::vector_type,
-        typename _BasicSimdTo_::vector_type, false>(from._vector);
-}
-
 
 template <
     arch::CpuFeature	_SimdGeneration_,

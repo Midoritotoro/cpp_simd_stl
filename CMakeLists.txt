@@ -89,7 +89,7 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/numeric/SimdDivisors.h
     src/simd_stl/numeric/SimdArithmetic.h
-    src/simd_stl/numeric/SimdCast.h
+    src/simd_stl/numeric/IntrinBitcast.h
     src/simd_stl/numeric/SimdConvert.h
     src/simd_stl/numeric/SimdCompare.h
     src/simd_stl/numeric/SimdElementAccess.h
@@ -200,6 +200,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/numeric/BasicSimdMaskImplementation.h
     include/simd_stl/numeric/BasicSimdMask.h
     include/simd_stl/numeric/BasicSimdShuffleMask.h
+    include/simd_stl/numeric/SimdCast.h
 )
 
 include(CMakePackageConfigHelpers)
