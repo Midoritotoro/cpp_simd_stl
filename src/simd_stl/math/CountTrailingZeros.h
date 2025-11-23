@@ -38,111 +38,111 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #  endif // defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_msvc)
 #endif // defined (simd_stl_processor_x86)
 
-constexpr inline int _BitHacksCountTrailingZeroBits32Bit(uint32 value) noexcept {
-    auto result = uint32(32);
-    value &= -signed(value);
+constexpr inline int _BitHacksCountTrailingZeroBits32Bit(uint32 _Value) noexcept {
+    auto _Result = uint32(32);
+    _Value &= -signed(_Value);
 
-    if (value)
-        --result;
+    if (_Value)
+        --_Result;
 
-    if (value & 0x0000FFFF)
-        result -= 16;
+    if (_Value & 0x0000FFFF)
+        _Result -= 16;
 
-    if (value & 0x00FF00FF)
-        result -= 8;
+    if (_Value & 0x00FF00FF)
+        _Result -= 8;
 
-    if (value & 0x0F0F0F0F)
-        result -= 4;
+    if (_Value & 0x0F0F0F0F)
+        _Result -= 4;
 
-    if (value & 0x33333333) 
-        result -= 2;
+    if (_Value & 0x33333333) 
+        _Result -= 2;
 
-    if (value & 0x55555555) 
-        result -= 1;
+    if (_Value & 0x55555555) 
+        _Result -= 1;
 
-    return result;
+    return _Result;
 }
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-constexpr inline int _BitHacksCountTrailingZeroBits(_IntegralType_ value) noexcept {
+constexpr inline int _BitHacksCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
     if constexpr (sizeof(_IntegralType_) == 8) {
-        const auto low = static_cast<simd_stl::uint32>(value);
-        return low
-            ? _BitHacksCountTrailingZeroBits32Bit(low)
-            : 32 + _BitHacksCountTrailingZeroBits32Bit(static_cast<uint32>(value >> 32));
+        const auto _Low = static_cast<simd_stl::uint32>(_Value);
+        return _Low
+            ? _BitHacksCountTrailingZeroBits32Bit(_Low)
+            : 32 + _BitHacksCountTrailingZeroBits32Bit(static_cast<uint32>(_Value >> 32));
     }
     else if constexpr (sizeof(_IntegralType_) == 4) {
-        return _BitHacksCountTrailingZeroBits32Bit(static_cast<uint32>(value));
+        return _BitHacksCountTrailingZeroBits32Bit(static_cast<uint32>(_Value));
     }
     else if constexpr (sizeof(_IntegralType_) == 2) {
-        uint32 result = 16;
+        uint32 _Result = 16;
 
-        value &= simd_stl::uint16(-signed(value));
+        _Value &= simd_stl::uint16(-signed(_Value));
         
-        if (value)
-            --result;
+        if (_Value)
+            --_Result;
 
-        if (value & 0x000000FF)
-            result -= 8;
+        if (_Value & 0x000000FF)
+            _Result -= 8;
 
-        if (value & 0x00000F0F)
-            result -= 4;
+        if (_Value & 0x00000F0F)
+            _Result -= 4;
 
-        if (value & 0x00003333)
-            result -= 2;
+        if (_Value & 0x00003333)
+            _Result -= 2;
 
-        if (value & 0x00005555)
-            result -= 1;
+        if (_Value & 0x00005555)
+            _Result -= 1;
 
-        return result;
+        return _Result;
     }
     else if constexpr (sizeof(_IntegralType_) == 1) {
-        auto result = uint32(8);
-        value &= simd_stl::uint8(-signed(value));
+        auto _Result = uint32(8);
+        _Value &= simd_stl::uint8(-signed(_Value));
 
-        if (value)
-            --result;
+        if (_Value)
+            --_Result;
 
-        if (value & 0x0000000F)
-            result -= 4;
+        if (_Value & 0x0000000F)
+            _Result -= 4;
 
-        if (value & 0x00000033)
-            result -= 2;
+        if (_Value & 0x00000033)
+            _Result -= 2;
 
-        if (value & 0x00000055)
-            result -= 1;
+        if (_Value & 0x00000055)
+            _Result -= 1;
 
-        return result;
+        return _Result;
     }
 }
 
 #if defined (simd_stl_processor_x86)
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline int _BsfCountTrailingZeroBits(_IntegralType_ value) noexcept {
-    constexpr auto digits = std::numeric_limits<_IntegralType_>::digits;
-    auto index = ulong(0);
+simd_stl_constexpr_cxx20 simd_stl_always_inline int _BsfCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
+    constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
+    auto _Index = ulong(0);
 
-    if      constexpr (digits == 64)
-        _BitScanForward64(&index, value);
-    else if constexpr (digits == 32)
-        _BitScanForward(&index, value);
-    else if constexpr (digits < 32)
-        index = _BitHacksCountTrailingZeroBits(value);
+    if      constexpr (_Digits == 64)
+        _BitScanForward64(&_Index, _Value);
+    else if constexpr (_Digits == 32)
+        _BitScanForward(&_Index, _Value);
+    else if constexpr (_Digits < 32)
+        _Index = _BitHacksCountTrailingZeroBits(_Value);
 
-    return index;
+    return _Index;
 }
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline int _TzcntCountTrailingZeroBits(_IntegralType_ value) noexcept {
-    constexpr auto digits   = std::numeric_limits<_IntegralType_>::digits;
+simd_stl_constexpr_cxx20 simd_stl_always_inline int _TzcntCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
+    constexpr auto _Digits   = std::numeric_limits<_IntegralType_>::digits;
 
-    if      constexpr (digits == 64)
-        return static_cast<int>(simd_stl_tzcnt_u64(value));
-    else if constexpr (digits == 32)
-        return static_cast<int>(simd_stl_tzcnt_u32(value));
-    else if constexpr (digits < 32)
-        return _BitHacksCountTrailingZeroBits(value);
+    if      constexpr (_Digits == 64)
+        return static_cast<int>(simd_stl_tzcnt_u64(_Value));
+    else if constexpr (_Digits == 32)
+        return static_cast<int>(simd_stl_tzcnt_u32(_Value));
+    else if constexpr (_Digits < 32)
+        return _BitHacksCountTrailingZeroBits(_Value);
 }
 
 #endif // defined(simd_stl_processor_x86)

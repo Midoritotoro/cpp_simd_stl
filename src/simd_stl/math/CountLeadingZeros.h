@@ -37,63 +37,45 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #endif // defined (simd_stl_processor_x86)
 
 template <type_traits::standard_unsigned_integral _IntegralType_> 
-constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
+constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
 	if constexpr (sizeof(_IntegralType_) == 8) {
-        value = value | (value >> 1);
-        value = value | (value >> 2);
-        value = value | (value >> 4);
+        _Value = _Value | (_Value >> 1);
+        _Value = _Value | (_Value >> 2);
+        _Value = _Value | (_Value >> 4);
 
-        value = value | (value >> 8);
-        value = value | (value >> 16);
-        value = value | (value >> 32);
+        _Value = _Value | (_Value >> 8);
+        _Value = _Value | (_Value >> 16);
+        _Value = _Value | (_Value >> 32);
 
-        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~_Value));
 	}
     else if constexpr (sizeof(_IntegralType_) == 4) {
-        value = value | (value >> 1);
-        value = value | (value >> 2);
+        _Value = _Value | (_Value >> 1);
+        _Value = _Value | (_Value >> 2);
 
-        value = value | (value >> 4);
-        value = value | (value >> 8);
+        _Value = _Value | (_Value >> 4);
+        _Value = _Value | (_Value >> 8);
 
-        value = value | (value >> 16);
+        _Value = _Value | (_Value >> 16);
         
-        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~_Value));
     }
     else if constexpr (sizeof(_IntegralType_) == 2) {
-        value = value | (value >> 1);
-        value = value | (value >> 2);
+        _Value = _Value | (_Value >> 1);
+        _Value = _Value | (_Value >> 2);
 
-        value = value | (value >> 4);
-        value = value | (value >> 8);
+        _Value = _Value | (_Value >> 4);
+        _Value = _Value | (_Value >> 8);
 
-        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~_Value));
     }
     else if constexpr (sizeof(_IntegralType_) == 1) {
-        // 0b00001101
-        
-        // 0b00001101 | 0b00000110 = 0b00001111
-        // 0b00001111 | 0b00000011 = 0b00001111
-        // 0b00001111 | 0b00000000 = 0b00001111
-        // ~0b00001111 = 0b11110000
+        _Value = _Value | (_Value >> 1);
 
-        // popcnt(0b11110000) == 4;
-        
-        // 0b00111100
+        _Value = _Value | (_Value >> 2);
+        _Value = _Value | (_Value >> 4);
 
-        // 0b00111100 | 0b00011110 = 0b00111110
-        // 0b00111110 | 0b00001111 = 0b00111111
-        // 0b00111111 | 0b00000011 = 0b00111111
-        // ~0b00111111 = 0b11000000
-
-        // popcnt(0b11000000) == 2;
-
-        value = value | (value >> 1);
-
-        value = value | (value >> 2);
-        value = value | (value >> 4);
-
-        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~value));
+        return _BitHacksPopulationCount(static_cast<_IntegralType_>(~_Value));
     }
 }
 
@@ -101,18 +83,18 @@ constexpr int _BitHacksCountLeadingZeroBits(_IntegralType_ value) noexcept {
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64))
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-constexpr int _BsrCountLeadingZeroBits(_IntegralType_ value) noexcept {
-    constexpr auto digits = std::numeric_limits<_IntegralType_>::digits;
-    auto index = ulong(0);
+constexpr int _BsrCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
+    constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
+    auto _Index = ulong(0);
 
-    if constexpr (digits == 64)
-        _BitScanReverse64(&index, value);
-    else if constexpr (digits == 32) 
-        _BitScanReverse(&index, value);
+    if constexpr (_Digits == 64)
+        _BitScanReverse64(&_Index, _Value);
+    else if constexpr (_Digits == 32)
+        _BitScanReverse(&_Index, _Value);
     else
-        index = _BitHacksCountLeadingZeroBits(value);
+        _Index = _BitHacksCountLeadingZeroBits(_Value);
 
-    return static_cast<int>(digits - 1 - index);
+    return static_cast<int>(_Digits - 1 - _Index);
     
 }
 
@@ -121,17 +103,17 @@ constexpr int _BsrCountLeadingZeroBits(_IntegralType_ value) noexcept {
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64))
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-constexpr int _LzcntCountLeadingZeroBits(_IntegralType_ value) noexcept {
-    constexpr auto digits = std::numeric_limits<_IntegralType_>::digits;
+constexpr int _LzcntCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
+    constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
 
-    if      constexpr (digits == 64)
-        return static_cast<int>(simd_stl_lzcnt_u64(static_cast<uint64>(value)));
-    else if constexpr (digits == 32)
-        return static_cast<int>(simd_stl_lzcnt_u32(static_cast<uint32>(value)));
-    else if constexpr (digits == 16)
-        return static_cast<int>(simd_stl_lzcnt_u16(static_cast<uint16>(value)));
+    if      constexpr (_Digits == 64)
+        return static_cast<int>(simd_stl_lzcnt_u64(static_cast<uint64>(_Value)));
+    else if constexpr (_Digits == 32)
+        return static_cast<int>(simd_stl_lzcnt_u32(static_cast<uint32>(_Value)));
+    else if constexpr (_Digits == 16)
+        return static_cast<int>(simd_stl_lzcnt_u16(static_cast<uint16>(_Value)));
     else
-        return _BitHacksCountLeadingZeroBits(value);
+        return _BitHacksCountLeadingZeroBits(_Value);
     
 }
 

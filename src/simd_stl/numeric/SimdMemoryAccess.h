@@ -4,6 +4,7 @@
 #include <simd_stl/numeric/BasicSimdMask.h>
 
 #include <src/simd_stl/algorithm/AdvanceBytes.h>
+#include <src/simd_stl/numeric/IntrinBitcast.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -13,189 +14,132 @@ template <
     class               _RegisterPolicy_>
 class _SimdMemoryAccess;
 
-namespace detail::SSE {
-    template <
-        sizetype _VerticalSize_,
-        sizetype _HorizontalSize_>
-    struct ShuffleTables {
-        uint8 shuffle[_VerticalSize_][_HorizontalSize_];
-        uint8 size[_VerticalSize_];
-    };
-
-    template <
-        sizetype _VerticalSize_,
-        sizetype _HorizontalSize_>
-    constexpr auto makeShuffleTables(
-        const uint32 multiplier, 
-        const uint32 elementGroupStride) noexcept
-    {
-        ShuffleTables<_VerticalSize_, _HorizontalSize_> result;
-
-        for (uint32 verticalIndex = 0; verticalIndex != _VerticalSize_; ++verticalIndex) {
-            uint32 activeGroupCount = 0;
-
-            for (uint32 horizontalIndex = 0; horizontalIndex != _HorizontalSize_ / elementGroupStride; ++horizontalIndex) {
-                if ((verticalIndex & (1 << horizontalIndex)) == 0) {
-                    for (uint32 elementOffset = 0; elementOffset != elementGroupStride; ++elementOffset)
-                        result.shuffle[verticalIndex][activeGroupCount * elementGroupStride + elementOffset] = 
-                            static_cast<uint8>(horizontalIndex * elementGroupStride + elementOffset);
-                    
-                    ++activeGroupCount;
-                }
-            }
-
-            result.size[verticalIndex] = static_cast<uint8>(activeGroupCount * multiplier);
-
-         
-            for (; activeGroupCount != _HorizontalSize_ / elementGroupStride; ++activeGroupCount)
-                for (uint32 elementOffset = 0; elementOffset != elementGroupStride; ++elementOffset)
-                    result.shuffle[verticalIndex][activeGroupCount * elementGroupStride + elementOffset] = 
-                        static_cast<uint8>(activeGroupCount * elementGroupStride + elementOffset);
-        }
-
-        return result;
-    }
-
-    constexpr auto tables8Bit   = makeShuffleTables<256, 8>(1, 1);
-    constexpr auto tables16Bit  = makeShuffleTables<256, 16>(2, 2);
-    constexpr auto tables32Bit  = makeShuffleTables<16, 16>(4, 4);
-    constexpr auto tables64Bit  = makeShuffleTables<4, 16>(8, 8);
-} // namespace detail
-
 
 template <class _RegisterPolicy_>
 class _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_> {
-    static constexpr auto _Feature = arch::CpuFeature::SSE2;
-
-    using _ElementWise_ = _SimdElementWise<_Feature, _RegisterPolicy_>;
-    using _SimdCast_    = _SimdCast<_Feature, _RegisterPolicy_>;
-    using _SimdConvert_ = _SimdConvert<_Feature, _RegisterPolicy_>;
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<arch::CpuFeature::SSE2, _DesiredType_, _RegisterPolicy_>;
 public:
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ loadUpperHalf(const void* where) noexcept {
-        return _SimdCast_::template cast<__m128d, _VectorType_>(_mm_loadh_pd(_mm_setzero_pd(), static_cast<const double*>(where)));
+    static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm_loadh_pd(_mm_setzero_pd(), static_cast<const double*>(_Where)));
     }
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ loadLowerHalf(const void* where) noexcept {
-        return _SimdCast_::template cast<__m128d, _VectorType_>(_mm_loadl_pd(_mm_setzero_pd(), static_cast<const double*>(where)));
+    static simd_stl_always_inline _VectorType_ _LoadLowerHalf(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm_loadl_pd(_mm_setzero_pd(), static_cast<const double*>(_Where)));
     }
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
-        return loadAligned<_VectorType_, void>(where);
+    static simd_stl_always_inline _VectorType_ _NonTemporalLoad(const void* _Where) noexcept {
+        return loadAligned<_VectorType_, void>(_Where);
     }
 
     template <typename _VectorType_>
-    static simd_stl_always_inline void nonTemporalStore(
-        void*           where,
-        _VectorType_    vector) noexcept 
+    static simd_stl_always_inline void _NonTemporalStore(
+        void*           _Where,
+        _VectorType_    _Vector) noexcept 
     {
-        _mm_stream_si128(static_cast<__m128i*>(where), _SimdCast_::template cast<_VectorType_, __m128i>(vector));
+        _mm_stream_si128(static_cast<__m128i*>(_Where), _IntrinBitcast<__m128i>(_Vector));
     }
 
-    static simd_stl_always_inline void streamingFence() noexcept {
+    static simd_stl_always_inline void _StreamingFence() noexcept {
         return _mm_sfence();
     }
 
     template <
         typename _VectorType_,
         typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ loadUnaligned(const _DesiredType_* where) noexcept {
+    static simd_stl_always_inline _VectorType_ _LoadUnaligned(const _DesiredType_* _Where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_loadu_si128(reinterpret_cast<const __m128i*>(where));
+            return _mm_loadu_si128(reinterpret_cast<const __m128i*>(_Where));
         else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_loadu_pd(reinterpret_cast<const double*>(where));
+            return _mm_loadu_pd(reinterpret_cast<const double*>(_Where));
         else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_loadu_ps(reinterpret_cast<const float*>(where));
+            return _mm_loadu_ps(reinterpret_cast<const float*>(_Where));
     }
 
     template <
         typename _VectorType_,
         typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ loadAligned(const _DesiredType_* where) noexcept {
+    static simd_stl_always_inline _VectorType_ _LoadAligned(const _DesiredType_* _Where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_load_si128(reinterpret_cast<const __m128i*>(where));
+            return _mm_load_si128(reinterpret_cast<const __m128i*>(_Where));
         else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_load_pd(reinterpret_cast<const double*>(where));
+            return _mm_load_pd(reinterpret_cast<const double*>(_Where));
         else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_load_ps(reinterpret_cast<const float*>(where));
+            return _mm_load_ps(reinterpret_cast<const float*>(_Where));
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void storeUnaligned(
-        _DesiredType_*      where,
-        const _VectorType_  vector) noexcept
-    {
-        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_storeu_si128(reinterpret_cast<__m128i*>(where), vector);
-        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_storeu_pd(reinterpret_cast<double*>(where), vector);
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_storeu_ps(reinterpret_cast<float*>(where), vector);
-    }
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void storeAligned(
-        _DesiredType_* where,
-        const _VectorType_      vector) noexcept
+    static simd_stl_always_inline void _StoreUnaligned(
+        _DesiredType_*      _Where,
+        const _VectorType_  _Vector) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_store_si128(reinterpret_cast<__m128i*>(where), vector);
+            return _mm_storeu_si128(reinterpret_cast<__m128i*>(_Where), _Vector);
         else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_store_pd(reinterpret_cast<double*>(where), vector);
+            return _mm_storeu_pd(reinterpret_cast<double*>(_Where), _Vector);
         else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_store_ps(reinterpret_cast<float*>(where), vector);
+            return _mm_storeu_ps(reinterpret_cast<float*>(_Where), _Vector);
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _StoreAligned(
+        _DesiredType_*          _Where,
+        const _VectorType_      _Vector) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
+            return _mm_store_si128(reinterpret_cast<__m128i*>(_Where), _Vector);
+        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
+            return _mm_store_pd(reinterpret_cast<double*>(_Where), _Vector);
+        else if constexpr (std::is_same_v<_VectorType_, __m128>)
+            return _mm_store_ps(reinterpret_cast<float*>(_Where), _Vector);
     }
 
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void maskStoreUnaligned(
-        _DesiredType_*                                                                          where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask,
-        const _VectorType_                                                                      vector) noexcept
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
     {
-        const auto loaded   = loadUnaligned<_VectorType_>(where);
-        const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
+        const auto _Loaded   = _LoadUnaligned<_VectorType_>(_Where);
+        const auto _Blended  = _ElementWise_::template blend<_DesiredType_>(_Loaded, _Vector, _Mask);
 
-        storeUnaligned(where, blended);
+        _StoreUnaligned(_Where, _Blended);
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void maskStoreAligned(
-        _DesiredType_*                                                                          where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask,
-        const _VectorType_                                                                      vector) noexcept
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
     {
-        const auto loaded   = loadAligned<_VectorType_>(where);
-        const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
+        const auto _Loaded   = loadAligned<_VectorType_>(_Where);
+        const auto _Blended  = _ElementWise_::template blend<_DesiredType_>(_Loaded, _Vector, _Mask);
 
-        storeAligned(where, blended);
+        _StoreAligned(_Where, _Blended);
     }
 
     template <
         typename _VectorType_,
         typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const _DesiredType_*                                                                    where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask) noexcept
+    static simd_stl_always_inline _VectorType_ _MaskLoadUnaligned(
+        const _DesiredType_*                    _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
     {
-        const auto zeros    = _mm_setzero_si128();
-        const auto loaded   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(where));
-
-        const auto blended  = _ElementWise_::template blend<_DesiredType_>(
-            _SimdCast_::template cast<__m128i, _VectorType_>(zeros), 
-            _SimdCast_::template cast<__m128i, _VectorType_>(loaded), mask);
-
-        return blended;
+        return _ElementWise_::template blend<_DesiredType_>(
+            _IntrinBitcast<_VectorType_>(_mm_setzero_si128()), 
+            _LoadUnaligned<_VectorType_>(_Where), _Mask);
     }
 
     template <
