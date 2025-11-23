@@ -8,13 +8,15 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdCompare;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdCompare;
 
-template <>
-class SimdCompare<arch::CpuFeature::SSE2> {
-    using _Cast_        = SimdCast<arch::CpuFeature::SSE2>;
-    using _Convert_     = SimdConvert<arch::CpuFeature::SSE2>;
+template <class _RegisterPolicy_>
+class _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy_> {
+    using _Cast_        = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+    using _Convert_     = _SimdConvert<arch::CpuFeature::SSE2, _RegisterPolicy_>;
 public:
     template <
         typename _DesiredType_,
@@ -196,24 +198,24 @@ public:
     }
 };
 
-template <>
-class SimdCompare<arch::CpuFeature::SSE3> :
-    public SimdCompare<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdCompare<arch::CpuFeature::SSE3, _RegisterPolicy_> :
+    public _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCompare<arch::CpuFeature::SSSE3> :
-    public SimdCompare<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdCompare<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdCompare<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCompare<arch::CpuFeature::SSE41> :
-    public SimdCompare<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdCompare<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdCompare<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCompare<arch::CpuFeature::SSE42> :
-    public SimdCompare<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdCompare<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdCompare<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

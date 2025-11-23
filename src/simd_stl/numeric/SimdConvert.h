@@ -5,12 +5,14 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdConvert;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdConvert;
 
-template <>
-class SimdConvert<arch::CpuFeature::SSE2> {
-    using _Cast_         = SimdCast<arch::CpuFeature::SSE2>;
+template <class _RegisterPolicy_>
+class _SimdConvert<arch::CpuFeature::SSE2, _RegisterPolicy_> {
+    using _Cast_ = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
 public:
     template <
         typename _DesiredType_,
@@ -21,7 +23,6 @@ public:
         else if constexpr (is_ps_v<_DesiredType_> || is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
             return _mm_movemask_ps(_Cast_::template cast<_VectorType_, __m128>(vector));
         else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            // return _mm_movemask_epi8(_mm_srli_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), 8));
             return _mm_movemask_epi8(_mm_packs_epi16(_Cast_::template cast<_VectorType_, __m128i>(vector), _mm_setzero_si128()));
         else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
             return _mm_movemask_epi8(_Cast_::template cast<_VectorType_, __m128i>(vector));
@@ -56,15 +57,16 @@ public:
     }
 };
 
-template <>
-class SimdConvert<arch::CpuFeature::SSE3> :
-    public SimdConvert<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdConvert<arch::CpuFeature::SSE3, _RegisterPolicy_> :
+    public _SimdConvert<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdConvert<arch::CpuFeature::SSSE3> :
-    public SimdConvert<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdConvert<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdConvert<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {
+    using _Cast_ = _SimdCast<arch::CpuFeature::SSSE3, _RegisterPolicy_>;
 public:
     template <
         typename _VectorType_,
@@ -86,14 +88,14 @@ public:
     }
 };
 
-template <>
-class SimdConvert<arch::CpuFeature::SSE41> :
-    public SimdConvert<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdConvert<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdConvert<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdConvert<arch::CpuFeature::SSE42> :
-    public SimdConvert<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdConvert<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdConvert<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

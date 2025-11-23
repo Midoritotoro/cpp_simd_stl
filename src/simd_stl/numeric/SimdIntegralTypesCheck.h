@@ -6,6 +6,10 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+struct xmm128 {};
+struct ymm256 {};
+struct zmm512 {};
+
 template <typename _Element_>
 constexpr bool is_epi64_v =  
 	((std::is_signed_v<_Element_> && !std::is_floating_point_v<_Element_>) 
@@ -47,5 +51,20 @@ constexpr bool is_pd_v    = sizeof(_Element_) == 8 && type_traits::is_any_of_v<_
 
 template <typename _Element_>
 constexpr bool is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, float>;
+
+
+template <arch::CpuFeature _SimdGeneration_>
+using _DefaultRegisterPolicy = std::conditional_t<
+    arch::__is_xmm_v<_SimdGeneration_>, 
+    numeric::xmm128, 
+    std::conditional_t<
+        arch::__is_ymm_v<_SimdGeneration_>,
+        numeric::ymm256,
+        std::conditional_t<
+            arch::__is_zmm_v<_SimdGeneration_>,
+            numeric::zmm512, void
+        >
+    >
+>;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -21,7 +21,18 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdTraits:
+    public _SimdCast<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdConvert<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdCompare<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>,
+    public _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>
+{};
 
 /**
     * @class basic_simd
@@ -38,36 +49,28 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
     *
     * @tparam _SimdGeneration_ Поколение SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512F и т.д.).
     * @tparam _Element_ Тип элементов вектора ('int', 'float', 'double' и т.д.). По умолчанию 'int'.
+    * @tparam _RegisterPolicy_ Тип регистра вектора (xmm, ymm, zmm).
 */
-
 template <
     arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_ = int32>
+    typename			_Element_,
+    class               _RegisterPolicy_ = _DefaultRegisterPolicy<_SimdGeneration_>>
 class basic_simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
     static_assert(type_traits::__is_vector_type_supported_v<std::decay_t<_Element_>>);
 
     friend BasicSimdElementReference;
 public:
-    using simdCast          = SimdCast<_SimdGeneration_>;
-    using simdConvert       = SimdConvert<_SimdGeneration_>;
-
-    using simdCompare       = SimdCompare<_SimdGeneration_>;
-    using simdElementWise   = SimdElementWise<_SimdGeneration_>;
-
-    using simdElementAccess = SimdElementAccess<_SimdGeneration_>;
-    using simdMemoryAccess  = SimdMemoryAccess<_SimdGeneration_>;
-
-    using simdArithmetic    = SimdArithmetic<_SimdGeneration_>;
-
+    using traits = _SimdTraits<_SimdGeneration_, _RegisterPolicy_>;
+    using policy = _RegisterPolicy_;
 
     static constexpr auto _Generation = _SimdGeneration_;
 
     using value_type    = _Element_;
-    using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_>;
+    using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
     using size_type     = uint32;
-    using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_>;
+    using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
     template <bool _ZeroMemset_ = true>
     basic_simd() noexcept;
@@ -87,12 +90,12 @@ public:
     basic_simd(const void* address) noexcept;
 
     template <typename _OtherType_>
-    basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept;
+    basic_simd(const basic_simd<_SimdGeneration_, _OtherType_, _RegisterPolicy_>& other) noexcept;
 
     template <
         arch::CpuFeature    _OtherFeature_,
         typename            _OtherType_>
-    basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept;
+    basic_simd(const basic_simd<_OtherFeature_, _OtherType_, _RegisterPolicy_>& other) noexcept;
 
     ~basic_simd() noexcept;
 
@@ -163,25 +166,25 @@ public:
         const value_type                                value) noexcept;
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_SimdGeneration_, _OtherElement_>.
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_SimdGeneration_, _OtherElement_>.
         * Метод необходим только для компиляции и не занимает время во время выполнения.
         * @return Результат конвертации.
     */
     template <typename _OtherElement_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_> bitcast() const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_, _RegisterPolicy_> bitcast() const noexcept;
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
         * Метод необходим только для компиляции и не занимает время во время выполнения.
         * @return Результат конвертации.
     */
     template <
         arch::CpuFeature	_OtherSimdGeneration_,
         typename            _OtherElement_>
-    simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> bitcast() const noexcept;
+    simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_, _RegisterPolicy_> bitcast() const noexcept;
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в _BasicSimdTo_.
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в _BasicSimdTo_.
         * Если не происходит преобразование с расширением, то метод необходим только для компиляции и не занимает время во время выполнения.
         * В противном случае старшая часть результата преобразования с расширением заполняется нулями.
         * @return Результат конвертации.
@@ -190,7 +193,7 @@ public:
     static simd_stl_always_inline _BasicSimdTo_ safeBitcast(const basic_simd& from) noexcept;
 
     /**
-        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
+        * @brief Конвертирует вектор из basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> в basic_simd<_OtherSimdGeneration_, _OtherElement_>
         * Метод необходим только для компиляции и не занимает время во время выполнения.
         * Старшая часть результата преобразования с расширением неопределена.
         * @return Результат конвертации.
@@ -199,14 +202,14 @@ public:
     simd_stl_always_inline _BasicSimdTo_ bitcast(const basic_simd& from) const noexcept;
 
     /**
-        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_>::vector_type) байт из памяти по невыровненному адресу.
+        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type) байт из памяти по невыровненному адресу.
         * @param where Указатель на память для загрузки.
         * @return Загруженный вектор.
     */
     static simd_stl_always_inline basic_simd loadUnaligned(const void* where) noexcept;
 
     /**
-        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_>::vector_type) байт из памяти по выровненному адресу.
+        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type) байт из памяти по выровненному адресу.
         * @param where Указатель на память для загрузки.
         * @return Загруженный вектор.
     */
@@ -235,8 +238,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadUnaligned(
-        const void*                                                                     where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>     mask) noexcept;
+        const void*                                                                                     where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept;
 
     /**
         * @brief Загружает вектор из памяти по выровненному адресу, используя маску.
@@ -246,8 +249,8 @@ public:
     */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadAligned(
-        const void*                                                                 where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept;
+        const void*                                                                                     where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept;
 
     /**
         * @brief Сохраняет элемент вектора в память по невыровненному адресу, если соответствующий бит маски установлен.
@@ -317,8 +320,8 @@ public:
         const basic_simd&                           left,
         std::integral_constant<_Element_, _Value_>  right) noexcept
     {
-        return basic_simd::simdArithmetic::template sub<_Element_>(left._vector,
-            basic_simd::simdElementAccess::template broadcast<typename basic_simd::vector_type>(right));
+        return basic_simd::traits::template sub<_Element_>(left._vector,
+            basic_simd::traits::template broadcast<typename basic_simd::vector_type>(right));
     }
 
     template <_Element_ _Divisor_>
@@ -326,7 +329,7 @@ public:
         const basic_simd& left,
         std::integral_constant<_Element_, _Divisor_>  right) noexcept
     {
-        return simdArithmetic::template divideByConst<_Element_, _Divisor_, basic_simd::vector_type>(left._vector);
+        return traits::template divideByConst<_Element_, _Divisor_, basic_simd::vector_type>(left._vector);
     }
 
 
@@ -519,45 +522,45 @@ public:
     simd_stl_always_inline bool isEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskNotEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskNotEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskGreater(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreater(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskLess(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLess(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskGreaterEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreaterEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> maskLessEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLessEqual(const basic_simd& right) const noexcept;
 
     
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> notEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> notEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> equal(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> equal(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> greater(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greater(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> less(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> less(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> greaterEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greaterEqual(const basic_simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> lessEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> lessEqual(const basic_simd& right) const noexcept;
 
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> toMask() const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> toMask() const noexcept;
 
     template <
         typename _DesiredOutputType_,
@@ -588,33 +591,33 @@ public:
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_* compressStoreLowerHalf(
         void* where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_* compressStoreUpperHalf(
         void* where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreAligned(
         void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept;
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
         void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
         const basic_simd&                                                       source) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
         void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
         const basic_simd&                                                       source) const noexcept;
 
     template <
@@ -630,235 +633,262 @@ private:
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <bool _ZeroMemset_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd() noexcept
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd() noexcept
 {
     if constexpr (_ZeroMemset_)
-        _vector = simdElementAccess::template constructZero<vector_type>();
+        _vector = traits::template constructZero<vector_type>();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd(vector_type other) noexcept:
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(vector_type other) noexcept:
     _vector(other)
 {}
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd(const void* address) noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(const void* address) noexcept {
     _vector = loadUnaligned(address).unwrap();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd(const value_type value) noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(const value_type value) noexcept {
     fill<value_type>(value);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _OtherType_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd(const basic_simd<_SimdGeneration_, _OtherType_>& other) noexcept {
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(const basic_simd<_SimdGeneration_, _OtherType_, _RegisterPolicy_>& other) noexcept {
     _vector = basic_simd<_SimdGeneration_, _OtherType_>::template safeBitcast<basic_simd>(other).unwrap();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <
     arch::CpuFeature    _OtherFeature_,
     typename            _OtherType_>
-basic_simd<_SimdGeneration_, _Element_>::basic_simd(const basic_simd<_OtherFeature_, _OtherType_>& other) noexcept {
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(const basic_simd<_OtherFeature_, _OtherType_, _RegisterPolicy_>& other) noexcept {
     _vector = basic_simd<_SimdGeneration_, _OtherType_>::template safeBitcast<basic_simd>(other).unwrap();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_>::~basic_simd() noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::~basic_simd() noexcept
 {}
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <class _BasicSimdTo_>
-simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::convert() const noexcept {
+simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::convert() const noexcept {
     return {};
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isSupported() noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::isSupported() noexcept {
     return arch::ProcessorFeatures::isSupported<_SimdGeneration_>();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline void
-basic_simd<_SimdGeneration_, _Element_>::fill(const typename std::type_identity<_DesiredType_>::type value) noexcept {
-    _vector = simdElementAccess::template broadcast<vector_type, _DesiredType_>(value);
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::fill(const typename std::type_identity<_DesiredType_>::type value) noexcept {
+    _vector = traits::template broadcast<vector_type, _DesiredType_>(value);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator+=(const basic_simd& other) const noexcept {
-    _vector = simdArithmetic::template add<value_type>(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator+=(const basic_simd& other) const noexcept {
+    _vector = traits::template add<value_type>(_vector, other._vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator-=(const basic_simd& other) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator-=(const basic_simd& other) noexcept
 {
-    _vector = simdArithmetic::template sub<value_type>(_vector, other._vector);
+    _vector = traits::template sub<value_type>(_vector, other._vector);
     return *this;
 }
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator*=(const basic_simd& other) noexcept {
-    _vector = simdArithmetic::template mul<value_type>(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator*=(const basic_simd& other) noexcept {
+    _vector = traits::template mul<value_type>(_vector, other._vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator/=(const basic_simd& other) noexcept {
-    _vector = simdArithmetic::template div<value_type>(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator/=(const basic_simd& other) noexcept {
+    _vector = traits::template div<value_type>(_vector, other._vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator%=(const basic_simd& other) noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator%=(const basic_simd& other) noexcept {
 
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
-basic_simd<_SimdGeneration_, _Element_>::operator=(const basic_simd& left) noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator=(const basic_simd& left) noexcept {
     _vector = left._vector;
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 simd_stl_always_inline _Element_ 
-basic_simd<_SimdGeneration_, _Element_>::operator[](const size_type index) const noexcept {
-    return simdElementAccess::template extract<value_type>(_vector, index);
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator[](const size_type index) const noexcept {
+    return traits::template extract<value_type>(_vector, index);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>>
-basic_simd<_SimdGeneration_, _Element_>::operator[](const size_type index) noexcept {
-    return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>>(this, index);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator[](const size_type index) noexcept {
+    return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>(this, index);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::operator++(int) noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++(int) noexcept {
     auto self = *this;
-    _vector = simdArithmetic::template increment<value_type>(_vector);
+    _vector = traits::template increment<value_type>(_vector);
     return self;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator++() noexcept {
-    _vector = simdArithmetic::template increment<value_type>(_vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++() noexcept {
+    _vector = traits::template increment<value_type>(_vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
-basic_simd<_SimdGeneration_, _Element_>::operator--(int) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--(int) noexcept
 {
     auto self = *this;
-    _vector = simdArithmetic::template decrement<value_type>(_vector);
+    _vector = traits::template decrement<value_type>(_vector);
     return self;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator--() noexcept 
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--() noexcept 
 {
-    _vector = simdArithmetic::template decrement<value_type>(_vector);
+    _vector = traits::template decrement<value_type>(_vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>::mask_type
-basic_simd<_SimdGeneration_, _Element_>::operator!() const noexcept {
-    // return implementation::template convertToMask(simdArithmetic::template bitwiseNot(_vector)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_type
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator!() const noexcept {
+    // return implementation::template convertToMask(traits::template bitwiseNot(_vector)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
-basic_simd<_SimdGeneration_, _Element_>::operator~() const noexcept {
-    return simdArithmetic::template bitwiseNot(_vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator~() const noexcept {
+    return traits::template bitwiseNot(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
-basic_simd<_SimdGeneration_, _Element_>::operator&=(const basic_simd& other) noexcept {
-    _vector = simdArithmetic::template bitwiseAnd(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator&=(const basic_simd& other) noexcept {
+    _vector = traits::template bitwiseAnd(_vector, other._vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator|=(const basic_simd& other) noexcept {
-    _vector = simdArithmetic::template bitwiseOr(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator|=(const basic_simd& other) noexcept {
+    _vector = traits::template bitwiseOr(_vector, other._vector);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>&
-basic_simd<_SimdGeneration_, _Element_>::operator^=(const basic_simd& other) noexcept {
-    _vector = simdArithmetic::template bitwiseXor(_vector, other._vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator^=(const basic_simd& other) noexcept {
+    _vector = traits::template bitwiseXor(_vector, other._vector);
     return *this;
 }
 
@@ -866,205 +896,223 @@ basic_simd<_SimdGeneration_, _Element_>::operator^=(const basic_simd& other) noe
 //    arch::CpuFeature    _SimdGeneration_,
 //    typename            _Element_>
 //template <_Element_ _Value_>
-//simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
-//    const basic_simd<_SimdGeneration_, _Element_>&  left,
+//simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
+//    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&  left,
 //    std::integral_constant<_Element_, _Value_>      right) noexcept
 //{
 //    return imp
 //}
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator/(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template div<_Element_>(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator+(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template add<_Element_>(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template sub<_Element_>(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator*(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template mul<_Element_>(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator&(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator&(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template bitwiseAnd(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator|(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator|(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template bitwiseAnd(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator^(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator^(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits
         ::template bitwiseXor(left._vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator+(
-    const basic_simd<_SimdGeneration_, _Element_>&                      left,
-    const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      left,
+    const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
-    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::simdArithmetic::template add<_Element_>(
-        left._vector, _LeftType_::simdElementAccess::template broadcast<typename _LeftType_::vector_type>(right));
+    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+    return _LeftType_::traits::template add<_Element_>(
+        left._vector, _LeftType_::traits::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator-(
-    const basic_simd<_SimdGeneration_, _Element_>&                      left,
-    const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      left,
+    const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
-    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::simdArithmetic::template sub<_Element_>(
-        left._vector, _LeftType_::simdElementAccess::template broadcast<typename _LeftType_::vector_type>(right));
+    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+    return _LeftType_::traits::template sub<_Element_>(
+        left._vector, _LeftType_::traits::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator*(
-    const basic_simd<_SimdGeneration_, _Element_>&                      left,
-    const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      left,
+    const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
-    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::simdArithmetic::template mul<_Element_>(
-        left._vector, _LeftType_::simdElementAccess::template broadcast<typename _LeftType_::vector_type>(right));
+    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+    return _LeftType_::traits::template mul<_Element_>(
+        left._vector, _LeftType_::traits::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator/(
-    const basic_simd<_SimdGeneration_, _Element_>&                      left,
-    const typename basic_simd<_SimdGeneration_, _Element_>::value_type  right) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      left,
+    const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
-    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_>;
-    return _LeftType_::simdArithmetic::template div<_Element_>(
-        left._vector, _LeftType_::simdElementAccess::template broadcast<typename _LeftType_::vector_type>(right));
+    using _LeftType_ = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+    return _LeftType_::traits::template div<_Element_>(
+        left._vector, _LeftType_::traits::template broadcast<typename _LeftType_::vector_type>(right));
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::operator+() const noexcept 
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator+() const noexcept 
 {
     return _vector;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::operator-() const noexcept 
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator-() const noexcept 
 {
-    return simdArithmetic::template unaryMinus<value_type>(_vector);
+    return traits::template unaryMinus<value_type>(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline _DesiredType_
-basic_simd<_SimdGeneration_, _Element_>::extract(const size_type index) const noexcept
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(const size_type index) const noexcept
 {
     DebugAssert(index >= 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
-    return simdElementAccess::template extract<_DesiredType_>(_vector, index);
+    return traits::template extract<_DesiredType_>(_vector, index);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>> 
-basic_simd<_SimdGeneration_, _Element_>::extractWrapped(const size_type index) noexcept 
+simd_stl_always_inline BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extractWrapped(const size_type index) noexcept 
 {
     DebugAssert(index >= 0 && index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
-    return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_>>(this, index);
+    return BasicSimdElementReference<basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>(this, index);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::insert(
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::insert(
     const size_type                                         where,
     const typename std::type_identity<_DesiredType_>::type  value) noexcept
 {
-    simdElementAccess::template insert<_DesiredType_>(_vector, where, value);
+    traits::template insert<_DesiredType_>(_vector, where, value);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <
     typename    _DesiredType_,
     uint8 ...   _Indices_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::permute() noexcept
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::permute() noexcept
 {
-    return simdElementWise::template permute<_DesiredType_, _Indices_...>(_vector);
+    return traits::template permute<_DesiredType_, _Indices_...>(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::expand(
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::expand(
     basic_simd_mask<_SimdGeneration_, _Element_>    mask,
     const value_type                                value) noexcept
 {
@@ -1072,393 +1120,430 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::expand(
 }   
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _OtherElement_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_> 
-basic_simd<_SimdGeneration_, _Element_>::bitcast() const noexcept
+simd_stl_always_inline basic_simd<_SimdGeneration_, _OtherElement_, _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast() const noexcept
 {
-    return simdCast::template cast<vector_type, 
+    return traits::template cast<vector_type, 
         type_traits::__deduce_simd_vector_type<_SimdGeneration_, _OtherElement_>>(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <
     arch::CpuFeature	_OtherSimdGeneration_,
     typename            _OtherElement_>
-simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_> 
-basic_simd<_SimdGeneration_, _Element_>::bitcast() const noexcept
+simd_stl_always_inline basic_simd<_OtherSimdGeneration_, _OtherElement_, _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast() const noexcept
 {
-    return simdCast::template cast<vector_type, 
+    return traits::template cast<vector_type, 
         type_traits::__deduce_simd_vector_type<_OtherSimdGeneration_, _OtherElement_>>(_vector);
 }
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <class _BasicSimdTo_>
-simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_>::safeBitcast(const basic_simd& from) noexcept {
+simd_stl_always_inline _BasicSimdTo_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::safeBitcast(const basic_simd& from) noexcept {
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
     using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-    return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
+    return _SimdCast<_SuperiorBasicSimdType_::_Generation, _RegisterPolicy_>::template cast<
         typename basic_simd::vector_type,
         typename _BasicSimdTo_::vector_type, true>(from._vector);
 }
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <class _BasicSimdTo_>
 simd_stl_always_inline _BasicSimdTo_
-basic_simd<_SimdGeneration_, _Element_>::bitcast(const basic_simd& from) const noexcept
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::bitcast(const basic_simd& from) const noexcept
 {
     static_assert(__is_valid_basic_simd_v<_BasicSimdTo_>,   "_BasicSimdTo_ must be a basic_simd class or a subclass of it");
     using _SuperiorBasicSimdType_ = type_traits::deduce_superior_basic_simd_type<basic_simd, _BasicSimdTo_>;
 
-    return SimdCast<_SuperiorBasicSimdType_::_Generation>::template cast<
+    return _SimdCast<_SuperiorBasicSimdType_::_Generation, _RegisterPolicy_>::template cast<
         typename basic_simd::vector_type,
         typename _BasicSimdTo_::vector_type, false>(from._vector);
 }
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::loadUnaligned(const void* where)  noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::loadUnaligned(const void* where)  noexcept
 {
-    return simdMemoryAccess::template loadUnaligned<vector_type>(reinterpret_cast<const value_type*>(where));
+    return traits::template loadUnaligned<vector_type>(reinterpret_cast<const value_type*>(where));
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>
-basic_simd<_SimdGeneration_, _Element_>::loadAligned(const void* where) noexcept
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::loadAligned(const void* where) noexcept
 {
-    return simdMemoryAccess::template loadAligned<vector_type>(reinterpret_cast<const value_type*>(where));
+    return traits::template loadAligned<vector_type>(reinterpret_cast<const value_type*>(where));
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeUnaligned(void* where) const noexcept {
-    simdMemoryAccess::template storeUnaligned(reinterpret_cast<value_type*>(where), _vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::storeUnaligned(void* where) const noexcept {
+    traits::template storeUnaligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::storeAligned(void* where) const noexcept {
-    simdMemoryAccess::template storeAligned(reinterpret_cast<value_type*>(where), _vector);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::storeAligned(void* where) const noexcept {
+    traits::template storeAligned(reinterpret_cast<value_type*>(where), _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::loadUpperHalf(const void* where) noexcept {
-    return simdMemoryAccess::template loadUpperHalf<vector_type>(where);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::loadUpperHalf(const void* where) noexcept {
+    return traits::template loadUpperHalf<vector_type>(where);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::loadLowerHalf(const void* where) noexcept {
-    return simdMemoryAccess::template loadLowerHalf<vector_type>(where);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::loadLowerHalf(const void* where) noexcept {
+    return traits::template loadLowerHalf<vector_type>(where);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::maskLoadUnaligned(
-    const void*                                                                 where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadUnaligned(
+    const void*                                                                                     where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept
 {
-    return simdMemoryAccess::template maskLoadUnaligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
+    return traits::template maskLoadUnaligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> 
-basic_simd<_SimdGeneration_, _Element_>::maskLoadAligned(
-    const void*                                                                 where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_> mask) noexcept
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadAligned(
+    const void*                                                                                     where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept
 {
-    return simdMemoryAccess::template maskLoadAligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
+    return traits::template maskLoadAligned<vector_type>(reinterpret_cast<const _DesiredType_*>(where), mask);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreUnaligned(
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskStoreUnaligned(
     void*           where,
     const mask_type mask) const noexcept
 {
-    simdMemoryAccess::template maskStoreUnaligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
+    traits::template maskStoreUnaligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::maskStoreAligned(
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskStoreAligned(
     void*           where,
     const mask_type mask) const noexcept
 {
-    simdMemoryAccess::template maskStoreAligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
+    traits::template maskStoreAligned(reinterpret_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <_Element_ _Divisor_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::divideByConst() noexcept {
-    _vector = simdArithmetic::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::divideByConst() noexcept {
+    _vector = traits::template divideByConst<value_type, _Divisor_, vector_type>(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <_Element_ _Divisor_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_>::multiplyByConst() noexcept {
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::multiplyByConst() noexcept {
     
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator>>(
-    const basic_simd<_SimdGeneration_, _Element_>   left,
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator>>(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>   left,
     const uint32                                    shift) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic::template shiftRight
-        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits::template shiftRight
+        <typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type>(left._vector, shift);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_> operator<<(
-    const basic_simd<_SimdGeneration_, _Element_>   left,
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator<<(
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>   left,
     const uint32                                    shift) noexcept
 {
-    return basic_simd<_SimdGeneration_, _Element_>::simdArithmetic::template shiftLeft
-        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(left._vector, shift);
+    return basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits::template shiftLeft
+        <typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type>(left._vector, shift);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator>>=(const uint32 shift) noexcept {
-    _vector = basic_simd<_SimdGeneration_, _Element_>::simdArithmetic::template shiftRight
-        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator>>=(const uint32 shift) noexcept {
+    _vector = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits::template shiftRight
+        <typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type>(_vector, shift);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_>& 
-basic_simd<_SimdGeneration_, _Element_>::operator<<=(const uint32 shift) noexcept {
-    _vector = basic_simd<_SimdGeneration_, _Element_>::simdArithmetic::template shiftLeft
-        <typename basic_simd<_SimdGeneration_, _Element_>::value_type>(_vector, shift);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator<<=(const uint32 shift) noexcept {
+    _vector = basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::traits::template shiftLeft
+        <typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type>(_vector, shift);
     return *this;
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 simd_stl_always_inline bool operator==(
-    const basic_simd<_SimdGeneration_, _Element_>& left,
-    const basic_simd<_SimdGeneration_, _Element_>& right) noexcept
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& left,
+    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& right) noexcept
 {
     return left.isEqual(right);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_>::isEqual(const basic_simd& right) const noexcept {
-    const auto mask = basic_simd::simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
+simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::isEqual(const basic_simd& right) const noexcept {
+    const auto mask = basic_simd::traits::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
     return (toMask<_DesiredType_>(mask) == math::MaximumIntegralLimit<decltype(mask)>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_>
-    basic_simd<_SimdGeneration_, _Element_>::maskNotEqual(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskNotEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::maskEqual(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::maskGreater(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskGreater(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::maskLess(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLess(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::maskGreaterEqual(const basic_simd& right) const noexcept 
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskGreaterEqual(const basic_simd& right) const noexcept 
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::maskLessEqual(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLessEqual(const basic_simd& right) const noexcept
 {
-    const auto mask = basic_simd::simdCompare::template compare
+    const auto mask = basic_simd::traits::template compare
         <_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
 
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(basic_simd(mask).toMask<_DesiredType_>());
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::notEqual(const basic_simd& right) const noexcept 
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::notEqual(const basic_simd& right) const noexcept 
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::not_equal_to<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::equal(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::equal(const basic_simd& right) const noexcept
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::equal_to<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::greater(const basic_simd& right) const noexcept
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::greater(const basic_simd& right) const noexcept
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::greater<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::less(const basic_simd& right) const noexcept 
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::less(const basic_simd& right) const noexcept 
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::less<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::greaterEqual(const basic_simd& right) const noexcept 
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::greaterEqual(const basic_simd& right) const noexcept 
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::greater_equal<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::lessEqual(const basic_simd& right) const noexcept 
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::lessEqual(const basic_simd& right) const noexcept 
 { 
-    return simdCompare::template compare<_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
+    return traits::template compare<_DesiredType_, type_traits::less_equal<>, vector_type>(_vector, right._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_> 
-    basic_simd<_SimdGeneration_, _Element_>::toMask() const noexcept 
+simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::toMask() const noexcept 
 { 
-    const auto mask = simdConvert::template convertToMask<_DesiredType_>(_vector);
+    const auto mask = traits::template convertToMask<_DesiredType_>(_vector);
     return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <
     typename _DesiredOutputType_,
     typename _DesiredType_>
-simd_stl_always_inline _DesiredOutputType_ basic_simd<_SimdGeneration_, _Element_>::reduce() const noexcept {
-    return simdArithmetic::template reduce<_DesiredType_, _DesiredOutputType_>(_vector);
+simd_stl_always_inline _DesiredOutputType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reduce() const noexcept {
+    return traits::template reduce<_DesiredType_, _DesiredOutputType_>(_vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _ElementType_>
-constexpr int basic_simd<_SimdGeneration_, _Element_>::width() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::width() noexcept {
     static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
 
     constexpr auto width = sizeof(vector_type);
@@ -1466,10 +1551,11 @@ constexpr int basic_simd<_SimdGeneration_, _Element_>::width() noexcept {
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _ElementType_>
-constexpr int basic_simd<_SimdGeneration_, _Element_>::size() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::size() noexcept {
     static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
 
     constexpr auto length = (sizeof(vector_type) / sizeof(_ElementType_));
@@ -1477,17 +1563,19 @@ constexpr int basic_simd<_SimdGeneration_, _Element_>::size() noexcept {
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _ElementType_>
-constexpr int basic_simd<_SimdGeneration_, _Element_>::length() noexcept {
+constexpr int basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::length() noexcept {
     return size<_ElementType_>();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+constexpr int basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::registersCount() noexcept {
     if      constexpr (arch::__is_xmm_v<_SimdGeneration_>)
         return 8;
     else if constexpr (arch::__is_ymm_v<_SimdGeneration_>)
@@ -1497,118 +1585,130 @@ constexpr int basic_simd<_SimdGeneration_, _Element_>::registersCount() noexcept
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-void basic_simd<_SimdGeneration_, _Element_>::streamingFence() noexcept {
-    return simdMemoryAccess::streamingFence();
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::streamingFence() noexcept {
+    return traits::streamingFence();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-basic_simd<_SimdGeneration_, _Element_> basic_simd<_SimdGeneration_, _Element_>::nonTemporalLoad(const void* where) noexcept {
-    return simdMemoryAccess::nonTemporalLoad(where);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nonTemporalLoad(const void* where) noexcept {
+    return traits::nonTemporalLoad(where);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-void basic_simd<_SimdGeneration_, _Element_>::nonTemporalStore(void* where) const noexcept {
-    return simdMemoryAccess::nonTemporalStore(where);
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nonTemporalStore(void* where) const noexcept {
+    return traits::nonTemporalStore(where);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
-void basic_simd<_SimdGeneration_, _Element_>::zeroUpper() noexcept {
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::zeroUpper() noexcept {
     if constexpr (type_traits::is_zeroupper_required_v<_SimdGeneration_>)
         _mm256_zeroupper();
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreLowerHalf(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreLowerHalf(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept 
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreLowerHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+    return traits::template compressStoreLowerHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreUpperHalf(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreUpperHalf(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept 
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreUpperHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+    return traits::template compressStoreUpperHalf<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreUnaligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreUnaligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreUnaligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+    return traits::template compressStoreUnaligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreAligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreAligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask) const noexcept
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
 {
-    return simdMemoryAccess::template compressStoreAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
+    return traits::template compressStoreAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeUnaligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreMergeUnaligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
     const basic_simd&                                                       source) const noexcept
 {
-    return simdMemoryAccess::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
+    return traits::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_>::compressStoreMergeAligned(
+_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreMergeAligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_>   mask,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
     const basic_simd&                                                       source) const noexcept
 {
-    return simdMemoryAccess::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
+    return traits::template compressStoreMergeAligned<_DesiredType_>(static_cast<_DesiredType_*>(where), mask, _vector, source._vector);
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <
     sizetype _Mask,
     typename _DesiredType_>
-void basic_simd<_SimdGeneration_, _Element_>::blend(const basic_simd& vector) noexcept {
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(const basic_simd& vector) noexcept {
 
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Element_>
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-void basic_simd<_SimdGeneration_, _Element_>::reverse() noexcept {
-    _vector = simdElementWise::template reverse<_DesiredType_>(_vector);
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reverse() noexcept {
+    _vector = traits::template reverse<_DesiredType_>(_vector);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

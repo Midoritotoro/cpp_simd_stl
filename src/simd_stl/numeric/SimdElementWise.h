@@ -8,15 +8,17 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdElementWise;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdElementWise;
 
-template <>
-class SimdElementWise<arch::CpuFeature::SSE2> {
+template <class _RegisterPolicy_>
+class _SimdElementWise<arch::CpuFeature::SSE2, _RegisterPolicy_> {
     static constexpr auto _Feature = arch::CpuFeature::SSE2;
 
-    using _Cast_    = SimdCast<_Feature>;
-    using _Convert_ = SimdConvert<_Feature>;
+    using _Cast_    = _SimdCast<_Feature, _RegisterPolicy_>;
+    using _Convert_ = _SimdConvert<_Feature, _RegisterPolicy_>;
 public:
     template <
         typename    _DesiredType_,
@@ -69,8 +71,8 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ shuffle(
-        _VectorType_                                                            vector,
-        type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_>   mask) noexcept
+        _VectorType_                                                                                vector,
+        type_traits::__deduce_simd_shuffle_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>     mask) noexcept
     {
         if      constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>)
             return _Cast_::template cast<__m128d, _VectorType_>(_mm_shuffle_pd(
@@ -113,9 +115,9 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ blend(
-        _VectorType_                                                    firstVector,
-        _VectorType_                                                    secondVector,
-        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>   mask) noexcept
+        _VectorType_                                                                        firstVector,
+        _VectorType_                                                                        secondVector,
+        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>     mask) noexcept
     {
 /*        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_> || is_pd_v<_DesiredType_>) {
             return _Cast_::cast<__m128d, _VectorType_>(_mm_shuffle_pd(
@@ -179,19 +181,17 @@ public:
     }
 };
 
-template <>
-class SimdElementWise<arch::CpuFeature::SSE3> :
-    public SimdElementWise<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdElementWise<arch::CpuFeature::SSE3, _RegisterPolicy_> :
+    public _SimdElementWise<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdElementWise<arch::CpuFeature::SSSE3> :
-    public SimdElementWise<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdElementWise<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdElementWise<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {
-    static constexpr auto _Feature = arch::CpuFeature::SSSE3;
-
-    using _Cast_    = SimdCast<_Feature>;
-    using _Convert_ = SimdConvert<_Feature>;
+    using _Cast_    = _SimdCast<arch::CpuFeature::SSSE3, _RegisterPolicy_>;
+    using _Convert_ = _SimdConvert<arch::CpuFeature::SSSE3, _RegisterPolicy_>;
 public:
    /* template <
         typename    _DesiredType_,
@@ -230,14 +230,14 @@ public:
     }*/
 };
 
-template <>
-class SimdElementWise<arch::CpuFeature::SSE41> :
-    public SimdElementWise<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdElementWise<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdElementWise<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdElementWise<arch::CpuFeature::SSE42> :
-    public SimdElementWise<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdElementWise<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdElementWise<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

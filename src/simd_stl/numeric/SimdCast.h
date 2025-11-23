@@ -8,11 +8,13 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdCast;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdCast;
 
-template <>
-class SimdCast<arch::CpuFeature::SSE2> {
+template <class _RegisterPolicy_>
+class _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_> {
 public:
     template <
         typename    _FromVector_,
@@ -39,24 +41,24 @@ public:
     }
 };
 
-template <>
-class SimdCast<arch::CpuFeature::SSE3>:
-    public SimdCast<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdCast<arch::CpuFeature::SSE3, _RegisterPolicy_>:
+    public _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCast<arch::CpuFeature::SSSE3> :
-    public SimdCast<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdCast<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdCast<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCast<arch::CpuFeature::SSE41> :
-    public SimdCast<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdCast<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdCast<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdCast<arch::CpuFeature::SSE42> :
-    public SimdCast<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdCast<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdCast<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

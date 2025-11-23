@@ -6,13 +6,15 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdElementAccess;
+template <
+    arch::CpuFeature    _SimdGeneration_, 
+    class               _RegisterPolicy_>
+class _SimdElementAccess;
 
-template <>
-class SimdElementAccess<arch::CpuFeature::SSE2> {
-    using _Cast_            = SimdCast<arch::CpuFeature::SSE2>;
-    using _MemoryAccess_    = SimdMemoryAccess<arch::CpuFeature::SSE2>;
+template <class _RegisterPolicy_>
+class _SimdElementAccess<arch::CpuFeature::SSE2, _RegisterPolicy_> {
+    using _Cast_            = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+    using _MemoryAccess_    = _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>;
 public:
     template <
         typename _DesiredType_,
@@ -162,24 +164,24 @@ public:
     }
 };
 
-template <>
-class SimdElementAccess<arch::CpuFeature::SSE3>:
-    public SimdElementAccess<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdElementAccess<arch::CpuFeature::SSE3, _RegisterPolicy_>:
+    public _SimdElementAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdElementAccess<arch::CpuFeature::SSSE3> :
-    public SimdElementAccess<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdElementAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdElementAccess<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdElementAccess<arch::CpuFeature::SSE41> :
-    public SimdElementAccess<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdElementAccess<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdElementAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdElementAccess<arch::CpuFeature::SSE42>:
-    public SimdElementAccess<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdElementAccess<arch::CpuFeature::SSE42, _RegisterPolicy_>:
+    public _SimdElementAccess<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

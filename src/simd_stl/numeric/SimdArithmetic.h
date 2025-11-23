@@ -7,14 +7,16 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdArithmetic;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdArithmetic;
 
-template <>
-class SimdArithmetic<arch::CpuFeature::SSE2> {
-   using _Cast_             = SimdCast<arch::CpuFeature::SSE2>;
-   using _ElementAccess_    = SimdElementAccess<arch::CpuFeature::SSE2>;
-   using _MemoryAccess_     = SimdMemoryAccess<arch::CpuFeature::SSE2>;
+template <class _RegisterPolicy_>
+class _SimdArithmetic<arch::CpuFeature::SSE2, _RegisterPolicy_> {
+   using _Cast_             = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+   using _ElementAccess_    = _SimdElementAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+   using _MemoryAccess_     = _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>;
 public:
     template <
         typename _DesiredType_,
@@ -24,7 +26,7 @@ public:
         constexpr auto vectorLength = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
         _DesiredType_ vectorArray[vectorLength];
-        _MemoryAccess_::storeUnaligned<_DesiredType_>(vectorArray, vector);
+        _MemoryAccess_::template storeUnaligned<_DesiredType_>(vectorArray, vector);
 
         _DesiredOutputType_ out = 0;
 
@@ -516,30 +518,27 @@ private:
     }
 };
 
-template <>
-class SimdArithmetic<arch::CpuFeature::SSE3> :
-    public SimdArithmetic<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdArithmetic<arch::CpuFeature::SSE3, _RegisterPolicy_> :
+    public _SimdArithmetic<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdArithmetic<arch::CpuFeature::SSSE3> :
-    public SimdArithmetic<arch::CpuFeature::SSE3>
-{
-public:
-
-};
-
-template <>
-class SimdArithmetic<arch::CpuFeature::SSE41> :
-    public SimdArithmetic<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdArithmetic<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdArithmetic<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {};
 
-template <>
-class SimdArithmetic<arch::CpuFeature::SSE42> :
-    public SimdArithmetic<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdArithmetic<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdArithmetic<arch::CpuFeature::SSSE3, _RegisterPolicy_>
+{};
+
+template <class _RegisterPolicy_>
+class _SimdArithmetic<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdArithmetic<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {
-    using _MemoryAccess_    = SimdMemoryAccess<arch::CpuFeature::SSE42>;
-    using _Cast_            = SimdCast<arch::CpuFeature::SSE42>;
+    using _MemoryAccess_    = _SimdMemoryAccess<arch::CpuFeature::SSE42, _RegisterPolicy_>;
+    using _Cast_            = _SimdCast<arch::CpuFeature::SSE42, _RegisterPolicy_>;
 public:
     template <
         typename _DesiredType_, 
@@ -585,7 +584,7 @@ public:
             constexpr auto vectorLength = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
             _DesiredType_ vectorArray[vectorLength];
-            _MemoryAccess_::storeUnaligned<_DesiredType_>(vectorArray, vector);
+            _MemoryAccess_::template storeUnaligned<_DesiredType_>(vectorArray, vector);
 
             _DesiredOutputType_ out = 0;
 

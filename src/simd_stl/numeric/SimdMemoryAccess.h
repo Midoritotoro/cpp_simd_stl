@@ -8,8 +8,10 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
-class SimdMemoryAccess;
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_>
+class _SimdMemoryAccess;
 
 namespace detail::SSE {
     template <
@@ -61,13 +63,13 @@ namespace detail::SSE {
 } // namespace detail
 
 
-template <>
-class SimdMemoryAccess<arch::CpuFeature::SSE2> {
+template <class _RegisterPolicy_>
+class _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_> {
     static constexpr auto _Feature = arch::CpuFeature::SSE2;
 
-    using _ElementWise_ = SimdElementWise<_Feature>;
-    using _SimdCast_    = SimdCast<_Feature>;
-    using _SimdConvert_ = SimdConvert<_Feature>;
+    using _ElementWise_ = _SimdElementWise<_Feature, _RegisterPolicy_>;
+    using _SimdCast_    = _SimdCast<_Feature, _RegisterPolicy_>;
+    using _SimdConvert_ = _SimdConvert<_Feature, _RegisterPolicy_>;
 public:
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ loadUpperHalf(const void* where) noexcept {
@@ -89,7 +91,7 @@ public:
         void*           where,
         _VectorType_    vector) noexcept 
     {
-        _mm_stream_si128(static_cast<__m128i*>(where), _SimdCast_::cast<_VectorType_, __m128i>(vector));
+        _mm_stream_si128(static_cast<__m128i*>(where), _SimdCast_::template cast<_VectorType_, __m128i>(vector));
     }
 
     static simd_stl_always_inline void streamingFence() noexcept {
@@ -155,9 +157,9 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreUnaligned(
-        _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                  vector) noexcept
+        _DesiredType_*                                                                          where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask,
+        const _VectorType_                                                                      vector) noexcept
     {
         const auto loaded   = loadUnaligned<_VectorType_>(where);
         const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
@@ -169,9 +171,9 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void maskStoreAligned(
-        _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
-        const _VectorType_                                                  vector) noexcept
+        _DesiredType_*                                                                          where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask,
+        const _VectorType_                                                                      vector) noexcept
     {
         const auto loaded   = loadAligned<_VectorType_>(where);
         const auto blended  = _ElementWise_::template blend<_DesiredType_>(loaded, vector, mask);
@@ -183,8 +185,8 @@ public:
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ maskLoadUnaligned(
-        const _DesiredType_*                                                where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask) noexcept
+        const _DesiredType_*                                                                    where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask) noexcept
     {
         const auto zeros    = _mm_setzero_si128();
         const auto loaded   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(where));
@@ -200,8 +202,8 @@ public:
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ maskLoadAligned(
-        const _DesiredType_*                                                where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask) noexcept
+        const _DesiredType_*                                                                    where,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>   mask) noexcept
     {
         const auto zeros    = _mm_setzero_si128();
         const auto loaded   = _mm_load_si128(reinterpret_cast<const __m128i*>(where));
@@ -218,7 +220,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         _DesiredType_*                                                      where,
-        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_>       mask,
+        type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_>       mask,
         const _VectorType_                                                  vector) noexcept
     {
         __m128i shuffle;
@@ -232,7 +234,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreAligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector) noexcept
     {
         __m128i shuffle;
@@ -269,7 +271,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
         _DesiredType_* where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
@@ -286,7 +288,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
         _DesiredType_* where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
@@ -299,26 +301,28 @@ public:
     }
 };
 
-template <>
-class SimdMemoryAccess<arch::CpuFeature::SSE3> :
-    public SimdMemoryAccess<arch::CpuFeature::SSE2>
+template <class _RegisterPolicy_>
+class _SimdMemoryAccess<arch::CpuFeature::SSE3, _RegisterPolicy_> :
+    public _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>
 {};
 
-template <>
-class SimdMemoryAccess<arch::CpuFeature::SSSE3> :
-    public SimdMemoryAccess<arch::CpuFeature::SSE3>
+template <class _RegisterPolicy_>
+class _SimdMemoryAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
+    public _SimdMemoryAccess<arch::CpuFeature::SSE3, _RegisterPolicy_>
 {
     static constexpr auto _Feature = arch::CpuFeature::SSSE3;
     
-    using _Cast_        = SimdCast<_Feature>;
-    using _ElementWise_ = SimdElementWise<_Feature>;
+    using _Cast_        = _SimdCast<_Feature, _RegisterPolicy_>;
+    using _ElementWise_ = _SimdElementWise<_Feature, _RegisterPolicy_>;
 public:
+    using _SimdMemoryAccess<arch::CpuFeature::SSE3, _RegisterPolicy_>::maskStoreUnaligned;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreLowerHalf(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector) noexcept
     {
         static_assert(sizeof(_DesiredType_) != 8);
@@ -350,7 +354,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreUpperHalf(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector) noexcept
     {
         static_assert(sizeof(_DesiredType_) != 8);
@@ -381,7 +385,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector) noexcept
     {
         if      constexpr (sizeof(_DesiredType_) == 8) {
@@ -409,7 +413,7 @@ public:
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto start = where;
+            auto start = where;
 
 
             const auto shifted = _mm_movehl_ps(
@@ -435,7 +439,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreAligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector) noexcept
     {
         if      constexpr (sizeof(_DesiredType_) == 8) {
@@ -463,7 +467,7 @@ public:
             algorithm::AdvanceBytes(where, detail::SSE::tables16Bit.size[mask]);
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto start = where;
+            auto start = where;
 
             const auto shifted = _mm_movehl_ps(
                 _Cast_::template cast<__m128i, __m128>(_mm_slli_si128(_Cast_::template cast<_VectorType_, __m128i>(vector), 8)),
@@ -477,7 +481,7 @@ public:
             auto mask = (1u << remainingElements) - 1u;
             mask = ~mask;
 
-            maskStoreAligned(start, mask, vector);
+           // maskStoreAligned<_DesiredType_>(start, mask, vector);
         }
 
         return where;
@@ -488,7 +492,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
@@ -531,7 +535,7 @@ public:
             auto mask = (1u << remainingElements) - 1u;
             mask = ~mask;
 
-            maskStoreAligned(start, mask, vector);
+            maskStoreUnaligned(start, mask, vector);
         }
 
         return where;
@@ -542,7 +546,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
         _DesiredType_*                                                      where,
-        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_> mask,
+        const type_traits::__deduce_simd_mask_type<_Feature, _DesiredType_, _RegisterPolicy_> mask,
         const _VectorType_                                                  vector,
         const _VectorType_                                                  sourceVector) noexcept
     {
@@ -550,20 +554,22 @@ public:
     }
 };
 
-template <>
-class SimdMemoryAccess<arch::CpuFeature::SSE41> :
-    public SimdMemoryAccess<arch::CpuFeature::SSSE3>
+template <class _RegisterPolicy_>
+class _SimdMemoryAccess<arch::CpuFeature::SSE41, _RegisterPolicy_> :
+    public _SimdMemoryAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_>
 {
+    using _Cast_ = _SimdCast<arch::CpuFeature::SSE41, _RegisterPolicy_>;
 public:
+
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ nonTemporalLoad(const void* where) noexcept {
-        return _SimdCast_::cast<__m128i, _VectorType_>(_mm_stream_load_si128(static_cast<const __m128i*>(where)));
+        return _Cast_::template cast<__m128i, _VectorType_>(_mm_stream_load_si128(static_cast<const __m128i*>(where)));
     }
 };
 
-template <>
-class SimdMemoryAccess<arch::CpuFeature::SSE42> :
-    public SimdMemoryAccess<arch::CpuFeature::SSE41>
+template <class _RegisterPolicy_>
+class _SimdMemoryAccess<arch::CpuFeature::SSE42, _RegisterPolicy_> :
+    public _SimdMemoryAccess<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
