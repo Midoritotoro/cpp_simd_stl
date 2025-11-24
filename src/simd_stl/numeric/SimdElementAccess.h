@@ -6,11 +6,11 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-#define _Simd_stl_case_insert_epi16(_Index, _Vector, _Value) \
-    case _Index: vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, _Index));
+#define _Simd_stl_case_insert_(_Postfix, _Index, _Vector, _Value) \
+    case _Index: vector = _IntrinBitcast<_VectorType_>(SIMD_STL_PP_CAT(_mm_insert_, _Postfix)(_IntrinBitcast<__m128i>(_Vector), _Value, _Index));
 
-#define _Simd_stl_case_extract_epi16(_Index, _Vector, _DesiredType) \
-    case _Index: return static_cast<_DesiredType>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), _Index));
+#define _Simd_stl_case_extract_(_Postfix, _Index, _Vector, _DesiredType) \
+    case _Index: return static_cast<_DesiredType>(SIMD_STL_PP_CAT(_mm_extract_, _Postfix)(_IntrinBitcast<__m128i>(_Vector), _Index));
 
 
 template <
@@ -60,14 +60,14 @@ public:
         }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
             switch (_Position) {
-                _Simd_stl_case_insert_epi16(0, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(1, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(2, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(3, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(4, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(5, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(6, _Vector, _Value)
-                _Simd_stl_case_insert_epi16(7, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 1, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 2, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 3, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 4, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 5, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 6, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 7, _Vector, _Value)
             }
         }
         else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
@@ -105,23 +105,55 @@ public:
         _VectorType_    _Vector,
         const uint8     _Where) noexcept
     {
-        if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+            if (_Where == 0) {
+#if defined(simd_stl_processor_x86_64)
+                return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_Vector)));
+#else
+                const auto _HighDword = _mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector));
+                const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0x55));
+
+                return (static_cast<_DesiredType_>(_HighDword) << 32) | static_cast<_DesiredType_>(_LowDword);
+#endif // defined(simd_stl_processor_x86_64)
+            }
+
+#if !defined(simd_stl_processor_x86_64)
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si64(
+                _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE)));
+#else
+            const auto _HighDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE));
+            const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF));
+
+            return (static_cast<_DesiredType_>(_HighDword) << 32) | static_cast<_DesiredType_>(_LowDword);
+#endif // defined(simd_stl_processor_x86_64)
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+            constexpr std::array<int32, 4> _Shuffle = { 0, 0x55, 0xEE, 0xFF }
+
+            if (_Where == 0)
+                return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
+            
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), _Shuffle[_Where])));
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
             switch (_Where) {
-                _Simd_stl_case_extract_epi16(0, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(1, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(2, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(3, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(4, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(5, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(6, _Vector, _DesiredType_)
-                _Simd_stl_case_extract_epi16(7, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 3, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 4, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 5, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 6, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 7, _Vector, _DesiredType_)
             }
         }
-        else {
-            _DesiredType_ array[sizeof(_VectorType_) / sizeof(_DesiredType_)];
-            _SimdStoreUnaligned<_Generation, _RegisterPolicy, _DesiredType_>(array, _Vector);
-
-            return static_cast<_DesiredType_>(array[_Where]);
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            if (_Where <= 3)
+                return _Extract<int32, _VectorType_>(_Vector, _Where >> 2) >> (_Where << 3);
+            else
+                return (_Where & 1)
+                    ? _Extract<int16, _VectorType_>(_Vector, _Where >> 1) >> 8
+                    : _Extract<int16, _VectorType_>(_Vector, _Where >> 1);
         }
     }
 };
@@ -139,11 +171,167 @@ class _SimdElementAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
 template <class _RegisterPolicy_>
 class _SimdElementAccess<arch::CpuFeature::SSE41, _RegisterPolicy_> :
     public _SimdElementAccess<arch::CpuFeature::SSSE3, _RegisterPolicy_>
-{};
+{
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _Insert(
+        _VectorType_&       _Vector,
+        const uint8         _Position,
+        const _DesiredType_ _Value) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_(epi64, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(epi64, 1, _Vector, _Value)
+            }
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_(epi32, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(epi32, 1, _Vector, _Value)
+                _Simd_stl_case_insert_(epi32, 2, _Vector, _Value)
+                _Simd_stl_case_insert_(epi32, 3, _Vector, _Value)
+            }
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_(epi16, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 1, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 2, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 3, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 4, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 5, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 6, _Vector, _Value)
+                _Simd_stl_case_insert_(epi16, 7, _Vector, _Value)
+            }
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_(epi8, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 1, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 2, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 3, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 4, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 5, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 6, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 7, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 8, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 9, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 10, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 11, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 12, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 13, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 14, _Vector, _Value)
+                _Simd_stl_case_insert_(epi8, 15, _Vector, _Value)
+            }
+        }
+        else if constexpr (is_ps_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_(ps, 0, _Vector, _Value)
+                _Simd_stl_case_insert_(ps, 1, _Vector, _Value)
+                _Simd_stl_case_insert_(ps, 2, _Vector, _Value)
+                _Simd_stl_case_insert_(ps, 3, _Vector, _Value)
+            }
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Extract(
+        _VectorType_    _Vector,
+        const uint8     _Where) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+            switch (_Where) {
+                _Simd_stl_case_extract_(epi64, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi64, 1, _Vector, _DesiredType_)
+            }
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            switch (_Where) {
+                _Simd_stl_case_extract_(epi32, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi32, 1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi32, 2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi32, 3, _Vector, _DesiredType_)
+            }
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            switch (_Where) {
+                _Simd_stl_case_extract_(ps, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(ps, 1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(ps, 2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(ps, 3, _Vector, _DesiredType_)
+            }
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            switch (_Where) {
+                _Simd_stl_case_extract_(epi16, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 3, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 4, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 5, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 6, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi16, 7, _Vector, _DesiredType_)
+            }
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+           switch (_Where) {
+                _Simd_stl_case_extract_(epi8, 0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 3, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 4, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 5, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 6, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 7, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 8, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 9, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 10, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 11, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 12, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 13, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 14, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_(epi8, 15, _Vector, _DesiredType_)
+            }
+        }
+    }
+};
 
 template <class _RegisterPolicy_>
 class _SimdElementAccess<arch::CpuFeature::SSE42, _RegisterPolicy_>:
     public _SimdElementAccess<arch::CpuFeature::SSE41, _RegisterPolicy_>
 {};
+
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline void _SimdInsert(
+    _VectorType_&       _Vector,
+    const uint8         _Position,
+    const _DesiredType_ _Value) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>::template _Insert(_Vector, _Position, _Value);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdExtract(
+    _VectorType_    _Vector,
+    const uint8     _Where) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>::template _Extract<_DesiredType_>(_Vector, _Where);
+}
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

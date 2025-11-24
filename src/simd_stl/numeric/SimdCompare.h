@@ -259,4 +259,5 @@ simd_stl_nodiscard simd_stl_always_inline type_traits::__deduce_simd_mask_type<_
     return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
         ::template _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
 }
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

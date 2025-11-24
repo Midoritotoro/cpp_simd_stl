@@ -142,3 +142,6 @@
 #define __SIMD_STL_REPEAT_64(X) __SIMD_STL_REPEAT_63(X), __SIMD_STL_REPEAT__(X)
 
 #define __SIMD_STL_REPEAT_N(N, X) PP_CAT(__SIMD_STL_REPEAT_, N)(X)
+
+#define __SIMD_STL_PP_CAT(a,b) a##b
+#define SIMD_STL_PP_CAT(a,b) __SIMD_STL_PP_CAT(a,b)
