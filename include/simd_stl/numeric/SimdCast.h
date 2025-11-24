@@ -3,6 +3,7 @@
 #include <src/simd_stl/numeric/IntrinBitcast.h>
 #include <simd_stl/numeric/BasicSimdElementReference.h>
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <

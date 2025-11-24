@@ -3,7 +3,14 @@
 #include <src/simd_stl/numeric/SimdMemoryAccess.h>
 #include <simd_stl/memory/pointerToIntegral.h>
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
+
+#define _Simd_stl_case_insert_epi16(_Index, _Vector, _Value) \
+    case _Index: vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, _Index));
+
+#define _Simd_stl_case_extract_epi16(_Index, _Vector, _DesiredType) \
+    case _Index: return static_cast<_DesiredType>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), _Index));
 
 
 template <
@@ -11,156 +18,111 @@ template <
     class               _RegisterPolicy_>
 class _SimdElementAccess;
 
-template <class _RegisterPolicy_>
-class _SimdElementAccess<arch::CpuFeature::SSE2, _RegisterPolicy_> {
-    using _Cast_            = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
-    using _MemoryAccess_    = _SimdMemoryAccess<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+template <>
+class _SimdElementAccess<arch::CpuFeature::SSE2, xmm128> {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    using _RegisterPolicy               = xmm128;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void insert(
-        _VectorType_&       vector,
-        const uint8         position,
-        const _DesiredType_ value) noexcept
+    static simd_stl_always_inline void _Insert(
+        _VectorType_&       _Vector,
+        const uint8         _Position,
+        const _DesiredType_ _Value) noexcept
     {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
 #if defined(simd_stl_processor_x86_64)
-            auto vectorValue = _mm_cvtsi64_si128(memory::pointerToIntegral(value));
+            auto _VectorValue = _mm_cvtsi64_si128(memory::pointerToIntegral(_Value));
 #else
             union {
-                __m128i vec;
-                int64   num;
-            } convert;
+                __m128i _Vector;
+                int64   _Number;
+            } _Convert;
 
-            convert.num = value;
-            auto vectorValue = _mm_loadl_epi64(&convert.vec);
+            _Convert._Number = _Value;
+            auto _VectorValue = _SimdLoadLowerHalf<_Generation, _RegisterPolicy, __m128i>(&_Convert._Vector);
 #endif
-            if (position == 0) {
-                vectorValue = _mm_unpacklo_epi64(vectorValue, vectorValue);
-                vector = _Cast_::template cast<__m128i, _VectorType_>(
-                    _mm_unpackhi_epi64(vectorValue, _Cast_::template cast<_VectorType_, __m128i>(vector)));
-            }
-            else
-                vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_unpacklo_epi64(
-                    _Cast_::template cast<_VectorType_, __m128i>(vector), vectorValue));
+            _Vector = (_Position == 0) 
+                ? _IntrinBitcast<_VectorType_>(_mm_unpackhi_epi64(
+                    _mm_unpacklo_epi64(_VectorValue, _VectorValue), _IntrinBitcast<__m128i>(_Vector)))
+                : _IntrinBitcast<_VectorType_>(_mm_unpacklo_epi64(
+                    _IntrinBitcast<__m128i>(_Vector), _VectorValue));
         }
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>) {
-            const auto broad = _mm_set1_epi32(memory::pointerToIntegral(value));
-            const int32 maskArray[8] = { 0,0,0,0,-1,0,0,0 };
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, __m128i, _DesiredType_>(_Value);
+            const int32 _MaskArray[8] = { 0, 0, 0, 0, -1, 0, 0, 0 };
 
-            const auto mask = _mm_loadu_si128((__m128i const*)(maskArray + 4 - (position & 3))); // FFFFFFFF at index position
-            vector = _Cast_::template cast<__m128i, _VectorType_>(
-                _mm_or_si128(_mm_and_si128(mask, broad), 
-                    _mm_andnot_si128(mask, _Cast_::template cast<_VectorType_, __m128i>(vector))));
+            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128i>(_MaskArray + 4 - (_Position & 3)); // FFFFFFFF at index position
+
+            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_si128(_mm_and_si128(_InsertMask, _Broadcasted),
+                    _mm_andnot_si128(_InsertMask, _IntrinBitcast<__m128i>(_Vector))));
         }
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            switch (position) {
-                case 0:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 0));
-                case 1:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 1));
-                case 2:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 2));
-                case 3:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 3));
-                case 4:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 4));
-                case 5:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 5));
-                case 6:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 6));
-                case 7:
-                    vector = _Cast_::template cast<__m128i, _VectorType_>(_mm_insert_epi16(vector, memory::pointerToIntegral(value), 7));
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            switch (_Position) {
+                _Simd_stl_case_insert_epi16(0, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(1, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(2, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(3, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(4, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(5, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(6, _Vector, _Value)
+                _Simd_stl_case_insert_epi16(7, _Vector, _Value)
             }
         }
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>) {
-            const int8 maskArray[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-            const auto broad = _mm_set1_epi8(memory::pointerToIntegral(value));
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            const int8 _MaskArray[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, __m128i, _DesiredType_>(_Value);
 
-            const auto mask = _mm_loadu_si128((__m128i const*)(maskArray + 16 - (position & 0x0F))); // FF at index position
-            vector = _mm_or_si128(_mm_and_si128(mask, broad), _mm_andnot_si128(mask, vector));
+            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128i>(_MaskArray + 16 - (_Position & 0x0F)); // FF at index position
+
+            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_si128(_mm_and_si128(_InsertMask, _Broadcasted),
+                _mm_andnot_si128(_InsertMask, _IntrinBitcast<__m128i>(_Vector))));
         }
-        else if constexpr (is_pd_v<_DesiredType_>) {
-            const auto broadcasted = _mm_set_sd(value);
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            const auto _Broadcasted = _mm_set_sd(_Value);
 
-            vector = (position == 0)
-                ? _mm_shuffle_pd(broadcasted, vector, 2)
-                : _mm_shuffle_pd(vector, broadcasted, 0);
+            _Vector = (_Position == 0)
+                ? _mm_shuffle_pd(_Broadcasted, _IntrinBitcast<__m128d>(_Vector), 2)
+                : _mm_shuffle_pd(_IntrinBitcast<__m128d>(_Vector), _Broadcasted, 0);
         }
         else if constexpr (is_ps_v<_DesiredType_>) {
-            const int32 maskArray[8] = { 0,0,0,0,-1,0,0,0 };
+            const int32 _MaskArray[8] = { 0,0,0,0,-1,0,0,0 };
 
-            const auto broadcasted = _mm_set1_ps(value);
-            const auto mask = _mm_loadu_ps((float const*)(maskArray + 4 - (position & 3))); // FFFFFFFF at index position
+            const auto _Broadcasted = _mm_set1_ps(_Value);
+            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128>(_MaskArray + 4 - (_Position & 3)); // FFFFFFFF at index position
 
-            vector = _mm_or_ps(
-                _mm_and_ps(mask, broadcasted),
-                _mm_andnot_ps(mask, vector));
+            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_ps(
+                _mm_and_ps(_InsertMask, _Broadcasted),
+                _mm_andnot_ps(_InsertMask, _IntrinBitcast<__m128>(vector))));
         }
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ extract(
-        _VectorType_    vector,
-        const uint8     where) noexcept
+    static simd_stl_always_inline _DesiredType_ _Extract(
+        _VectorType_    _Vector,
+        const uint8     _Where) noexcept
     {
-        if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>) {
-            switch (where) {
-                case 0:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 0));
-                case 1:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 1));
-                case 2:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 2));
-                case 3:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 3));
-                case 4:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 4));
-                case 5:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 5));
-                case 6:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 6));
-                case 7:
-                    return static_cast<_DesiredType_>(_mm_extract_epi16(vector, 7));
+        if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            switch (_Where) {
+                _Simd_stl_case_extract_epi16(0, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(1, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(2, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(3, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(4, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(5, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(6, _Vector, _DesiredType_)
+                _Simd_stl_case_extract_epi16(7, _Vector, _DesiredType_)
             }
         }
         else {
             _DesiredType_ array[sizeof(_VectorType_) / sizeof(_DesiredType_)];
-            _MemoryAccess_::template storeUnaligned<_DesiredType_>(array, vector);
+            _SimdStoreUnaligned<_Generation, _RegisterPolicy, _DesiredType_>(array, _Vector);
 
-            return static_cast<_DesiredType_>(array[where]);
+            return static_cast<_DesiredType_>(array[_Where]);
         }
-    }
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ constructZero() noexcept {
-        if      constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_setzero_pd();
-        else if constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_setzero_si128();
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_setzero_ps();
-    }
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ broadcast(_DesiredType_ value) noexcept {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi64x(memory::pointerToIntegral(value)));
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi32(memory::pointerToIntegral(value)));
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi16(memory::pointerToIntegral(value)));
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_set1_epi8(memory::pointerToIntegral(value)));
-        else if constexpr (is_ps_v<_DesiredType_>)
-            return _Cast_::template cast<__m128, _VectorType_>(_mm_set1_ps(value));
-        else if constexpr (is_pd_v<_DesiredType_>)
-            return _Cast_::template cast<__m128d, _VectorType_>(_mm_set1_pd(value));
     }
 };
 

@@ -6,13 +6,27 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-struct xmm128 {};
-struct ymm256 {};
-struct zmm512 {};
-
 constexpr auto _XmmWidth = sizeof(__m128);
 constexpr auto _YmmWidth = sizeof(__m256);
 constexpr auto _ZmmWidth = sizeof(__m512);
+
+struct xmm128 { 
+	static constexpr auto _Width = _XmmWidth;
+};
+
+struct ymm256 {
+	static constexpr auto _Width = _YmmWidth;
+};
+
+struct zmm512 {
+	static constexpr auto _Width = _ZmmWidth;
+};
+
+template <
+	arch::CpuFeature	_SimdGeneration_, 
+	class				_RegisterPolicy_> 
+constexpr bool _Is_register_policy_for_generation_v = 
+	sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>) >= _RegisterPolicy_::_Width;
 
 template <class _Type_>
 constexpr bool _Is_intrin_type_v = type_traits::is_any_of_v<std::remove_cvref_t<_Type_>,
@@ -74,5 +88,10 @@ using _DefaultRegisterPolicy = std::conditional_t<
         >
     >
 >;
+
+#if !defined(_VerifyRegisterPolicy) 
+#  define _VerifyRegisterPolicy(_Generation_, _Policy_) \
+	static_assert(simd_stl::numeric::_Is_register_policy_for_generation_v<_Generation_, _Policy_>, "Simd generation does not support register policy. ");
+#endif // !defined(_VerifyRegisterPolicy)
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

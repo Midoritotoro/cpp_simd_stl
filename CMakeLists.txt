@@ -87,6 +87,7 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
+    src/simd_stl/numeric/SimdBroadcast.h
     src/simd_stl/numeric/ShuffleTables.h
     src/simd_stl/numeric/SimdDivisors.h
     src/simd_stl/numeric/SimdArithmetic.h

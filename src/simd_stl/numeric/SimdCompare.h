@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/SimdCast.h>
+#include <src/simd_stl/numeric/IntrinBitcast.h>
 #include <src/simd_stl/numeric/SimdConvert.h>
 
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
@@ -11,211 +11,252 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_>
-class _SimdCompare;
+class _SimdCompareImplementation;
 
-template <class _RegisterPolicy_>
-class _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy_> {
-    using _Cast_        = _SimdCast<arch::CpuFeature::SSE2, _RegisterPolicy_>;
-    using _Convert_     = _SimdConvert<arch::CpuFeature::SSE2, _RegisterPolicy_>;
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::SSE2, xmm128> {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    using _RegisterPolicy               = xmm128;
+
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ compare(
-        _VectorType_ left,
-        _VectorType_ right) noexcept
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _CompareMask(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
     {
         if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to<>>)
-            return compareEqual<_DesiredType_>(left, right);
+            return _CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~compareEqual<_DesiredType_>(left, right);
+            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
-            return compareLess<_DesiredType_>(left, right);
+            return _CompareLess<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~compareGreater<_DesiredType_>(left, right);
+            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return compareGreater<_DesiredType_>(right, left);
+            return _CompareGreater<_DesiredType_>(_Right, _Left);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~compareLess<_DesiredType_>(right, left);
+            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Compare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to<>>)
+            return _CompareEqual<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
+            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
+            return _CompareLess<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
+            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
+            return _CompareGreater<_DesiredType_>(_Right, _Left);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
+            return ~_CompareLess<_DesiredType_>(_Right, _Left);
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ compareEqual(
-        _VectorType_ left,
-        _VectorType_ right) noexcept
+    static simd_stl_always_inline _VectorType_ _CompareEqual(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
     {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
-            const auto equalMask = _mm_cmpeq_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right));
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            const auto _EqualMask = _mm_cmpeq_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
 
             // int64 temp = equalMask[0];
             // equalMask[0] = equalMask[1];
             // equalMask[1] = temp;
-            const auto rotatedMask = _mm_shuffle_epi32(equalMask, 0xB1);
+            const auto _RotatedMask = _mm_shuffle_epi32(_EqualMask, 0xB1);
+            const auto _CombinedMask = _mm_and_si128(_EqualMask, _RotatedMask);
 
-            const auto combinedMask = _mm_and_si128(equalMask, rotatedMask);
-            const auto signMask = _mm_srai_epi32(combinedMask, 31);
-
-            const auto finalMask = _mm_shuffle_epi32(signMask, 0xF5);
-            return _Cast_::template cast<__m128i, _VectorType_>(finalMask);
+            const auto _SignMask = _mm_srai_epi32(_CombinedMask, 31);
+            return _IntrinBitcast<_VectorType_>(_mm_shuffle_epi32(_SignMask, 0xF5));
         }
 
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi16(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi16(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpeq_epi8(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi8(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmpeq_ps(
-                _Cast_::template cast<_VectorType_, __m128>(left),
-                _Cast_::template cast<_VectorType_, __m128>(right)));
+        else if constexpr (_Is_ps_v<_DesiredType_> || _Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_ps(
+                _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
 
-        else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmpeq_pd(
-                _Cast_::template cast<_VectorType_, __m128d>(left),
-                _Cast_::template cast<_VectorType_, __m128d>(right)));
+        else if constexpr (_Is_pd_v<_DesiredType_> || _Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_pd(
+                _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ compareLess(
-        _VectorType_ left,
-        _VectorType_ right) noexcept
+    static simd_stl_always_inline _VectorType_ _CompareLess(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
     {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
-            const auto leftToInteger    = _Cast_::template cast<_VectorType_, __m128i>(left);
-            const auto rightToInteger   = _Cast_::template cast<_VectorType_, __m128i>(right);
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            const auto _LeftToInteger   = _IntrinBitcast<__m128i>(_Left);
+            const auto _RightToInteger  = _IntrinBitcast<__m128i>(_Right);
 
-            const auto diff64           = _mm_sub_epi64(leftToInteger, rightToInteger);
+            const auto _Difference64    = _mm_sub_epi64(_LeftToInteger, _RightToInteger);
 
-            const auto xorMask          = _mm_xor_si128(leftToInteger, rightToInteger);     // left ^ right
-            const auto leftAndNotRight  = _mm_andnot_si128(rightToInteger, leftToInteger);  // left & ~right
-            const auto diffAndNotXor    = _mm_andnot_si128(xorMask, diff64);                // diff & ~(left ^ right)
+            const auto _XorMask          = _mm_xor_si128(_LeftToInteger, _RightToInteger);      // left ^ right
+            const auto _LeftAndNotRight  = _mm_andnot_si128(_RightToInteger, _LeftToInteger);   // left & ~right
+            const auto _DifferenceAndNotXor = _mm_andnot_si128(_XorMask, _Difference64);        // diff & ~(left ^ right)
 
-            const auto combinedMask     = _mm_or_si128(leftAndNotRight, diffAndNotXor);
+            const auto _CombinedMask     = _mm_or_si128(_LeftAndNotRight, _DifferenceAndNotXor);
 
-            const auto signBits32       = _mm_srai_epi32(combinedMask, 31);
-            const auto signBits64       = _mm_shuffle_epi32(signBits32, 0xF5);
+            const auto _SignBits32       = _mm_srai_epi32(_CombinedMask, 31);
+            const auto _SignBits64       = _mm_shuffle_epi32(_SignBits32, 0xF5);
 
-            return _Cast_::template cast<__m128i, _VectorType_>(signBits64);
+            return _IntrinBitcast<_VectorType_>(_SignBits64);
         }
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
 
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi16(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi32(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmplt_epi8(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi16(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmplt_ps(
-                _Cast_::template cast<_VectorType_, __m128>(left),
-                _Cast_::template cast<_VectorType_, __m128>(right)));
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi8(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmplt_pd(
-                _Cast_::template cast<_VectorType_, __m128d>(left),
-                _Cast_::template cast<_VectorType_, __m128d>(right)));
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmplt_ps(
+                _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+
+        else if constexpr (is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmplt_pd(
+                _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ compareGreater(
-        _VectorType_ left,
-        _VectorType_ right) noexcept
+    static simd_stl_always_inline _VectorType_ _CompareGreater(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
     {
-        if constexpr (is_epi64_v<_DesiredType_> || is_epu64_v<_DesiredType_>) {
-            const auto leftToInteger = _Cast_::template cast<_VectorType_, __m128i>(left);
-            const auto rightToInteger = _Cast_::template cast<_VectorType_, __m128i>(right);
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            const auto _LeftToInteger   = _IntrinBitcast<__m128i>(_Left);
+            const auto _RightToInteger  = _IntrinBitcast<__m128i>(_Right);
 
-            const auto signBitMask = _mm_set1_epi32(0x80000000);
-            const auto leftUnsigned = _mm_xor_si128(leftToInteger, signBitMask);
-            const auto rightUnsigned = _mm_xor_si128(rightToInteger, signBitMask);
+            const auto _SignBitMask = _mm_set1_epi32(0x80000000);
+            const auto _LeftUnsigned = _mm_xor_si128(_LeftToInteger, _SignBitMask);
+            const auto _RightUnsigned = _mm_xor_si128(_RightToInteger, _SignBitMask);
 
-            const auto equalityMask = _mm_cmpeq_epi32(leftToInteger, rightToInteger);
-            const auto greaterMask = _mm_cmpgt_epi32(leftUnsigned, rightUnsigned);
+            const auto _EqualityMask = _mm_cmpeq_epi32(_LeftToInteger, _RightToInteger);
+            const auto _GreaterMask = _mm_cmpgt_epi32(_LeftUnsigned, _RightUnsigned);
 
-            const auto greaterHiMask = _mm_shuffle_epi32(greaterMask, 0xA0);
-            const auto equalAndGreater = _mm_and_si128(equalityMask, greaterHiMask);
+            const auto _GreaterHiMask = _mm_shuffle_epi32(_GreaterMask, 0xA0);
+            const auto _EqualAndGreater = _mm_and_si128(_EqualityMask, _GreaterHiMask);
 
-            const auto combinedMask = _mm_or_si128(greaterMask, equalAndGreater);
-            const auto finalMask = _mm_shuffle_epi32(combinedMask, 0xF5);
+            const auto _CombinedMask = _mm_or_si128(_GreaterMask, _EqualAndGreater);
 
-            return _Cast_::template cast<__m128i, _VectorType_>(finalMask);
+            return _IntrinBitcast<_VectorType_>(_mm_shuffle_epi32(_CombinedMask, 0xF5));
         }
-        else if constexpr (is_epi32_v<_DesiredType_> || is_epu32_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi32(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi32(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi16_v<_DesiredType_> || is_epu16_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi16(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi16(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi8_v<_DesiredType_> || is_epu8_v<_DesiredType_>)
-            return _Cast_::template cast<__m128i, _VectorType_>(_mm_cmpgt_epi8(
-                _Cast_::template cast<_VectorType_, __m128i>(left),
-                _Cast_::template cast<_VectorType_, __m128i>(right)));
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi8(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_ps_v<_DesiredType_> || is_ps_v<_DesiredType_>)
-            return _Cast_::template cast<__m128, _VectorType_>(_mm_cmpgt_ps(
-                _Cast_::template cast<_VectorType_, __m128>(left),
-                _Cast_::template cast<_VectorType_, __m128>(right)));
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_ps(
+                _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
 
-        else if constexpr (is_pd_v<_DesiredType_> || is_pd_v<_DesiredType_>)
-            return _Cast_::template cast<__m128d, _VectorType_>(_mm_cmpgt_pd(
-                _Cast_::template cast<_VectorType_, __m128d>(left),
-                _Cast_::template cast<_VectorType_, __m128d>(right)));
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_pd(
+                _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }
 };
 
-template <class _RegisterPolicy_>
-class _SimdCompare<arch::CpuFeature::SSE3, _RegisterPolicy_> :
-    public _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy_>
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::SSE3, xmm128> :
+    public _SimdCompareImplementation<arch::CpuFeature::SSE2, xmm128>
 {};
 
-template <class _RegisterPolicy_>
-class _SimdCompare<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
-    public _SimdCompare<arch::CpuFeature::SSE3, _RegisterPolicy_>
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::SSSE3, xmm128> :
+    public _SimdCompareImplementation<arch::CpuFeature::SSE3, xmm128>
 {};
 
-template <class _RegisterPolicy_>
-class _SimdCompare<arch::CpuFeature::SSE41, _RegisterPolicy_> :
-    public _SimdCompare<arch::CpuFeature::SSSE3, _RegisterPolicy_>
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::SSE41, xmm128> :
+    public _SimdCompareImplementation<arch::CpuFeature::SSSE3, xmm128>
 {};
 
-template <class _RegisterPolicy_>
-class _SimdCompare<arch::CpuFeature::SSE42, _RegisterPolicy_> :
-    public _SimdCompare<arch::CpuFeature::SSE41, _RegisterPolicy_>
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::SSE42, xmm128> :
+    public _SimdCompareImplementation<arch::CpuFeature::SSE41, xmm128>
 {};
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    class               _DesiredType_,
+    class               _CompareType_,
+    class               _VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdCompare(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
+        ::template _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    class               _DesiredType_,
+    class               _CompareType_,
+    class               _VectorType_>
+simd_stl_nodiscard simd_stl_always_inline type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+    _DesiredType_, _RegisterPolicy_> _SimdMaskCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
+        ::template _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+}
 __SIMD_STL_NUMERIC_NAMESPACE_END
