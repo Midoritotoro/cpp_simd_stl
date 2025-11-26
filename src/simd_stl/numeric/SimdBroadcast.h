@@ -15,6 +15,7 @@ class _SimdBroadcastImplementation;
 
 template <>
 class _SimdBroadcastImplementation<arch::CpuFeature::SSE2, numeric::xmm128> {
+public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>

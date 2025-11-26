@@ -1188,7 +1188,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>     left,
     const uint32                                                        shift) noexcept
 {
-    return _SimdShiftRightElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(left, shift);
+    return _SimdShiftRightElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(left._vector, shift);
 }
 
 template <
@@ -1199,7 +1199,7 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>     left,
     const uint32                                                        shift) noexcept
 {
-    return _SimdShiftLeftElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(left, shift);
+    return _SimdShiftLeftElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(left._vector, shift);
 }
 
 template <
