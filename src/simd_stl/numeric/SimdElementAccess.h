@@ -105,7 +105,7 @@ public:
         _VectorType_    _Vector,
         const uint8     _Where) noexcept
     {
-        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
             if (_Where == 0) {
 #if defined(simd_stl_processor_x86_64)
                 return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_Vector)));
@@ -117,7 +117,7 @@ public:
 #endif // defined(simd_stl_processor_x86_64)
             }
 
-#if !defined(simd_stl_processor_x86_64)
+#if defined(simd_stl_processor_x86_64)
             return static_cast<_DesiredType_>(_mm_cvtsi128_si64(
                 _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE)));
 #else
@@ -127,7 +127,13 @@ public:
             return (static_cast<int64>(_HighDword) << 32) | static_cast<int64>(_LowDword);
 #endif // defined(simd_stl_processor_x86_64)
         }
-        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            _DesiredType_ _Array[sizeof(_VectorType_) / sizeof(_DesiredType_)];
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(&_Array), _IntrinBitcast<__m128i>(_Vector));
+
+            return _Array[_Where & 1];
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
             switch (_Where) {
                 case 0: 
                     return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
@@ -141,6 +147,12 @@ public:
                 case 3:
                     return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF)));
             }
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            _DesiredType_ _Array[sizeof(_VectorType_) / sizeof(_DesiredType_)];
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(&_Array), _IntrinBitcast<__m128i>(_Vector));
+
+            return _Array[_Where & 3];
         }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
             switch (_Where) {
