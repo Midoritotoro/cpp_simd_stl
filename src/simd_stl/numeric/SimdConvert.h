@@ -96,4 +96,15 @@ class _SimdConvertImplementation<arch::CpuFeature::SSE42, xmm128> :
     public _SimdConvertImplementation<arch::CpuFeature::SSE41, xmm128>
 {};
 
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline uint32 _SimdToMask(_VectorType_ _Vector) noexcept {
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
+    return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToMask<_DesiredType_>(_Vector);
+}
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

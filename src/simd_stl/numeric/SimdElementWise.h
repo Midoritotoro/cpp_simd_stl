@@ -15,7 +15,34 @@ class _SimdElementWise;
 
 template <>
 class _SimdElementWise<arch::CpuFeature::SSE2, xmm128> {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    using _RegisterPolicy               = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_                        _First,
+        _VectorType_                        _Second,
+        _Simd_mask_type<_DesiredType_>      _Mask) noexcept
+    {
+        {
+            constexpr auto length = sizeof(__m128i) / sizeof(_DesiredType_);
+            _DesiredType_ first[length], second[length], result[length];
+
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(first), _IntrinBitcast<__m128i>(_First));
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(second), _IntrinBitcast<__m128i>(_Second));
+
+            for (auto current = 0; current < length; ++current)
+                result[current] = ((_Mask >> current) & 1) ? second[current] : first[current];
+
+            return _IntrinBitcast<_VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
+        }
+    }
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -77,8 +104,8 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm_shufflelo_epi16(_IntrinBitcast<__m128i>(_Vector), 0x1B));
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto _Shuffle = _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
-            return _IntrinBitcast<_VectorType_>(_mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector), _Shuffle));
+            return _IntrinBitcast<_VectorType_>(_mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector),
+                _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)));
         }
     }
 };
