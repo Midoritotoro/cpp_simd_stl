@@ -157,7 +157,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm_cmplt_ps(
                 _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
 
-        else if constexpr (is_pd_v<_DesiredType_>)
+        else if constexpr (_Is_pd_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_cmplt_pd(
                 _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }

@@ -72,7 +72,7 @@ public:
     static simd_stl_always_inline _VectorType_ _ToVector(_MaskType_ _Mask) noexcept {
         if (sizeof(_MaskType_) == 4) {
             const auto _Shuffle = _mm_setr_epi32(0, 0, 0x01010101, 0x01010101);
-            auto _Value = _mm_shuffle_epi8(_mm_cvtsi32_si128(_Mask), shuffle);
+            auto _Value = _mm_shuffle_epi8(_mm_cvtsi32_si128(_Mask), _Shuffle);
 
             const auto _BitSelect = _mm_setr_epi8(
                 1, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1U << 7,

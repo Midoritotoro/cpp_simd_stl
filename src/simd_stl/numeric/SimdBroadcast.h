@@ -68,7 +68,7 @@ template <
 	class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdBroadcastZeros() noexcept {
 	_VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-	return _SimdBroadcastImplementation<_SimdGeneration_, _RegisterPolicy_>::template _BroadcastZeros<_VectorType_>(_Value);
+	return _SimdBroadcastImplementation<_SimdGeneration_, _RegisterPolicy_>::template _BroadcastZeros<_VectorType_>();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

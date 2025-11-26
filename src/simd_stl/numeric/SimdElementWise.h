@@ -4,7 +4,7 @@
 #include <src/simd_stl/numeric/SimdConvert.h>
 
 #include <simd_stl/numeric/BasicSimdShuffleMask.h>
-
+#include <src/simd_stl/numeric/ShuffleTables.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -129,6 +129,21 @@ template <
 simd_stl_always_inline _VectorType_ _SimdReverse(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Reverse<_DesiredType_>(_Vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdBlend(
+    _VectorType_                            _First,
+    _VectorType_                            _Second,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Blend<_DesiredType_>(_First, _Second, _Mask);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <simd_stl/arch/CpuFeature.h>
-#include <src/simd_stl/type_traits/TypeTraits.h>
+#include <src/simd_stl/type_traits/TypeCheck.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -22,11 +22,29 @@ struct zmm512 {
 	static constexpr auto _Width = _ZmmWidth;
 };
 
+template <arch::CpuFeature _SimdGeneration_>
+using _DefaultRegisterPolicy = std::conditional_t<
+	arch::__is_xmm_v<_SimdGeneration_>,
+	numeric::xmm128,
+	std::conditional_t<
+	arch::__is_ymm_v<_SimdGeneration_>,
+	numeric::ymm256,
+	std::conditional_t<
+	arch::__is_zmm_v<_SimdGeneration_>,
+	numeric::zmm512, void
+	>
+	>
+>;
+
+template <
+	arch::CpuFeature    _SimdGeneration_,
+	typename            _VectorElementType_>
+constexpr int _Vector_default_size = numeric::_DefaultRegisterPolicy<_SimdGeneration_>::_Width;
+
 template <
 	arch::CpuFeature	_SimdGeneration_, 
 	class				_RegisterPolicy_> 
-constexpr bool _Is_register_policy_for_generation_v = 
-	sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>) >= _RegisterPolicy_::_Width;
+constexpr bool _Is_register_policy_for_generation_v = _Vector_default_size<_SimdGeneration_, int> >= _RegisterPolicy_::_Width;
 
 template <class _Type_>
 constexpr bool _Is_intrin_type_v = type_traits::is_any_of_v<std::remove_cvref_t<_Type_>,
@@ -73,21 +91,6 @@ constexpr bool _Is_pd_v    = sizeof(_Element_) == 8 && type_traits::is_any_of_v<
 
 template <typename _Element_>
 constexpr bool _Is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_, float>;
-
-
-template <arch::CpuFeature _SimdGeneration_>
-using _DefaultRegisterPolicy = std::conditional_t<
-    arch::__is_xmm_v<_SimdGeneration_>, 
-    numeric::xmm128, 
-    std::conditional_t<
-        arch::__is_ymm_v<_SimdGeneration_>,
-        numeric::ymm256,
-        std::conditional_t<
-            arch::__is_zmm_v<_SimdGeneration_>,
-            numeric::zmm512, void
-        >
-    >
->;
 
 #if !defined(_VerifyRegisterPolicy) 
 #  define _VerifyRegisterPolicy(_Generation_, _Policy_) \

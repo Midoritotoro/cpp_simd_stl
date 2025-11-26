@@ -52,10 +52,8 @@ public:
         return _mm_sfence();
     }
 
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ _LoadUnaligned(const _DesiredType_* _Where) noexcept {
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadUnaligned(const void* _Where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_loadu_si128(reinterpret_cast<const __m128i*>(_Where));
 
@@ -66,10 +64,8 @@ public:
             return _mm_loadu_ps(reinterpret_cast<const float*>(_Where));
     }
 
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ _LoadAligned(const _DesiredType_* _Where) noexcept {
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadAligned(const void* _Where) noexcept {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_load_si128(reinterpret_cast<const __m128i*>(_Where));
 
@@ -80,32 +76,26 @@ public:
             return _mm_load_ps(reinterpret_cast<const float*>(_Where));
     }
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline void _StoreUpperHalf(
-        _DesiredType_*      _Where,
-        const _VectorType_  _Vector) noexcept
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
     {
         _mm_storeh_pd(reinterpret_cast<double*>(_Where), _IntrinBitcast<__m128d>(_Vector));
     }
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline void _StoreLowerHalf(
-        _DesiredType_*      _Where,
-        const _VectorType_  _Vector) noexcept
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
     {
         _mm_storel_epi64(reinterpret_cast<__m128i*>(_Where), _IntrinBitcast<__m128i>(_Vector));
     }
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline void _StoreUnaligned(
-        _DesiredType_*      _Where,
-        const _VectorType_  _Vector) noexcept
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_storeu_si128(reinterpret_cast<__m128i*>(_Where), _Vector);
@@ -117,12 +107,10 @@ public:
             return _mm_storeu_ps(reinterpret_cast<float*>(_Where), _Vector);
     }
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline void _StoreAligned(
-        _DesiredType_*          _Where,
-        const _VectorType_      _Vector) noexcept
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
     {
         if      constexpr (std::is_same_v<_VectorType_, __m128i>)
             return _mm_store_si128(reinterpret_cast<__m128i*>(_Where), _Vector);
@@ -143,7 +131,7 @@ public:
         const _Simd_mask_type<_DesiredType_>    _Mask,
         const _VectorType_                      _Vector) noexcept
     {
-        _StoreUnaligned(_Where, _SimdBlend<_Feature, _RegisterPolicy, _DesiredType_>(
+        _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadUnaligned<_VectorType_>(_Where), _Vector, _Mask));
     }
     
@@ -155,7 +143,7 @@ public:
         const _Simd_mask_type<_DesiredType_>    _Mask,
         const _VectorType_                      _Vector) noexcept
     {
-        _StoreAligned(_Where, _SimdBlend<_Feature, _RegisterPolicy, _DesiredType_>(
+        _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadAligned<_VectorType_>(_Where), _Vector, _Mask));
     }
 
@@ -166,8 +154,8 @@ public:
         const _DesiredType_*                    _Where,
         const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
     {
-        return _SimdBlend<_Feature, _RegisterPolicy, _DesiredType_>(
-            _SimdBroadcastZeros<_Feature, _RegisterPolicy, _VectorType_>(),
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+            _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
             _LoadUnaligned<_VectorType_>(_Where), _Mask);
     }
 
@@ -178,8 +166,8 @@ public:
         const _DesiredType_*                    _Where,
         const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
     {
-        return _SimdBlend<_Feature, _RegisterPolicy, _DesiredType_>(
-            _SimdBroadcastZeros<_Feature, _RegisterPolicy, _VectorType_>(),
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+            _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
             _LoadAligned<_VectorType_>(_Where), _Mask);
     }
 
@@ -199,6 +187,24 @@ public:
         _DesiredType_*                  _Where,
         _Simd_mask_type<_DesiredType_>  _Mask,
         const _VectorType_              _Vector) noexcept
+    {}
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreLowerHalf(
+        _DesiredType_* _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
+    {}
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreUpperHalf(
+        _DesiredType_* _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
     {}
 };
 
@@ -245,10 +251,10 @@ public:
             algorithm::AdvanceBytes(_Where, _Tables32BitSse._Size[_Mask]);
 
         else if constexpr (sizeof(_DesiredType_) == 2)
-            algorithm::AdvanceBytes(_Where, _Tables16Bit._Size[_Mask]);
+            algorithm::AdvanceBytes(_Where, _Tables16BitSse._Size[_Mask]);
 
         else if constexpr (sizeof(_DesiredType_) == 1)
-            algorithm::AdvanceBytes(_Where, _Tables8Bit._Size[_Mask]);
+            algorithm::AdvanceBytes(_Where, _Tables8BitSse._Size[_Mask]);
 
         return _Where;
     }
@@ -280,7 +286,7 @@ public:
         else if constexpr (sizeof(_DesiredType_) == 2)
             algorithm::AdvanceBytes(_Where, _Tables16BitSse._Size[_Mask]);
         else if constexpr (sizeof(_DesiredType_) == 1)
-            algorithm::AdvanceBytes(_Where, _Tables8Bit._Size[_Mask]);
+            algorithm::AdvanceBytes(_Where, _Tables8BitSse._Size[_Mask]);
 
         return _Where;
     }
@@ -303,7 +309,7 @@ public:
             _StoreUnaligned(_Where, _mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector),
                 _LoadUnaligned<__m128i>(_Tables32BitSse._Shuffle[_Mask])));
 
-            algorithm::AdvanceBytes(_Where, _Tables32Bit._Size[_Mask]);
+            algorithm::AdvanceBytes(_Where, _Tables32BitSse._Size[_Mask]);
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
             _StoreUnaligned(_Where, _mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector),
@@ -343,7 +349,7 @@ public:
             _StoreAligned(_Where, _mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector),
                 _LoadUnaligned<__m128i>(_Tables32BitSse._Shuffle[_Mask])));
 
-            algorithm::AdvanceBytes(_Where, _Tables32Bit._Size[_Mask]);
+            algorithm::AdvanceBytes(_Where, _Tables32BitSse._Size[_Mask]);
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
             _StoreAligned(_Where, _mm_shuffle_epi8(_IntrinBitcast<__m128i>(_Vector),
@@ -385,9 +391,8 @@ class _SimdMemoryAccess<arch::CpuFeature::SSE42, numeric::xmm128> :
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUnaligned(const _DesiredType_* _Where) noexcept {
+    class				_VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUnaligned(const void* _Where) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _LoadUnaligned<_VectorType_>(_Where);
 }
@@ -395,9 +400,8 @@ simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUnaligned(const 
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadAligned(const _DesiredType_* _Where) noexcept {
+    class				_VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadAligned(const void* _Where) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _LoadAligned<_VectorType_>(_Where);
 }
@@ -405,9 +409,8 @@ simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadAligned(const _D
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdNonTemporalLoad(const _DesiredType_* _Where) noexcept {
+    class				_VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdNonTemporalLoad(const void* _Where) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _NonTemporalLoad<_VectorType_>(_Where);
 }
@@ -415,9 +418,8 @@ simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdNonTemporalLoad(cons
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUpperHalf(const _DesiredType_* _Where) noexcept {
+    class				_VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUpperHalf(const void* _Where) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _LoadUpperHalf<_VectorType_>(_Where);
 }
@@ -425,9 +427,8 @@ simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadUpperHalf(const 
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadLowerHalf(const _DesiredType_* _Where) noexcept {
+    class				_VectorType_>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdLoadLowerHalf(const void* _Where) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _LoadLowerHalf<_VectorType_>(_Where);
 }
@@ -463,10 +464,9 @@ simd_stl_always_inline _VectorType_ _SimdMaskLoadAligned(
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
+    class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStoreUnaligned(
-    _DesiredType_*      _Where,
+    void*               _Where,
     const _VectorType_  _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
@@ -476,10 +476,9 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdStoreUnaligned(
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
+    class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStoreAligned(
-    _DesiredType_*      _Where,
+    void*               _Where,
     const _VectorType_  _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
@@ -489,10 +488,9 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdStoreAligned(
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
+    class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStoreUpperHalf(
-    _DesiredType_*      _Where,
+    void*               _Where,
     const _VectorType_  _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
@@ -502,10 +500,9 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdStoreUpperHalf(
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
+    class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStoreLowerHalf(
-    _DesiredType_*      _Where,
+    void*               _Where,
     const _VectorType_  _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
@@ -515,10 +512,9 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdStoreLowerHalf(
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_,
-    class				_DesiredType_>
+    class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdNonTemporalStore(
-    _DesiredType_*      _Where,
+    void*               _Where,
     const _VectorType_  _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
@@ -527,7 +523,7 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdNonTemporalStore(
 
 template <arch::CpuFeature _SimdGeneration_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStreamingFence() noexcept {
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::_StreamingFence();
+    _SimdMemoryAccess<_SimdGeneration_, _DefaultRegisterPolicy<_SimdGeneration_>>::_StreamingFence();
 }
 
 template <
@@ -566,13 +562,13 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _DesiredType_* _SimdCompressStoreUnaligned(
-    _DesiredType_*                                          _Where,
-    type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask,
-    const _VectorType_                                      _Vector) noexcept
+    _DesiredType_*                          _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask,
+    const _VectorType_                      _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreUnaligned(_Where, _Mask, _Vector);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreUnaligned(_Where, _Mask, _Vector);
 }
 
 template <
@@ -581,13 +577,43 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _DesiredType_* _SimdCompressStoreAligned(
-    _DesiredType_*                                          _Where,
-    type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask,
-    const _VectorType_                                      _Vector) noexcept
+    _DesiredType_*                          _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask,
+    const _VectorType_                      _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreAligned(_Where, _Mask, _Vector);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreAligned(_Where, _Mask, _Vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+static simd_stl_always_inline _DesiredType_* _SimdCompressStoreLowerHalf(
+    _DesiredType_*                          _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask,
+    const _VectorType_                      _Vector) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreLowerHalf(_Where, _Mask, _Vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+static simd_stl_always_inline _DesiredType_* _SimdCompressStoreUpperHalf(
+    _DesiredType_*                      _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+    _DesiredType_, _RegisterPolicy_>    _Mask,
+    const _VectorType_                  _Vector) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreUpperHalf(_Where, _Mask, _Vector);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

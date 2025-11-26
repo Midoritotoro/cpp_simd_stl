@@ -166,28 +166,28 @@ public:
         else if constexpr (_Is_epu64_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi32_v<_DesiredType_>)
+        else if constexpr (_Is_epi32_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epu32_v<_DesiredType_>)
+        else if constexpr (_Is_epu32_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi16_v<_DesiredType_>)
+        else if constexpr (_Is_epi16_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epi16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epu16_v<_DesiredType_>)
+        else if constexpr (_Is_epu16_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epi8_v<_DesiredType_>)
+        else if constexpr (_Is_epi8_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_epu8_v<_DesiredType_>)
+        else if constexpr (_Is_epu8_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (is_ps_v<_DesiredType_>)
+        else if constexpr (_Is_ps_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_ps(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
 
-        /*else if constexpr (is_pd_v<_DesiredType_>)
+        /*else if constexpr (_Is_pd_v<_DesiredType_>)
             return _mm_mul_pd(left, right);*/
     }
 
@@ -293,7 +293,7 @@ static simd_stl_always_inline _VectorType_ _SimdShiftRightElements(
     uint32          _BitShift) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _ShiftRightElements(_Vector, _BitShift);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _ShiftRightElements<_DesiredType_>(_Vector, _BitShift);
 }
 
 template <
@@ -306,7 +306,7 @@ static simd_stl_always_inline _VectorType_ _SimdShiftLeftElements(
     uint32          _BitShift) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _ShiftLeftElements(_Vector, _BitShift);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _ShiftLeftElements<_DesiredType_>(_Vector, _BitShift);
 }
 
 template <

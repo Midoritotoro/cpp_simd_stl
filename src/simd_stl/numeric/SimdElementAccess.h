@@ -7,7 +7,7 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 #define _Simd_stl_case_insert_(_Postfix, _Index, _Vector, _Value) \
-    case _Index: vector = _IntrinBitcast<_VectorType_>(SIMD_STL_PP_CAT(_mm_insert_, _Postfix)(_IntrinBitcast<__m128i>(_Vector), _Value, _Index));
+    case _Index: _Vector = _IntrinBitcast<_VectorType_>(SIMD_STL_PP_CAT(_mm_insert_, _Postfix)(_IntrinBitcast<__m128i>(_Vector), _Value, _Index));
 
 #define _Simd_stl_case_extract_(_Postfix, _Index, _Vector, _DesiredType) \
     case _Index: return static_cast<_DesiredType>(SIMD_STL_PP_CAT(_mm_extract_, _Postfix)(_IntrinBitcast<__m128i>(_Vector), _Index));
@@ -86,7 +86,7 @@ public:
                 ? _mm_shuffle_pd(_Broadcasted, _IntrinBitcast<__m128d>(_Vector), 2)
                 : _mm_shuffle_pd(_IntrinBitcast<__m128d>(_Vector), _Broadcasted, 0);
         }
-        else if constexpr (is_ps_v<_DesiredType_>) {
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
             const int32 _MaskArray[8] = { 0,0,0,0,-1,0,0,0 };
 
             const auto _Broadcasted = _mm_set1_ps(_Value);
@@ -94,7 +94,7 @@ public:
 
             _Vector = _IntrinBitcast<_VectorType_>(_mm_or_ps(
                 _mm_and_ps(_InsertMask, _Broadcasted),
-                _mm_andnot_ps(_InsertMask, _IntrinBitcast<__m128>(vector))));
+                _mm_andnot_ps(_InsertMask, _IntrinBitcast<__m128>(_Vector))));
         }
     }
 
@@ -128,7 +128,7 @@ public:
 #endif // defined(simd_stl_processor_x86_64)
         }
         else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-            constexpr std::array<int32, 4> _Shuffle = { 0, 0x55, 0xEE, 0xFF }
+            constexpr std::array<int32, 4> _Shuffle = { 0, 0x55, 0xEE, 0xFF };
 
             if (_Where == 0)
                 return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
@@ -227,7 +227,7 @@ public:
                 _Simd_stl_case_insert_(epi8, 15, _Vector, _Value)
             }
         }
-        else if constexpr (is_ps_v<_DesiredType_>) {
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
             switch (_Position) {
                 _Simd_stl_case_insert_(ps, 0, _Vector, _Value)
                 _Simd_stl_case_insert_(ps, 1, _Vector, _Value)
