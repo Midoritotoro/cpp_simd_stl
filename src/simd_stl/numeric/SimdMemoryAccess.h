@@ -444,7 +444,7 @@ simd_stl_always_inline _VectorType_ _SimdMaskLoadUnaligned(
         _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskLoadUnaligned(_Where, _Mask);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where, _Mask);
 }
 
 template <
@@ -458,7 +458,7 @@ simd_stl_always_inline _VectorType_ _SimdMaskLoadAligned(
         _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskLoadAligned(_Where, _Mask);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where, _Mask);
 }
 
 template <

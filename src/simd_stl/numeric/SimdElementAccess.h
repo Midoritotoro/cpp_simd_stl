@@ -113,7 +113,7 @@ public:
                 const auto _HighDword = _mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector));
                 const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0x55));
 
-                return (static_cast<_DesiredType_>(_HighDword) << 32) | static_cast<_DesiredType_>(_LowDword);
+                return (static_cast<int64>(_HighDword) << 32) | static_cast<int64>(_LowDword);
 #endif // defined(simd_stl_processor_x86_64)
             }
 
@@ -124,16 +124,23 @@ public:
             const auto _HighDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE));
             const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF));
 
-            return (static_cast<_DesiredType_>(_HighDword) << 32) | static_cast<_DesiredType_>(_LowDword);
+            return (static_cast<int64>(_HighDword) << 32) | static_cast<int64>(_LowDword);
 #endif // defined(simd_stl_processor_x86_64)
         }
         else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-            constexpr std::array<int32, 4> _Shuffle = { 0, 0x55, 0xEE, 0xFF };
+            switch (_Where) {
+                case 0: 
+                    return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
 
-            if (_Where == 0)
-                return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
-            
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), _Shuffle[_Where])));
+                case 1:
+                    return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0x55)));
+
+                case 2:
+                    return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE)));
+
+                case 3:
+                    return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF)));
+            }
         }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
             switch (_Where) {

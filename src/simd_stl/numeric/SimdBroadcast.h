@@ -52,6 +52,26 @@ public:
 	}
 };
 
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::SSE3, xmm128> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::SSE2, xmm128>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::SSSE3, xmm128> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::SSE3, xmm128>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::SSE41, xmm128> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::SSSE3, xmm128>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::SSE42, xmm128> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::SSE41, xmm128>
+{};
+
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	class				_RegisterPolicy_,

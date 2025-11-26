@@ -146,135 +146,135 @@ void testMethods() {
     using Simd = simd_stl::numeric::basic_simd<Arch, T>;
     constexpr size_t N = Simd::size();
 
-    //// --- Конструкторы ---
-    //{
-    //    Simd v1;
-    //    Simd v2(5);
+    // --- Конструкторы ---
+    {
+        Simd v1;
+        Simd v2(5);
    
-    //    for (int i = 0; i < v2.size(); ++i) Assert(v2.extract<T>(i) == 5);
+        for (int i = 0; i < v2.size(); ++i) Assert(v2.extract<T>(i) == 5);
 
-    //    alignas(16) T arr[4] = {1,2,3,4};
-    //    Simd v3(arr);
-    //    for (int i = 0; i < v2.size(); ++i) Assert(v3.extract<T>(i) == arr[i]);
+        alignas(16) T arr[4] = {1,2,3,4};
+        Simd v3(arr);
+        for (int i = 0; i < v2.size(); ++i) Assert(v3.extract<T>(i) == arr[i]);
 
-    //    Simd v4(v3.unwrap());
-    //    for (int i = 0; i < v2.size(); ++i) Assert(v4.extract<T>(i) == arr[i]);
+        Simd v4(v3.unwrap());
+        for (int i = 0; i < v2.size(); ++i) Assert(v4.extract<T>(i) == arr[i]);
 
-    //    Simd v5(v3); // copy ctor
-    //    for (int i = 0; i < v2.size(); ++i) Assert(v5.extract<T>(i) == arr[i]);
-    //}
+        Simd v5(v3); // copy ctor
+        for (int i = 0; i < v2.size(); ++i) Assert(v5.extract<T>(i) == arr[i]);
+    }
 
-    //// --- fill / extract / insert ---
-    //{
-    //    Simd v;
-    //    v.fill<T>(42);
-    //    for (int i = 0; i < v.size(); ++i) Assert(v.extract<T>(i) == 42);
+    // --- fill / extract / insert ---
+    {
+        Simd v;
+        v.fill<T>(42);
+        for (int i = 0; i < v.size(); ++i) Assert(v.extract<T>(i) == 42);
 
-    //    v.insert<T>(0, 99);
-    //    Assert(v.extract<T>(0) == 99);
-    //}
+        v.insert<T>(0, 99);
+        Assert(v.extract<T>(0) == 99);
+    }
 
-    //// --- extractWrapped ---
-    //{
-    //    Simd v(7);
-    //    auto ref = v.extractWrapped<T>(0);
-    //    ref = 123;
-    //    Assert(v.extract<T>(0) == 123);
-    //}
+    // --- extractWrapped ---
+    {
+        Simd v(7);
+        auto ref = v.extractWrapped<T>(0);
+        ref = 123;
+        Assert(v.extract<T>(0) == 123);
+    }
 
-    //// --- expand ---
-    //{
-    //   /* Simd v(0);
-    //    typename Simd::mask_type mask;
-    //    v.expand(mask, 77);
-    //    assert(v.extract(0) == 77);*/
-    //}
+    // --- expand ---
+    {
+       /* Simd v(0);
+        typename Simd::mask_type mask;
+        v.expand(mask, 77);
+        assert(v.extract(0) == 77);*/
+    }
 
-    //// --- convert / bitcast / safeBitcast ---
-    //{
-    //    Simd v(5);
-    //    auto v8 = v.convert<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
-    //    auto vDouble = v.bitcast<double>();
-    //    auto vSafe = Simd::template safeBitcast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
-    //}
+    // --- convert / bitcast / safeBitcast ---
+    {
+        Simd v(5);
+        auto v8 = v.convert<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
+        auto vDouble = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd < simd_stl::arch::CpuFeature::SSE2, double>>(v8);
+        auto vSafe = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
+    }
 
-    //// --- cross‑arch bitcast ---
-    //{
-    //    Simd v(11);
-    //    auto vOther = v.bitcast<simd_stl::arch::CpuFeature::SSE2, float>();
-    //}
+    // --- cross‑arch bitcast ---
+    {
+        Simd v(11);
+        auto vOther = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float>>(v);
+    }
 
-    //// --- load/store aligned/unaligned ---
-    //{
-    //    alignas(16) simd_stl::int32 arr[4] = {10,20,30,40};
-    //    Simd v = Simd::loadAligned(arr);
-    //    simd_stl::int32 out[4] = {};
-    //    v.storeAligned(out);
-    //    for (int i = 0; i < 4; ++i) Assert(out[i] == arr[i]);
+    // --- load/store aligned/unaligned ---
+    {
+        alignas(16) simd_stl::int32 arr[4] = {10,20,30,40};
+        Simd v = Simd::loadAligned(arr);
+        simd_stl::int32 out[4] = {};
+        v.storeAligned(out);
+        for (int i = 0; i < 4; ++i) Assert(out[i] == arr[i]);
 
-    //    Simd v2 = Simd::loadUnaligned(arr);
-    //    simd_stl::int32 out2[4] = {};
-    //    v2.storeUnaligned(out2);
-    //    for (int i = 0; i < 4; ++i) Assert(out2[i] == arr[i]);
-    //}
+        Simd v2 = Simd::loadUnaligned(arr);
+        simd_stl::int32 out2[4] = {};
+        v2.storeUnaligned(out2);
+        for (int i = 0; i < 4; ++i) Assert(out2[i] == arr[i]);
+    }
 
-    //// --- unwrap ---
-    //{
-    //    Simd v(99);
-    //    auto raw = v.unwrap();
-    //    (void)raw; // smoke‑check
-    //}
+    // --- unwrap ---
+    {
+        Simd v(99);
+        auto raw = v.unwrap();
+        (void)raw; // smoke‑check
+    }
 
-    //// --- maskLoad/maskStore aligned/unaligned ---
-    //{
-    //    alignas(64) T src[N];
-    //    alignas(64) T dst[N];
+    // --- maskLoad/maskStore aligned/unaligned ---
+    {
+        alignas(64) T src[N];
+        alignas(64) T dst[N];
 
-    //    for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
-    //    for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(100 + i);
+        for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
+        for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(100 + i);
 
-    //    typename Simd::mask_type mask = 0;
-    //    for (size_t i = 0; i < N; ++i)
-    //        if (i % 2 == 0)
-    //            mask |= (typename Simd::mask_type(1) << i);
+        typename Simd::mask_type mask = 0;
+        for (size_t i = 0; i < N; ++i)
+            if (i % 2 == 0)
+                mask |= (typename Simd::mask_type(1) << i);
 
-    //    Simd loaded_unaligned = Simd::maskLoadUnaligned(src, mask);
-    //    for (size_t i = 0; i < N; ++i) {
-    //        if (mask & (typename Simd::mask_type(1) << i))
-    //            Assert(loaded_unaligned.extract<T>(i) == src[i]);
-    //        else
-    //            Assert(loaded_unaligned.extract<T>(i) == T(0));
-    //    }
+        Simd loaded_unaligned = Simd::maskLoadUnaligned(src, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(loaded_unaligned.extract<T>(i) == src[i]);
+            else
+                Assert(loaded_unaligned.extract<T>(i) == T(0));
+        }
 
-    //    // --- maskLoadAligned ---
-    //    Simd loaded_aligned = Simd::maskLoadAligned(src, mask);
-    //    for (size_t i = 0; i < N; ++i) {
-    //        if (mask & (typename Simd::mask_type(1) << i))
-    //            Assert(loaded_aligned.extract<T>(i) == src[i]);
-    //        else
-    //            Assert(loaded_aligned.extract<T>(i) == T(0));
-    //    }
+        // --- maskLoadAligned ---
+        Simd loaded_aligned = Simd::maskLoadAligned(src, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(loaded_aligned.extract<T>(i) == src[i]);
+            else
+                Assert(loaded_aligned.extract<T>(i) == T(0));
+        }
 
-    //    // --- maskStoreUnaligned ---
-    //    Simd v(77);
-    //    v.maskStoreUnaligned(dst, mask);
-    //    for (size_t i = 0; i < N; ++i) {
-    //        if (mask & (typename Simd::mask_type(1) << i))
-    //            Assert(dst[i] == T(77));
-    //        else
-    //            Assert(dst[i] == T(100 + i)); // не изменён
-    //    }
+        // --- maskStoreUnaligned ---
+        Simd v(77);
+        v.maskStoreUnaligned(dst, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(dst[i] == T(77));
+            else
+                Assert(dst[i] == T(100 + i)); // не изменён
+        }
 
-    //    // --- maskStoreAligned ---
-    //    for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i); 
-    //    v.maskStoreAligned(dst, mask);
-    //    for (size_t i = 0; i < N; ++i) {
-    //        if (mask & (typename Simd::mask_type(1) << i))
-    //            Assert(dst[i] == T(77));
-    //        else
-    //            Assert(dst[i] == T(200 + i));
-    //    }
-    //}
+        // --- maskStoreAligned ---
+        for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i); 
+        v.maskStoreAligned(dst, mask);
+        for (size_t i = 0; i < N; ++i) {
+            if (mask & (typename Simd::mask_type(1) << i))
+                Assert(dst[i] == T(77));
+            else
+                Assert(dst[i] == T(200 + i));
+        }
+    }
 
     alignas(64) T src[N];
     for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
