@@ -13,6 +13,8 @@ template <
     class               _RegisterPolicy_>
 class _SimdElementWise;
 
+#pragma region Sse2-Sse4.2 Simd element wise 
+
 template <>
 class _SimdElementWise<arch::CpuFeature::SSE2, xmm128> {
     static constexpr auto _Generation   = arch::CpuFeature::SSE2;
@@ -120,6 +122,46 @@ class _SimdElementWise<arch::CpuFeature::SSE42, xmm128> :
     public _SimdElementWise<arch::CpuFeature::SSE41, xmm128>
 {};
 
+#pragma endregion
+
+#pragma region Avx-Avx2 Simd element wise
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX, ymm256>:
+    public _SimdElementWise<arch::CpuFeature::SSE42, xmm128>
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX;
+    using _RegisterPolicy               = ymm256;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Reverse(_VectorType_ _Vector) noexcept {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            const auto _ReversedXmmLanes = _mm256_shuffle_pd(
+                _IntrinBitcast<__m256d>(_Vector), _IntrinBitcast<__m256d>(_Vector), 0x05);
+
+            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_pd(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            const auto _ReversedXmmLanes = _mm256_shuffle_ps(_IntrinBitcast<__m256>(_Vector), 0x1B);
+            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_ps(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+
+        }
+    }
+};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX2, ymm256>:
+    public _SimdElementWise<arch::CpuFeature::AVX, ymm256>
+{};
+
+#pragma endregion
 
 template <
     arch::CpuFeature    _SimdGeneration_,

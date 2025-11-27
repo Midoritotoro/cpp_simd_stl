@@ -52,5 +52,7 @@ constexpr auto _Tables16BitSse  = _MakeShuffleTables<256, 16>(2, 2);
 constexpr auto _Tables32BitSse  = _MakeShuffleTables<16, 16>(4, 4);
 constexpr auto _Tables64BitSse  = _MakeShuffleTables<4, 16>(8, 8);
 
+constexpr auto _Tables32BitAvx = _MakeShuffleTables<256, 8>(4, 1);
+constexpr auto _Tables64BitAvx = _MakeShuffleTables<16, 8>(8, 2);
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

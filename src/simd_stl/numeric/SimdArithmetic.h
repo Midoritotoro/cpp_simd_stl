@@ -166,8 +166,18 @@ public:
         else if constexpr (_Is_epu64_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-        else if constexpr (_Is_epi32_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        else if constexpr (_Is_epi32_v<_DesiredType_>) {
+           const auto _ShuffledLeft         = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Left), 0xF5);
+           const auto _ShuffledRight        = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Right), 0xF5);
+
+           const auto _ProductEvenIndices   = _mm_mul_epu32(_Left, _Right);
+           const auto _ProductOddIndices    = _mm_mul_epu32(_ShuffledLeft, _ShuffledRight);
+
+           const auto _ProductLowPair       = _mm_unpacklo_epi32(_ProductEvenIndices, _ProductOddIndices);
+           const auto _ProductHighPair      = _mm_unpackhi_epi32(_ProductEvenIndices, _ProductOddIndices);
+
+           return _IntrinBitcast<_VectorType_>(_mm_unpacklo_epi64(_ProductLowPair, _ProductHighPair));
+        }
 
         else if constexpr (_Is_epu32_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
@@ -187,8 +197,8 @@ public:
         else if constexpr (_Is_ps_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_ps(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
 
-        /*else if constexpr (_Is_pd_v<_DesiredType_>)
-            return _mm_mul_pd(left, right);*/
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_pd(_IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }
 
     template <
@@ -263,24 +273,63 @@ public:
     }
 };
 
-template <class _RegisterPolicy_>
-class _SimdArithmetic<arch::CpuFeature::SSE3, _RegisterPolicy_> :
-    public _SimdArithmetic<arch::CpuFeature::SSE2, _RegisterPolicy_>
+template <>
+class _SimdArithmetic<arch::CpuFeature::SSE3, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>
 {};
 
-template <class _RegisterPolicy_>
-class _SimdArithmetic<arch::CpuFeature::SSSE3, _RegisterPolicy_> :
-    public _SimdArithmetic<arch::CpuFeature::SSE3, _RegisterPolicy_>
+template <>
+class _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::SSE3, xmm128>
 {};
 
-template <class _RegisterPolicy_>
-class _SimdArithmetic<arch::CpuFeature::SSE41, _RegisterPolicy_> :
-    public _SimdArithmetic<arch::CpuFeature::SSSE3, _RegisterPolicy_>
-{};
+template <>
+class _SimdArithmetic<arch::CpuFeature::SSE41, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>
+{
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Multiply(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+       if constexpr (_Is_epi64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
-template <class _RegisterPolicy_>
-class _SimdArithmetic<arch::CpuFeature::SSE42, _RegisterPolicy_> :
-    public _SimdArithmetic<arch::CpuFeature::SSE41, _RegisterPolicy_>
+        else if constexpr (_Is_epu64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_>)
+           return _IntrinBitcast<_VectorType_>(_mm_mul_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epu32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epi16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epu16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_ps(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm_mul_pd(_IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+    }
+};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::SSE42, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>
 {};
 
 template <
