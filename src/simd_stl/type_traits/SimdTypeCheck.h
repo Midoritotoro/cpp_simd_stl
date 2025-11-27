@@ -25,7 +25,7 @@ constexpr inline bool __is_vector_type_supported_v =
     std::is_same_v<std::decay_t<_VectorElementType_>, std::nullptr_t>;
 
 template <>
-constexpr inline bool __is_vector_type_supported_v<bool> = false; // запрет для bool как скалярного элемента
+constexpr inline bool __is_vector_type_supported_v<bool> = false;
 
 template <
     arch::CpuFeature    _SimdGeneration_,

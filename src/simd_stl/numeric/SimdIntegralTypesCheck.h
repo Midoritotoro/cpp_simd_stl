@@ -97,4 +97,41 @@ constexpr bool _Is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_,
 	static_assert(simd_stl::numeric::_Is_register_policy_for_generation_v<_Generation_, _Policy_>, "Simd generation does not support register policy. ");
 #endif // !defined(_VerifyRegisterPolicy)
 
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+class basic_simd;
+
+template <typename _BasicSimd_>
+constexpr bool _Is_valid_basic_simd_v = std::disjunction_v<
+    type_traits::is_virtual_base_of<
+        basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>,
+    std::is_same<
+        basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>
+>;
+
+template <
+    class _VectorType_,
+    bool _IsBasicSimd_	= _Is_valid_basic_simd_v<_VectorType_>,
+    bool _IsIntrin_		= _Is_intrin_type_v<_VectorType_>>
+struct _Vector_element_t {
+    using type = void;
+};
+
+template <class _VectorType_>
+struct _Vector_element_t<_VectorType_, false, true> {
+    using type = std::conditional_t<type_traits::is_any_of_v<_VectorType_, __m128i, __m256i, __m512i>, int, 
+		std::conditional_t<type_traits::is_any_of_v<_VectorType_, __m128d, __m256d, __m512d>, double, 
+			std::conditional_t<type_traits::is_any_of_v<_VectorType_, __m128, __m256, __m512>, float, void>>>;
+};
+
+template <class _VectorType_>
+struct _Vector_element_t<_VectorType_, true, false> {
+    using type = typename _VectorType_::value_type;
+};
+
+template <class _VectorType_>
+using _Vector_element_type = typename _Vector_element_t::type;
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

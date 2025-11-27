@@ -8,21 +8,6 @@
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
-    
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-class basic_simd;
-
-template <typename _BasicSimd_>
-constexpr bool _Is_valid_basic_simd_v = std::disjunction_v<
-        type_traits::is_virtual_base_of<
-            basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>,
-        std::is_same<
-            basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>
-    >;
-
 
 template <
     typename _BasicSimd_, 
