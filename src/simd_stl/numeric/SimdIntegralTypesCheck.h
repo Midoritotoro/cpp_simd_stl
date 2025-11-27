@@ -2,9 +2,16 @@
 
 #include <simd_stl/arch/CpuFeature.h>
 #include <src/simd_stl/type_traits/TypeCheck.h>
+#include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+class basic_simd;
 
 constexpr auto _XmmWidth = sizeof(__m128);
 constexpr auto _YmmWidth = sizeof(__m256);
@@ -98,18 +105,34 @@ constexpr bool _Is_ps_v    = sizeof(_Element_) == 4 && std::is_same_v<_Element_,
 #endif // !defined(_VerifyRegisterPolicy)
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-class basic_simd;
+	class _BasicSimd_, 
+	class = void>
+struct _Is_valid_basic_simd: 
+	std::false_type
+{};
 
-template <typename _BasicSimd_>
-constexpr bool _Is_valid_basic_simd_v = std::disjunction_v<
-    type_traits::is_virtual_base_of<
-        basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>,
-    std::is_same<
-        basic_simd<_BasicSimd_::_Generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy>, _BasicSimd_>
->;
+template <class _BasicSimd_>
+struct _Is_valid_basic_simd<
+    _BasicSimd_,
+    std::void_t<basic_simd<
+        _BasicSimd_::_Generation,
+        typename _BasicSimd_::value_type,
+        typename _BasicSimd_::policy_type>>> 
+    : std::bool_constant<
+        type_traits::is_virtual_base_of_v<
+            basic_simd<_BasicSimd_::_Generation,
+                       typename _BasicSimd_::value_type,
+                       typename _BasicSimd_::policy_type>,
+            _BasicSimd_> ||
+        std::is_same_v<
+            basic_simd<_BasicSimd_::_Generation,
+                       typename _BasicSimd_::value_type,
+                       typename _BasicSimd_::policy_type>,
+            _BasicSimd_>> 
+{};
+
+template <class _BasicSimd_>
+constexpr bool _Is_valid_basic_simd_v = _Is_valid_basic_simd<_BasicSimd_>::value;
 
 template <
     class _VectorType_,
@@ -132,6 +155,27 @@ struct _Vector_element_t<_VectorType_, true, false> {
 };
 
 template <class _VectorType_>
-using _Vector_element_type = typename _Vector_element_t::type;
+using _Vector_element_type = typename _Vector_element_t<_VectorType_>::type;
+
+template <
+	class _VectorType_,
+	bool _IsIntrin_		= _Is_intrin_type_v<_VectorType_>,
+	bool _IsBasicSimd_	= _Is_valid_basic_simd_v<_VectorType_>>
+struct _Unwrapped_vector_t {
+	using type = void;
+};
+
+template <class _VectorType_>
+struct _Unwrapped_vector_t<_VectorType_, false, true> {
+	using type = typename _VectorType_::vector_type;
+};
+
+template <class _VectorType_>
+struct _Unwrapped_vector_t<_VectorType_, true, false> {
+	using type = _VectorType_;
+};
+
+template <class _VectorType_>
+using _Unwrapped_vector_type = typename _Unwrapped_vector_t<_VectorType_>::type;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

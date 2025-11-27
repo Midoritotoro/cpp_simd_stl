@@ -190,18 +190,31 @@ void testMethods() {
         assert(v.extract(0) == 77);*/
     }
 
-    // --- convert / bitcast / safeBitcast ---
+    // --- convert---
     {
+        using simd_stl::numeric::simd_cast;
+
         Simd v(5);
         auto v8 = v.convert<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
-        auto vDouble = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd < simd_stl::arch::CpuFeature::SSE2, double>>(v8);
-        auto vSafe = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
+        auto vDouble = simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, double>>(v8);
+        auto vint = simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
     }
 
-    // --- cross‑arch bitcast ---
+    // --- simd_cast ---
     {
+        using simd_stl::numeric::simd_cast;
         Simd v(11);
-        auto vOther = simd_stl::numeric::simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float>>(v);
+        auto vOther = simd_cast<simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float>>(v);
+        auto vOther2 = simd_cast<simd_stl::arch::CpuFeature::SSE2, float>(v);
+        auto vOther3 = simd_cast<simd_stl::arch::CpuFeature::SSE2>(v);
+        auto vOther4 = simd_cast<__m128i>(v);
+        auto vOther5 = simd_cast<int>(v);
+
+        static_assert(std::is_same_v<decltype(vOther), decltype(vOther2)>);
+        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther4), __m128i>);
+        static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::basic_simd<Simd::_Generation, int, typename Simd::policy_type>>);
     }
 
     // --- load/store aligned/unaligned ---

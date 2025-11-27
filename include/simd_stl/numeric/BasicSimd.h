@@ -9,6 +9,7 @@
 #endif
 
 #include <src/simd_stl/numeric/SimdArithmetic.h>
+
 #include <src/simd_stl/numeric/SimdCompare.h>
 #include <src/simd_stl/numeric/SimdConvert.h>
 
@@ -16,6 +17,9 @@
 
 #include <simd_stl/numeric/BasicSimdMask.h>
 #include <simd_stl/numeric/SimdCast.h>
+
+#include <simd_stl/numeric/BasicSimdElementReference.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -47,7 +51,7 @@ class basic_simd {
 
     friend BasicSimdElementReference;
 public:
-    using policy = _RegisterPolicy_;
+    using policy_type = _RegisterPolicy_;
     static constexpr auto _Generation = _SimdGeneration_;
 
     using value_type    = _Element_;
