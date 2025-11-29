@@ -620,8 +620,16 @@ public:
         const _Simd_mask_type<_DesiredType_>    _Mask,
         const _VectorType_                      _Vector) noexcept
     {
-        _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-            _LoadUnaligned<_VectorType_>(_Where), _Vector, _Mask));
+        if constexpr (sizeof(_DesiredType_) == 8) {
+                
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+
+        }
+        else {
+            _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _LoadUnaligned<_VectorType_>(_Where), _Vector, _Mask));
+        }
     }
     
     template <

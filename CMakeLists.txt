@@ -276,7 +276,7 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "C
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-O2 -Ot -Ob1)
+        add_compile_options(-O2 -Ot -Ob3)
     endif()
 
     target_compile_options(

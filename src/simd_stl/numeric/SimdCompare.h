@@ -25,27 +25,12 @@ public:
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _CompareMask(
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
-        if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to<>>)
-            return _CompareEqual<_DesiredType_>(_Left, _Right);
-
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
-
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
-            return _CompareLess<_DesiredType_>(_Left, _Right);
-
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
-
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
-
-        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+        return _SimdToMask<_Generation, xmm128, _DesiredType_>(
+            _Compare<_DesiredType_, _CompareType_, _VectorType_>(_Left, _Right));
     }
 
     template <

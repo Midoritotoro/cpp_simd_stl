@@ -38,7 +38,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #  endif // defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_msvc)
 #endif // defined (simd_stl_processor_x86)
 
-constexpr inline int _BitHacksCountTrailingZeroBits32Bit(uint32 _Value) noexcept {
+constexpr simd_stl_always_inline int _BitHacksCountTrailingZeroBits32Bit(uint32 _Value) noexcept {
     auto _Result = uint32(32);
     _Value &= -signed(_Value);
 
@@ -64,7 +64,7 @@ constexpr inline int _BitHacksCountTrailingZeroBits32Bit(uint32 _Value) noexcept
 }
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-constexpr inline int _BitHacksCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
+constexpr simd_stl_always_inline int _BitHacksCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
     if constexpr (sizeof(_IntegralType_) == 8) {
         const auto _Low = static_cast<simd_stl::uint32>(_Value);
         return _Low
@@ -119,7 +119,7 @@ constexpr inline int _BitHacksCountTrailingZeroBits(_IntegralType_ _Value) noexc
 #if defined (simd_stl_processor_x86)
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline int _BsfCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
+simd_stl_always_inline int _BsfCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
     constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
     auto _Index = ulong(0);
 
@@ -134,7 +134,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline int _BsfCountTrailingZeroBits(_I
 }
 
 template <type_traits::standard_unsigned_integral _IntegralType_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline int _TzcntCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
+simd_stl_always_inline int _TzcntCountTrailingZeroBits(_IntegralType_ _Value) noexcept {
     constexpr auto _Digits   = std::numeric_limits<_IntegralType_>::digits;
 
     if      constexpr (_Digits == 64)

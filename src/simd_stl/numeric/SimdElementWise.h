@@ -31,18 +31,9 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        {
-            constexpr auto length = sizeof(__m128i) / sizeof(_DesiredType_);
-            _DesiredType_ first[length], second[length], result[length];
-
-            _mm_storeu_si128(reinterpret_cast<__m128i*>(first), _IntrinBitcast<__m128i>(_First));
-            _mm_storeu_si128(reinterpret_cast<__m128i*>(second), _IntrinBitcast<__m128i>(_Second));
-
-            for (auto current = 0; current < length; ++current)
-                result[current] = ((_Mask >> current) & 1) ? second[current] : first[current];
-
-            return _IntrinBitcast<_VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(result)));
-        }
+        //return _mm_or_si128(
+        //    _mm_and_si128(mask, first),
+        //    _mm_andnot_si128(mask, second));
     }
 
     template <
@@ -151,7 +142,26 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_ps(_ReversedXmmLanes, _ReversedXmmLanes, 1));
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
+            auto _Low   = _IntrinBitcast<__m128i>(_Vector);
+            auto _High  = _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1);
 
+            const auto _Mask = _mm_set_epi8(1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
+
+            _Low    = _mm_shuffle_epi8(_Low, _Mask);
+            _High   = _mm_shuffle_epi8(_High, _Mask);
+
+            return _mm256_insertf128_si256(_IntrinBitcast<__m256i>(_High), _Low, 1);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            auto _Low   = _IntrinBitcast<__m128i>(_Vector);
+            auto _High  = _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1);
+
+            const auto _Mask = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+            _Low    = _mm_shuffle_epi8(_Low, _Mask);
+            _High   = _mm_shuffle_epi8(_High, _Mask);
+
+            return _mm256_insertf128_si256(_IntrinBitcast<__m256i>(_High), _Low, 1);
         }
     }
 };
