@@ -61,7 +61,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi16(_Broadcasted, _mm_set1_epi16(1)));
         }
         else if constexpr (_Bits == 16) {
-            const auto _Broadcasted = _mm_set_epi16((_Mask >> 15) & 1, (_Mask >> 14) & 1, (_Mask >> 13) & 1, (_Mask >> 12) & 1,
+            const auto _Broadcasted = _mm_set_epi8((_Mask >> 15) & 1, (_Mask >> 14) & 1, (_Mask >> 13) & 1, (_Mask >> 12) & 1,
                 (_Mask >> 11) & 1, (_Mask >> 10) & 1, (_Mask >> 9) & 1, (_Mask >> 8), (_Mask >> 7) & 1, 
                 (_Mask >> 6) & 1, (_Mask >> 5) & 1, (_Mask >> 4) & 1,
                 (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
@@ -148,11 +148,19 @@ public:
             return _mm256_movemask_ps(_IntrinBitcast<__m256>(_Vector));
 
         else if constexpr (sizeof(_DesiredType_) == 2) {
+            const auto _Zeros = _mm_setzero_si128();
 
+            const auto _Low = _mm_movemask_epi8(_mm_packs_epi16(_IntrinBitcast<__m128i>(_Vector), _Zeros));
+            const auto _High = _mm_movemask_epi8(_mm_packs_epi16(_mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1), _Zeros));
+
+            return ((static_cast<uint16>(_High & 0xFF) << 8) | (static_cast<uint16>(_Low & 0xFF)));
         }
             
         else if constexpr (sizeof(_DesiredType_) == 1) {
+            const auto _Low     = _mm_movemask_epi8(_mm256_castsi256_si128(_Vector));
+            const auto _High    = _mm_movemask_epi8(_mm256_extractf128_si256(_Vector, 1));
 
+            return ((static_cast<uint32>(_High & 0xFFFF) << 16) | (static_cast<uint32>(_Low & 0xFFFF)));
         }
     }
 
@@ -161,6 +169,48 @@ public:
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
         constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        if constexpr (_Bits == 4) {
+            const auto _Broadcasted = _mm256_set_pd((_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+            return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(_Broadcasted, _mm256_set1_pd(1), 0));
+        }
+        else if constexpr (_Bits == 8) {
+            const auto _Broadcasted = _mm256_set_ps((_Mask >> 7) & 1, (_Mask >> 6) & 1, (_Mask >> 5) & 1, (_Mask >> 4) & 1,
+                (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+            return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(_Broadcasted, _mm256_set1_ps(1), 0));
+        }
+        else if constexpr (_Bits == 16) {
+            const auto _BroadcastedHigh = _mm_set_epi16((_Mask >> 15) & 1, (_Mask >> 14) & 1, (_Mask >> 13) & 1, (_Mask >> 12) & 1,
+                (_Mask >> 11) & 1, (_Mask >> 10) & 1, (_Mask >> 9) & 1, (_Mask >> 8) & 1);
+
+            const auto _BroadcastedLow = _mm_set_epi16((_Mask >> 7) & 1, (_Mask >> 6) & 1, (_Mask >> 5) & 1, (_Mask >> 4) & 1,
+                (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+
+            const auto _Comparand = _mm_set1_epi16(1);
+
+            const auto _Low     = _mm_cmpeq_epi16(_BroadcastedLow, _Comparand);
+            const auto _High    = _mm_cmpeq_epi16(_BroadcastedHigh, _Comparand);
+
+            auto _Result = _IntrinBitcast<__m256i>(_Low);
+            _Result = _mm256_insertf128_si256(_Result, _High, 1);
+
+            return _IntrinBitcast<_VectorType_>(_Result);
+        }
+        else if constexpr (_Bits == 32) {
+            const auto _Select      = _mm_set1_epi64x(0x8040201008040201ull);
+            const auto _Shuffle     = _mm_set_epi64x(0x0101010101010101ll, 0);
+
+            const auto _ShuffledLow     = _mm_shuffle_epi8(_mm_cvtsi32_si128(_Mask & 0xFF), _Shuffle);
+            const auto _ShuffledHigh    = _mm_shuffle_epi8(_mm_cvtsi32_si128((_Mask >> 16) & 0xFF), _Shuffle);
+
+            const auto _Low = _mm_cmpeq_epi8(_mm_and_si128(_ShuffledLow, _Select), _Select);
+            const auto _High = _mm_cmpeq_epi8(_mm_and_si128(_ShuffledLow, _ShuffledHigh), _Select);
+
+            auto _Result = _IntrinBitcast<__m256i>(_Low);
+            _Result = _mm256_insertf128_si256(_Result, _High, 1);
+
+            return _IntrinBitcast<_VectorType_>(_Result);
+        }
     }
 };
 
@@ -195,11 +245,35 @@ public:
             return _mm256_movemask_epi8(_IntrinBitcast<__m256i>(_Vector));
     }
     
-    template <
+template <
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
         constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        if constexpr (_Bits == 4) {
+            const auto _Broadcasted = _mm256_set_pd((_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+            return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(_Broadcasted, _mm256_set1_pd(1), 0));
+        }
+        else if constexpr (_Bits == 8) {
+            const auto _Broadcasted = _mm256_set_ps((_Mask >> 7) & 1, (_Mask >> 6) & 1, (_Mask >> 5) & 1, (_Mask >> 4) & 1,
+                (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+            return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(_Broadcasted, _mm256_set1_ps(1), 0));
+        }
+        else if constexpr (_Bits == 16) {
+            const auto _Broadcasted = _mm256_set_epi16((_Mask >> 15) & 1, (_Mask >> 14) & 1, (_Mask >> 13) & 1, (_Mask >> 12) & 1,
+                (_Mask >> 11) & 1, (_Mask >> 10) & 1, (_Mask >> 9) & 1, (_Mask >> 8) & 1, (_Mask >> 7) & 1, (_Mask >> 6) & 1,
+                (_Mask >> 5) & 1, (_Mask >> 4) & 1, (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
+
+            return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi16(_Broadcasted, _mm256_set1_epi16(1)));
+        }
+        else if constexpr (_Bits == 32) {
+            const auto _Select      = _mm256_set1_epi64x(0x8040201008040201ull);
+            const auto _Shuffled    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm_cvtsi32_si128(_Mask)),
+                _mm256_set_epi64x(0x0101010101010101ll, 0x0101010101010101ll, 0, 0));
+
+            return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi8(_mm256_and_si256(_Shuffled, _Select), _Select));
+        }
     }
 };
 
