@@ -502,7 +502,6 @@ class _SimdMemoryAccess<arch::CpuFeature::SSE42, numeric::xmm128> :
     public _SimdMemoryAccess<arch::CpuFeature::SSE41, numeric::xmm128>
 {};
 
-
 #pragma endregion
 
 #pragma region Avx-Avx2 memory access

@@ -671,7 +671,15 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
-        return _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right));
+        if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+
+        }
+        else {
+            return _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right));
+        }
     }
 
     template <
@@ -720,6 +728,9 @@ public:
         else if constexpr (_Is_pd_v<_DesiredType_>) {
             return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
         }
+        else {
+            
+        }
     }
 
     template <
@@ -740,6 +751,159 @@ public:
         }
         else if constexpr (_Is_epu32_v<_DesiredType_>) {
             return _mm512_cmpgt_epu32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _mm512_cmplt_ps_mask(_IntrinBitcast<__m512>(_Right), _IntrinBitcast<__m512>(_Left));
+        }
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Right), _IntrinBitcast<__m512d>(_Left));
+        }
+    }
+};
+
+template <>
+class _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zmm512>:
+    public _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm512> 
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512BW;
+    using _RegisterPolicy               = zmm512;
+
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        class   _DesiredType_,
+        class   _CompareType_,
+        class   _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept 
+    {
+        if constexpr (std::is_same_v<_CompareType_, type_traits::equal_to<>>)
+            return _MaskCompareEqual<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
+            return ~_MaskCompareEqual<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
+            return _MaskCompareLess<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
+            return ~_MaskCompareGreater<_DesiredType_>(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
+            return _MaskCompareGreater<_DesiredType_>(_Right, _Left);
+
+        else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
+            return ~_MaskCompareLess<_DesiredType_>(_Right, _Left);
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Compare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _mm512_cmpeq_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _mm512_cmpeq_ps_mask(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right));
+
+        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+            return _mm512_cmpeq_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _mm512_cmpeq_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _mm512_cmpeq_epi16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _mm512_cmpeq_epi8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_>) {
+            return _mm512_cmplt_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu64_v<_DesiredType_>) {
+            return _mm512_cmplt_epu64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_>) {
+            return _mm512_cmplt_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu32_v<_DesiredType_>) {
+            return _mm512_cmplt_epu32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_>) {
+            return _mm512_cmplt_epi16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu16_v<_DesiredType_>) {
+            return _mm512_cmplt_epu16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_>) {
+            return _mm512_cmplt_epi8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu8_v<_DesiredType_>) {
+            return _mm512_cmplt_epu8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _mm512_cmplt_ps_mask(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right));
+        }
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_>) {
+            return _mm512_cmpgt_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu64_v<_DesiredType_>) {
+            return _mm512_cmpgt_epu64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_>) {
+            return _mm512_cmpgt_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu32_v<_DesiredType_>) {
+            return _mm512_cmpgt_epu32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_>) {
+            return _mm512_cmpgt_epi16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu16_v<_DesiredType_>) {
+            return _mm512_cmpgt_epu16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_>) {
+            return _mm512_cmpgt_epi8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else if constexpr (_Is_epu8_v<_DesiredType_>) {
+            return _mm512_cmpgt_epu8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
         }
         else if constexpr (_Is_ps_v<_DesiredType_>) {
             return _mm512_cmplt_ps_mask(_IntrinBitcast<__m512>(_Right), _IntrinBitcast<__m512>(_Left));
