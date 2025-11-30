@@ -10,6 +10,20 @@ template <
     class               _RegisterPolicy_>
 class _SimdConvertImplementation;
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline uint32 _SimdToMask(_VectorType_ _Vector) noexcept;
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _VectorType_,
+    typename            _MaskType_>
+simd_stl_always_inline _VectorType_ _SimdToVector(_MaskType_ _Mask) noexcept;
+
 #pragma region Sse2-Sse4.2 Simd convert
 
 template <>
@@ -23,7 +37,7 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline uint32 _ToMask(_VectorType_ _Vector) noexcept {
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
         if      constexpr (sizeof(_DesiredType_) == 8)
             return _mm_movemask_pd(_IntrinBitcast<__m128d>(_Vector));
 
@@ -140,27 +154,29 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline uint32 _ToMask(_VectorType_ _Vector) noexcept {
-        if      constexpr (sizeof(_DesiredType_) == 8)
-            return _mm256_movemask_pd(_IntrinBitcast<__m256d>(_Vector));
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
 
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            return _mm256_movemask_ps(_IntrinBitcast<__m256>(_Vector));
-
+        if      constexpr (sizeof(_DesiredType_) == 8) {
+            return static_cast<_MaskType>(_mm256_movemask_pd(_IntrinBitcast<__m256d>(_Vector)));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            return static_cast<_MaskType>(_mm256_movemask_ps(_IntrinBitcast<__m256>(_Vector)));
+        }
         else if constexpr (sizeof(_DesiredType_) == 2) {
             const auto _Zeros = _mm_setzero_si128();
 
             const auto _Low = _mm_movemask_epi8(_mm_packs_epi16(_IntrinBitcast<__m128i>(_Vector), _Zeros));
             const auto _High = _mm_movemask_epi8(_mm_packs_epi16(_mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1), _Zeros));
 
-            return ((static_cast<uint16>(_High & 0xFF) << 8) | (static_cast<uint16>(_Low & 0xFF)));
+            return ((static_cast<_MaskType>(_High & 0xFF) << 8) | (static_cast<_MaskType>(_Low & 0xFF)));
         }
-            
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto _Low     = _mm_movemask_epi8(_mm256_castsi256_si128(_Vector));
-            const auto _High    = _mm_movemask_epi8(_mm256_extractf128_si256(_Vector, 1));
+            const auto _Low     = _SimdToMask<arch::CpuFeature::SSE2, xmm128, _DesiredType_>(_IntrinBitcast<__m128i>(_Vector));
+            const auto _High    = _SimdToMask<arch::CpuFeature::SSE2, xmm128, _DesiredType_>(_mm256_extractf128_si256(
+                _IntrinBitcast<__m256i>(_Vector), 1));
 
-            return ((static_cast<uint32>(_High & 0xFFFF) << 16) | (static_cast<uint32>(_Low & 0xFFFF)));
+            return ((static_cast<_MaskType>(_High & 0xFFFF) << 16) | (static_cast<_MaskType>(_Low & 0xFFFF)));
         }
     }
 
@@ -218,7 +234,7 @@ template <>
 class _SimdConvertImplementation<arch::CpuFeature::AVX2, ymm256> :
     public _SimdConvertImplementation<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
+    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
     using _RegisterPolicy               = ymm256;
 
     template <typename _DesiredType_>
@@ -228,24 +244,24 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline uint32 _ToMask(_VectorType_ _Vector) noexcept {
-        if      constexpr (sizeof(_DesiredType_) == 8)
+        if      constexpr (sizeof(_DesiredType_) == 8) {
             return _mm256_movemask_pd(_IntrinBitcast<__m256d>(_Vector));
-
-        else if constexpr (sizeof(_DesiredType_) == 4)
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
             return _mm256_movemask_ps(_IntrinBitcast<__m256>(_Vector));
-
+        }
         else if constexpr (sizeof(_DesiredType_) == 2) {
             const auto _Pack        = _mm256_packs_epi16(_IntrinBitcast<__m256i>(_Vector), _mm256_setzero_si256());
             const auto _Shuffled    = _mm256_permute4x64_epi64(_Pack, 0xD8);
 
             return _mm256_movemask_epi8(_Shuffled);
         }
-
-        else if constexpr (sizeof(_DesiredType_) == 1)
+        else if constexpr (sizeof(_DesiredType_) == 1) {
             return _mm256_movemask_epi8(_IntrinBitcast<__m256i>(_Vector));
+        }
     }
     
-template <
+    template <
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
@@ -280,6 +296,111 @@ template <
 #pragma endregion
 
 #pragma region Avx512 Simd convert
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512F, zmm512>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy = zmm512;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <
+        class _Type_,
+        _Type_ _First_,
+        _Type_ _Second_>
+    static constexpr _Type_ _Max() noexcept {
+        return (_First_ > _Second_) ? _First_ : _Second_;
+    }
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+        constexpr auto _YmmBits = _Bits >> 1;
+
+        if constexpr (_Bits == 64) {
+
+        }
+        else {
+            const auto _Low = _SimdToMask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_IntrinBitcast<__m256d>(_Vector));
+            const auto _High = _SimdToMask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _mm512_extractf64x4_pd(_IntrinBitcast<__m512d>(_Vector), 1));
+
+            return ((static_cast<_MaskType>(_High) << _YmmBits) | static_cast<_MaskType>(_Low));
+        }
+    }
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+        using _HalfType = IntegerForSize<_Max<char, (sizeof(char) >> 1), 1>()>::Unsigned;
+
+        constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+        constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+        const auto _Low     = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>(_Mask & _Maximum);
+        const auto _High    = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>((_Mask >> _Shift) & _Maximum);
+
+        return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+    }
+};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512BW, zmm512>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512BW;
+    using _RegisterPolicy = zmm512;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+        if constexpr (sizeof(_DesiredType_) == 4) {
+            return static_cast<_MaskType>(_mm512_cmp_epi32_mask(
+                _IntrinBitcast<__m512i>(_Vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            return static_cast<_MaskType>(_mm512_movepi16_mask(_IntrinBitcast<__m512i>(_Vector)));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            return static_cast<_MaskType>(_mm512_movepi8_mask(_IntrinBitcast<__m512i>(_Vector)));
+        }
+    }
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        if constexpr (_Bits == 8) {
+
+        }
+        else if constexpr (_Bits == 16) {
+            
+        }
+        else if constexpr (_Bits == 32) {
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi16(_Mask));
+        }
+        else if constexpr (_Bits == 64) {
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi8(_Mask));
+        }
+    }
+};
 
 
 #pragma endregion

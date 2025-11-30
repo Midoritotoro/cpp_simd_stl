@@ -20,7 +20,10 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512CD,
 	AVX512ER,
 	AVX512PF,
-	AVX512VL
+	AVX512VL,
+	//AVX512VL_And_AVX512DQ,
+	//AVX512BW_And_AVX512VL,
+	//AVX512F_And_AVX512VL
 };
 
 template <
