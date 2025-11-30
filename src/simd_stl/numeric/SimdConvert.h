@@ -321,12 +321,18 @@ public:
         using _MaskType = _Simd_mask_type<_DesiredType_>;
 
         constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
-        constexpr auto _YmmBits = _Bits >> 1;
 
-        if constexpr (_Bits == 64) {
-
+        if constexpr (_Bits == 16) {
+            return static_cast<_MaskType>(_mm512_cmp_epi32_mask(
+                _IntrinBitcast<__m512i>(_Vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
+        }
+        else if constexpr (_Bits == 8) {
+            return static_cast<_MaskType>(_mm512_cmp_epi64_mask(
+                _IntrinBitcast<__m512i>(_Vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
         }
         else {
+            constexpr auto _YmmBits = _Bits >> 1;
+
             const auto _Low = _SimdToMask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_IntrinBitcast<__m256d>(_Vector));
             const auto _High = _SimdToMask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
                 _mm512_extractf64x4_pd(_IntrinBitcast<__m512d>(_Vector), 1));
@@ -341,15 +347,25 @@ public:
     static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
         using _MaskType = _Simd_mask_type<_DesiredType_>;
 
-        using _HalfType = IntegerForSize<_Max<char, (sizeof(char) >> 1), 1>()>::Unsigned;
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
-        constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-        constexpr auto _Shift = (sizeof(_MaskType) << 2);
+        if constexpr (_Bits == 16) {
+            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi32(_Mask, _mm512_set1_epi32(-1)));
+        }
+        if constexpr (_Bits == 8) {
+            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
+        }
+        else {
+            using _HalfType = IntegerForSize<_Max<char, (sizeof(char) >> 1), 1>()>::Unsigned;
 
-        const auto _Low     = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>(_Mask & _Maximum);
-        const auto _High    = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>((_Mask >> _Shift) & _Maximum);
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
 
-        return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+            const auto _Low = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>(_Mask & _Maximum);
+            const auto _High = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>((_Mask >> _Shift) & _Maximum);
+
+            return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+        }
     }
 };
 
@@ -368,16 +384,69 @@ public:
     static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
         using _MaskType = _Simd_mask_type<_DesiredType_>;
 
-        if constexpr (sizeof(_DesiredType_) == 4) {
-            return static_cast<_MaskType>(_mm512_cmp_epi32_mask(
-                _IntrinBitcast<__m512i>(_Vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
-        }
-        else if constexpr (sizeof(_DesiredType_) == 2) {
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+
+        if constexpr (_Bits == 64)
+            return static_cast<_MaskType>(_mm512_movepi8_mask(_IntrinBitcast<__m512i>(_Vector))); 
+
+        else if constexpr (_Bits == 32)
             return static_cast<_MaskType>(_mm512_movepi16_mask(_IntrinBitcast<__m512i>(_Vector)));
-        }
-        else if constexpr (sizeof(_DesiredType_) == 1) {
+
+        else
+            return _SimdToMask<arch::CpuFeature::AVX512F, zmm512, _DesiredType_>(_Vector);
+    }
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        if constexpr (_Bits == 64)
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi8(_Mask));
+
+        else if constexpr (_Bits == 32)
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi16(_Mask));
+
+        else if constexpr (_Bits == 16)
+            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi32(_Mask, _mm512_set1_epi32(-1)))
+
+        else if constexpr (_Bits == 8)
+            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
+    }
+};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512DQ;
+    using _RegisterPolicy = zmm512;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+        constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+        if constexpr (_Bits == 64)
             return static_cast<_MaskType>(_mm512_movepi8_mask(_IntrinBitcast<__m512i>(_Vector)));
-        }
+
+        else if constexpr (_Bits == 32)
+            return static_cast<_MaskType>(_mm512_movepi16_mask(_IntrinBitcast<__m512i>(_Vector)));
+
+        else if constexpr (_Bits == 16)
+            return static_cast<_MaskType>(_mm512_movepi32_mask(_IntrinBitcast<__m512i>(_Vector)));
+
+        else if constexpr (_Bits == 8)
+            return static_cast<_MaskType>(_mm512_movepi64_mask(_IntrinBitcast<__m512i>(_Vector)));
     }
 
     template <
@@ -387,18 +456,18 @@ public:
         using _MaskType = _Simd_mask_type<_DesiredType_>;
         constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
-        if constexpr (_Bits == 8) {
 
-        }
-        else if constexpr (_Bits == 16) {
-            
-        }
-        else if constexpr (_Bits == 32) {
-            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi16(_Mask));
-        }
-        else if constexpr (_Bits == 64) {
+        if constexpr (_Bits == 64)
             return _IntrinBitcast<_VectorType_>(_mm512_movm_epi8(_Mask));
-        }
+
+        else if constexpr (_Bits == 32)
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi16(_Mask));
+
+        else if constexpr (_Bits == 16)
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi32(_Mask));
+
+        else if constexpr (_Bits == 8)
+            return _IntrinBitcast<_VectorType_>(_mm512_movm_epi64(_Mask));
     }
 };
 

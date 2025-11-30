@@ -18,6 +18,7 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX512F,
 	AVX512BW,
 	AVX512CD,
+	AVX512DQ,
 	AVX512ER,
 	AVX512PF,
 	AVX512VL,
