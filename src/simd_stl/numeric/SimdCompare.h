@@ -635,6 +635,34 @@ class _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm512> {
 
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <
+        class _DesiredType_,
+        class _CompareType_,
+        class _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BlockwiseCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        const auto _ComparedLow128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+
+        const auto _Compared2Low128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1), _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1));
+
+        const auto _ComparedHigh128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2));
+
+        const auto _Compared2High128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3));
+
+        auto _Result = _IntrinBitcast<__m512i>(_ComparedLow128);
+
+        _Result = _mm512_inserti32x4(_Result, _Compared2Low128, 1);
+        _Result = _mm512_inserti32x4(_Result, _ComparedHigh128, 2);
+
+        return _IntrinBitcast<_VectorType_>(_mm512_inserti32x4(_Result, _Compared2High128, 3));
+    }
 public:
     template <
         class   _DesiredType_,
@@ -671,11 +699,10 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
-        if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-
-        }
-        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-
+        if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_> ||
+            _Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+        {
+            return _BlockwiseCompare<_DesiredType_, _CompareType_>(_Left, _Right);
         }
         else {
             return _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right));
@@ -700,6 +727,10 @@ public:
         }
         else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
             return _mm512_cmpeq_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        }
+        else {
+            return _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(
+                _BlockwiseCompare<_DesiredType_, type_traits::equal_to<>>(_Left, _Right));
         }
     }
 
@@ -729,7 +760,8 @@ public:
             return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
         }
         else {
-            
+            return _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(
+                _BlockwiseCompare<_DesiredType_, type_traits::less<>>(_Left, _Right));
         }
     }
 
@@ -757,6 +789,10 @@ public:
         }
         else if constexpr (_Is_pd_v<_DesiredType_>) {
             return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Right), _IntrinBitcast<__m512d>(_Left));
+        }
+        else {
+            return _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(
+                _BlockwiseCompare<_DesiredType_, type_traits::greater<>>(_Left, _Right));
         }
     }
 };

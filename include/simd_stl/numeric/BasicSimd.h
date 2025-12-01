@@ -571,10 +571,11 @@ public:
         type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
         const basic_simd&                                                       source) const noexcept;
 
-    template <
-        sizetype _Mask,
-        typename _DesiredType_ = _Element_>
-    simd_stl_always_inline void blend(const basic_simd& vector) noexcept;
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline void blend(
+        const basic_simd&                       _Vector,
+        type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+            _DesiredType_, _RegisterPolicy_>    _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
@@ -1550,9 +1551,10 @@ template <
     class               _RegisterPolicy_>
 template <typename _DesiredType_> 
 _DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreMergeAligned(
-    void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
-    const basic_simd&                                                       source) const noexcept
+    void*                                   where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    mask,
+    const basic_simd&                       source) const noexcept
 {
     
 }
@@ -1561,11 +1563,13 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    sizetype _Mask,
-    typename _DesiredType_>
-void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(const basic_simd& vector) noexcept {
-
+template <typename _DesiredType_>
+void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
+    const basic_simd&                       _Vector,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_, 
+        _DesiredType_, _RegisterPolicy_>    _Mask) noexcept
+{
+    return _SimdBlend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Vector, _Mask);
 }
 
 template <

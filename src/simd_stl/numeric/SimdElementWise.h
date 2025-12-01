@@ -13,6 +13,24 @@ template <
     class               _RegisterPolicy_>
 class _SimdElementWise;
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdReverse(_VectorType_ _Vector) noexcept;
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdBlend(
+    _VectorType_                            _First,
+    _VectorType_                            _Second,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask) noexcept;
+
 #pragma region Sse2-Sse4.2 Simd element wise 
 
 template <>
@@ -23,6 +41,17 @@ class _SimdElementWise<arch::CpuFeature::SSE2, xmm128> {
     template <typename _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_ _First,
+        _VectorType_ _Second,
+        _VectorType_ _Mask) noexcept
+    {
+        return _IntrinBitcast<_VectorType_>(_mm_or_si128(
+            _mm_and_si128(_IntrinBitcast<__m128i>(_Mask), _IntrinBitcast<__m128i>(_First)),
+            _mm_andnot_si128(_IntrinBitcast<__m128i>(_Mask), _IntrinBitcast<__m128i>(_Second))));
+    }
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -31,9 +60,7 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        //return _mm_or_si128(
-        //    _mm_and_si128(mask, first),
-        //    _mm_andnot_si128(mask, second));
+        return _Blend(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
     }
 
     template <
@@ -106,7 +133,34 @@ public:
 template <>
 class _SimdElementWise<arch::CpuFeature::SSE41, xmm128> :
     public _SimdElementWise<arch::CpuFeature::SSSE3, xmm128>
-{};
+{
+    static constexpr auto _Generation   = arch::CpuFeature::SSE41;
+    using _RegisterPolicy               = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_ _First,
+        _VectorType_ _Second,
+        _VectorType_ _Mask) noexcept
+    {
+        return _mm_blendv_epi8(_IntrinBitcast<__m128i>(_Second),
+            _IntrinBitcast<__m128i>(_First), _IntrinBitcast<__m128i>(_Mask));
+    }
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_                        _First,
+        _VectorType_                        _Second,
+        _Simd_mask_type<_DesiredType_>      _Mask) noexcept
+    {
+        return _Blend(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+    }
+};
 
 template <>
 class _SimdElementWise<arch::CpuFeature::SSE42, xmm128> :
@@ -118,8 +172,7 @@ class _SimdElementWise<arch::CpuFeature::SSE42, xmm128> :
 #pragma region Avx-Avx2 Simd element wise
 
 template <>
-class _SimdElementWise<arch::CpuFeature::AVX, ymm256>:
-    public _SimdElementWise<arch::CpuFeature::SSE42, xmm128>
+class _SimdElementWise<arch::CpuFeature::AVX, ymm256>
 {
     static constexpr auto _Generation   = arch::CpuFeature::AVX;
     using _RegisterPolicy               = ymm256;
@@ -127,6 +180,28 @@ class _SimdElementWise<arch::CpuFeature::AVX, ymm256>:
     template <typename _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_ _First,
+        _VectorType_ _Second,
+        _VectorType_ _Mask) noexcept
+    {
+        return _IntrinBitcast<_VectorType_>(_mm256_or_ps(
+            _mm256_and_ps(_IntrinBitcast<__m256>(_Mask), _IntrinBitcast<__m256>(_First)),
+            _mm256_andnot_ps(_IntrinBitcast<__m256>(_Mask), _IntrinBitcast<__m256>(_Second))));
+    }
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_                        _First,
+        _VectorType_                        _Second,
+        _Simd_mask_type<_DesiredType_>      _Mask) noexcept
+    {
+        return _Blend(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+    }
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -169,7 +244,57 @@ public:
 template <>
 class _SimdElementWise<arch::CpuFeature::AVX2, ymm256>:
     public _SimdElementWise<arch::CpuFeature::AVX, ymm256>
-{};
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX;
+    using _RegisterPolicy               = ymm256;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_ _First,
+        _VectorType_ _Second,
+        _VectorType_ _Mask) noexcept
+    {
+        return _mm256_blendv_epi8(_IntrinBitcast<__m256i>(_Second),
+            _IntrinBitcast<__m256i>(_First), _IntrinBitcast<__m256i>(_Mask));
+    }
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Blend(
+        _VectorType_                        _First,
+        _VectorType_                        _Second,
+        _Simd_mask_type<_DesiredType_>      _Mask) noexcept
+    {
+        return _Blend(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Reverse(_VectorType_ _Vector) noexcept {
+        if constexpr (sizeof(_DesiredType_) == 2) {
+            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
+                _mm256_setr_epi8(30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
+                    14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1)));
+
+            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_si256(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
+            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
+                _mm256_setr_epi8(31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 
+                    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)));
+
+            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_si256(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+        }
+        else {
+            return _SimdReverse<arch::CpuFeature::AVX, _RegisterPolicy, _DesiredType_>(_Vector);
+        }
+    }
+};
 
 #pragma endregion
 
