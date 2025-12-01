@@ -11,6 +11,26 @@ template <
     class               _RegisterPolicy_>
 class _SimdElementAccess;
 
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline void _SimdInsert(
+    _VectorType_&       _Vector,
+    const uint8         _Position,
+    const _DesiredType_ _Value) noexcept;
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdExtract(
+    _VectorType_    _Vector,
+    const uint8     _Where) noexcept;
+
 #pragma region Sse2-Sse4.2 Simd element access
 
 template <>
@@ -44,15 +64,6 @@ public:
                 : _IntrinBitcast<_VectorType_>(_mm_unpacklo_epi64(
                     _IntrinBitcast<__m128i>(_Vector), _VectorValue));
         }
-        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, __m128i, _DesiredType_>(memory::pointerToIntegral(_Value));
-            const int32 _MaskArray[8] = { 0, 0, 0, 0, -1, 0, 0, 0 };
-
-            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128i>(_MaskArray + 4 - (_Position & 3)); // FFFFFFFF at index position
-
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_si128(_mm_and_si128(_InsertMask, _Broadcasted),
-                    _mm_andnot_si128(_InsertMask, _IntrinBitcast<__m128i>(_Vector))));
-        }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
             switch (_Position) {
                 case 0: 
@@ -81,15 +92,6 @@ public:
                     break;
             }
         }
-        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-            const int8 _MaskArray[32] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, __m128i, _DesiredType_>(_Value);
-
-            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128i>(_MaskArray + 16 - (_Position & 0x0F)); // FF at index position
-
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_si128(_mm_and_si128(_InsertMask, _Broadcasted),
-                _mm_andnot_si128(_InsertMask, _IntrinBitcast<__m128i>(_Vector))));
-        }
         else if constexpr (_Is_pd_v<_DesiredType_>) {
             const auto _Broadcasted = _mm_set_sd(_Value);
 
@@ -97,14 +99,14 @@ public:
                 ? _mm_shuffle_pd(_Broadcasted, _IntrinBitcast<__m128d>(_Vector), 2)
                 : _mm_shuffle_pd(_IntrinBitcast<__m128d>(_Vector), _Broadcasted, 0);
         }
-        else if constexpr (_Is_ps_v<_DesiredType_>) {
-            const int32 _MaskArray[8] = { 0,0,0,0,-1,0,0,0 };
+        else {
+            const auto _Mask = _MakeSimdInsertMask<_VectorType_, _DesiredType_>();
 
-            const auto _Broadcasted = _mm_set1_ps(_Value);
-            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, __m128>(_MaskArray + 4 - (_Position & 3)); // FFFFFFFF at index position
+            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, _VectorType_>(memory::pointerToIntegral(_Value));
+            const auto _InsertMask = _SimdLoadUnaligned<_Generation, _RegisterPolicy, _VectorType_>(
+                (_Mask._Array + _Mask._Offset - (_Position & (_Mask._Offset - 1))));
 
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_or_ps(
-                _mm_and_ps(_InsertMask, _Broadcasted), _mm_andnot_ps(_InsertMask, _IntrinBitcast<__m128>(_Vector))));
+            _Vector = _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, _Broadcasted, _InsertMask);
         }
     }
 
@@ -279,7 +281,7 @@ public:
             }
         }
         else {
-
+            return _SimdInsert<arch::CpuFeature::SSE2, _RegisterPolicy>(_Vector, _Position, _Value);
         }
     }
 
@@ -342,8 +344,8 @@ public:
                     return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 7));
             }
         }
-        else  {
-          
+        else {
+            return _SimdExtract<arch::CpuFeature::SSE2, _RegisterPolicy>(_Vector, _Where);
         }
     }
 };
@@ -467,14 +469,14 @@ public:
                     break;
             }
         }
-        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-            const int8 _MaskArray[64] = {0,0,0,0, 0,0,0,0, 0,0,0,0 ,0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-                -1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 ,0,0,0,0, 0,0,0,0, 0,0,0,0};
+        else {
+            const auto _Mask = _MakeSimdInsertMask<_VectorType_, _DesiredType_>();
 
             const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, _VectorType_>(_Value);
-            const auto _InsertMask  = _SimdLoadUnaligned<_Generation, _RegisterPolicy, _VectorType_>((_MaskArray + 32 - (_Position & 0x1F)));
+            const auto _InsertMask  = _SimdLoadUnaligned<_Generation, _RegisterPolicy, _VectorType_>(
+                (_Mask._Array + _Mask._Offset - (_Position & (_Mask._Offset - 1))));
 
-            return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_InsertMask)
+            _Vector = _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, _Broadcasted, _InsertMask);
         }
     }
 
@@ -530,9 +532,17 @@ public:
 template <>
 class _SimdElementAccess<arch::CpuFeature::AVX2, ymm256>:
     public _SimdElementAccess<arch::CpuFeature::AVX, ymm256>
+{};
+
+#pragma endregion
+
+#pragma region Avx512 Simd element access
+
+template <>
+class _SimdElementAccess<arch::CpuFeature::AVX512F, zmm512>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
-    using _RegisterPolicy               = numeric::ymm256;
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy               = zmm512;
 public:
     template <
         typename _DesiredType_,
@@ -542,11 +552,81 @@ public:
         const uint8         _Position,
         const _DesiredType_ _Value) noexcept
     {
-    
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_set1_epi64(
+                _IntrinBitcast<__m512i>(_Vector), static_cast<uint8>(1u << _Position), memory::pointerToIntegral(_Value)));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_set1_epi32(
+                _IntrinBitcast<__m512i>(_Vector), static_cast<uint16>(1u << _Position), memory::pointerToIntegral(_Value)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_broadcastss_ps(
+                _IntrinBitcast<__m512>(_Vector), static_cast<uint16>(1u << _Position), _mm_set_ss(_Value)));
+        }
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_broadcastsd_pd(
+                _IntrinBitcast<__m512d>(_Vector), static_cast<uint8>(1u << _Position), _mm_set_sd(_Value)));
+        }
+        else {
+            const auto _Mask = _MakeSimdInsertMask<_VectorType_, _DesiredType_>();
+
+            const auto _Broadcasted = _SimdBroadcast<_Generation, _RegisterPolicy, _VectorType_>(_Value);
+            const auto _InsertMask  = _SimdLoadUnaligned<_Generation, _RegisterPolicy, _VectorType_>(
+                (_Mask._Array + _Mask._Offset - (_Position & (_Mask._Offset - 1))));
+
+            _Vector = _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, _Broadcasted, _InsertMask)
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Extract(
+        _VectorType_    _Vector,
+        const uint8     _Where) noexcept
+    {
+        if constexpr (_Is_pd_v<_DesiredType_>) {
+            return _mm512_cvtsd_f64(_mm512_maskz_compress_pd(static_cast<uint8>(1u << _Where), _IntrinBitcast<__m512d>(_Vector)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _mm512_cvtss_f32(_mm512_maskz_compress_ps(static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512>(_Vector)));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            return _mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi32(
+                static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
+        }
+        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi32(
+                static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
+        }
+        else {
+            constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+            _DesiredType_ _Array[_Length];
+
+            _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Array, _Vector);
+            return _Array[_Where & (_Length - 1)];
+        }
     }
 };
 
-#pragma endregion
+template <>
+class _SimdElementAccess<arch::CpuFeature::AVX512BW, zmm512>:
+    public _SimdElementAccess<arch::CpuFeature::AVX512F, zmm512>
+{};
+
+template <>
+class _SimdElementAccess<arch::CpuFeature::AVX512DQ, zmm512> :
+    public _SimdElementAccess<arch::CpuFeature::AVX512BW, zmm512>
+{};
+
+template <>
+class _SimdElementAccess<arch::CpuFeature::AVX512VL, zmm512> :
+    public _SimdElementAccess<arch::CpuFeature::AVX512DQ, zmm512>
+{};
+
+#pragma endregion 
+
 
 template <
     arch::CpuFeature    _SimdGeneration_,

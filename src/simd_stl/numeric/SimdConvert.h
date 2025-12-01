@@ -471,6 +471,10 @@ public:
     }
 };
 
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VL, zmm512> :
+    public _SimdConvertImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+{};
 
 #pragma endregion
 

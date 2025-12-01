@@ -12,6 +12,8 @@ template <
     class               _RegisterPolicy_>
 class _SimdArithmetic;
 
+#pragma region Sse2-Sse4.2 Simd arithmetic
+
 template <>
 class _SimdArithmetic<arch::CpuFeature::SSE2, xmm128> {
     static constexpr auto _Generation   = arch::CpuFeature::SSE2;
@@ -274,17 +276,17 @@ public:
 };
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::SSE3, xmm128> :
+class _SimdArithmetic<arch::CpuFeature::SSE3, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128> :
+class _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSE3, xmm128>
 {};
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::SSE41, xmm128> :
+class _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>
 {
 public:
@@ -328,9 +330,23 @@ public:
 };
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::SSE42, xmm128> :
+class _SimdArithmetic<arch::CpuFeature::SSE42, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>
 {};
+
+#pragma endregion 
+
+#pragma region Avx Simd arithmetic
+
+
+
+#pragma endregion
+
+#pragma region Avx512 Simd arithmetic
+
+
+
+#pragma endregion
 
 template <
     arch::CpuFeature    _SimdGeneration_,

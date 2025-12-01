@@ -124,6 +124,64 @@ class _SimdBroadcastImplementation<arch::CpuFeature::AVX2, ymm256> :
 
 #pragma endregion
 
+#pragma region Avx512 Simd broadcast
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512F, numeric::zmm512> {
+public:
+	template <
+		class _DesiredType_,
+		class _VectorType_>
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _Broadcast(_DesiredType_ _Value) noexcept {
+		if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_epi64(memory::pointerToIntegral(_Value)));
+
+		else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_epi32(memory::pointerToIntegral(_Value)));
+
+		else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_epi16(_Value));
+
+		else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_epi8(_Value));
+
+		else if constexpr (_Is_ps_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_ps(_Value));
+
+		else if constexpr (_Is_pd_v<_DesiredType_>)
+			return _IntrinBitcast<_VectorType_>(_mm512_set1_pd(_Value));
+	}
+
+	template <class _VectorType_>
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept {
+		if constexpr (std::is_same_v<_VectorType_, __m256>)
+			return _mm512_setzero_si512();
+
+		else if constexpr (std::is_same_v<_VectorType_, __m256d>)
+			return _mm512_setzero_pd();
+
+		else if constexpr (std::is_same_v<_VectorType_, __m256>)
+			return _mm512_setzero_ps();
+	}
+};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512BW, zmm512> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512F, zmm512>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512BW, zmm512>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VL, zmm512> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+{};
+
+#pragma endregion
+
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	class				_RegisterPolicy_,
