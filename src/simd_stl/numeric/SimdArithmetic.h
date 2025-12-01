@@ -19,9 +19,7 @@ class _SimdArithmetic<arch::CpuFeature::SSE2, xmm128> {
     static constexpr auto _Generation   = arch::CpuFeature::SSE2;
     using _RegisterPolicy               = numeric::xmm128;
 public:
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _ShiftRightVector(
         _VectorType_    _Vector,
         uint32          _ByteShift) noexcept
@@ -29,9 +27,7 @@ public:
         return _IntrinBitcast<_VectorType_>(_mm_srli_si128(_IntrinBitcast<__m128i>(_Vector), _ByteShift));
     }
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
+    template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
         _VectorType_    _Vector,
         uint32          _ByteShift) noexcept
@@ -338,13 +334,434 @@ class _SimdArithmetic<arch::CpuFeature::SSE42, xmm128>:
 
 #pragma region Avx Simd arithmetic
 
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX, ymm256> {
+    static constexpr auto _Generation = arch::CpuFeature::AVX;
+    using _RegisterPolicy = numeric::ymm256;
+public:
+    /*template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
+        _VectorType_    _Vector,
+        uint32          _ByteShift) noexcept
+    {
+        auto _Low   = _IntrinBitcast<__m128i>(_Vector);
+        auto _High  = _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1);
 
+        if (_ByteShift >= 16) {
+            _High = _mm_srli_si128(_Low, _ByteShift - 16);
+            _Low = _mm_setzero_si128();
+        }
+        else {
+            const auto _LowXmmShift = _mm_srli_si128(_Low, _ByteShift);
+            const auto _Shifted = _mm_alignr_epi8(_High, _Low, 16 - _ByteShift);
+
+            _High = _Shifted;
+            _Low = _LowXmmShift;
+        }
+
+        return _IntrinBitcast<_VectorType_>(_mm256_insertf128_si256(_IntrinBitcast<__m256i>(_Low), _High, 1));
+    }*/
+};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>:
+    public _SimdArithmetic<arch::CpuFeature::AVX, ymm256> 
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
+    using _RegisterPolicy               = numeric::ymm256;
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
+        _VectorType_    _Vector,
+        uint32          _ByteShift) noexcept
+    {
+        return _IntrinBitcast<_VectorType_>(_mm256_srli_si256(_IntrinBitcast<__m256i>(_Vector), _ByteShift));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
+        _VectorType_    _Vector,
+        uint32          _ByteShift) noexcept
+    {
+        return _IntrinBitcast<_VectorType_>(_mm256_slli_si256(_IntrinBitcast<__m256i>(_Vector), _ByteShift));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftRightElements(
+        _VectorType_    _Vector,
+        uint32          _BitShift) noexcept
+    {
+        if      constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_srli_epi64(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_srli_epi32(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_srli_epi16(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            const auto _EvenVector = _mm256_sra_epi16(_mm256_slli_epi16(
+                _IntrinBitcast<__m256i>(_Vector), 8), _mm_cvtsi32_si128(_BitShift + 8));
+
+            const auto _OddVector = _mm256_sra_epi16(_IntrinBitcast<__m256i>(_Vector), _mm_cvtsi32_si128(_BitShift));
+
+            const auto _Mask = _mm256_set1_epi32(0x00FF00FF);
+            return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_EvenVector, _OddVector, _Mask);
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftLeftElements(
+        _VectorType_    _Vector,
+        uint32          _BitShift) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_slli_epi64(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_slli_epi32(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_slli_epi16(_IntrinBitcast<__m256i>(_Vector), _BitShift));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            const auto _AndMask = _mm256_and_si256(_IntrinBitcast<__m256i>(_Vector),
+                _mm256_set1_epi8(static_cast<int8>(0xFFu >> _BitShift)));
+
+            return _IntrinBitcast<_VectorType_>(_mm256_sll_epi16(_AndMask, _mm_cvtsi32_si128(_BitShift)));
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept {
+        if      constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_xor_ps(_IntrinBitcast<__m256>(_Vector), _mm256_set1_ps(0x80000000)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_xor_pd(_IntrinBitcast<__m256d>(_Vector),
+                _IntrinBitcast<__m256d>(_mm256_setr_epi32(0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000))));
+
+        else
+            return _Substract<_DesiredType_>(_SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(), _Vector);
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Add(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_epi64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_epi32(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_epi16(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_epi8(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_ps(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_add_pd(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Substract(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_epi64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_epi32(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_epi16(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_epi8(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_ps(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_sub_pd(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Multiply(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_epi32_v<_DesiredType_>)
+           return _IntrinBitcast<_VectorType_>(_mm256_mul_epi32(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_epu32_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_mul_epu32(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_mul_ps(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_mul_pd(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+
+        else {
+
+        }
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Divide(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_div_pd(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+
+        else if constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm256_div_ps(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitNot(_VectorType_ _Vector) noexcept {
+        if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+            return _mm256_xor_pd(_Vector, _mm256_cmp_pd(_Vector, _Vector, _CMP_EQ_OQ));
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_xor_si256(_Vector, _mm256_cmpeq_epi32(_Vector, _Vector));
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256>)
+            return _mm256_xor_ps(_Vector, _mm256_cmp_ps(_Vector, _Vector, _CMP_EQ_OQ));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitXor(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+            return _mm256_xor_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_xor_si256(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256>)
+            return _mm256_xor_ps(_Left, _Right);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitAnd(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+            return _mm256_and_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_and_si256(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256>)
+            return _mm256_and_ps(_Left, _Right);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitOr(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+            return _mm256_or_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+            return _mm256_or_si256(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m256>)
+            return _mm256_or_ps(_Left, _Right);
+    }
+};
 
 #pragma endregion
 
 #pragma region Avx512 Simd arithmetic
 
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512> {
+    static constexpr auto _Generation = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy = zmm512;
+public:
+    /*template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
+        _VectorType_    _Vector,
+        uint32          _ByteShift) noexcept
+    {
 
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
+        _VectorType_    _Vector,
+        uint32          _ByteShift) noexcept
+    {
+
+    }*/
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftRightElements(
+        _VectorType_    _Vector,
+        uint32          _BitShift) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _ShiftLeftElements(
+        _VectorType_    _Vector,
+        uint32          _BitShift) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept {
+        if      constexpr (_Is_ps_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm512_xor_ps(_Vector, _mm512_set1_ps(0x80000000)));
+
+        else if constexpr (_Is_pd_v<_DesiredType_>)
+            return _IntrinBitcast<_VectorType_>(_mm512_xor_pd(_Vector,
+                _IntrinBitcast<__m512d>(_mm512_setr_epi32(0, 0x80000000, 0, 0x80000000, 0, 0x80000000,
+                    0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000))));
+
+        else
+            return _Substract<_DesiredType_>(_SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(), _Vector);
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Add(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Substract(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Multiply(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Divide(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitNot(_VectorType_ _Vector) noexcept {
+        if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_xor_pd(_Vector, _mm512_set1_pd(-1));
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_xor_si512(_Vector, _mm512_set1_epi32(-1));
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_xor_ps(_Vector, _mm512_set1_ps(-1));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitXor(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_xor_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_xor_si512(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_xor_ps(_Left, _Right);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitAnd(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_and_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_and_si512(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_and_ps(_Left, _Right);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _BitOr(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_or_pd(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_or_si512(_Left, _Right);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_or_ps(_Left, _Right);
+    }
+};
 
 #pragma endregion
 
@@ -377,7 +794,6 @@ static simd_stl_always_inline _VectorType_ _SimdShiftLeftElements(
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
-    typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdShiftRightVector(
     _VectorType_    _Vector,
@@ -390,7 +806,6 @@ simd_stl_always_inline _VectorType_ _SimdShiftRightVector(
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
-    typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdShiftLeftVector(
     _VectorType_    _Vector,

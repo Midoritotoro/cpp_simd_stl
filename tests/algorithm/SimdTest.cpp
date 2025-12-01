@@ -343,35 +343,49 @@ void testMethods() {
     }
 }
 
+template <simd_stl::arch::CpuFeature _Generation_>
+void testArithmetic() {
+    testArithmeticOperations<simd_stl::int8, _Generation_>();
+    testArithmeticOperations<simd_stl::uint8, _Generation_>();
+
+    testArithmeticOperations<simd_stl::int16, _Generation_>();
+    testArithmeticOperations<simd_stl::uint16, _Generation_>();
+
+    testArithmeticOperations<simd_stl::int32, _Generation_>();
+    testArithmeticOperations<simd_stl::uint32, _Generation_>();
+
+    testArithmeticOperations<simd_stl::int64, _Generation_>();
+    testArithmeticOperations<simd_stl::uint64, _Generation_>();
+
+   // testArithmeticOperations<float, _Generation_>();
+   // testArithmeticOperations<double, _Generation_>();
+}
+
+template <simd_stl::arch::CpuFeature _Generation_>
+void testMethods() {
+    testMethods<simd_stl::int8, _Generation_>();
+    testMethods<simd_stl::uint8, _Generation_>();
+
+    testMethods<simd_stl::int16, _Generation_>();
+    testMethods<simd_stl::uint16, _Generation_>();
+
+    testMethods<simd_stl::int32, _Generation_>();
+    testMethods<simd_stl::uint32, _Generation_>();
+
+    testMethods<simd_stl::int64, _Generation_>();
+    testMethods<simd_stl::uint64, _Generation_>();
+
+    testMethods<float, _Generation_>();
+    testMethods<double, _Generation_>();
+}
 
 int main() {
-    testArithmeticOperations<simd_stl::int8, simd_stl::arch::CpuFeature::SSE2>();
-    testArithmeticOperations<simd_stl::uint8, simd_stl::arch::CpuFeature::SSE2>();
-
-    testArithmeticOperations<simd_stl::int16, simd_stl::arch::CpuFeature::SSE2>();
-    testArithmeticOperations<simd_stl::uint16, simd_stl::arch::CpuFeature::SSE2>();
-
-    testArithmeticOperations<simd_stl::int32, simd_stl::arch::CpuFeature::SSE2>();
-    testArithmeticOperations<simd_stl::uint32, simd_stl::arch::CpuFeature::SSE2>();
-
-    testArithmeticOperations<simd_stl::int64, simd_stl::arch::CpuFeature::SSE2>();
-    testArithmeticOperations<simd_stl::uint64, simd_stl::arch::CpuFeature::SSE2>();
-
-
-    testMethods<simd_stl::int8, simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::uint8, simd_stl::arch::CpuFeature::SSSE3>();
-
-    testMethods<simd_stl::int16, simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::uint16, simd_stl::arch::CpuFeature::SSSE3>();
-
-    testMethods<simd_stl::int32, simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::uint32, simd_stl::arch::CpuFeature::SSSE3>();
-
-    testMethods<simd_stl::int64, simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::uint64, simd_stl::arch::CpuFeature::SSSE3>();
-
-    testMethods<float, simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<double, simd_stl::arch::CpuFeature::SSSE3>();
+    testArithmetic<simd_stl::arch::CpuFeature::SSE2>();
+    testArithmetic<simd_stl::arch::CpuFeature::SSE3>();
+    testArithmetic<simd_stl::arch::CpuFeature::SSSE3>();
+    testArithmetic<simd_stl::arch::CpuFeature::SSE41>();
+    testArithmetic<simd_stl::arch::CpuFeature::SSE42>();
+    testArithmetic<simd_stl::arch::CpuFeature::AVX2>();
 
     return 0;
 }

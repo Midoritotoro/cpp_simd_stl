@@ -1,6 +1,7 @@
 ﻿#pragma once 
 
 #include <src/simd_stl/numeric/IntrinBitcast.h>
+#include <simd_stl/math/IntegralTypesConversions.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -21,6 +22,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_,
+    typename            _DesiredType_,
     typename            _MaskType_>
 simd_stl_always_inline _VectorType_ _SimdToVector(_MaskType_ _Mask) noexcept;
 
@@ -94,11 +96,16 @@ template <>
 class _SimdConvertImplementation<arch::CpuFeature::SSSE3, xmm128> :
     public _SimdConvertImplementation<arch::CpuFeature::SSE3, xmm128>
 {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    using _RegisterPolicy               = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
     template <
         typename _VectorType_,
-        typename _MaskType_>
-    static simd_stl_always_inline _VectorType_ _ToVector(_MaskType_ _Mask) noexcept {
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept {
         constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
         if constexpr (_Bits == 2) {
@@ -412,7 +419,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm512_movm_epi16(_Mask));
 
         else if constexpr (_Bits == 16)
-            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi32(_Mask, _mm512_set1_epi32(-1)))
+            return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi32(_Mask, _mm512_set1_epi32(-1)));
 
         else if constexpr (_Bits == 8)
             return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
@@ -492,10 +499,11 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_,
+    typename            _DesiredType_,
     typename            _MaskType_>
 simd_stl_always_inline _VectorType_ _SimdToVector(_MaskType_ _Mask) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
-    return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToVector<_VectorType_>(_Mask);
+    return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToVector<_VectorType_, _DesiredType_>(_Mask);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

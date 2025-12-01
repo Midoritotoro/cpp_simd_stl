@@ -951,13 +951,13 @@ public:
 };
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
-    public _SimdBroadcastImplementation<arch::CpuFeature::AVX512BW, zmm512>
+class _SimdCompareImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
+    public _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VL, zmm512> :
-    public _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+class _SimdCompareImplementation<arch::CpuFeature::AVX512VL, zmm512> :
+    public _SimdCompareImplementation<arch::CpuFeature::AVX512DQ, zmm512>
 {};
 
 #pragma endregion 

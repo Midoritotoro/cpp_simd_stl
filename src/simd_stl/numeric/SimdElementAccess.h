@@ -575,7 +575,7 @@ public:
             const auto _InsertMask  = _SimdLoadUnaligned<_Generation, _RegisterPolicy, _VectorType_>(
                 (_Mask._Array + _Mask._Offset - (_Position & (_Mask._Offset - 1))));
 
-            _Vector = _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, _Broadcasted, _InsertMask)
+            _Vector = _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, _Broadcasted, _InsertMask);
         }
     }
 

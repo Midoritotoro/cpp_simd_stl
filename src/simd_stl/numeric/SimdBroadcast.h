@@ -106,7 +106,7 @@ public:
 
 	template <class _VectorType_>
 	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept {
-		if constexpr (std::is_same_v<_VectorType_, __m256>)
+		if constexpr (std::is_same_v<_VectorType_, __m256i>)
 			return _mm256_setzero_si256();
 
 		else if constexpr (std::is_same_v<_VectorType_, __m256d>)
