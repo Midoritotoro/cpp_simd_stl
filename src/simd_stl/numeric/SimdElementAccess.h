@@ -571,7 +571,7 @@ public:
                 static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
         }
         else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-            return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi32(
+            return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi64(
                 static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
         }
         else {

@@ -89,7 +89,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept {
         if      constexpr (_Is_ps_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_xor_ps(_Vector, _mm_set1_ps(0x80000000)));
+            return _IntrinBitcast<_VectorType_>(_mm_xor_ps(_Vector, _mm_set1_ps(-0.0f)));
 
         else if constexpr (_Is_pd_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_xor_pd(_Vector,
@@ -442,7 +442,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept {
         if      constexpr (_Is_ps_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm256_xor_ps(_IntrinBitcast<__m256>(_Vector), _mm256_set1_ps(0x80000000)));
+            return _IntrinBitcast<_VectorType_>(_mm256_xor_ps(_IntrinBitcast<__m256>(_Vector), _mm256_set1_ps(-0.0f)));
 
         else if constexpr (_Is_pd_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm256_xor_pd(_IntrinBitcast<__m256d>(_Vector),
@@ -711,7 +711,7 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept {
         if      constexpr (_Is_ps_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm512_xor_ps(_Vector, _mm512_set1_ps(0x80000000)));
+            return _IntrinBitcast<_VectorType_>(_mm512_xor_ps(_Vector, _mm512_set1_ps(-0.0f)));
 
         else if constexpr (_Is_pd_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm512_xor_pd(_Vector,

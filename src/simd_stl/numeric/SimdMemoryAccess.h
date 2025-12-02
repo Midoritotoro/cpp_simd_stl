@@ -844,9 +844,14 @@ public:
 
             _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Source, _Vector);
 
+            auto _Start = _Where; 
+
             for (auto _Index = 0; _Index < _Length; ++_Index)
-                if ((_Mask >> _Index) & 1)
+                if (!((_Mask >> _Index) & 1))
                     *_Where++ = _Source[_Index];
+
+            const auto _Bytes = (_Where - _Start);
+            std::memcpy(_Where, _Source + _Bytes, sizeof(_VectorType_) - _Bytes);
         }
 
         return _Where;
@@ -876,13 +881,19 @@ public:
         }
         else {
             constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
             _DesiredType_ _Source[_Length];
 
             _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Source, _Vector);
 
+            auto _Start = _Where; 
+
             for (auto _Index = 0; _Index < _Length; ++_Index)
-                if ((_Mask >> _Index) & 1)
+                if (!((_Mask >> _Index) & 1))
                     *_Where++ = _Source[_Index];
+
+            const auto _Bytes = (_Where - _Start);
+            std::memcpy(_Where, _Source + _Bytes, sizeof(_VectorType_) - _Bytes);
         }
 
         return _Where;
@@ -1016,7 +1027,7 @@ public:
         
         else
             _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _LoadUnaligned<_VectorType_>(_Where), _Vector, _Mask));
+                _Vector, _LoadUnaligned<_VectorType_>(_Where), _Mask));
     }
     
     template <
@@ -1035,7 +1046,7 @@ public:
 
         else
             _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _LoadAligned<_VectorType_>(_Where), _Vector, _Mask));
+                _Vector, _LoadAligned<_VectorType_>(_Where), _Mask));
     }
 
     template <
@@ -1053,8 +1064,8 @@ public:
         
         else
             return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
-                _LoadUnaligned<_VectorType_>(_Where), _Mask);
+                _LoadUnaligned<_VectorType_>(_Where),
+                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(), _Mask);
     }
 
     template <
@@ -1072,61 +1083,8 @@ public:
         
         else
             return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
-                _LoadAligned<_VectorType_>(_Where), _Mask);
-    }
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* _CompressStoreLowerHalf(
-        _DesiredType_*                  _Where,
-        _Simd_mask_type<_DesiredType_>  _Mask,
-        _VectorType_                    _Vector) noexcept
-    {
-        if constexpr (sizeof(_DesiredType_) == 8) {
-            _mm512_mask_compressstoreu_epi64(_Where, _Mask & 0xFu, _IntrinBitcast<__m512i>(_Vector));
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
-            _mm512_mask_compressstoreu_epi32(_Where, _Mask & 0xFFu, _IntrinBitcast<__m512i>(_Vector));
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
-        }
-        else {
-            constexpr auto _Length = sizeof(__m256i) / sizeof(_DesiredType_);
-            _DesiredType_ _Source[_Length];
-
-            _SimdStoreUnaligned<arch::CpuFeature::AVX2, _RegisterPolicy>(_Source, _IntrinBitcast<__m256i>(_Vector));
-
-            for (auto _Index = 0; _Index < _Length; ++_Index)
-                if ((_Mask >> _Index) & 1)
-                    *_Where++ = _Source[_Index];
-        }
-
-        return _Where;
-    }
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* _CompressStoreUpperHalf(
-        _DesiredType_*                  _Where,
-        _Simd_mask_type<_DesiredType_>  _Mask,
-        _VectorType_                    _Vector) noexcept
-    {
-        if constexpr (sizeof(_DesiredType_) == 8) {
-            _mm512_mask_compress_epi64(_mm512_loadu_si512(_Where), (_Mask >> 4) & 0xFu, _IntrinBitcast<__m512i>(_Vector));
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
-        }
-        else if constexpr (sizeof(_DesiredType_) == 4) {
-            _mm512_mask_compressstoreu_epi32(_Where, (_Mask >> 8) & 0xFFu, _IntrinBitcast<__m512i>(_Vector));
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
-        }
-        else {
-
-        }
-
-        return _Where;
+                _LoadAligned<_VectorType_>(_Where),
+                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(), _Mask);
     }
 
     template <
@@ -1138,23 +1096,30 @@ public:
         _VectorType_                        _Vector) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 8) {
-            _mm512_mask_compressstoreu_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+            const auto _Compressed = _mm512_mask_compress_epi64(_IntrinBitcast<__m512i>(_Vector), ~_Mask, _IntrinBitcast<__m512i>(_Vector));
+            _mm512_storeu_si512(_Where, _Compressed);
+
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
-            _mm512_mask_compressstoreu_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+            const auto _Compressed = _mm512_mask_compress_epi32(_IntrinBitcast<__m512i>(_Vector), ~_Mask, _IntrinBitcast<__m512i>(_Vector));
+            _mm512_storeu_si512(_Where, _Compressed);
+
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
         }
         else {
-            constexpr auto _Length = sizeof(__m256i) / sizeof(_DesiredType_);
+            constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
             _DesiredType_ _Source[_Length];
 
-            _SimdStoreUnaligned<arch::CpuFeature::AVX2, _RegisterPolicy>(_Source,
-                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1));
+            _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Source, _Vector);
+            auto _Start = _Where;
 
             for (auto _Index = 0; _Index < _Length; ++_Index)
-                if ((_Mask >> _Index) & 1)
+                if (!((_Mask >> _Index) & 1))
                     *_Where++ = _Source[_Index];
+
+            const auto _Bytes = (_Where - _Start);
+            std::memcpy(_Where, _Source + _Bytes, sizeof(_VectorType_) - _Bytes);
         }
 
         return _Where;
@@ -1385,36 +1350,6 @@ simd_stl_always_inline _DesiredType_* _SimdCompressStoreAligned(
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreAligned(_Where, _Mask, _Vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-static simd_stl_always_inline _DesiredType_* _SimdCompressStoreLowerHalf(
-    _DesiredType_*                          _Where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    _Mask,
-    const _VectorType_                      _Vector) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreLowerHalf(_Where, _Mask, _Vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-static simd_stl_always_inline _DesiredType_* _SimdCompressStoreUpperHalf(
-    _DesiredType_*                      _Where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_>    _Mask,
-    const _VectorType_                  _Vector) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreUpperHalf(_Where, _Mask, _Vector);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

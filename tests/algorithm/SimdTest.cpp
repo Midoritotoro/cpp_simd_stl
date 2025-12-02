@@ -253,7 +253,7 @@ void testMethods() {
 
         Simd loaded_unaligned = Simd::maskLoadUnaligned(src, mask);
         for (size_t i = 0; i < N; ++i) {
-            if (mask & (typename Simd::mask_type(1) << i))
+            if ((mask >> i) & 1)
                 Assert(loaded_unaligned.extract<T>(i) == src[i]);
             else
                 Assert(loaded_unaligned.extract<T>(i) == T(0));
@@ -262,7 +262,7 @@ void testMethods() {
         // --- maskLoadAligned ---
         Simd loaded_aligned = Simd::maskLoadAligned(src, mask);
         for (size_t i = 0; i < N; ++i) {
-            if (mask & (typename Simd::mask_type(1) << i))
+            if ((mask >> i) & 1)
                 Assert(loaded_aligned.extract<T>(i) == src[i]);
             else
                 Assert(loaded_aligned.extract<T>(i) == T(0));
@@ -272,7 +272,7 @@ void testMethods() {
         Simd v(77);
         v.maskStoreUnaligned(dst, mask);
         for (size_t i = 0; i < N; ++i) {
-            if (mask & (typename Simd::mask_type(1) << i))
+            if ((mask >> i) & 1)
                 Assert(dst[i] == T(77));
             else
                 Assert(dst[i] == T(100 + i)); // не изменён
@@ -336,17 +336,17 @@ void testArithmetic() {
     testArithmeticOperations<simd_stl::int64, _Generation_>();
     testArithmeticOperations<simd_stl::uint64, _Generation_>();
 
-   // testArithmeticOperations<float, _Generation_>();
-   // testArithmeticOperations<double, _Generation_>();
+    testArithmeticOperations<float, _Generation_>();
+    testArithmeticOperations<double, _Generation_>();
 }
 
 template <simd_stl::arch::CpuFeature _Generation_>
 void testMethods() {
-    //testMethods<simd_stl::int8, _Generation_>();
-    //testMethods<simd_stl::uint8, _Generation_>();
+    testMethods<simd_stl::int8, _Generation_>();
+    testMethods<simd_stl::uint8, _Generation_>();
 
-    //testMethods<simd_stl::int16, _Generation_>();
-    //testMethods<simd_stl::uint16, _Generation_>();
+    testMethods<simd_stl::int16, _Generation_>();
+    testMethods<simd_stl::uint16, _Generation_>();
 
     testMethods<simd_stl::int32, _Generation_>();
     testMethods<simd_stl::uint32, _Generation_>();
@@ -375,9 +375,11 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::SSSE3>();
     testMethods<simd_stl::arch::CpuFeature::SSE41>();
     testMethods<simd_stl::arch::CpuFeature::SSE42>();
-
     testMethods<simd_stl::arch::CpuFeature::AVX2>();
     testMethods<simd_stl::arch::CpuFeature::AVX512F>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
 
     return 0;
 }

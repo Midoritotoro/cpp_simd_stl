@@ -291,9 +291,11 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi16(_Broadcasted, _mm256_set1_epi16(1)));
         }
         else if constexpr (_Bits == 32) {
+            const auto _VectorMask = _mm256_setr_epi32(_Mask, 0, 0, 0, _Mask, 0, 0, 0);
+
             const auto _Select      = _mm256_set1_epi64x(0x8040201008040201ull);
-            const auto _Shuffled    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm_cvtsi32_si128(_Mask)),
-                _mm256_set_epi64x(0x0101010101010101ll, 0x0101010101010101ll, 0, 0));
+            const auto _Shuffled    = _mm256_shuffle_epi8(_VectorMask,
+                _mm256_set_epi64x(0x0101010101010101ll, 0, 0x0101010101010101ll, 0));
 
             return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi8(_mm256_and_si256(_Shuffled, _Select), _Select));
         }
@@ -362,13 +364,13 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
         }
         else {
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_MaskType) >> 1), 1>()>::Unsigned;
 
             constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
             constexpr auto _Shift = (sizeof(_MaskType) << 2);
 
-            const auto _Low = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>(_Mask & _Maximum);
-            const auto _High = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i>((_Mask >> _Shift) & _Maximum);
+            const auto _Low = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>(_Mask & _Maximum);
+            const auto _High = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>((_Mask >> _Shift));
 
             return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
         }
