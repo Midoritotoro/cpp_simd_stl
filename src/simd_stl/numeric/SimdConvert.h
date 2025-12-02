@@ -78,7 +78,7 @@ public:
         }
         else if constexpr (_Bits == 16) {
             const auto _Broadcasted = _mm_set_epi8((_Mask >> 15) & 1, (_Mask >> 14) & 1, (_Mask >> 13) & 1, (_Mask >> 12) & 1,
-                (_Mask >> 11) & 1, (_Mask >> 10) & 1, (_Mask >> 9) & 1, (_Mask >> 8), (_Mask >> 7) & 1, 
+                (_Mask >> 11) & 1, (_Mask >> 10) & 1, (_Mask >> 9) & 1, (_Mask >> 8) & 1, (_Mask >> 7) & 1, 
                 (_Mask >> 6) & 1, (_Mask >> 5) & 1, (_Mask >> 4) & 1,
                 (_Mask >> 3) & 1, (_Mask >> 2) & 1, (_Mask >> 1) & 1, _Mask & 1);
 
@@ -223,11 +223,11 @@ public:
             const auto _Select      = _mm_set1_epi64x(0x8040201008040201ull);
             const auto _Shuffle     = _mm_set_epi64x(0x0101010101010101ll, 0);
 
-            const auto _ShuffledLow     = _mm_shuffle_epi8(_mm_cvtsi32_si128(_Mask & 0xFF), _Shuffle);
-            const auto _ShuffledHigh    = _mm_shuffle_epi8(_mm_cvtsi32_si128((_Mask >> 16) & 0xFF), _Shuffle);
+            const auto _ShuffledLow     = _mm_shuffle_epi8(_mm_cvtsi32_si128(_Mask & 0xFFFF), _Shuffle);
+            const auto _ShuffledHigh    = _mm_shuffle_epi8(_mm_cvtsi32_si128((_Mask >> 16) & 0xFFFF), _Shuffle);
 
             const auto _Low = _mm_cmpeq_epi8(_mm_and_si128(_ShuffledLow, _Select), _Select);
-            const auto _High = _mm_cmpeq_epi8(_mm_and_si128(_ShuffledLow, _ShuffledHigh), _Select);
+            const auto _High = _mm_cmpeq_epi8(_mm_and_si128(_ShuffledHigh, _Select), _Select);
 
             auto _Result = _IntrinBitcast<__m256i>(_Low);
             _Result = _mm256_insertf128_si256(_Result, _High, 1);

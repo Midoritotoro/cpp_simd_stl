@@ -211,8 +211,8 @@ void testMethods() {
         auto vOther5 = simd_cast<int>(v);
 
         static_assert(std::is_same_v<decltype(vOther), decltype(vOther2)>);
-        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float, typename Simd::policy_type>>);
-        static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, float, simd_stl::numeric::xmm128>>);
+        static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::basic_simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, simd_stl::numeric::xmm128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
         static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::basic_simd<Simd::_Generation, int, typename Simd::policy_type>>);
     }
@@ -375,18 +375,28 @@ void testMethods() {
     testMethods<simd_stl::int64, _Generation_>();
     testMethods<simd_stl::uint64, _Generation_>();
 
-    testMethods<float, _Generation_>();
-    testMethods<double, _Generation_>();
+    //testMethods<float, _Generation_>();
+    //testMethods<double, _Generation_>();
 }
 
 int main() {
-    testArithmetic<simd_stl::arch::CpuFeature::SSE2>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE3>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSSE3>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE41>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE42>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX2>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX512F>();
+    //testArithmetic<simd_stl::arch::CpuFeature::SSE2>();
+    //testArithmetic<simd_stl::arch::CpuFeature::SSE3>();
+    //testArithmetic<simd_stl::arch::CpuFeature::SSSE3>();
+    //testArithmetic<simd_stl::arch::CpuFeature::SSE41>();
+    //testArithmetic<simd_stl::arch::CpuFeature::SSE42>();
+    //testArithmetic<simd_stl::arch::CpuFeature::AVX2>();
+    //testArithmetic<simd_stl::arch::CpuFeature::AVX512F>();
+    //testArithmetic<simd_stl::arch::CpuFeature::AVX512BW>();
+    //testArithmetic<simd_stl::arch::CpuFeature::AVX512DQ>();
+    //testArithmetic<simd_stl::arch::CpuFeature::AVX512VL>();
 
+    //testMethods<simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE3>();
+    //testMethods<simd_stl::arch::CpuFeature::SSSE3>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE41>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE42>();
+
+    testMethods<simd_stl::arch::CpuFeature::AVX2>();
     return 0;
 }

@@ -154,13 +154,13 @@ public:
 
 	template <class _VectorType_>
 	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept {
-		if constexpr (std::is_same_v<_VectorType_, __m256>)
+		if constexpr (std::is_same_v<_VectorType_, __m512i>)
 			return _mm512_setzero_si512();
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256d>)
+		else if constexpr (std::is_same_v<_VectorType_, __m512d>)
 			return _mm512_setzero_pd();
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256>)
+		else if constexpr (std::is_same_v<_VectorType_, __m512>)
 			return _mm512_setzero_ps();
 	}
 };

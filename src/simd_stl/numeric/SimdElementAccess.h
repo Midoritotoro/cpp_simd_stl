@@ -197,6 +197,8 @@ template <>
 class _SimdElementAccess<arch::CpuFeature::SSE41, xmm128> :
     public _SimdElementAccess<arch::CpuFeature::SSSE3, xmm128>
 {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    using _RegisterPolicy               = xmm128;
 public:
     template <
         typename _DesiredType_,
@@ -264,22 +266,6 @@ public:
                     break;
             }
         }
-        else if constexpr (_Is_ps_v<_DesiredType_>) {
-            switch (_Position) {
-                case 0: 
-                    _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_ps(_IntrinBitcast<__m128i>(_Vector), _Value, 0)); 
-                    break;
-                case 1: 
-                    _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_ps(_IntrinBitcast<__m128i>(_Vector), _Value, 1));
-                    break;
-                case 2:
-                    _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_ps(_IntrinBitcast<__m128i>(_Vector), _Value, 2)); 
-                    break;
-                default: 
-                    _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_ps(_IntrinBitcast<__m128i>(_Vector), _Value, 3)); 
-                    break;
-            }
-        }
         else {
             return _SimdInsert<arch::CpuFeature::SSE2, _RegisterPolicy>(_Vector, _Position, _Value);
         }
@@ -315,13 +301,13 @@ public:
         else if constexpr (_Is_ps_v<_DesiredType_>) {
             switch (_Where) {
                 case 0: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128i>(_Vector), 0));
+                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 0));
                 case 1: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128i>(_Vector), 1));
+                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 1));
                 case 2: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128i>(_Vector), 2));
+                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 2));
                 default:
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128i>(_Vector), 3));
+                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 3));
             }
         }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
@@ -345,7 +331,7 @@ public:
             }
         }
         else {
-            return _SimdExtract<arch::CpuFeature::SSE2, _RegisterPolicy>(_Vector, _Where);
+            return _SimdExtract<arch::CpuFeature::SSE2, _RegisterPolicy, _DesiredType_>(_Vector, _Where);
         }
     }
 };
@@ -490,33 +476,33 @@ public:
         if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
             switch (_Where) {
                 case 0:
-                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 0));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 0));
                 case 1: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 1));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 1));
                 case 2:
-                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 2));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 2));
                 case 3:
-                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 3));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 3));
             }
         }
         else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
             switch (_Where) {
                 case 0: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 0));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 0));
                 case 1:
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 1));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 1));
                 case 2: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 2));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 2));
                 case 3: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 3));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 3));
                 case 4: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 4));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 4));
                 case 5: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 5));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 5));
                 case 6: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 6));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 6));
                 case 7: 
-                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 7));
+                    return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 7));
             }
         }
         else {

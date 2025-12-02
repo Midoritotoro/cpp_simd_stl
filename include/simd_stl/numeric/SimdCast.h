@@ -59,7 +59,7 @@ template <
     class               _RebindType_,
     class               _VectorType_>
 struct _Rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_, true, false> {
-    using type = basic_simd<_ToSimdGeneration_, _RebindType_, typename _VectorType_::policy_type>;
+    using type = basic_simd<_ToSimdGeneration_, _RebindType_, _DefaultRegisterPolicy<_ToSimdGeneration_>>;
 };
 
 template <

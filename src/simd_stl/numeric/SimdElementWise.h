@@ -205,7 +205,7 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_, _DesiredType_>(_Mask));
     }
 
     template <

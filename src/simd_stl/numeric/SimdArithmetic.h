@@ -616,7 +616,22 @@ public:
         _VectorType_    _Vector,
         uint32          _ByteShift) noexcept
     {
+        auto _Low = _IntrinBitcast<__m256i>(_Vector);
+        auto _High = _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1);
 
+        if (_ByteShift >= 32) {
+            _Low = _mm256_srli_si256(_High, _ByteShift - 32);
+            _High = _mm256_setzero_si256();
+        }
+        else {
+            const auto _LowYmmShift = _mm256_srli_si256(_Low, _ByteShift);
+            const auto _Shifted = _mm256_alignr_epi8(_High, _Low, 32 - _ByteShift);
+
+            _High = _Shifted;
+            _Low = _LowYmmShift;
+        }
+
+        return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
     }
 
     template <
@@ -626,7 +641,21 @@ public:
         _VectorType_    _Vector,
         uint32          _ByteShift) noexcept
     {
+        auto _Low = _IntrinBitcast<__m256i>(_Vector);
+        auto _High = _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1);
 
+        if (_ByteShift >= 32) {
+            
+        }
+        else {
+            const auto _LowYmmShift = _mm256_srli_si256(_Low, _ByteShift);
+            const auto _Shifted = _mm256_alignr_epi8(_High, _Low, 32 - _ByteShift);
+
+            _High = _Shifted;
+            _Low = _LowYmmShift;
+        }
+
+        return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
     }
 
     template <
@@ -636,7 +665,21 @@ public:
         _VectorType_    _Vector,
         uint32          _BitShift) noexcept
     {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            return _IntrinBitcast<_VectorType_>(_mm512_srli_epi64(_IntrinBitcast<__m512i>(_Vector), _BitShift));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            return _IntrinBitcast<_VectorType_>(_mm512_srli_epi32(_IntrinBitcast<__m512i>(_Vector), _BitShift));
+        }
+        else {
+            const auto _Low = _SimdShiftRightElements<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _IntrinBitcast<__m256i>(_Vector), _BitShift);
 
+            const auto _High = _SimdShiftRightElements<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1), _BitShift);
+
+            return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+        }
     }
 
     template <
@@ -646,7 +689,21 @@ public:
         _VectorType_    _Vector,
         uint32          _BitShift) noexcept
     {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            return _IntrinBitcast<_VectorType_>(_mm512_slli_epi64(_IntrinBitcast<__m512i>(_Vector), _BitShift));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            return _IntrinBitcast<_VectorType_>(_mm512_slli_epi32(_IntrinBitcast<__m512i>(_Vector), _BitShift));
+        }
+        else {
+            const auto _Low = _SimdShiftLeftElements<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _IntrinBitcast<__m256i>(_Vector), _BitShift);
 
+            const auto _High = _SimdShiftLeftElements<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1), _BitShift);
+
+            return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+        }
     }
 
     template <
@@ -672,7 +729,28 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
+        if constexpr (_Is_pd_v<_DesiredType_>) { 
+            return _IntrinBitcast<_VectorType_>(_mm512_add_pd(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_add_ps(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right)));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_add_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        }
+        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_add_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        }
+        else {
+            const auto _Low = _SimdAdd<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+            
+            const auto _High = _SimdAdd<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Left), 1),
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Right), 1));
 
+            return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+        }
     }
 
     template <
@@ -682,7 +760,28 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
+        if constexpr (_Is_pd_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_sub_pd(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_sub_ps(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right)));
+        }
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_sub_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        }
+        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm512_sub_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        }
+        else {
+            const auto _Low = _SimdSubstract<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
 
+            const auto _High = _SimdSubstract<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Left), 1),
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Right), 1));
+
+            return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(_IntrinBitcast<__m512i>(_Low), _High, 1));
+        }
     }
 
     template <
@@ -692,7 +791,7 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
-
+        return _Left;
     }
 
     template <
@@ -702,7 +801,7 @@ public:
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
     {
-
+        return _Left;
     }
 
     template <typename _VectorType_>
@@ -762,6 +861,21 @@ public:
             return _mm512_or_ps(_Left, _Right);
     }
 };
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>
+{};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512DQ, zmm512> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>
+{};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VL, zmm512> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512DQ, zmm512>
+{};
 
 #pragma endregion
 

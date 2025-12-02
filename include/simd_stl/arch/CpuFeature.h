@@ -54,7 +54,7 @@ struct Contains {
 
 #define __xmm_features arch::CpuFeature::SSE, arch::CpuFeature::SSE2, arch::CpuFeature::SSE3, arch::CpuFeature::SSSE3, arch::CpuFeature::SSE41, arch::CpuFeature::SSE42
 #define __ymm_features arch::CpuFeature::AVX, arch::CpuFeature::AVX2
-#define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512CD, arch::CpuFeature::AVX512ER, arch::CpuFeature::AVX512PF, arch::CpuFeature::AVX512VL
+#define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512CD, arch::CpuFeature::AVX512ER, arch::CpuFeature::AVX512PF, arch::CpuFeature::AVX512VL, arch::CpuFeature::AVX512DQ
 
 template <arch::CpuFeature _SimdGeneration_> 
 constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, __xmm_features>::value;
