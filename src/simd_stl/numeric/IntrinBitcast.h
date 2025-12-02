@@ -93,7 +93,7 @@ static simd_stl_always_inline _ToVector_ _IntrinBitcast(_FromVector_ _From) noex
     // Ymm to xmm casts
 
     else if constexpr (std::is_same_v<_RawFrom_, __m256> && std::is_same_v<_RawTo_, __m128>)
-        return _mm256_zextps256_ps128(_From);
+        return _mm256_castps256_ps128(_From);
 
     else if constexpr (std::is_same_v<_RawFrom_, __m256i> && std::is_same_v<_RawTo_, __m128>)
         return _mm_castsi128_ps(_mm256_castsi256_si128(_From));

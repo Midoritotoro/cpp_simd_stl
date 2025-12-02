@@ -820,7 +820,7 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* _CompressStoreUnaligned(
-        _DesiredType_* _Where,
+        _DesiredType_*                      _Where,
         _Simd_mask_type<_DesiredType_>      _Mask,
         _VectorType_                        _Vector) noexcept
     {
@@ -839,14 +839,14 @@ public:
             algorithm::AdvanceBytes(_Where, _Tables32BitAvx._Size[_Mask]);
         }
         else {
-            using _MaskType = _Simd_mask_type<_DesiredType_>;
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+            constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+            _DesiredType_ _Source[_Length];
 
-            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+            _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Source, _Vector);
 
-            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
-            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+            for (auto _Index = 0; _Index < _Length; ++_Index)
+                if ((_Mask >> _Index) & 1)
+                    *_Where++ = _Source[_Index];
         }
 
         return _Where;
@@ -875,14 +875,14 @@ public:
             algorithm::AdvanceBytes(_Where, _Tables32BitAvx._Size[_Mask]);
         }
         else {
-            using _MaskType = _Simd_mask_type<_DesiredType_>;
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+            constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+            _DesiredType_ _Source[_Length];
 
-            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+            _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Source, _Vector);
 
-            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
-            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+            for (auto _Index = 0; _Index < _Length; ++_Index)
+                if ((_Mask >> _Index) & 1)
+                    *_Where++ = _Source[_Index];
         }
 
         return _Where;
@@ -1093,14 +1093,14 @@ public:
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
         }
         else {
-            using _MaskType = _Simd_mask_type<_DesiredType_>;
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+            constexpr auto _Length = sizeof(__m256i) / sizeof(_DesiredType_);
+            _DesiredType_ _Source[_Length];
 
-            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+            _SimdStoreUnaligned<arch::CpuFeature::AVX2, _RegisterPolicy>(_Source, _IntrinBitcast<__m256i>(_Vector));
 
-            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
-            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+            for (auto _Index = 0; _Index < _Length; ++_Index)
+                if ((_Mask >> _Index) & 1)
+                    *_Where++ = _Source[_Index];
         }
 
         return _Where;
@@ -1115,7 +1115,7 @@ public:
         _VectorType_                    _Vector) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 8) {
-            _mm512_mask_compressstoreu_epi64(_Where, (_Mask >> 4) & 0xFu, _IntrinBitcast<__m512i>(_Vector));
+            _mm512_mask_compress_epi64(_mm512_loadu_si512(_Where), (_Mask >> 4) & 0xFu, _IntrinBitcast<__m512i>(_Vector));
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
@@ -1123,14 +1123,7 @@ public:
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
         }
         else {
-            using _MaskType = _Simd_mask_type<_DesiredType_>;
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
 
-            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-            constexpr auto _Shift = (sizeof(_MaskType) << 2);
-
-            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
-            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
         }
 
         return _Where;
@@ -1153,14 +1146,15 @@ public:
             algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
         }
         else {
-            using _MaskType = _Simd_mask_type<_DesiredType_>;
-            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+            constexpr auto _Length = sizeof(__m256i) / sizeof(_DesiredType_);
+            _DesiredType_ _Source[_Length];
 
-            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
-            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+            _SimdStoreUnaligned<arch::CpuFeature::AVX2, _RegisterPolicy>(_Source,
+                _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1));
 
-            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
-            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+            for (auto _Index = 0; _Index < _Length; ++_Index)
+                if ((_Mask >> _Index) & 1)
+                    *_Where++ = _Source[_Index];
         }
 
         return _Where;

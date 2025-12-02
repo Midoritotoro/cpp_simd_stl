@@ -278,7 +278,7 @@ public:
         _VectorType_    _Vector,
         const uint8     _Where) noexcept
     {
-        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
             switch (_Where) {
                 case 0: 
                     return static_cast<_DesiredType_>(_mm_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 0));
@@ -296,18 +296,6 @@ public:
                     return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 2));
                 default: 
                     return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 3));
-            }
-        }
-        else if constexpr (_Is_ps_v<_DesiredType_>) {
-            switch (_Where) {
-                case 0: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 0));
-                case 1: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 1));
-                case 2: 
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 2));
-                default:
-                    return static_cast<_DesiredType_>(_mm_extract_ps(_IntrinBitcast<__m128>(_Vector), 3));
             }
         }
         else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
@@ -407,7 +395,7 @@ public:
                     break;
             }
         }
-        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
             auto _QwordValue = memory::pointerToIntegral(_Value);
 
             switch (_Position) {
@@ -473,7 +461,7 @@ public:
         _VectorType_    _Vector,
         const uint8     _Where) noexcept
     {
-        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
             switch (_Where) {
                 case 0:
                     return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 0));
