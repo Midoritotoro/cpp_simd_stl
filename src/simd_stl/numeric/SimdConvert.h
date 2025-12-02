@@ -314,10 +314,9 @@ class _SimdConvertImplementation<arch::CpuFeature::AVX512F, zmm512>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 
     template <
-        class _Type_,
-        _Type_ _First_,
-        _Type_ _Second_>
-    static constexpr _Type_ _Max() noexcept {
+        int32 _First_,
+        int32 _Second_>
+    static constexpr int32 _Max() noexcept {
         return (_First_ > _Second_) ? _First_ : _Second_;
     }
 public:
@@ -363,7 +362,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
         }
         else {
-            using _HalfType = IntegerForSize<_Max<char, (sizeof(char) >> 1), 1>()>::Unsigned;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
 
             constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
             constexpr auto _Shift = (sizeof(_MaskType) << 2);

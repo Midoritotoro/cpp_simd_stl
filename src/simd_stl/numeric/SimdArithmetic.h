@@ -609,7 +609,7 @@ class _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512> {
     static constexpr auto _Generation = arch::CpuFeature::AVX512F;
     using _RegisterPolicy = zmm512;
 public:
-    /*template <
+    template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _ShiftRightVector(
@@ -627,7 +627,7 @@ public:
         uint32          _ByteShift) noexcept
     {
 
-    }*/
+    }
 
     template <
         typename _DesiredType_,

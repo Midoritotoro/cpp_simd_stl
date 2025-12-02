@@ -386,6 +386,7 @@ int main() {
     testArithmetic<simd_stl::arch::CpuFeature::SSE41>();
     testArithmetic<simd_stl::arch::CpuFeature::SSE42>();
     testArithmetic<simd_stl::arch::CpuFeature::AVX2>();
+    testArithmetic<simd_stl::arch::CpuFeature::AVX512F>();
 
     return 0;
 }

@@ -13,6 +13,28 @@ template <
     class               _RegisterPolicy_>
 class _SimdMemoryAccess;
 
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_* _SimdCompressStoreUnaligned(
+    _DesiredType_* _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+    _DesiredType_, _RegisterPolicy_>    _Mask,
+    _VectorType_                        _Vector) noexcept;
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_* _SimdCompressStoreAligned(
+    _DesiredType_*                          _Where,
+    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    _Mask,
+    const _VectorType_                      _Vector) noexcept;
+
 #pragma region Sse2-Sse4.2 memory access 
 
 template <>
@@ -514,6 +536,13 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX, numeric::ymm256>
 
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <
+        int32 _First_,
+        int32 _Second_>
+    static constexpr int32 _Max() noexcept {
+        return (_First_ > _Second_) ? _First_ : _Second_;
+    }
 public:
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
@@ -537,6 +566,10 @@ public:
         _VectorType_    _Vector) noexcept 
     {
         _mm256_stream_si256(reinterpret_cast<__m256i*>(_Where), _IntrinBitcast<__m256i>(_Vector));
+    }
+
+    static simd_stl_always_inline void _StreamingFence() noexcept {
+        return _mm_sfence();
     }
 
     template <typename _VectorType_>
@@ -608,7 +641,6 @@ public:
         else if constexpr (std::is_same_v<_VectorType_, __m256>)
             return _mm256_store_ps(reinterpret_cast<float*>(_Where), _Vector);
     }
-
 
     template <
         typename _DesiredType_,
@@ -714,7 +746,8 @@ public:
         _Simd_mask_type<_DesiredType_>  _Mask,
         _VectorType_                    _Vector) noexcept
     {
-
+        return _SimdCompressStoreUnaligned<arch::CpuFeature::SSE42, xmm128, _DesiredType_>(
+            _Where, _Mask, _IntrinBitcast<__m128i>(_Vector));
     }
     
     template <
@@ -725,6 +758,8 @@ public:
         _Simd_mask_type<_DesiredType_>  _Mask,
         _VectorType_                    _Vector) noexcept
     {
+        return _SimdCompressStoreUnaligned<arch::CpuFeature::SSE42, xmm128, _DesiredType_>(_Where, _Mask,
+            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1));
     }
 
     template <
@@ -734,7 +769,18 @@ public:
         _DesiredType_*                      _Where,
         _Simd_mask_type<_DesiredType_>      _Mask,
         _VectorType_                        _Vector) noexcept
-    {}
+    {
+        using _MaskType = _Simd_mask_type<_DesiredType_>;
+        using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+        constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+        constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+        _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+        _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+
+        return _Where;
+    }
 
     template <
         typename _DesiredType_,
@@ -743,13 +789,387 @@ public:
         _DesiredType_*                      _Where,
         _Simd_mask_type<_DesiredType_>      _Mask,
         _VectorType_                        _Vector) noexcept
-    {}
+    {
+        return _CompressStoreUnaligned<_DesiredType_>(_Where, _Mask, _Vector);
+    }
 };
 
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::AVX2, numeric::ymm256>:
     public _SimdMemoryAccess<arch::CpuFeature::AVX, numeric::ymm256>
-{};
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
+    using _RegisterPolicy               = numeric::ymm256;
+
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _NonTemporalLoad(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm256_stream_load_si256(reinterpret_cast<const __m256i*>(_Where)));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreUnaligned(
+        _DesiredType_* _Where,
+        _Simd_mask_type<_DesiredType_>      _Mask,
+        _VectorType_                        _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            const auto _Shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(_Tables64BitAvx._Shuffle[_Mask]));
+            const auto _Destination = _mm256_permutevar8x32_epi32(_IntrinBitcast<__m256i>(_Vector), _Shuffle);
+
+            _mm256_storeu_si256(reinterpret_cast<__m256i*>(_Where), _Destination);
+            algorithm::AdvanceBytes(_Where, _Tables64BitAvx._Size[_Mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            const auto _Shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(_Tables32BitAvx._Shuffle[_Mask]));
+            const auto _Destination = _mm256_permutevar8x32_epi32(_IntrinBitcast<__m256i>(_Vector), _Shuffle);
+
+            _mm256_storeu_si256(reinterpret_cast<__m256i*>(_Where), _Destination);
+            algorithm::AdvanceBytes(_Where, _Tables32BitAvx._Size[_Mask]);
+        }
+        else {
+            using _MaskType = _Simd_mask_type<_DesiredType_>;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+        }
+
+        return _Where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreAligned(
+        _DesiredType_*                      _Where,
+        _Simd_mask_type<_DesiredType_>      _Mask,
+        _VectorType_                        _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            const auto _Shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(_Tables64BitAvx._Shuffle[_Mask]));
+            const auto _Destination = _mm256_permutevar8x32_epi32(_IntrinBitcast<__m256i>(_Vector), _Shuffle);
+
+            _mm256_store_si256(reinterpret_cast<__m256i*>(_Where), _Destination);
+            algorithm::AdvanceBytes(_Where, _Tables64BitAvx._Size[_Mask]);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            const auto _Shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(_Tables32BitAvx._Shuffle[_Mask]));
+            const auto _Destination = _mm256_permutevar8x32_epi32(_IntrinBitcast<__m256i>(_Vector), _Shuffle);
+
+            _mm256_store_si256(reinterpret_cast<__m256i*>(_Where), _Destination);
+            algorithm::AdvanceBytes(_Where, _Tables32BitAvx._Size[_Mask]);
+        }
+        else {
+            using _MaskType = _Simd_mask_type<_DesiredType_>;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+        }
+
+        return _Where;
+    }
+};
+
+#pragma endregion
+
+#pragma region Avx512 memory access 
+
+template <>
+class _SimdMemoryAccess<arch::CpuFeature::AVX512F, zmm512>
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy               = zmm512;
+
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm256_lddqu_si256(reinterpret_cast<const __m256i*>(_Where)));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadLowerHalf(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm512_inserti64x4(
+            _mm512_setzero_si512(), _mm256_lddqu_si256(reinterpret_cast<const __m256i*>(_Where)), 1));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _NonTemporalLoad(const void* _Where) noexcept {
+        return _IntrinBitcast<_VectorType_>(_mm512_stream_load_si512(_Where));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void _NonTemporalStore(
+        void* _Where,
+        _VectorType_    _Vector) noexcept
+    {
+        _mm512_stream_si512(_Where, _IntrinBitcast<__m512i>(_Vector));
+    }
+
+    static simd_stl_always_inline void _StreamingFence() noexcept {
+        return _mm_sfence();
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadUnaligned(const void* _Where) noexcept {
+        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_loadu_si512(_Where);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_loadu_pd(_Where);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_loadu_ps(_Where);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _LoadAligned(const void* _Where) noexcept {
+        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_load_si512(_Where);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_load_pd(_Where);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_load_ps(_Where);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void _StoreUpperHalf(
+        void* _Where,
+        _VectorType_    _Vector) noexcept
+    {
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(_Where), _mm512_extracti64x4_epi64(_IntrinBitcast<__m512i>(_Vector), 1));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void _StoreLowerHalf(
+        void* _Where,
+        _VectorType_    _Vector) noexcept
+    {
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(_Where), _IntrinBitcast<__m256d>(_Vector));
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void _StoreUnaligned(
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_storeu_si512(_Where, _Vector);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_storeu_pd(_Where, _Vector);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_storeu_ps(_Where, _Vector);
+    }
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline void _StoreAligned(
+        void*           _Where,
+        _VectorType_    _Vector) noexcept
+    {
+        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+            return _mm512_store_si512(_Where, _Vector);
+
+        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+            return _mm512_store_pd(_Where, _Vector);
+   
+        else if constexpr (std::is_same_v<_VectorType_, __m512>)
+            return _mm512_store_ps(_Where, _Vector);
+    }
+
+     template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_storeu_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+        
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_storeu_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+        
+        else
+            _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _LoadUnaligned<_VectorType_>(_Where), _Vector, _Mask));
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_store_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_store_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+
+        else
+            _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _LoadAligned<_VectorType_>(_Where), _Vector, _Mask));
+    }
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _MaskLoadUnaligned(
+        const _DesiredType_*                    _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            return _IntrinBitcast<_VectorType_>(_mm512_mask_loadu_epi64(_mm512_setzero_si512(), _Mask, _Where));
+        
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            return _IntrinBitcast<_VectorType_>(_mm512_mask_loadu_epi32(_mm512_setzero_si512(), _Mask, _Where));
+        
+        else
+            return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
+                _LoadUnaligned<_VectorType_>(_Where), _Mask);
+    }
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _MaskLoadAligned(
+        const _DesiredType_*                    _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            return _IntrinBitcast<_VectorType_>(_mm512_mask_load_epi64(_mm512_setzero_si512(), _Mask, _Where));
+        
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            return _IntrinBitcast<_VectorType_>(_mm512_mask_load_epi32(_mm512_setzero_si512(), _Mask, _Where));
+        
+        else
+            return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _SimdBroadcastZeros<_Generation, _RegisterPolicy, _VectorType_>(),
+                _LoadAligned<_VectorType_>(_Where), _Mask);
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreLowerHalf(
+        _DesiredType_*                  _Where,
+        _Simd_mask_type<_DesiredType_>  _Mask,
+        _VectorType_                    _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            _mm512_mask_compressstoreu_epi64(_Where, _Mask & 0xFu, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            _mm512_mask_compressstoreu_epi32(_Where, _Mask & 0xFFu, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
+        }
+        else {
+            using _MaskType = _Simd_mask_type<_DesiredType_>;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+        }
+
+        return _Where;
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreUpperHalf(
+        _DesiredType_*                  _Where,
+        _Simd_mask_type<_DesiredType_>  _Mask,
+        _VectorType_                    _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            _mm512_mask_compressstoreu_epi64(_Where, (_Mask >> 4) & 0xFu, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            _mm512_mask_compressstoreu_epi32(_Where, (_Mask >> 8) & 0xFFu, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
+        }
+        else {
+            using _MaskType = _Simd_mask_type<_DesiredType_>;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+        }
+
+        return _Where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreUnaligned(
+        _DesiredType_*                      _Where,
+        _Simd_mask_type<_DesiredType_>      _Mask,
+        _VectorType_                        _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            _mm512_mask_compressstoreu_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            _mm512_mask_compressstoreu_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
+        }
+        else {
+            using _MaskType = _Simd_mask_type<_DesiredType_>;
+            using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+            constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+            constexpr auto _Shift = (sizeof(_MaskType) << 2);
+
+            _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);
+            _Where = _CompressStoreUpperHalf<_DesiredType_>(_Where, (_Mask >> _Shift) & _Maximum, _Vector);
+        }
+
+        return _Where;
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_* _CompressStoreAligned(
+        _DesiredType_*                      _Where,
+        _Simd_mask_type<_DesiredType_>      _Mask,
+        _VectorType_                        _Vector) noexcept
+    {
+        return _CompressStoreUnaligned<_DesiredType_>(_Where, _Mask, _Vector);
+    }
+};
 
 #pragma endregion
 
