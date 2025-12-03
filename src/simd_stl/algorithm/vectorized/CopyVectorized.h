@@ -1967,7 +1967,7 @@ simd_stl_always_inline void* _MemcpyVectorizedInternal(
 {
     using _SimdType_ = type_traits::__deduce_simd_vector_type<_SimdGeneration_, int>;
 
-    if (memory::intersects(destination, source, bytes)) 
+    if (memory::intersects(static_cast<char*>(destination), static_cast<char*>(destination) + bytes, static_cast<const char*>(source)))
         return _MemmoveVectorizedInternal<_SimdGeneration_>(destination, source, bytes);
 
     void* returnValue = destination;

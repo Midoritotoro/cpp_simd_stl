@@ -2,11 +2,16 @@
 
 #include <src/simd_stl/numeric/IntrinBitcast.h>
 #include <src/simd_stl/numeric/SimdConvert.h>
-
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdBitNot(_VectorType_ _Vector) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -67,19 +72,19 @@ public:
             return _CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return _CompareLess<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
+            return _CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
     }
 
     template <
@@ -274,19 +279,19 @@ public:
             return _CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return _CompareLess<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
+            return _CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
     }
 
     template <
@@ -299,8 +304,26 @@ public:
         if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(
                 _mm_cmpeq_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-        else
-            return _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy, type_traits::equal_to<>>(_Left, _Right);
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi16(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi8(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_ps(
+                _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+        }
+        else if constexpr (_Is_pd_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpeq_pd(
+                _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+        }
         
     }
 };
@@ -338,19 +361,19 @@ public:
             return _CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return _CompareLess<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
+            return _CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
     }
 
     template <
@@ -363,8 +386,26 @@ public:
         if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(
                 _mm_cmpgt_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-        else
-            return _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy, type_traits::greater<>>(_Left, _Right);
+        else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi32(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi16(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi8(
+                _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        }
+        else if constexpr (_Is_ps_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_ps(
+                _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+        }
+        else if constexpr (_Is_pd_v<_DesiredType_>) {
+            return _IntrinBitcast<_VectorType_>(_mm_cmpgt_pd(
+                _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+        }
     }
 };
 
@@ -412,10 +453,10 @@ public:
             return ~_CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
+            return _CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+            return ~_CompareLess<_DesiredType_>(_Left, _Right);
     }
 
     template <
@@ -533,19 +574,19 @@ public:
             return _CompareEqual<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-            return ~_CompareEqual<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
             return _CompareLess<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-            return ~_CompareGreater<_DesiredType_>(_Left, _Right);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _CompareGreater<_DesiredType_>(_Right, _Left);
+            return _CompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_CompareLess<_DesiredType_>(_Right, _Left);
+            return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
     }
 
     template <
@@ -648,13 +689,13 @@ class _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm512> {
             _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
 
         const auto _Compared2Low128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1), _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1));
+            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1), _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Right), 1));
 
         const auto _ComparedHigh128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2));
+            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Right), 2));
 
         const auto _Compared2High128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3));
+            _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Right), 3));
 
         auto _Result = _IntrinBitcast<__m512i>(_ComparedLow128);
 
@@ -685,10 +726,10 @@ public:
             return ~_MaskCompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _MaskCompareGreater<_DesiredType_>(_Right, _Left);
+            return _MaskCompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_MaskCompareLess<_DesiredType_>(_Right, _Left);
+            return ~_MaskCompareLess<_DesiredType_>(_Left, _Right);
     }
 
     template <
@@ -828,10 +869,10 @@ public:
             return ~_MaskCompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
-            return _MaskCompareGreater<_DesiredType_>(_Right, _Left);
+            return _MaskCompareGreater<_DesiredType_>(_Left, _Right);
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-            return ~_MaskCompareLess<_DesiredType_>(_Right, _Left);
+            return ~_MaskCompareLess<_DesiredType_>(_Left, _Right);
     }
 
     template <

@@ -98,6 +98,7 @@
      simd_stl_disable_warning_msvc(4710) /* функция не встроена */
      simd_stl_disable_warning_msvc(4530) /* Используется обработчик исключений C++, но семантика размотки не включена. Укажите /EHsc */
      simd_stl_disable_warning_msvc(4006)
+     simd_stl_disable_warning_msvc(4715)
 #  endif // defined(simd_stl_cpp_msvc)
 
 #endif // defined(simd_stl_no_warnings)

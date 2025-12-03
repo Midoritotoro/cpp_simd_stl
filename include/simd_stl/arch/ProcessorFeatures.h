@@ -33,6 +33,7 @@ public:
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512ER()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512CD()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512DQ()    noexcept;
     
     simd_stl_nodiscard simd_stl_always_inline static bool POPCNT()      noexcept;
 
@@ -65,8 +66,9 @@ private:
         bool _avx512er : 1 = false;
         bool _avx512cd : 1 = false;
         bool _avx512vl : 1 = false;
+        bool _avx512dq : 1 = false;
 
-        bool _popcnt   : 2 = false;
+        bool _popcnt   : 1 = false;
 
         //int _L1CacheSize = 0;
         //int _L2CacheSize = 0;
@@ -119,6 +121,7 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
         _avx2       = (leaf7Ebx >> 5) & 1;
 
         _avx512f    = (leaf7Ebx >> 16) & 1;
+        _avx512dq   = (leaf7Ebx >> 17) & 1;
         _avx512bw   = (leaf7Ebx >> 30) & 1;
         _avx512pf   = (leaf7Ebx >> 26) & 1;
         _avx512er   = (leaf7Ebx >> 27) & 1;
@@ -183,6 +186,10 @@ bool ProcessorFeatures::AVX512VL() noexcept {
     return _processorFeaturesInternal._avx512vl;
 }
 
+bool ProcessorFeatures::AVX512DQ() noexcept {
+    return _processorFeaturesInternal._avx512dq;
+}
+
 bool ProcessorFeatures::POPCNT() noexcept {
     return _processorFeaturesInternal._popcnt;
 }
@@ -217,6 +224,8 @@ bool ProcessorFeatures::isSupported() noexcept {
         return _processorFeaturesInternal._avx512pf;
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VL))
         return _processorFeaturesInternal._avx512vl;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512DQ))
+        return _processorFeaturesInternal._avx512dq;
 }
 
 //int ProcessorFeatures::L1CacheSize() noexcept {

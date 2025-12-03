@@ -271,7 +271,6 @@ if((CMAKE_SYSTEM_PROCESSOR STREQUAL "i686") OR (CMAKE_SYSTEM_PROCESSOR STREQUAL 
 		include(cmake/x86_Simd.cmake)
 endif()
 
-
 if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g) 

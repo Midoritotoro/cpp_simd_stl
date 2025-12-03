@@ -13,7 +13,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
+	class _Type_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _UnwrappedIterator_ _FindUnchecked(
 	_UnwrappedIterator_			firstUnwrapped,
 	const _UnwrappedIterator_	lastUnwrapped,
@@ -30,7 +30,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _UnwrappedIte
 				return lastUnwrapped;
 
 			const auto firstAddress = std::to_address(firstUnwrapped);
-			const auto position = _FindVectorized<_Type_>(firstAddress, std::to_address(lastUnwrapped), value);
+			const auto position = _FindVectorized(firstAddress, std::to_address(lastUnwrapped), value);
 
 			if constexpr (std::is_pointer_v<_UnwrappedIterator_>)
 				return position;

@@ -30,6 +30,6 @@ public:
     }
 };
 
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(StdFindBenchmark, SimdStlFindBenchmark, simd_stl::uint32, Find);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, simd_stl::int16, Find);
 
 SIMD_STL_BENCHMARK_MAIN();

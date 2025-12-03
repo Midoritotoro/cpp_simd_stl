@@ -130,6 +130,9 @@ public:
 		return basic_simd_mask{ mask_type(_mask ^ other._mask) };
 	}
 
+	constexpr simd_stl_always_inline bool operator[](int32 _Index) const noexcept {
+		return ((_mask >> _Index) & 1);
+	}
 	constexpr simd_stl_always_inline basic_simd_mask& operator&=(const basic_simd_mask& other) noexcept {
 		_mask &= other._mask;
 		return *this;

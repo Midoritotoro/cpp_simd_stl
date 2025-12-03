@@ -539,16 +539,6 @@ public:
 
     static simd_stl_always_inline void zeroUpper() noexcept;
 
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_* compressStoreLowerHalf(
-        void* where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_* compressStoreUpperHalf(
-        void* where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
-
     template <typename _DesiredType_ = _Element_> 
     simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
         void*                                                                   where,
@@ -558,18 +548,6 @@ public:
     simd_stl_always_inline _DesiredType_* compressStoreAligned(
         void*                                                                   where,
         type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
-
-    template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline _DesiredType_* compressStoreMergeUnaligned(
-        void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
-        const basic_simd&                                                       source) const noexcept;
-
-    template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline _DesiredType_* compressStoreMergeAligned(
-        void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
-        const basic_simd&                                                       source) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(
@@ -687,11 +665,9 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator-=(const basic_simd& other) noexcept
-{
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator-=(const basic_simd& other) noexcept {
     return *this = (*this - other);
 }
-
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -806,7 +782,7 @@ template <
     class               _RegisterPolicy_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_type
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator!() const noexcept {
-    // return implementation::template convertToMask(traits::template bitwiseNot(_vector)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return !toMask();
 }
 
 template <
@@ -1243,7 +1219,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline bool basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::isEqual(const basic_simd& right) const noexcept {
     const auto _Mask = _SimdMaskCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, type_traits::equal_to<>>(_vector, right._vector);
-    return (toMask<_DesiredType_>(_Mask) == math::MaximumIntegralLimit<decltype(_Mask)>());
+    return basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>(_Mask).allOf();
 }
 
 template <
@@ -1386,8 +1362,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
     basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::toMask() const noexcept 
 { 
-    //const auto _Mask = traits::template convertToMask<_DesiredType_>(_vector);
-    //return basic_simd_mask<_SimdGeneration_, _DesiredType_>(mask);
+    return _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <
@@ -1484,32 +1459,6 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreLowerHalf(
-    void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
-{
-    return _SimdCompressStoreLowerHalf<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-        reinterpret_cast<_DesiredType_*>(where), mask, _vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreUpperHalf(
-    void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
-{
-    return _SimdCompressStoreUpperHalf<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-        reinterpret_cast<_DesiredType_*>(where), mask, _vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
 template <typename _DesiredType_> 
 _DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreUnaligned(
     void*                                                                   where,
@@ -1530,33 +1479,6 @@ _DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compre
 {
     return _SimdCompressStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask, _vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreMergeUnaligned(
-    void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask,
-    const basic_simd&                                                       source) const noexcept
-{
-
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_> 
-_DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreMergeAligned(
-    void*                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    mask,
-    const basic_simd&                       source) const noexcept
-{
-    
 }
 
 template <

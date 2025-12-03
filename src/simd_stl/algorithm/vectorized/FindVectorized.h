@@ -70,13 +70,32 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_* _FindVectorized(
     const void* lastPointer,
     _Type_      value) noexcept
 {
-   /* if (arch::ProcessorFeatures::AVX512F())
-        return FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value);
-    else if (arch::ProcessorFeatures::AVX2())
-        return FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value);*/
-    /*else*/ if (arch::ProcessorFeatures::SSE2())
-        return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
-            FindVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value)));
+    if constexpr (sizeof(_Type_) <= 2) {
+        /*if (arch::ProcessorFeatures::AVX512BW())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(firstPointer, lastPointer, value)));
+        else */if (arch::ProcessorFeatures::AVX512F())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value)));
+        else if (arch::ProcessorFeatures::AVX2())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value)));
+        else if (arch::ProcessorFeatures::SSE2())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value)));
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value)));
+        else if (arch::ProcessorFeatures::AVX2())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value)));
+        else if (arch::ProcessorFeatures::SSE2())
+            return const_cast<_Type_*>(static_cast<const volatile _Type_*>(
+                FindVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value)));
+    }
+
 
     return const_cast<_Type_*>(static_cast<const volatile _Type_*>(FindScalar(firstPointer, lastPointer, value)));
 }

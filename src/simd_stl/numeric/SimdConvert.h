@@ -16,7 +16,7 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline uint32 _SimdToMask(_VectorType_ _Vector) noexcept;
+simd_stl_always_inline auto _SimdToMask(_VectorType_ _Vector) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
@@ -491,7 +491,7 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline uint32 _SimdToMask(_VectorType_ _Vector) noexcept {
+simd_stl_always_inline auto _SimdToMask(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
     return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToMask<_DesiredType_>(_Vector);
 }

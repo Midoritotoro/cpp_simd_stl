@@ -30,6 +30,8 @@ bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>
 
 template <typename T, simd_stl::arch::CpuFeature Arch>
 void testArithmeticOperations() {
+    using Simd = simd_stl::numeric::basic_simd<Arch, T>;
+
     constexpr size_t num_elements = simd_stl::numeric::basic_simd<Arch, T>::template size(); // Get the number of elements in SIMD vector
     std::vector<T> initial_values(num_elements, 51);
     simd_stl::numeric::basic_simd<Arch, T> simd(initial_values.data());
@@ -39,7 +41,7 @@ void testArithmeticOperations() {
     //std::vector<T> expected_constexpr_division(num_elements, 1);
     //simd.divideByConst<2>();
     //simd.storeUnaligned(array.data());
-    //assert(areEqual(simd, expected_constexpr_division) && "Constexpr division test failed");
+    //Assert(areEqual(simd, expected_constexpr_division) && "Constexpr division test failed");
     //simd = initial_values.data(); // Reset
 
     //// Addition
@@ -47,14 +49,14 @@ void testArithmeticOperations() {
     std::transform(initial_values.begin(), initial_values.end(), expected_addition.begin(), [](T x) { return x + x; });
     simd = simd + simd;
     simd.storeUnaligned(array.data());
-    assert(areEqual(simd, expected_addition) && "Addition test failed");
+    Assert(areEqual(simd, expected_addition) && "Addition test failed");
     simd = initial_values.data(); // Reset
 
     // Subtraction
     std::vector<T> expected_subtraction(num_elements, 0);
     simd = simd - simd;
     simd.storeUnaligned(array.data());
-    assert(areEqual(simd, expected_subtraction) && "Subtraction test failed");
+    Assert(areEqual(simd, expected_subtraction) && "Subtraction test failed");
     simd = initial_values.data(); // Reset
 
     //// Multiplication
@@ -62,7 +64,7 @@ void testArithmeticOperations() {
     //std::transform(initial_values.begin(), initial_values.end(), expected_multiplication.begin(), [](T x) { return x * x; });
     //simd = simd * simd;
     //simd.storeUnaligned(array.data());
-    //assert(areEqual(simd, expected_multiplication) && "Multiplication test failed");
+    //Assert(areEqual(simd, expected_multiplication) && "Multiplication test failed");
     //std::cout << "Multiplication test passed" << std::endl;
     //simd = initial_values.data(); // Reset
 
@@ -70,7 +72,7 @@ void testArithmeticOperations() {
     //std::vector<T> expected_division(num_elements, 1);
     //simd = simd / simd;
     //simd.storeUnaligned(array.data());
-    //assert(areEqual(simd, expected_division) && "Division test failed");
+    //Assert(areEqual(simd, expected_division) && "Division test failed");
     //std::cout << "Division test passed" << std::endl;
     //simd = initial_values.data(); // Reset
 
@@ -79,7 +81,7 @@ void testArithmeticOperations() {
         std::vector<T> expected_bitwise_and(num_elements, 51);
         simd = simd & simd;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_bitwise_and) && "Bitwise AND test failed");
+        Assert(areEqual(simd, expected_bitwise_and) && "Bitwise AND test failed");
         simd = initial_values.data(); // Reset
     }
 
@@ -88,7 +90,7 @@ void testArithmeticOperations() {
         std::vector<T> expected_bitwise_or(num_elements, 51);
         simd = simd | simd;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_bitwise_or) && "Bitwise OR test failed");
+        Assert(areEqual(simd, expected_bitwise_or) && "Bitwise OR test failed");
         simd = initial_values.data(); // Reset
     }
 
@@ -97,7 +99,7 @@ void testArithmeticOperations() {
         std::vector<T> expected_bitwise_xor(num_elements, 0);
         simd = simd ^ simd;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_bitwise_xor) && "Bitwise XOR test failed");
+        Assert(areEqual(simd, expected_bitwise_xor) && "Bitwise XOR test failed");
         simd = initial_values.data(); // Reset
     }
 
@@ -107,7 +109,7 @@ void testArithmeticOperations() {
         std::transform(initial_values.begin(), initial_values.end(), expected_left_shift.begin(), [](T x) { return x << 2; }); // shift by 2 bits
         simd = simd << 2;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
+        Assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
         simd = initial_values.data(); // Reset
     }
 
@@ -117,7 +119,7 @@ void testArithmeticOperations() {
         std::transform(initial_values.begin(), initial_values.end(), expected_right_shift.begin(), [](T x) { return x >> 2; }); // shift by 2 bits
         simd = simd >> 2;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_right_shift) && "Right Shift test failed");
+        Assert(areEqual(simd, expected_right_shift) && "Right Shift test failed");
         simd = initial_values.data(); // Reset
     }
 
@@ -127,7 +129,7 @@ void testArithmeticOperations() {
     simd = -simd;
     simd.storeUnaligned(array.data());
     
-    assert(areEqual(simd, expected_unary_minus) && "Unary Minus test failed");
+    Assert(areEqual(simd, expected_unary_minus) && "Unary Minus test failed");
     simd = initial_values.data(); // Reset
 
     // Bitwise NOT (Complement)
@@ -136,7 +138,7 @@ void testArithmeticOperations() {
         std::transform(initial_values.begin(), initial_values.end(), expected_bitwise_not.begin(), std::bit_not<T>());
         simd = ~simd;
         simd.storeUnaligned(array.data());
-        assert(areEqual(simd, expected_bitwise_not) && "Bitwise NOT test failed");
+        Assert(areEqual(simd, expected_bitwise_not) && "Bitwise NOT test failed");
         simd = initial_values.data(); // Reset
     }
 }
@@ -187,7 +189,7 @@ void testMethods() {
        /* Simd v(0);
         typename Simd::mask_type mask;
         v.expand(mask, 77);
-        assert(v.extract(0) == 77);*/
+        Assert(v.extract(0) == 77);*/
     }
 
     // --- convert---
@@ -319,6 +321,49 @@ void testMethods() {
         mask_compress_any<Simd>(src, src, expected, mask);
 
         Assert(std::equal(expected, expected + N, dst));
+    }
+
+    std::vector<T> va(N), vb(N), vc(N);
+    for (size_t i = 0; i < N; ++i) {
+        va[i] = static_cast<T>(i + 1);
+        vb[i] = static_cast<T>(i + 1);
+        vc[i] = static_cast<T>(i + 2);
+    }
+
+    Simd a(va.data());
+    Simd b(vb.data());
+    Simd c(vc.data());
+
+    // --- isEqual ---
+    assert(a.isEqual(b) && "isEqual failed on equal vectors");
+    assert(!a.isEqual(c) && "isEqual failed on different vectors");
+
+    // --- maskEqual ---
+    auto mEq = a.maskEqual(b);
+    for (size_t i = 0; i < N; ++i) {
+        assert(mEq[i] == true);
+    }
+
+    // --- maskNotEqual ---
+    auto mNeq = a.maskNotEqual(c);
+    for (size_t i = 0; i < N; ++i) {
+        assert(mNeq[i] == true);
+    }
+
+    // --- maskGreater / maskLess ---
+    auto mGt = c.maskGreater(a);
+    auto mLt = a.maskLess(c);
+    for (size_t i = 0; i < N; ++i) {
+        assert(mGt[i] == true);
+        assert(mLt[i] == true);
+    }
+
+    // --- maskGreaterEqual / maskLessEqual ---
+    auto mGe = a.maskGreaterEqual(b);
+    auto mLe = a.maskLessEqual(b);
+    for (size_t i = 0; i < N; ++i) {
+        assert(mGe[i] == true);
+        assert(mLe[i] == true);
     }
 }
 
