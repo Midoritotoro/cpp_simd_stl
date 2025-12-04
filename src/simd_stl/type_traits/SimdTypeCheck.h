@@ -146,7 +146,6 @@ template <
     arch::CpuFeature _SimdGenerationSecond_>
 constexpr bool is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
 
-
 template <
     class _BasicSimdFrom_,
     class _BasicSimdTo_>

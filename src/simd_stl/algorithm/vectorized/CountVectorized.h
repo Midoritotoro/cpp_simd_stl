@@ -18,64 +18,71 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype CountScalar(
-    const void*     firstPointer,
-    const sizetype  bytes,
-    sizetype&       count,
-    _Type_          value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall _CountScalar(
+    const void*     _FirstPointer,
+    const sizetype  _Bytes,
+    sizetype&       _Count,
+    _Type_          _Value) noexcept
 {
-    auto pointer = static_cast<const _Type_*>(firstPointer);
-    const auto length = bytes / sizeof(_Type_);
+    auto _Current = static_cast<const _Type_*>(_FirstPointer);
+    const auto _Length = _Bytes / sizeof(_Type_);
 
-    for (sizetype current = 0; current < length; ++current)
-        count += (*pointer++ == value);
+    for (sizetype _Index = 0; _Index < _Length; ++_Index)
+        _Count += (*_Current++ == _Value);
 
-    return count;
+    return _Count;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype CountVectorizedInternal(
-    const void*     firstPointer,
-    const sizetype  bytes,
-    _Type_          value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall _CountVectorizedInternal(
+    const void*     _FirstPointer,
+    const sizetype  _Bytes,
+    _Type_          _Value) noexcept
 {
     using _SimdType_        = numeric::basic_simd<_SimdGeneration_, _Type_>;
-    auto alignedSize        = bytes & (~(_SimdType_::template width() - 1));
+    auto _AlignedSize        = _Bytes & (~(sizeof(_SimdType_) - 1));
 
-    sizetype count = 0;
+    sizetype _Count = 0;
 
-    if (alignedSize != 0) {
-        const auto comparand = _SimdType_(value);
+    if (_AlignedSize != 0) {
+        const auto _Comparand = _SimdType_(_Value);
 
-        for (sizetype current = 0; current < alignedSize; current += _SimdType_::template width()) {
-            const auto loaded   = _SimdType_::loadUnaligned(static_cast<const char*>(firstPointer) + current);
-            const auto compared = comparand.maskEqual(loaded);
+        for (sizetype _Index = 0; _Index < _AlignedSize; _Index += sizeof(_SimdType_)) {
+            const auto _Loaded   = _SimdType_::loadUnaligned(static_cast<const char*>(_FirstPointer) + _Index);
+            const auto _Compared = _Comparand.maskEqual(_Loaded);
 
-            count += compared.countSet();
+            _Count += _Compared.countSet();
         }
     }
    
-    AdvanceBytes(firstPointer, alignedSize);
-    return CountScalar(firstPointer, (bytes - alignedSize), count, value);
+    AdvanceBytes(_FirstPointer, _AlignedSize);
+    return _CountScalar(_FirstPointer, (_Bytes - _AlignedSize), _Count, _Value);
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype CountVectorized(
-    const void*     firstPointer,
-    const sizetype  bytes,
-    _Type_          value) noexcept
+simd_stl_declare_const_function sizetype simd_stl_stdcall CountVectorized(
+    const void*     _FirstPointer,
+    const sizetype  _Bytes,
+    _Type_          _Value) noexcept
 {
-    /* if (arch::ProcessorFeatures::AVX512F())
-         return FindVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(firstPointer, lastPointer, value);
-     else if (arch::ProcessorFeatures::AVX2())
-         return FindVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(firstPointer, lastPointer, value);*/
-    /*else*/ if (arch::ProcessorFeatures::SSE2())
-        return CountVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, bytes, value);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return CountVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_FirstPointer, _Bytes, _Value);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return CountVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_FirstPointer, _Bytes, _Value);
+    }
 
-    sizetype count = 0;
-    return CountScalar(firstPointer, bytes, count, value);
+    if (arch::ProcessorFeatures::AVX2())
+        return CountVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_FirstPointer, _Bytes, _Value);
+    else if (arch::ProcessorFeatures::SSE2())
+        return CountVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_FirstPointer, _Bytes, _Value);
+
+    sizetype _Count = 0;
+    return _CountScalar(_FirstPointer, _Bytes, _Count, _Value);
 }
 
 

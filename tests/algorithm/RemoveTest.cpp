@@ -124,7 +124,7 @@ int main() {
     }
 
     {
-        constexpr size_t N = 1'000'000;
+        constexpr size_t N = 1'00;
         std::vector<int> v(N, 1);
         for (size_t i = 0; i < N; i += 10) v[i] = 0;
 

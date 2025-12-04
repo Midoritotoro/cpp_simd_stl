@@ -16,93 +16,78 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-template <class _Simd_>
-constexpr int removeStep() noexcept {
-    using _ValueType_ = typename _Simd_::value_type;
-
-    if constexpr (arch::__is_xmm_v<_Simd_::_Generation>) {
-        if constexpr (numeric::is_epi8_v<_ValueType_> || numeric::is_epu8_v<_ValueType_>)
-            return 8;
-        else
-            return 16;
-    }
-}
-
 template <class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline const void* _RemoveScalar(
-    void*       first,
-    const void* current,
-    const void* last,
-    _Type_      value) noexcept
+    void*       _First,
+    const void* _Current,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
-    auto currentCasted  = static_cast<const _Type_*>(current);
-    auto firstCasted    = static_cast<_Type_*>(first);
+    auto _CurrentCasted  = static_cast<const _Type_*>(_Current);
+    auto _FirstCasted    = static_cast<_Type_*>(_First);
 
-    for (; currentCasted != last; ++currentCasted) {
-        const auto currentValue = *currentCasted;
+    for (; _CurrentCasted != _Last; ++_CurrentCasted) {
+        const auto _CurrentValue = *_CurrentCasted;
 
-        if (currentValue != value)
-            *firstCasted++ = currentValue;
+        if (_CurrentValue != _Value)
+            *_FirstCasted++ = _CurrentValue;
     }
 
-    return firstCasted;
+    return _FirstCasted;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
 simd_stl_always_inline const void* _RemoveVectorizedInternal(
-    void*       first,
-    const void* last,
-    _Type_      value) noexcept
+    void*       _First,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
-    constexpr auto step = removeStep<_SimdType_>();
+    void* _Current = _First;
 
-    const auto size         = ByteLength(first, last);
-    const auto alignedSize  = size & (~(step - 1));
+    if (_AlignedSize != 0) {
+        const auto _Comparand = _SimdType_(value);
 
-    void* current = first;
-
-    if (alignedSize != 0) {
-        const auto comparand    = _SimdType_(value);
-
-        const void* stopAt = first;
-        AdvanceBytes(stopAt, alignedSize);
+        const void* _StopAt = _First;
+        AdvanceBytes(_StopAt, _AlignedSize);
 
         do {
-            _SimdType_ loaded /*= _SimdType_::template basic_simd<false>()*/;
+            const auto _Loaded = _SimdType_::loadUnaligned(_Current);
+            const auto _Mask = _Comparand.maskEqual(_Loaded);
 
-            if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
-                loaded = _SimdType_::loadLowerHalf(current);
-            else 
-                loaded = _SimdType_::loadUnaligned(current);
-
-            const auto mask = comparand.maskEqual(loaded);
-
-            if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
-                first = loaded.compressStoreLowerHalf(first, mask.unwrap());
-            else
-                first = loaded.compressStoreUnaligned(first, mask.unwrap());
-            
-            AdvanceBytes(current, step);
-        } while (current != stopAt);
+            _First = _Loaded.compressStoreUnaligned(_First, _Mask.unwrap());
+            AdvanceBytes(_Current, sizeof(_SimdType_));
+        } while (_Current != _StopAt);
     }
 
-    return (current == last) ? first : _RemoveScalar<_Type_>(first, current, last, value);
+    return (current == _Last) ? _First : _RemoveScalar<_Type_>(_First, _Current, _Last, _Value);
 }
 
 template <class _Type_>
 simd_stl_declare_const_function simd_stl_always_inline const void* _RemoveVectorized(
-    void*       first,
-    const void* last,
-    _Type_      value) noexcept
+    void*       _First,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
-    if (arch::ProcessorFeatures::SSSE3())
-        return _RemoveVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(first, last, value);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _RemoveVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _RemoveVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value);
+    }
 
-    return _RemoveScalar<_Type_>(first, first, last, value);
+    if (arch::ProcessorFeatures::AVX2())
+        return _RemoveVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value);
+    else if (arch::ProcessorFeatures::SSSE3())
+        return _RemoveVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Value);
+
+    return _RemoveScalar<_Type_>(_First, _First, _Last, _Value);
 }
 
 

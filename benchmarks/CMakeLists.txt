@@ -23,6 +23,8 @@ macro(cpp_simd_stlBenchmarks_add_benchmark filename)
     target_include_directories(${filename} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tools)
 
     set(CMAKE_CXX_FLAGS "-march=native")
+
+
     target_link_libraries(
       ${filename} PUBLIC
       cpp_simd_stl::cpp_simd_stl

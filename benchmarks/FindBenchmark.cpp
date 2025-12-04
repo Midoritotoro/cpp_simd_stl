@@ -12,8 +12,9 @@ public:
     static void Find(benchmark::State& state) noexcept {
         static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
 
-        while (state.KeepRunning())
+        while (state.KeepRunning()) {
             benchmark::DoNotOptimize(std::find(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+        }
     }
 };
 
@@ -25,11 +26,12 @@ public:
     static void Find(benchmark::State& state) noexcept {
         static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
 
-        while (state.KeepRunning())
+        while (state.KeepRunning()) {
             benchmark::DoNotOptimize(simd_stl::algorithm::find(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+        }
     }
 };
 
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, simd_stl::int16, Find);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, char, Find);
 
 SIMD_STL_BENCHMARK_MAIN();

@@ -152,9 +152,9 @@ void testFindIfNot() {
 }
 
 int main() {
-    /*testFind<int>();
+  /*  testFind<int>();*/
     testFind<short>();
-    testFind<long long>();*/
+    testFind<long long>();
     testFind<char>();
 
     testFindIf();

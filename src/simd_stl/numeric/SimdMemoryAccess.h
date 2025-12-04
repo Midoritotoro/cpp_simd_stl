@@ -1096,16 +1096,20 @@ public:
         _VectorType_                        _Vector) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 8) {
-            const auto _Compressed = _mm512_mask_compress_epi64(_IntrinBitcast<__m512i>(_Vector), ~_Mask, _IntrinBitcast<__m512i>(_Vector));
+            const uint8 _Not = ~_Mask;
+
+            const auto _Compressed = _mm512_mask_compress_epi64(_IntrinBitcast<__m512i>(_Vector), _Not, _IntrinBitcast<__m512i>(_Vector));
             _mm512_storeu_si512(_Where, _Compressed);
 
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 3));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Not) << 3));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
-            const auto _Compressed = _mm512_mask_compress_epi32(_IntrinBitcast<__m512i>(_Vector), ~_Mask, _IntrinBitcast<__m512i>(_Vector));
+            const uint16 _Not = ~_Mask;
+
+            const auto _Compressed = _mm512_mask_compress_epi32(_IntrinBitcast<__m512i>(_Vector), _Not, _IntrinBitcast<__m512i>(_Vector));
             _mm512_storeu_si512(_Where, _Compressed);
 
-            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Mask) << 2));
+            algorithm::AdvanceBytes(_Where, (math::PopulationCount(_Not) << 2));
         }
         else {
             constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);

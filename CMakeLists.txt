@@ -30,7 +30,6 @@ set(PRIVATE_SOURCES
 
 set(PRIVATE_HEADERS 
     src/simd_stl/algorithm/vectorized/FindVectorized.h
-    src/simd_stl/algorithm/vectorized/AvxZeroUpperGuard.h
     src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.h
     src/simd_stl/algorithm/vectorized/ContainsVectorized.h
     src/simd_stl/algorithm/vectorized/CountVectorized.h
@@ -58,6 +57,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/FindUnchecked.h
     src/simd_stl/algorithm/unchecked/FindIfUnchecked.h
     src/simd_stl/algorithm/unchecked/FindIfNotUnchecked.h
+    src/simd_stl/algorithm/unchecked/ContainsUnchecked.h
 
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h

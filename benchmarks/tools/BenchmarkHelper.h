@@ -22,11 +22,11 @@
 #include <iomanip>
 
 #if !defined(SIMD_STL_BENCHMARK_REPITITIONS)
-#  define SIMD_STL_BENCHMARK_REPITITIONS 10000
+#  define SIMD_STL_BENCHMARK_REPITITIONS 1000000
 #endif // SIMD_STL_BENCHMARK_REPITITIONS
 
 #if !defined(SIMD_STL_BENCHMARK_ITERATIONS)
-#  define SIMD_STL_BENCHMARK_ITERATIONS 10000
+#  define SIMD_STL_BENCHMARK_ITERATIONS 1
 #endif // SIMD_STL_BENCHMARK_ITERATIONS
 
 #if defined(SIMD_STL_BENCHMARK_IN_MILLISECONDS)
@@ -273,14 +273,14 @@ enum LogColor {
     COLOR_WHITE
 };
 
-#ifdef OS_WIN
+#ifdef simd_stl_os_win
 typedef WORD PlatformColorCode;
 #else
 typedef const char* PlatformColorCode;
 #endif
 
 PlatformColorCode GetPlatformColorCode(LogColor color) {
-#ifdef OS_WIN
+#ifdef simd_stl_os_win
     switch (color) {
     case COLOR_RED:
         return FOREGROUND_RED;
@@ -366,7 +366,7 @@ void ColorPrintf(
     va_list args;
     va_start(args, fmt);
 
-#ifdef OS_WIN
+#ifdef simd_stl_os_win
     const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Gets the current text color.

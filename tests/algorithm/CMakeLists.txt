@@ -15,7 +15,8 @@ enable_testing()
 macro(cpp_simd_stl_algorithm_add_test filename)
     add_executable(${filename} ${filename}.cpp)
 
-    set(CMAKE_CXX_FLAGS "-march=native")
+    set(CMAKE_CXX_FLAGS -march=native)
+
     target_link_libraries(
       ${filename} PRIVATE
       cpp_simd_stl::cpp_simd_stl

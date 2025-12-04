@@ -57,7 +57,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 			{
 				using _ValueType_ = type_traits::IteratorValueType<_FirstIterator_>;
 
-				return EqualVectorized<_ValueType_>(
+				return _EqualVectorized<_ValueType_>(
 					std::to_address(first1Unwrapped), std::to_address(first2Unwrapped), length);
 			}
 		}
@@ -123,7 +123,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool equal(
 			{
 				using _ValueType_ = type_traits::IteratorValueType<_FirstIterator_>;
 
-				return EqualVectorized<_ValueType_>(
+				return _EqualVectorized<_ValueType_>(
 					std::to_address(first1Unwrapped), std::to_address(first2Unwrapped), length);
 			}
 		}

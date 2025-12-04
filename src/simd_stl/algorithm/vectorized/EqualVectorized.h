@@ -17,19 +17,19 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <typename _Type_> 
-simd_stl_declare_const_function simd_stl_always_inline bool EqualScalar(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    sizetype&           byteOffset,
-    sizetype            size) noexcept
+simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _EqualScalar(
+    const void* _First,
+    const void* _Second,
+    sizetype&   _ByteOffset,
+    sizetype    _Size) noexcept
 {
-    const _Type_* const firstPointer    = static_cast<const _Type_* const>(firstRangeBegin);
-    const _Type_* const secondPointer   = static_cast<const _Type_* const>(secondRangeBegin);
+    const _Type_* _FirstPointer    = static_cast<const _Type_*>(_First);
+    const _Type_* _SecondPointer   = static_cast<const _Type_*>(_Second);
 
-    byteOffset /= sizeof(_Type_);
+    _ByteOffset /= sizeof(_Type_);
 
-    for (; byteOffset < (size / sizeof(_Type_)); ++byteOffset)
-        if (*(firstPointer + byteOffset) != *(secondPointer + byteOffset))
+    for (; _ByteOffset < (_Size / sizeof(_Type_)); ++_ByteOffset)
+        if (*(_FirstPointer + _ByteOffset) != *(_SecondPointer + _ByteOffset))
             return false;
    
     return true;
@@ -38,48 +38,54 @@ simd_stl_declare_const_function simd_stl_always_inline bool EqualScalar(
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline bool EqualVectorizedInternal(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    const sizetype      size) noexcept
+simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _EqualVectorizedInternal(
+    const void*     _First,
+    const void*     _Second,
+    const sizetype  _Size) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    const auto bytes        = size * sizeof(_Type_);
+    const auto _Bytes   = _Size * sizeof(_Type_);
 
-    auto alignedSize        = (bytes & (~sizetype(_SimdType_::width() - 1)));
-    auto byteOffset         = sizetype(0);
+    auto _AlignedSize   = (_Bytes & (~(sizeof(_SimdType_) - 1)));
+    auto _Offset        = sizetype(0);
 
-    if (alignedSize != 0) {
-        for (; byteOffset < alignedSize; byteOffset += _SimdType_::width()) {
-            const auto loadedFirst  = _SimdType_::loadUnaligned(static_cast<const char* const>(firstRangeBegin) + byteOffset);
-            const auto loadedSecond = _SimdType_::loadUnaligned(static_cast<const char* const>(secondRangeBegin) + byteOffset);
+    for (; _Offset < _AlignedSize; _Offset += sizeof(_SimdType_)) {
+        const auto _LoadedFirst  = _SimdType_::loadUnaligned(static_cast<const char*>(_First) + _Offset);
+        const auto _LoadedSecond = _SimdType_::loadUnaligned(static_cast<const char*>(_Second) + _Offset);
 
-            const auto comparedMask = loadedFirst.maskEqual(loadedSecond);
+        const auto _ComparedMask = _LoadedFirst.maskEqual(_LoadedSecond);
 
-            if (comparedMask.allOf() == false)
-                return false;
-        }
+        if (_ComparedMask.allOf() == false)
+            return false;
     }
 
-    return (byteOffset == bytes)
-        ? true
-        : EqualScalar<_Type_>(firstRangeBegin, secondRangeBegin, byteOffset, bytes);
+    return (_Offset == _Bytes) ? true : _EqualScalar<_Type_>(_First, _Second, _Offset, _Bytes);
 }
 
 
 template <typename _Type_>
-simd_stl_declare_const_function simd_stl_always_inline bool EqualVectorized(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    const sizetype      size) noexcept
+simd_stl_declare_const_function bool simd_stl_stdcall _EqualVectorized(
+    const void*     _First,
+    const void*     _Second,
+    const sizetype  _Size) noexcept
 {
-    
-    if (arch::ProcessorFeatures::SSE2())
-        return EqualVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstRangeBegin, secondRangeBegin, size);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _EqualVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Second, _Size);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _EqualVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Second, _Size);
+    }
 
-    auto byteOffset = sizetype(0);
-    return EqualScalar<_Type_>(firstRangeBegin, secondRangeBegin, byteOffset, size * sizeof(_Type_));
+    if (arch::ProcessorFeatures::AVX2())
+        return _EqualVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Second, _Size);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _EqualVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Second, _Size);
+
+    auto _Offset = sizetype(0);
+    return _EqualScalar<_Type_>(_First, _Second, _Offset, _Size * sizeof(_Type_));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
