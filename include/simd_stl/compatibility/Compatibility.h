@@ -37,3 +37,16 @@
 #include <cstddef>
 
 simd_stl_disable_warning_msvc(4067)
+
+
+#if !defined(_Simd_inline_constexpr)
+#  define _Simd_inline_constexpr simd_stl_always_inline simd_stl_constexpr_cxx20
+#endif // !defined(_Simd_inline_constexpr)
+
+#if !defined(_Simd_nodiscard_inline_constexpr)
+#  define _Simd_nodiscard_inline_constexpr simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20
+#endif // !defined(_Simd_nodiscard_inline_constexpr)
+
+#if !defined(_Simd_nodiscard_inline)
+#  define _Simd_nodiscard_inline simd_stl_nodiscard simd_stl_always_inline
+#endif // !defined(_Simd_nodiscard_inline)

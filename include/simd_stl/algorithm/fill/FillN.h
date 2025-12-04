@@ -18,7 +18,7 @@ template <
     class _ForwardIterator_,
     class _SizeType_,
     class _Type_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill_n(
+_Simd_inline_constexpr _ForwardIterator_ fill_n(
     _ForwardIterator_   first,
     _SizeType_          count,
     const _Type_&       value) noexcept
@@ -40,7 +40,7 @@ template <
     class _ForwardIterator_,
     class _SizeType_,
     class _Type_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill_n(
+_Simd_inline_constexpr _ForwardIterator_ fill_n(
     _ExecutionPolicy_&&,
     _ForwardIterator_   first,
     _SizeType_          count,

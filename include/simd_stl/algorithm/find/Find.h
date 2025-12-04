@@ -9,56 +9,53 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _Iterator_,
 	class _Type_ = type_traits::IteratorValueType<_Iterator_>>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find(
-	_Iterator_			first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+_Simd_nodiscard_inline_constexpr _Iterator_ find(
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(first, _FindUnchecked<decltype(_UnwrapIterator(first)), 
-		type_traits::IteratorValueType<_Iterator_>>(_UnwrapIterator(first), _UnwrapIterator(last), value));
-	return first;
+	_SeekPossiblyWrappedIterator(_First, _FindUnchecked<decltype(_UnwrapIterator(_First)), 
+		type_traits::IteratorValueType<_Iterator_>>(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
+
+	return _First;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if_not(
-	_InputIterator_			first, 
-	const _InputIterator_	last, 
-	_Predicate_				predicate) noexcept(
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_if_not(
+	_InputIterator_	_First, 
+	_InputIterator_	_Last, 
+	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	__verifyRange(first, last);
-	_SeekPossiblyWrappedIterator(first, _FindIfNotUnchecked(_UnwrapIterator(first),
-		_UnwrapIterator(last), type_traits::passFunction(predicate)));
+	__verifyRange(_First, _Last);
 
-	return first;
+	_SeekPossiblyWrappedIterator(_First, _FindIfNotUnchecked(_UnwrapIterator(_First),
+		_UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
+
+	return _First;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_if(
-	_InputIterator_			first, 
-	const _InputIterator_	last, 
-	_Predicate_				predicate) noexcept(
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_if(
+	_InputIterator_	_First, 
+	_InputIterator_	_Last, 
+	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	__verifyRange(first, last);
-	_SeekPossiblyWrappedIterator(first, _FindIfUnchecked(_UnwrapIterator(first), 
-		_UnwrapIterator(last), type_traits::passFunction(predicate)));
+	__verifyRange(_First, _Last);
 
-	return first;
+	_SeekPossiblyWrappedIterator(_First, _FindIfUnchecked(_UnwrapIterator(_First), 
+		_UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
+
+	return _First;
 }
 
 template <
@@ -68,8 +65,8 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard _Iterator_ find(
 	_ExecutionPolicy_&&,
-	_Iterator_			first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept;
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept;
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -17,69 +17,76 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <typename _Type_> 
-simd_stl_declare_const_function simd_stl_always_inline sizetype MismatchScalar(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    sizetype&           mismatchPosition,
-    sizetype            size) noexcept
+simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall _MismatchScalar(
+    const void* const   _First,
+    const void* const   _Second,
+    sizetype&           _MismatchPosition,
+    sizetype            _Size) noexcept
 {
-    const _Type_* const firstPointer    = static_cast<const _Type_* const>(firstRangeBegin);
-    const _Type_* const secondPointer   = static_cast<const _Type_* const>(secondRangeBegin);
+    const _Type_* const _FirstPointer    = static_cast<const _Type_* const>(_First);
+    const _Type_* const _SecondPointer   = static_cast<const _Type_* const>(_Second);
 
-    mismatchPosition /= sizeof(_Type_);
+    _MismatchPosition /= sizeof(_Type_);
 
-    for (; mismatchPosition < (size / sizeof(_Type_)); ++mismatchPosition)
-        if (*(firstPointer + mismatchPosition) != *(secondPointer + mismatchPosition))
-            return mismatchPosition;
+    for (; _MismatchPosition < (_Size / sizeof(_Type_)); ++_MismatchPosition)
+        if (*(_FirstPointer + _MismatchPosition) != *(_SecondPointer + _MismatchPosition))
+            return _MismatchPosition;
    
-    return mismatchPosition;
+    return _MismatchPosition;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype MismatchVectorizedInternal(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    const sizetype      size) noexcept
+simd_stl_declare_const_function simd_stl_always_inline sizetype _MismatchVectorizedInternal(
+    const void* const   _First,
+    const void* const   _Second,
+    const sizetype      _Size) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    const auto bytes        = size * sizeof(_Type_);
+    const auto _Bytes        = _Size * sizeof(_Type_);
 
-    auto alignedSize        = (bytes & (~sizetype(_SimdType_::width() - 1)));
-    auto mismatchPosition   = sizetype(0);
+    auto _AlignedSize        = (_Bytes & (~sizetype(sizeof(_SimdType_) - 1)));
+    auto _MismatchPosition   = sizetype(0);
 
-    if (alignedSize != 0) {
-        for (; mismatchPosition < alignedSize; mismatchPosition += _SimdType_::width()) {
-            const auto loadedFirst  = _SimdType_::loadUnaligned(
-                static_cast<const char* const>(firstRangeBegin) + mismatchPosition);
+    for (; _MismatchPosition < _AlignedSize; _MismatchPosition += sizeof(_SimdType_)) {
+        const auto _LoadedFirst  = _SimdType_::loadUnaligned(static_cast<const char* const>(_First) + _MismatchPosition);
+        const auto _LoadedSecond = _SimdType_::loadUnaligned(static_cast<const char* const>(_Second) + _MismatchPosition);
 
-            const auto loadedSecond = _SimdType_::loadUnaligned(
-                static_cast<const char* const>(secondRangeBegin) + mismatchPosition);
+        const auto _Mask = _LoadedFirst.maskEqual(_LoadedSecond);
 
-            const auto comparedMask = loadedFirst.maskEqual(loadedSecond);
-
-            if (comparedMask.allOf() == false)
-                return (mismatchPosition / sizeof(_Type_)) + comparedMask.countTrailingOneBits();
-        }
+        if (_Mask.allOf() == false)
+            return (_MismatchPosition / sizeof(_Type_)) + _Mask.countTrailingOneBits();
     }
 
-    return (mismatchPosition == bytes)
-        ? (mismatchPosition / sizeof(_Type_))
-        : MismatchScalar<_Type_>(firstRangeBegin, secondRangeBegin, mismatchPosition, bytes);
+    return (_MismatchPosition == _Bytes)
+        ? (_MismatchPosition / sizeof(_Type_))
+        : _MismatchScalar<_Type_>(_First, _Second, _MismatchPosition, _Bytes);
 }
 
-
 template <typename _Type_>
-simd_stl_declare_const_function simd_stl_always_inline sizetype MismatchVectorized(
-    const void* const   firstRangeBegin,
-    const void* const   secondRangeBegin,
-    const sizetype      size) noexcept
+simd_stl_declare_const_function sizetype simd_stl_stdcall _MismatchVectorized(
+    const void* const   _First,
+    const void* const   _Second,
+    const sizetype      _Size) noexcept
 {
-    
-    if (arch::ProcessorFeatures::SSE2())
-        return MismatchVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstRangeBegin, secondRangeBegin, size);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _MismatchVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Second, _Size);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _MismatchVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Second, _Size);
+    }
+
+    if (arch::ProcessorFeatures::AVX2())
+        return _MismatchVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Second, _Size);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _MismatchVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Second, _Size);
+
+    auto _MismatchPosition = sizetype(0);
+    return _MismatchScalar<_Type_>(_First, _Second, _MismatchPosition, _Size);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

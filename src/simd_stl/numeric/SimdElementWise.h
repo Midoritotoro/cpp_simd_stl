@@ -219,7 +219,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_pd(_ReversedXmmLanes, _ReversedXmmLanes, 1));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
-            const auto _ReversedXmmLanes = _mm256_shuffle_ps(_IntrinBitcast<__m256>(_Vector), 0x1B);
+            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_ps(_IntrinBitcast<__m256>(_Vector), _IntrinBitcast<__m256>(_Vector), 0x1B));
             return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_ps(_ReversedXmmLanes, _ReversedXmmLanes, 1));
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
@@ -285,14 +285,14 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Reverse(_VectorType_ _Vector) noexcept {
         if constexpr (sizeof(_DesiredType_) == 2) {
-            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
+            const auto _ReversedXmmLanes = _IntrinBitcast<__m256i>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
                 _mm256_setr_epi8(30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
                     14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1)));
 
             return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_si256(_ReversedXmmLanes, _ReversedXmmLanes, 1));
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
+            const auto _ReversedXmmLanes = _IntrinBitcast<__m256i>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
                 _mm256_setr_epi8(31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 
                     15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)));
 

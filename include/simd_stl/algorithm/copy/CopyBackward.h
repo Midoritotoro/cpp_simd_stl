@@ -14,7 +14,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _BidirectionalFirstIterator_,
     class _BidirectionalSecondIterator_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _BidirectionalSecondIterator_ copy_backward(
+_Simd_inline_constexpr _BidirectionalSecondIterator_ copy_backward(
     _BidirectionalFirstIterator_    first,
     _BidirectionalFirstIterator_    last,
     _BidirectionalSecondIterator_   destinationLast) noexcept
@@ -56,7 +56,7 @@ template <
     class _ExecutionPolicy_,
     class _BidirectionalFirstIterator_,
     class _BidirectionalSecondIterator_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _BidirectionalSecondIterator_ copy_backward(
+_BidirectionalSecondIterator_ copy_backward(
     _ExecutionPolicy_&&,
     _BidirectionalFirstIterator_    first,
     _BidirectionalFirstIterator_    last,

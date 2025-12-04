@@ -16,7 +16,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _ForwardIterator_,
     class _Type_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill(
+_Simd_inline_constexpr _ForwardIterator_ fill(
     _ForwardIterator_   first,
     _ForwardIterator_   last,
     const _Type_&       value) noexcept
@@ -41,7 +41,7 @@ template <
     class _ExecutionPolicy_,
     class _ForwardIterator_,
     class _Type_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _ForwardIterator_ fill(
+_ForwardIterator_ fill(
     _ExecutionPolicy_&&,
     _ForwardIterator_   first,
     _ForwardIterator_   last,

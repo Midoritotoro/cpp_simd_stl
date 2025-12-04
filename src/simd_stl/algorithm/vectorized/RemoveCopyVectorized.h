@@ -6,76 +6,78 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline void* _RemoveCopyScalar(
-    const void* first,
-    const void* last,
-    void*       destination,
-    _Type_      value) noexcept
+simd_stl_declare_const_function void* simd_stl__RemoveCopyScalar(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination,
+    _Type_      _Value) noexcept
 {
-    auto firstCasted = static_cast<const _Type_*>(first);
-    auto destinationCasted = static_cast<_Type_*>(destination);
+    auto _FirstCasted       = static_cast<const _Type_*>(_First);
+    auto _DestinationCasted = static_cast<_Type_*>(_Destination);
 
-    for (; firstCasted != last; ++firstCasted) {
-        const auto currentValue = *firstCasted;
+    for (; _FirstCasted != _Last; ++_FirstCasted) {
+        const auto _CurrentValue = *_FirstCasted;
 
-        if (currentValue != value)
-            *destinationCasted++ = currentValue;
+        if (_CurrentValue != _Value)
+            *_DestinationCasted++ = _CurrentValue;
     }
 
-    return destinationCasted;
+    return _DestinationCasted;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_always_inline void* _RemoveCopyVectorizedInternal(
-    const void* first,
-    const void* last,
-    void*       destination,
-    _Type_      value) noexcept
+simd_stl_declare_const_function void* _RemoveCopyVectorizedInternal(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination,
+    _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    constexpr auto step     = removeStep<_SimdType_>();
+    const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
-    const auto size         = ByteLength(first, last);
-    const auto alignedSize  = size & (~(step - 1));
+    if (_AlignedSize != 0) {
+        const void* _StopAt = _First;
+        AdvanceBytes(_StopAt, _AlignedSize);
 
-    if (alignedSize != 0) {
-        const void* stopAt = first;
-        AdvanceBytes(stopAt, alignedSize);
-
-        const auto comparand = _SimdType_(value);
+        const auto _Comparand = _SimdType_(_Value);
 
         do {
-            _SimdType_ loaded;
-            
-            if constexpr (numeric::is_epi8_v<_Type_> || numeric::is_epu8_v<_Type_>)
-                loaded = _SimdType_::loadLowerHalf(first);
-            else
-                loaded = _SimdType_::loadUnaligned(first);
+            const auto _Loaded = _SimdType_::loadUnaligned(_First);
+            const auto _Mask = _Loaded.maskEqual(_Comparand);
 
-            const auto compared = loaded.maskEqual(comparand);
-
-            destination = loaded.compressStoreUnaligned(destination, compared.unwrap());
-            AdvanceBytes(first, step);
-        } while (first != stopAt);
+            _Destination = _Loaded.compressStoreUnaligned(_Destination, _Mask.unwrap());
+            AdvanceBytes(_First, sizeof(_SimdType_));
+        } while (_First != _StopAt);
     }
 
-    return (first == last) ? destination : _RemoveCopyScalar(first, last, destination, value);
+    return (_First == _Last) ? _Destination : _RemoveCopyScalar(_First, _Last, _Destination, _Value);
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline void* _RemoveCopyVectorized(
-    const void* first,
-    const void* last,
-    void*       destination,
-    _Type_      value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline void* simd_stl_stdcall _RemoveCopyVectorized(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination,
+    _Type_      _Value) noexcept
 {
-    if (arch::ProcessorFeatures::SSSE3())
-        return _RemoveCopyVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(first, last, destination, value);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Destination, _Value);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Destination, _Value);
+    }
 
-    return _RemoveCopyScalar<_Type_>(first, last, destination, value);
+    else if (arch::ProcessorFeatures::AVX2())
+        return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination, _Value);
+    else if (arch::ProcessorFeatures::SSSE3())
+        return _RemoveCopyVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Destination, _Value);
+
+    return _RemoveCopyScalar<_Type_>(_First, _Last, _Destination, _Value);
 }
 
 

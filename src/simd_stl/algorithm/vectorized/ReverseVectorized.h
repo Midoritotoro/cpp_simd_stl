@@ -5,18 +5,18 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_always_inline void __ReverseScalar__(
-    void*   firstPointer,
-    void*   lastPointer) noexcept
+simd_stl_always_inline void _ReverseScalar(
+    void*   _FirstPointer,
+    void*   _LastPointer) noexcept
 {
-    auto first  = static_cast<_Type_*>(firstPointer);
-    auto last   = static_cast<_Type_*>(lastPointer);
+    auto _First  = static_cast<_Type_*>(_FirstPointer);
+    auto _Last   = static_cast<_Type_*>(_LastPointer);
 
-    for (; first != last && first != --last; ++first) {
-        _Type_ temp = *last;
+    for (; _First != _Last && _First != --_Last; ++_First) {
+        _Type_ _Temp = *_Last;
 
-        *last = *first;
-        *first = temp;
+        *_Last = *_First;
+        *_First = _Temp;
     }
         
 }
@@ -24,47 +24,58 @@ simd_stl_always_inline void __ReverseScalar__(
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline void __ReverseVectorized__(
-    void* firstPointer,
-    void* lastPointer) noexcept
+simd_stl_declare_const_function simd_stl_always_inline void _ReverseVectorizedInternal(
+    void* _FirstPointer,
+    void* _LastPointer) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    const auto _AlignedSize  = ByteLength(_FirstPointer, _LastPointer) & (~((sizeof(_SimdType_) << 1) - 1));
 
-    const auto size         = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize  = size & (~((sizeof(_SimdType_) << 1) - 1));
-
-    if (alignedSize != 0) {
-        void* stopAt = firstPointer;
-        AdvanceBytes(stopAt, alignedSize / 2);
+    if (_AlignedSize != 0) {
+        void* _StopAt = _FirstPointer;
+        AdvanceBytes(_StopAt, _AlignedSize >> 1);
 
         do {
-            auto loadedBegin  = _SimdType_::loadUnaligned(firstPointer);
-            auto loadedEnd    = _SimdType_::loadUnaligned(static_cast<char*>(lastPointer) - sizeof(_SimdType_));
+            auto _LoadedBegin  = _SimdType_::loadUnaligned(_FirstPointer);
+            auto _LoadedEnd    = _SimdType_::loadUnaligned(static_cast<char*>(_LastPointer) - sizeof(_SimdType_));
 
-            loadedBegin.reverse();
-            loadedEnd.reverse();
+            _LoadedBegin.reverse();
+            _LoadedEnd.reverse();
 
-            loadedBegin.storeUnaligned(static_cast<char*>(lastPointer) - sizeof(_SimdType_));
-            loadedEnd.storeUnaligned(firstPointer);
+            _LoadedBegin.storeUnaligned(static_cast<char*>(_LastPointer) - sizeof(_SimdType_));
+            _LoadedEnd.storeUnaligned(_FirstPointer);
 
-            AdvanceBytes(firstPointer, sizeof(_SimdType_));
-            RewindBytes(lastPointer, sizeof(_SimdType_));
-        } while (firstPointer != stopAt);
+            AdvanceBytes(_FirstPointer, sizeof(_SimdType_));
+            RewindBytes(_LastPointer, sizeof(_SimdType_));
+        } while (_FirstPointer != _StopAt);
     }
 
-    if (firstPointer != lastPointer)
-        __ReverseScalar__<_Type_>(firstPointer, lastPointer);
+    if (_FirstPointer != _LastPointer)
+        _ReverseScalar<_Type_>(_FirstPointer, _LastPointer);
 }
 
 template <class _Type_>
 void _ReverseVectorized(
-    void* firstPointer,
-    void* lastPointer) noexcept
+    void* _FirstPointer,
+    void* _LastPointer) noexcept
 {
-    if (arch::ProcessorFeatures::SSE2())
-        return __ReverseVectorized__<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer);
+    if constexpr (sizeof(_Type_) == 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _ReverseVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_FirstPointer, _LastPointer);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _ReverseVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_FirstPointer, _LastPointer);
+    }
 
-    __ReverseScalar__<_Type_>(firstPointer, lastPointer);
+    if (arch::ProcessorFeatures::AVX2())
+        return _ReverseVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_FirstPointer, _LastPointer);
+    else if (arch::ProcessorFeatures::SSSE3())
+        return _ReverseVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_FirstPointer, _LastPointer);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _ReverseVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_FirstPointer, _LastPointer);
+
+    _ReverseScalar<_Type_>(_FirstPointer, _LastPointer);
 }
 
 

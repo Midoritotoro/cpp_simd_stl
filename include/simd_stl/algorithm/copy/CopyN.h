@@ -15,7 +15,7 @@ template <
     class _InputIterator_,
     class _SizeType_,
     class _OutputIterator_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_n(
+_Simd_inline_constexpr _OutputIterator_ copy_n(
     _InputIterator_     first,
     _SizeType_          elementsCount,
     _OutputIterator_    destination) noexcept
@@ -53,7 +53,7 @@ template <
     class _InputIterator_,
     class _SizeType_,
     class _OutputIterator_>
-simd_stl_constexpr_cxx20 simd_stl_always_inline _OutputIterator_ copy_n(
+_OutputIterator_ copy_n(
     _ExecutionPolicy_&&,
     _InputIterator_     first,
     _SizeType_          elementsCount,

@@ -17,7 +17,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _ContainsScalar(
+simd_stl_declare_const_function bool simd_stl_stdcall _ContainsScalar(
     const void* _FirstPointer,
     const void* _LastPointer,
     _Type_      _Value) noexcept
@@ -37,21 +37,18 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Co
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _ContainsVectorizedInternal(
+simd_stl_declare_const_function bool simd_stl_stdcall _ContainsVectorizedInternal(
     const void* _FirstPointer,
     const void* _LastPointer,
     _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    auto _AlignedSize = ByteLength(_FirstPointer, _LastPointer) & (~(sizeof(_SimdType_) - 1));
 
-    const auto _Size = ByteLength(_FirstPointer, _LastPointer);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+    _mm_prefetch(static_cast<const char*>(_FirstPointer), 1);
 
     if (_AlignedSize != 0) {
         const auto _Comparand = _SimdType_(_Value);
-
-        const void* _StopAt = _FirstPointer;
-        AdvanceBytes(_StopAt, _AlignedSize);
 
         do {
             const auto _Mask = _Comparand.maskEqual<_Type_>(_SimdType_::loadUnaligned(_FirstPointer));
@@ -60,14 +57,15 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Co
                 return true;
 
             AdvanceBytes(_FirstPointer, sizeof(_SimdType_));
-        } while (_FirstPointer != _StopAt);
+            _AlignedSize -= sizeof(_SimdType_);
+        } while (_AlignedSize != 0);
     }
 
     return (_FirstPointer == _LastPointer) ? false : _ContainsScalar(_FirstPointer, _LastPointer, _Value);
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _ContainsVectorized(
+simd_stl_declare_const_function bool simd_stl_stdcall _ContainsVectorized(
     const void* _FirstPointer,
     const void* _LastPointer,
     _Type_      _Value) noexcept

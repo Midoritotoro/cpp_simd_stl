@@ -19,63 +19,74 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindLastScalar(
-    const void* firstPointer,
-    const void* lastPointer,
-    _Type_      value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastScalar(
+    const void* _First,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
-    auto pointer = static_cast<const _Type_*>(lastPointer);
+    auto _Current = static_cast<const _Type_*>(_Last);
 
-    while (pointer != firstPointer && *pointer != value)
-        --pointer;
+    while (_Current != _First && *_Current != _Value)
+        --_Current;
 
-    return (pointer == firstPointer) ? lastPointer : pointer;
+    return (_Current == _First) ? _Last : _Current;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindLastVectorizedInternal(
-    const void* firstPointer,
-    const void* lastPointer,
-    _Type_      value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastVectorizedInternal(
+    const void* _First,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    const auto size = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize = size & (~(_SimdType_::template width() - 1));
+    const auto _Size = ByteLength(_First, _Last);
+    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
-    const void* cachedLast = lastPointer;
+    const void* _CachedLast = _Last;
 
-    if (alignedSize != 0) {
-        const auto comparand = _SimdType_(value);
+    if (_AlignedSize != 0) {
+        const auto _Comparand = _SimdType_(_Value);
 
-        const void* stopAt = firstPointer;
-        AdvanceBytes(stopAt, (size - alignedSize));
+        const void* _StopAt = _First;
+        AdvanceBytes(_StopAt, (_Size - _AlignedSize));
 
         do {
-            const auto mask = comparand.maskEqual<_Type_>(_SimdType_::loadUnaligned(lastPointer));
+            const auto _Mask = _Ñomparand.maskEqual<_Type_>(_SimdType_::loadUnaligned(_Last));
 
-            if (mask.unwrap() != 0)
-                return static_cast<const _Type_*>(lastPointer) + mask.countTrailingZeroBits();
+            if (_Mask.unwrap() != 0)
+                return static_cast<const _Type_*>(_Last) + _Mask.countTrailingZeroBits();
 
-            RewindBytes(lastPointer, _SimdType_::template width());
-        } while (lastPointer != stopAt);
+            RewindBytes(_Last, sizeof(_SimdType_));
+        } while (_Last != _StopAt);
     }
 
-    return (firstPointer == lastPointer) ? cachedLast : FindLastScalar(firstPointer, lastPointer, value);
+    return (_First == _Last) ? _CachedLast : _FindLastScalar(_First, _Last, _Value);
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* FindLastVectorized(
-    const void* firstPointer,
-    const void* lastPointer,
-    _Type_      value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastVectorized(
+    const void* _First,
+    const void* _Last,
+    _Type_      _Value) noexcept
 {
-    if (arch::ProcessorFeatures::SSE2())
-        return FindLastVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(firstPointer, lastPointer, value);
+    if constexpr (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _FindLastVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _FindLastVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value);
+    }
 
-    return FindLastScalar(firstPointer, lastPointer, value);
+    if (arch::ProcessorFeatures::AVX2())
+        return _FindLastVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _FindLastVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _Value);
+
+    return _FindLastScalar(_First, _Last, _Value);
 }
 
 

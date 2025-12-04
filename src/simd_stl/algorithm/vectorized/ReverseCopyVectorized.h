@@ -5,62 +5,71 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_always_inline void __ReverseCopyScalar__(
-    const void* firstPointer,
-    const void* lastPointer,
-    void*       destinationPointer,
-    sizetype    bytes) noexcept
+void simd_stl_stdcall _ReverseCopyScalar(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination) noexcept
 {
-    auto first = static_cast<const _Type_*>(firstPointer);
-    auto last = static_cast<const _Type_*>(lastPointer);
+    auto _FirstPointer = static_cast<const _Type_*>(_First);
+    auto _LastPointer = static_cast<const _Type_*>(_Last);
 
-    auto destination = static_cast<_Type_*>(destinationPointer);
+    auto _DestinationPointer = static_cast<_Type_*>(_Destination);
 
-    for (; first != last; ++destination)
-        *destination = *--last;
+    for (; _FirstPointer != _LastPointer; ++_DestinationPointer)
+        *_DestinationPointer = *--_LastPointer;
 }
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_always_inline void __ReverseCopyVectorized__(
-    const void* firstPointer,
-    const void* lastPointer,
-    void*       destination) noexcept
+void simd_stl_stdcall _ReverseCopyVectorized(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    const auto size = ByteLength(firstPointer, lastPointer);
-    const auto alignedSize = size & (~((sizeof(_SimdType_)) - 1));
+    const auto _AlignedSize = ByteLength(_First, _Last) & (~((sizeof(_SimdType_)) - 1));
 
-    if (alignedSize != 0) {
-        const void* stopAt = lastPointer;
-        RewindBytes(stopAt, alignedSize);
+    if (_AlignedSize != 0) {
+        const void* _StopAt = _Last;
+        RewindBytes(_StopAt, _AlignedSize);
 
         do {
-            auto loaded = _SimdType_::loadUnaligned(static_cast<const char*>(lastPointer) - sizeof(_SimdType_));
-            loaded.reverse();
-            loaded.storeUnaligned(destination);
+            auto _Loaded = _SimdType_::loadUnaligned(static_cast<const char*>(_Last) - sizeof(_SimdType_));
+            _Loaded.reverse();
+            _Loaded.storeUnaligned(_Destination);
 
-            AdvanceBytes(destination, sizeof(_SimdType_));
-            RewindBytes(lastPointer, sizeof(_SimdType_));
-        } while (lastPointer != stopAt);
+            AdvanceBytes(_Destination, sizeof(_SimdType_));
+            RewindBytes(_Last, sizeof(_SimdType_));
+        } while (_Last != _StopAt);
     }
 
-    if (firstPointer != lastPointer)
-        __ReverseCopyScalar__<_Type_>(firstPointer, lastPointer, destination, size);
+    if (_First != _Last)
+        _ReverseCopyScalar<_Type_>(_First, _Last, _Destination);
 }
 
 template <class _Type_>
-void _ReverseCopyVectorized(
-    const void* firstPointer,
-    const void* lastPointer,
-    void*       destination) noexcept
+void simd_stl_stdcall _ReverseCopyVectorized(
+    const void* _First,
+    const void* _Last,
+    void*       _Destination) noexcept
 {
-    if (arch::ProcessorFeatures::SSSE3())
-        return __ReverseCopyVectorized__<arch::CpuFeature::SSSE3, _Type_>(firstPointer, lastPointer, destination);
+    if constexpr (sizeof(_Type_) == 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _ReverseCopyVectorized<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Destination);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _ReverseCopyVectorized<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Destination);
+    }
 
-    __ReverseCopyScalar__<_Type_>(firstPointer, lastPointer, destination, ByteLength(firstPointer, lastPointer));
+    if (arch::ProcessorFeatures::AVX2())
+        return _ReverseCopyVectorized<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination);
+    else if (arch::ProcessorFeatures::SSSE3())
+        return _ReverseCopyVectorized<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Destination);
+
+    _ReverseCopyScalar<_Type_>(_First, _Last, _Destination);
 }
 
 

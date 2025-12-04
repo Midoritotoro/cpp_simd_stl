@@ -54,7 +54,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_FIXED_INTEGER_ARRAY(name) \
     template <typename _Type_, size_t N>\
     struct name {\
-        _Type_ data[N + 1]{};\
+        _Type_ data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -66,7 +66,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_FIXED_CHAR_ARRAY(name, prefix) \
     template <typename _Type_, size_t N>\
     struct name {\
-        _Type_ data[N + 1]{};\
+        _Type_ data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -79,7 +79,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_FIXED_REVERSED_CHAR_ARRAY(name, prefix) \
     template <typename _Type_, size_t N>\
     struct name {\
-        _Type_ data[N + 1]{};\
+        _Type_ data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -92,7 +92,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_CHAR_ARRAY(name, type, prefix) \
     template <size_t N>\
     struct name<type, N> {\
-        type data[N + 1]{};\
+        type data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -105,7 +105,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(name, type) \
     template <size_t N>\
     struct name<type, N> {\
-        type data[N + 1]{};\
+        type data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -117,7 +117,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_REVERSED_CHAR_ARRAY(name, type, prefix) \
     template <size_t N>\
     struct name<type, N> {\
-        type data[N + 1]{};\
+        type data[N + 1];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -152,6 +152,7 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
 SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::uint16);
 SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::uint32);
 SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::uint64);
+
 
 #if !defined(SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS)
 #  define SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS(benchFirst, benchSecond, repititions)                   \

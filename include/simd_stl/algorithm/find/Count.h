@@ -15,98 +15,92 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _Iterator_,
 	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 sizetype count(
-	const _Iterator_	first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+_Simd_nodiscard_inline_constexpr sizetype count(
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
+	using _UnwrappedIteratorType = unwrapped_iterator_type<_Iterator_>;
 
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
+	auto _FirstUnwrapped		= _UnwrapIterator(_First);
+	const auto _LastUnwrapped	= _UnwrapIterator(_Last);
 
-	if constexpr (type_traits::is_iterator_random_ranges_v<_IteratorUnwrappedType_>) {
-		const auto length = ByteLength(firstUnwrapped, lastUnwrapped);
+	if constexpr (type_traits::is_iterator_random_ranges_v<_UnwrappedIteratorType>) {
+		const auto _Size = ByteLength(_FirstUnwrapped, _LastUnwrapped);
 
-		if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
+		if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIteratorType, _Type_>) {
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
 			{
-				if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
+				if (math::couldCompareEqualToValueType<_UnwrappedIteratorType>(_Value) == false)
 					return 0;
 
-				return CountVectorized<_Type_>(std::to_address(firstUnwrapped), length, value);
+				return _CountVectorized<_Type_>(std::to_address(_FirstUnwrapped), _Size, _Value);
 			}
 		}
 	}
 
-    type_traits::IteratorDifferenceType<_Iterator_> count = 0;
+    type_traits::IteratorDifferenceType<_Iterator_> _Count = 0;
 
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		count += (*firstUnwrapped == value);
+	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
+		_Count += (*_FirstUnwrapped == _Value);
 
-	return count;
+	return _Count;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 type_traits::IteratorDifferenceType<_InputIterator_> count_if(
-	_InputIterator_			first,
-	const _InputIterator_	last,
-	_Predicate_ 			predicate) noexcept(
+_Simd_nodiscard_inline_constexpr type_traits::IteratorDifferenceType<_InputIterator_> count_if(
+	_InputIterator_	_First,
+	_InputIterator_	_Last,
+	_Predicate_ 	_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
+	auto _FirstUnwrapped		= _UnwrapIterator(_First);
+	const auto _LastUnwrapped	= _UnwrapIterator(_Last);
 
-	auto count = type_traits::IteratorDifferenceType<_InputIterator_>(0);
+	auto _Count = type_traits::IteratorDifferenceType<_InputIterator_>(0);
 
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (predicate(*firstUnwrapped))
-			++count;
+	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
+		if (_Predicate(*_FirstUnwrapped))
+			++_Count;
 
-	return count;
+	return _Count;
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
 	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 sizetype count(
+simd_stl_nodiscard sizetype count(
 	_ExecutionPolicy_&&,
-	const _Iterator_	first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept
 {
-	return simd_stl::algorithm::count(first, last, value);
+	return simd_stl::algorithm::count(_First, _Last, _Value);
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 type_traits::IteratorDifferenceType<_InputIterator_> count_if(
+simd_stl_nodiscard type_traits::IteratorDifferenceType<_InputIterator_> count_if(
 	_ExecutionPolicy_&&,
-	_InputIterator_			first,
-	const _InputIterator_	last,
-	_Predicate_ 			predicate) noexcept(
+	_InputIterator_			_First,
+	const _InputIterator_	_Last,
+	_Predicate_ 			_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	return simd_stl::algorithm::count_if(first, last, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::count_if(_First, _Last, type_traits::passFunction(_Predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

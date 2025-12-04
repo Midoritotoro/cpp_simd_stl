@@ -273,9 +273,9 @@ endif()
 
 if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(-g) 
+        add_compile_options(-g -Ob3 -Oi) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-O2 -Ot -Ob3)
+        add_compile_options(-O2 -Ot -Ob3 -Oi -GS- -Oy)
     endif()
 
     target_compile_options(
