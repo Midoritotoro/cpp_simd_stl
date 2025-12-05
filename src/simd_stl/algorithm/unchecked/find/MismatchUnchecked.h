@@ -27,7 +27,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwr
 			type_traits::IteratorValueType<_SecondUnwrappedIterator_>>)
 {
 	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
-		_FirstUnwrappedIterator_, _SecondIteratorUnwrappedType_, _Predicate_>)
+		_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
 	{
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
@@ -74,7 +74,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwr
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			const auto _Position = MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
+			const auto _Position = _MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
 				std::to_address(_First1Unwrapped), std::to_address(_First2Unwrapped), (std::min)(
 					IteratorsDifference(_First1Unwrapped, _Last1Unwrapped), IteratorsDifference(_First2Unwrapped, _Last2Unwrapped)));
 				

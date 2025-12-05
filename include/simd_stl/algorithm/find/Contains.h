@@ -1,6 +1,8 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/ContainsUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/ContainsUnchecked.h>
+#include <simd_stl/concurrency/Execution.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -19,7 +21,8 @@ _Simd_nodiscard_inline_constexpr bool contains(
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_>
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _Simd_nodiscard_inline_constexpr bool contains(
 	_ExecutionPolicy_&&,
 	_Iterator_		_First,

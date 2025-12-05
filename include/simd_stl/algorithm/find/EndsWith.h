@@ -8,6 +8,8 @@
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
 
+#include <simd_stl/concurrency/Execution.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -129,7 +131,8 @@ template <
 	class _ExecutionPolicy_,
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
-	class _Predicate_>
+	class _Predicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
 	_ExecutionPolicy_&&,
 	_FirstForwardIterator_	first1,
@@ -150,7 +153,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 template <
 	class _ExecutionPolicy_,
 	class _FirstForwardIterator_,
-	class _SecondForwardIterator_>
+	class _SecondForwardIterator_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
 	_ExecutionPolicy_&&,
 	_FirstForwardIterator_	first1,

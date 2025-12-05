@@ -89,8 +89,7 @@ constexpr void _SeekPossiblyWrappedIterator(
     _Iterator_&             iterator,
     _UnwrappedIterator_&&   unwrappedIterator) noexcept(
         type_traits::is_wrapped_iterator_seekable_v<_Iterator_, _UnwrappedIterator_> == false || 
-        type_traits::is_wrapped_iterator_nothrow_seekable_v<_Iterator_, _UnwrappedIterator_>
-    )
+        type_traits::is_wrapped_iterator_nothrow_seekable_v<_Iterator_, _UnwrappedIterator_>)
 {
     if constexpr (type_traits::is_wrapped_iterator_seekable_v<_Iterator_, _UnwrappedIterator_>)
         iterator._Seek_to(std::forward<_UnwrappedIterator_>(unwrappedIterator));
@@ -106,8 +105,7 @@ simd_stl_nodiscard constexpr decltype(auto) _UnwrapIteratorBytesOffset(
     const _DifferenceType_  offsetBytes) noexcept(
         type_traits::is_possibly_unverified_iterator_unwrappable_v<_Iterator_> == false ||
         (type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_> == false ||
-            type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_>)
-    )
+            type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_>))
 {
     using _ValueType_ = type_traits::IteratorValueType<unwrapped_iterator_type<_Iterator_>>;
 

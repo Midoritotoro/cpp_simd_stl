@@ -1,8 +1,11 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/FindUnchecked.h>
-#include <src/simd_stl/algorithm/unchecked/FindIfUnchecked.h>
-#include <src/simd_stl/algorithm/unchecked/FindIfNotUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindIfUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindIfNotUnchecked.h>
+
+#include <simd_stl/concurrency/Execution.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 

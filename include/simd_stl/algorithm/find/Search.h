@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/SearchUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/SearchUnchecked.h>
 #include <simd_stl/concurrency/Execution.h>
 
 

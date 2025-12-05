@@ -54,12 +54,11 @@ simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdc
         AdvanceBytes(_StopAt, (_Size - _AlignedSize));
 
         do {
-            const auto _Mask = _Ñomparand.maskEqual<_Type_>(_SimdType_::loadUnaligned(_Last));
+            RewindBytes(_Last, sizeof(_SimdType_));
+            const auto _Mask = _Comparand.maskEqual(_SimdType_::loadUnaligned(_Last));
 
             if (_Mask.unwrap() != 0)
                 return static_cast<const _Type_*>(_Last) + _Mask.countTrailingZeroBits();
-
-            RewindBytes(_Last, sizeof(_SimdType_));
         } while (_Last != _StopAt);
     }
 
@@ -67,26 +66,30 @@ simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdc
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastVectorized(
+simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall _FindLastVectorized(
     const void* _First,
     const void* _Last,
     _Type_      _Value) noexcept
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return _FindLastVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value);
+            return const_cast<_Type_*>(static_cast<const _Type_*>(
+                _FindLastVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value)));
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return _FindLastVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value);
+            return const_cast<_Type_*>(static_cast<const _Type_*>(
+                _FindLastVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value)));
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return _FindLastVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value);
+        return const_cast<_Type_*>(static_cast<const _Type_*>(
+            _FindLastVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value)));
     else if (arch::ProcessorFeatures::SSE2())
-        return _FindLastVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _Value);
+        return const_cast<_Type_*>(static_cast<const _Type_*>(
+            _FindLastVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _Value)));
 
-    return _FindLastScalar(_First, _Last, _Value);
+    return const_cast<_Type_*>(static_cast<const _Type_*>(_FindLastScalar(_First, _Last, _Value)));
 }
 
 

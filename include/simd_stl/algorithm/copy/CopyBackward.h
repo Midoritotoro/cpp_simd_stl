@@ -1,13 +1,8 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
+#include <src/simd_stl/algorithm/unchecked/copy/CopyBackwardUnchecked.h>
+#include <simd_stl/concurrency/Execution.h>
 
-#include <simd_stl/compatibility/Nodiscard.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <src/simd_stl/algorithm/vectorized/CopyVectorized.h>
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -15,54 +10,30 @@ template <
     class _BidirectionalFirstIterator_,
     class _BidirectionalSecondIterator_>
 _Simd_inline_constexpr _BidirectionalSecondIterator_ copy_backward(
-    _BidirectionalFirstIterator_    first,
-    _BidirectionalFirstIterator_    last,
-    _BidirectionalSecondIterator_   destinationLast) noexcept
+    _BidirectionalFirstIterator_    _First,
+    _BidirectionalFirstIterator_    _Last,
+    _BidirectionalSecondIterator_   _DestinationLast) noexcept
 {
-    __verifyRange(first, last);
+    __verifyRange(_First, _Last);
+    
+    _SeekPossiblyWrappedIterator(_DestinationLast, _CopyBackwardUnchecked(_UnwrapIterator(_First),
+        _UnwrapIterator(_Last), _UnwrapUnverifiedIterator(_DestinationLast)));
 
-    const auto firstUnwrapped       = _UnwrapIterator(first);
-    auto lastUnwrapped              = _UnwrapIterator(last);
-
-    const auto difference           = IteratorsDifference(firstUnwrapped, lastUnwrapped);
-
-    if constexpr (type_traits::IteratorCopyCategory<_BidirectionalFirstIterator_, _BidirectionalSecondIterator_>::BitcopyAssignable) {
-        auto destinationLastUnwrapped = _UnwrapIteratorOffset(destinationLast, -difference);
-
-        auto firstAddress           = std::to_address(firstUnwrapped);
-        const auto lastAddress      = std::to_address(lastUnwrapped);
-
-        const auto byteLength       = ByteLength(firstAddress, lastAddress);
-        auto destinationLastAddress = std::to_address(destinationLastUnwrapped);
-
-        auto destinationLastChar    = const_cast<char*>(reinterpret_cast<const volatile char*>(std::to_address(destinationLastUnwrapped)));
-
-        _MemcpyVectorized(destinationLastChar - byteLength, firstAddress, byteLength);
-        _SeekPossiblyWrappedIterator(destinationLast, destinationLast - difference);
-    }
-    else {
-        auto destinationLastUnwrapped = _UnwrapIterator(destinationLast);
-
-        while (firstUnwrapped != lastUnwrapped)
-            *(--destinationLastUnwrapped) = *(--lastUnwrapped);
-
-        _SeekPossiblyWrappedIterator(destinationLast, destinationLastUnwrapped);
-    }
-
-    return destinationLast;
+    return _DestinationLast;
 }
 
 template <
     class _ExecutionPolicy_,
     class _BidirectionalFirstIterator_,
-    class _BidirectionalSecondIterator_>
+    class _BidirectionalSecondIterator_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _BidirectionalSecondIterator_ copy_backward(
     _ExecutionPolicy_&&,
-    _BidirectionalFirstIterator_    first,
-    _BidirectionalFirstIterator_    last,
-    _BidirectionalSecondIterator_   destinationLast) noexcept
+    _BidirectionalFirstIterator_    _First,
+    _BidirectionalFirstIterator_    _Last,
+    _BidirectionalSecondIterator_   _DestinationLast) noexcept
 {
-    return simd_stl::algorithm::copy_backward(first, last, destinationLast);
+    return simd_stl::algorithm::copy_backward(_First, _Last, _DestinationLast);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

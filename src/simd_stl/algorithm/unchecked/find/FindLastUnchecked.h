@@ -37,11 +37,11 @@ _Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindLastUnchecked(
 		}
 	}
 
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (*_FirstUnwrapped == _Value)
+	for (; _LastUnwrapped != _FirstUnwrapped; --_LastUnwrapped)
+		if (*_LastUnwrapped == _Value)
 			break;
 
-	return _FirstUnwrapped;
+	return _LastUnwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

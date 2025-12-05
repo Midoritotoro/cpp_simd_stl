@@ -1,9 +1,9 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/FindLastUnchecked.h>
-#include <src/simd_stl/algorithm/unchecked/FindLastIfUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindLastUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindLastIfUnchecked.h>
 
-#include <src/simd_stl/algorithm/unchecked/FindLastIfNotUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/FindLastIfNotUnchecked.h>
 #include <simd_stl/concurrency/Execution.h>
 
 

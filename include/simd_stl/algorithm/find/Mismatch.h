@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/MismatchUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/MismatchUnchecked.h>
 #include <simd_stl/concurrency/Execution.h>
 
 

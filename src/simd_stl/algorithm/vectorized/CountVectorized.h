@@ -56,17 +56,17 @@ simd_stl_declare_const_function sizetype simd_stl_stdcall _CountVectorized(
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return CountVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_FirstPointer, _Bytes, _Value);
+            return _CountVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_FirstPointer, _Bytes, _Value);
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return CountVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_FirstPointer, _Bytes, _Value);
+            return _CountVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_FirstPointer, _Bytes, _Value);
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return CountVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_FirstPointer, _Bytes, _Value);
+        return _CountVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_FirstPointer, _Bytes, _Value);
     else if (arch::ProcessorFeatures::SSE2())
-        return CountVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_FirstPointer, _Bytes, _Value);
+        return _CountVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_FirstPointer, _Bytes, _Value);
 
     sizetype _Count = 0;
     return _CountScalar(_FirstPointer, _Bytes, _Count, _Value);

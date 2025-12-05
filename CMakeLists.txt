@@ -54,19 +54,26 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
 
-    src/simd_stl/algorithm/unchecked/FindUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindIfUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindIfNotUnchecked.h
-    src/simd_stl/algorithm/unchecked/ContainsUnchecked.h
-    src/simd_stl/algorithm/unchecked/MismatchUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindEndUnchecked.h 
-    src/simd_stl/algorithm/unchecked/SearchUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindLastUnchecked.h
-    src/simd_stl/algorithm/unchecked/EqualUnchecked.h
-    src/simd_stl/algorithm/unchecked/CountUnchecked.h
-    src/simd_stl/algorithm/unchecked/CountIfUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindLastIfNotUnchecked.h
-    src/simd_stl/algorithm/unchecked/FindLastIfUnchecked.h
+    "src/simd_stl/algorithm/unchecked/find/FindUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindIfUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindIfNotUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/ContainsUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/MismatchUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindEndUnchecked.h" 
+    "src/simd_stl/algorithm/unchecked/find/SearchUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindLastUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/EqualUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/CountUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/CountIfUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindLastIfNotUnchecked.h"
+    "src/simd_stl/algorithm/unchecked/find/FindLastIfUnchecked.h"
+
+    src/simd_stl/algorithm/unchecked/copy/CopyUnchecked.h
+    src/simd_stl/algorithm/unchecked/copy/CopyIfUnchecked.h
+    src/simd_stl/algorithm/unchecked/copy/CopyBackwardUnchecked.h
+    src/simd_stl/algorithm/unchecked/copy/MoveUnchecked.h
+    src/simd_stl/algorithm/unchecked/copy/MoveBackwardUnchecked.h
+
 
 
     src/simd_stl/math/CountTrailingZeros.h

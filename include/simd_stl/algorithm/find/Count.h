@@ -1,7 +1,9 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/unchecked/CountIfUnchecked.h>
-#include <src/simd_stl/algorithm/unchecked/CountUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/CountIfUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/find/CountUnchecked.h>
+
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -29,13 +31,14 @@ _Simd_nodiscard_inline_constexpr type_traits::IteratorDifferenceType<_InputItera
 			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
-	return _CountIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate))
+	return _CountIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate));
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_>
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard sizetype count(
 	_ExecutionPolicy_&&,
 	_Iterator_		_First,
@@ -48,7 +51,8 @@ simd_stl_nodiscard sizetype count(
 template <
 	class _ExecutionPolicy_,
 	class _InputIterator_,
-	class _Predicate_>
+	class _Predicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard type_traits::IteratorDifferenceType<_InputIterator_> count_if(
 	_ExecutionPolicy_&&,
 	_InputIterator_			_First,
