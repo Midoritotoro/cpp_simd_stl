@@ -58,6 +58,16 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/FindIfUnchecked.h
     src/simd_stl/algorithm/unchecked/FindIfNotUnchecked.h
     src/simd_stl/algorithm/unchecked/ContainsUnchecked.h
+    src/simd_stl/algorithm/unchecked/MismatchUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindEndUnchecked.h 
+    src/simd_stl/algorithm/unchecked/SearchUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindLastUnchecked.h
+    src/simd_stl/algorithm/unchecked/EqualUnchecked.h
+    src/simd_stl/algorithm/unchecked/CountUnchecked.h
+    src/simd_stl/algorithm/unchecked/CountIfUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindLastIfNotUnchecked.h
+    src/simd_stl/algorithm/unchecked/FindLastIfUnchecked.h
+
 
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h

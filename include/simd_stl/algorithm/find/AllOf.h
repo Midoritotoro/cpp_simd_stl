@@ -20,7 +20,8 @@ _Simd_nodiscard_inline_constexpr bool all_of(
 template <
     class _ExecutionPolicy_,
     class _InputIterator_,
-    class _Predicate_>
+    class _Predicate_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard bool all_of(
     _ExecutionPolicy_&&,
     _InputIterator_ _First,

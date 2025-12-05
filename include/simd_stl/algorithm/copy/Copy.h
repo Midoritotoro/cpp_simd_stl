@@ -9,6 +9,9 @@
 #include <src/simd_stl/algorithm/vectorized/CopyVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
+#include <simd_stl/concurrency/Execution.h>
+
+
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
@@ -85,7 +88,8 @@ _Simd_inline_constexpr _OutputIterator_ copy_if(
 template <
     class _ExecutionPolicy_,
     class _InputIterator_,
-    class _OutputIterator_>
+    class _OutputIterator_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _OutputIterator_ copy(
     _ExecutionPolicy_&&,
     _InputIterator_     first,
@@ -99,7 +103,8 @@ template <
     class _ExecutionPolicy_,
     class _InputIterator_,
     class _OutputIterator_,
-    class _Predicate_>
+    class _Predicate_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _OutputIterator_ copy_if(
     _ExecutionPolicy_&&,
     _InputIterator_     first,

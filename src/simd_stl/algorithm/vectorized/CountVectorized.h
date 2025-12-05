@@ -1,18 +1,5 @@
 #pragma once
 
-#include <simd_stl/SimdStlNamespace.h>
-
-#include <simd_stl/compatibility/Inline.h>
-#include <simd_stl/compatibility/FunctionAttributes.h>
-
-#include <simd_stl/compatibility/SimdCompatibility.h>
-#include <simd_stl/arch/ProcessorFeatures.h>
-
-#include <src/simd_stl/algorithm/AdvanceBytes.h>
-
-#include <simd_stl/math/BitMath.h>
-#include <simd_stl/compatibility/Inline.h>
-
 #include <simd_stl/numeric/BasicSimd.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -41,8 +28,8 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
     const sizetype  _Bytes,
     _Type_          _Value) noexcept
 {
-    using _SimdType_        = numeric::basic_simd<_SimdGeneration_, _Type_>;
-    auto _AlignedSize        = _Bytes & (~(sizeof(_SimdType_) - 1));
+    using _SimdType_    = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    auto _AlignedSize   = _Bytes & (~(sizeof(_SimdType_) - 1));
 
     sizetype _Count = 0;
 
@@ -62,7 +49,7 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
 }
 
 template <class _Type_>
-simd_stl_declare_const_function sizetype simd_stl_stdcall CountVectorized(
+simd_stl_declare_const_function sizetype simd_stl_stdcall _CountVectorized(
     const void*     _FirstPointer,
     const sizetype  _Bytes,
     _Type_          _Value) noexcept

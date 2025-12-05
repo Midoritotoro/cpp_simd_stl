@@ -8,19 +8,17 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 
 template <class _Type_>
 constexpr _Type_ MinimumIntegralLimit() noexcept {
-	// same as (numeric_limits<_Ty>::min)(), less throughput cost
 	static_assert(std::is_integral_v<_Type_>);
 
 	if constexpr (std::is_unsigned_v< _Type_>)
 		return 0;
-	
+
 	constexpr auto unsignedMax = static_cast<std::make_unsigned_t<_Type_>>(-1);
-	return static_cast<_Type_>((unsignedMax >> 1) + 1); // N4950 [conv.integral]/3
+	return static_cast<_Type_>((unsignedMax >> 1) + 1);
 }
 
 template <class _Type_>
 constexpr _Type_ MaximumIntegralLimit() noexcept { 
-	// same as (numeric_limits<_Ty>::max)(), less throughput cost
 	static_assert(std::is_integral_v<_Type_>);
 
 	if constexpr (std::is_unsigned_v<_Type_>)
@@ -30,7 +28,6 @@ constexpr _Type_ MaximumIntegralLimit() noexcept {
 	return static_cast<_Type_>(unsignedMax >> 1);
 }
 
-// false if the _TypeFrom_ type cannot be converted to _TypeTo without from data loss
 template <
 	typename _TypeTo_,
 	typename _TypeFrom_,
@@ -75,13 +72,12 @@ constexpr inline bool ConvertIntegral(
 	return true;
 }
 
-// Имеет ли смысл сравнение _Type_ value с _InputIterator_::value_type
 template <
     class _InputIterator_,
     class _Type_>
 simd_stl_nodiscard simd_stl_always_inline constexpr bool couldCompareEqualToValueType(const _Type_& _Value) noexcept {
     if constexpr (std::disjunction_v<
-#ifdef __cpp_lib_byte
+#if defined(__cpp_lib_byte)
         std::is_same<_Type_, std::byte>,
 #endif // defined(__cpp_lib_byte)
         std::is_same<_Type_, bool>, std::is_pointer<_Type_>, std::is_same<_Type_, std::nullptr_t>>) 

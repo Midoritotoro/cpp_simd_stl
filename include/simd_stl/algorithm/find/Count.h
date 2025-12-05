@@ -1,13 +1,7 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
-
-#include <simd_stl/compatibility/Nodiscard.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <src/simd_stl/algorithm/vectorized/CountVectorized.h>
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <src/simd_stl/algorithm/unchecked/CountIfUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/CountUnchecked.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -21,34 +15,7 @@ _Simd_nodiscard_inline_constexpr sizetype count(
 	const _Type_&	_Value) noexcept
 {
 	__verifyRange(_First, _Last);
-
-	using _UnwrappedIteratorType = unwrapped_iterator_type<_Iterator_>;
-
-	auto _FirstUnwrapped		= _UnwrapIterator(_First);
-	const auto _LastUnwrapped	= _UnwrapIterator(_Last);
-
-	if constexpr (type_traits::is_iterator_random_ranges_v<_UnwrappedIteratorType>) {
-		const auto _Size = ByteLength(_FirstUnwrapped, _LastUnwrapped);
-
-		if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIteratorType, _Type_>) {
-#if simd_stl_has_cxx20
-			if (type_traits::is_constant_evaluated() == false)
-#endif // simd_stl_has_cxx20
-			{
-				if (math::couldCompareEqualToValueType<_UnwrappedIteratorType>(_Value) == false)
-					return 0;
-
-				return _CountVectorized<_Type_>(std::to_address(_FirstUnwrapped), _Size, _Value);
-			}
-		}
-	}
-
-    type_traits::IteratorDifferenceType<_Iterator_> _Count = 0;
-
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		_Count += (*_FirstUnwrapped == _Value);
-
-	return _Count;
+	return _CountUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value);
 }
 
 template <
@@ -62,17 +29,7 @@ _Simd_nodiscard_inline_constexpr type_traits::IteratorDifferenceType<_InputItera
 			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
-
-	auto _FirstUnwrapped		= _UnwrapIterator(_First);
-	const auto _LastUnwrapped	= _UnwrapIterator(_Last);
-
-	auto _Count = type_traits::IteratorDifferenceType<_InputIterator_>(0);
-
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (_Predicate(*_FirstUnwrapped))
-			++_Count;
-
-	return _Count;
+	return _CountIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate))
 }
 
 template <

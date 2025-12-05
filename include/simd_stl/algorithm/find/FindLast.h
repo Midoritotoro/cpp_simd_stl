@@ -1,11 +1,10 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
+#include <src/simd_stl/algorithm/unchecked/FindLastUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/FindLastIfUnchecked.h>
 
-#include <src/simd_stl/algorithm/vectorized/FindLastVectorized.h>
-
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <src/simd_stl/algorithm/unchecked/FindLastIfNotUnchecked.h>
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -13,154 +12,97 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _Iterator_,
 	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find_last(
-	_Iterator_			first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+_Simd_nodiscard_inline_constexpr _Iterator_ find_last(
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
-
-	auto firstUnwrapped = _UnwrapIterator(first);
-	auto lastUnwrapped	= _UnwrapIterator(last);
-
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
-#if simd_stl_has_cxx20
-		if (type_traits::is_constant_evaluated() == false)
-#endif
-		{
-			if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
-				return last;
-
-			const auto firstAddress = std::to_address(firstUnwrapped);
-			const auto position = FindLastVectorized(firstAddress, std::to_address(lastUnwrapped), value);
-
-			if constexpr (std::is_pointer_v<_Iterator_>)
-				_SeekPossiblyWrappedIterator(first, reinterpret_cast<const _Type_*>(position));
-			else
-				_SeekPossiblyWrappedIterator(first, firstUnwrapped + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
-					reinterpret_cast<const _Type_*>(position) - firstAddress));
-
-			return first;
-		}
-	}
-
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (*firstUnwrapped == value)
-			break;
-
-	_SeekPossiblyWrappedIterator(first, firstUnwrapped);
-	return first;
+	_SeekPossiblyWrappedIterator(_First, _FindLastUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
+	return _First;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if_not(
-	_InputIterator_	first, 
-	_InputIterator_	last, 
-	_Predicate_		predicate) noexcept(
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
+	_InputIterator_	_First, 
+	_InputIterator_	_Last, 
+	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	auto firstUnwrapped	= _UnwrapIterator(first);
-	auto lastUnwrapped	= _UnwrapIterator(last);
+	_SeekPossiblyWrappedIterator(_First, _FindLastIfNotUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
+		type_traits::passFunction(_Predicate)));
 
-	while (lastUnwrapped != firstUnwrapped) {
-		--lastUnwrapped;
-		if (predicate(*lastUnwrapped) == false) {
-			_SeekPossiblyWrappedIterator(first, lastUnwrapped);
-			return first;
-		}
-	}
-
-	return last;
+	return _First;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if(
-	_InputIterator_	first, 
-	_InputIterator_	last,
-	_Predicate_		predicate) noexcept(
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
+	_InputIterator_	_First, 
+	_InputIterator_	_Last,
+	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 	
-	auto firstUnwrapped	= _UnwrapIterator(first);
-	auto lastUnwrapped	= _UnwrapIterator(last);
+	_SeekPossiblyWrappedIterator(_First, _FindLastIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
+		type_traits::passFunction(_Predicate)));
 
-	while (lastUnwrapped != firstUnwrapped) {
-		--lastUnwrapped;
-		if (predicate(*lastUnwrapped)) {
-			_SeekPossiblyWrappedIterator(first, lastUnwrapped);
-			return first;
-		}
-			
-	}
-
-	return last;
+	return _First;
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ find_last(
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_nodiscard_inline_constexpr _Iterator_ find_last(
 	_ExecutionPolicy_&&,
-	_Iterator_			first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+	_Iterator_		_First,
+	_Iterator_		_Last,
+	const _Type_&	_Value) noexcept
 {
-	return simd_stl::algorithm::find_last(first, last, value);
-}
-
-
-template <
-	class _ExecutionPolicy_,
-	class _InputIterator_,
-	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if_not(
-	_ExecutionPolicy_&&,
-	_InputIterator_	first, 
-	_InputIterator_	last, 
-	_Predicate_		predicate) noexcept(
-		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
-{
-	return simd_stl::algorithm::find_last_if_not(first, last, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::find_last(_First, _Last, _Value);
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _InputIterator_,
-	class _Predicate_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputIterator_ find_last_if(
+	class _Predicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 	_ExecutionPolicy_&&,
-	_InputIterator_	first, 
-	_InputIterator_	last,
-	_Predicate_		predicate) noexcept(
+	_InputIterator_	_First, 
+	_InputIterator_	_Last, 
+	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_,
-			type_traits::IteratorValueType<_InputIterator_>
-		>
-	)
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-	return simd_stl::algorithm::find_last_if(first, last, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::find_last_if_not(_First, _Last, type_traits::passFunction(_Predicate));
+}
+
+template <
+	class _ExecutionPolicy_,
+	class _InputIterator_,
+	class _Predicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
+	_ExecutionPolicy_&&,
+	_InputIterator_	_First, 
+	_InputIterator_	_Last,
+	_Predicate_		_Predicate) noexcept(
+		type_traits::is_nothrow_invocable_v<
+			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+{
+	return simd_stl::algorithm::find_last_if(_First, _Last, type_traits::passFunction(_Predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -199,7 +199,7 @@ private:
 };
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const _Type_* SearchVectorized(
+simd_stl_declare_const_function simd_stl_always_inline const _Type_* _SearchVectorized(
     const _Type_*   first1,
     const sizetype  mainRangeLength,
     const _Type_*   first2,

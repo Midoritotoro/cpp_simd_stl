@@ -24,7 +24,8 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline bool none_of(
 template <
     class _ExecutionPolicy_,
     class _InputIterator_, 
-    class _Predicate_>
+    class _Predicate_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline bool none_of(
     _ExecutionPolicy_&&,
     _InputIterator_ first,

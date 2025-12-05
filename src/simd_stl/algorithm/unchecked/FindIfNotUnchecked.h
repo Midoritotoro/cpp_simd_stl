@@ -16,18 +16,17 @@ template <
 	class _InputUnwrappedIterator_,
 	class _Predicate_>
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _InputUnwrappedIterator_ _FindIfNotUnchecked(
-	_InputUnwrappedIterator_		firstUnwrapped,
-	const _InputUnwrappedIterator_	lastUnwrapped,
-	_Predicate_						predicate) noexcept(
+	_InputUnwrappedIterator_		_FirstUnwrapped,
+	const _InputUnwrappedIterator_	_LastUnwrapped,
+	_Predicate_						_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-		_Predicate_,
-		type_traits::IteratorValueType<_InputUnwrappedIterator_>>)
+		_Predicate_, type_traits::IteratorValueType<_InputUnwrappedIterator_>>)
 {
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (predicate(*firstUnwrapped) == false)
+	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
+		if (_Predicate(*_FirstUnwrapped) == false)
 			break;
 
-	return firstUnwrapped;
+	return _FirstUnwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
