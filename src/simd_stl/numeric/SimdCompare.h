@@ -89,6 +89,17 @@ public:
 
     template <
         typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
+    }
+
+    template <
+        typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _CompareEqual(
         _VectorType_ _Left,
@@ -217,6 +228,8 @@ public:
                 _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
         }
     }
+
+
 };
 
 template <>
@@ -292,6 +305,17 @@ public:
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
             return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
     }
 
     template <
@@ -378,6 +402,17 @@ public:
 
     template <
         typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
+    }
+
+    template <
+        typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _CompareGreater(
         _VectorType_ _Left,
@@ -457,6 +492,17 @@ public:
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
             return ~_CompareLess<_DesiredType_>(_Left, _Right);
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
     }
 
     template <
@@ -587,6 +633,17 @@ public:
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
             return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
     }
 
     template <
@@ -730,6 +787,20 @@ public:
 
         else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
             return ~_MaskCompareLess<_DesiredType_>(_Left, _Right);
+    }
+
+    template <
+        typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) >= 4)
+            return _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+        else
+            return _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
     }
 
     template <
@@ -914,6 +985,17 @@ public:
 
     template <
         typename _DesiredType_,
+        class    _CompareType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto _NativeCompare(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept
+    {
+        return _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+    }
+
+    template <
+        typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
         _VectorType_ _Left,
@@ -1033,5 +1115,29 @@ simd_stl_nodiscard simd_stl_always_inline type_traits::__deduce_simd_mask_type<_
     return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>::template
         _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
 }
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    class               _DesiredType_,
+    class               _CompareType_,
+    class               _VectorType_>
+simd_stl_nodiscard simd_stl_always_inline auto _SimdNativeCompare(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
+        ::template _NativeCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+}
+
+template <
+    class       _BasicSimd_, 
+    typename    _DesiredType_,
+    class       _CompareType_>
+using _Native_compare_return_type = _Native_compare_return_type_helper<_BasicSimd_,
+    type_traits::invoke_result_type<decltype(_SimdNativeCompare<_BasicSimd_::_Generation,
+        typename _BasicSimd_::policy_type, _DesiredType_, _CompareType_, typename _BasicSimd_::vector_type>),
+    typename _BasicSimd_::vector_type, typename _BasicSimd_::vector_type>, _DesiredType_>;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

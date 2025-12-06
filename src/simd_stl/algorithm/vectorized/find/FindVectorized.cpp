@@ -1,4 +1,4 @@
-#include <src/simd_stl/algorithm/vectorized/FindVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/find/FindVectorized.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 

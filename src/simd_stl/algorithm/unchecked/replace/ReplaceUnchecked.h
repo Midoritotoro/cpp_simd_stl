@@ -20,11 +20,11 @@ _Simd_inline_constexpr void _ReplaceUnchecked(
 {
     if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedForwardIterator_, _Type_>) {
 #if simd_stl_has_cxx20
-        if (type_traits::is_constant_evaluated())
+        if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
         {
-
-            return;
+            return _ReplaceVectorized(std::to_address(_FirstUnwrapped), 
+                std::to_address(_LastUnwrapped), _OldValue, _NewValue);
         }
     }
 

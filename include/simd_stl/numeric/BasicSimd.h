@@ -520,6 +520,30 @@ public:
 
 
     template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::not_equal_to<>> 
+        nativeNotEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::equal_to<>>
+        nativeEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::greater<>>
+        nativeGreater(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::less<>>
+        nativeLess(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::greater_equal<>>
+        nativeGreaterEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::less_equal<>>
+        nativeLessEqual(const basic_simd& right) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
     simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> toMask() const noexcept;
 
     template <
@@ -1389,6 +1413,84 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPoli
     basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::lessEqual(const basic_simd& right) const noexcept 
 { 
     return _SimdCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, type_traits::less_equal<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::not_equal_to<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeNotEqual(const basic_simd& right) const noexcept 
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::not_equal_to<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::equal_to<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeEqual(const basic_simd& right) const noexcept
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::equal_to<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::greater<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeGreater(const basic_simd& right) const noexcept 
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::greater<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::less<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeLess(const basic_simd& right) const noexcept 
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::less<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::greater_equal<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeGreaterEqual(const basic_simd& right) const noexcept 
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::greater_equal<>>(_vector, right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _Native_compare_return_type<basic_simd<_SimdGeneration_, _Element_,
+    _RegisterPolicy_>, _DesiredType_, type_traits::less_equal<>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::nativeLessEqual(const basic_simd& right) const noexcept 
+{
+    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_,
+        type_traits::less_equal<>>(_vector, right._vector);
 }
 
 template <

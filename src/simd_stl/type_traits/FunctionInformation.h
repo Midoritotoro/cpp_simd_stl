@@ -187,9 +187,6 @@ template <class ... _Types_>
 using function_class_type = typename _FunctionInformation<_Types_...>::class_type;
 
 template <class ... _Types_>
-using function_return_type = typename _FunctionInformation<_Types_...>::return_type;
-
-template <class ... _Types_>
 constexpr inline bool is_member_function_pointer_v = _FunctionInformation<_Types_...>::is_member_function_pointer::value;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

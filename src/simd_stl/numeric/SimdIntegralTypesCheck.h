@@ -178,4 +178,11 @@ struct _Unwrapped_vector_t<_VectorType_, true, false> {
 template <class _VectorType_>
 using _Unwrapped_vector_type = typename _Unwrapped_vector_t<_VectorType_>::type;
 
+template <
+	class		_BasicSimd_,
+	typename	_ReturnType_,
+	typename	_DesiredType_>
+using _Native_compare_return_type_helper = std::conditional_t<_Is_intrin_type_v<_ReturnType_>,
+	basic_simd<_BasicSimd_::_Generation, _DesiredType_, typename _BasicSimd_::policy_type>, _ReturnType_>;
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

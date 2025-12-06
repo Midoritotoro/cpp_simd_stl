@@ -312,27 +312,32 @@ template <
     class...    _Args_>
 inline constexpr bool is_nothrow_invocable_r = _Select_invoke_traits<_Callable_, _Args_...>::_Is_nothrow_invocable_r::value;
 
+template <
+    class       _Callable_,
+    class...    _Args_>
+using invoke_result_type = typename _Select_invoke_traits<_Callable_, _Args_...>::type;
+
 template <class _Callable_>
-constexpr auto invoke(_Callable_&& callable) noexcept(noexcept(static_cast<_Callable_&&>(callable)()))
-    -> decltype(static_cast<_Callable_&&>(callable)())
+constexpr auto invoke(_Callable_&& _Callable) noexcept(noexcept(static_cast<_Callable_&&>(_Callable)()))
+    -> decltype(static_cast<_Callable_&&>(_Callable)())
 {
     static_assert(is_invocable_v<_Callable_>, "invoke argument is not callable");
-    return static_cast<_Callable_&&>(callable)();
+    return static_cast<_Callable_&&>(_Callable)();
 }
 
 #define __INVOKER_CALL _Invoker_type<_Callable_, _FirstArgument_>::call( \
-    static_cast<_Callable_&&>(callable), \
-    static_cast<_FirstArgument_&&>(firstArgument), \
-    static_cast<_Args_&&>(args)...) 
+    static_cast<_Callable_&&>(_Callable), \
+    static_cast<_FirstArgument_&&>(_FirstArgument), \
+    static_cast<_Args_&&>(_Args)...) 
 
 template <
     class       _Callable_,
     class       _FirstArgument_, 
     class...    _Args_>
 constexpr auto invoke(
-    _Callable_&&        callable,
-    _FirstArgument_&&   firstArgument,
-    _Args_&&...         args)
+    _Callable_&&        _Callable,
+    _FirstArgument_&&   _FirstArgument,
+    _Args_&&...         _Args)
         noexcept(noexcept(__INVOKER_CALL)) -> decltype(__INVOKER_CALL)
 {
     static_assert(is_invocable_v<_Callable_, _FirstArgument_, _Args_...>, "invoke argument is not callable");

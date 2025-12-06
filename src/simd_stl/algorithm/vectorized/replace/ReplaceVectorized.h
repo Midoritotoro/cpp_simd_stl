@@ -10,8 +10,8 @@ template <typename _Type_>
 simd_stl_always_inline void simd_stl_stdcall _ReplaceScalar(
     void*           _First,
     void*           _Last,
-    const _Type_&   _OldValue,
-    const _Type_&   _NewValue) noexcept
+    const _Type_    _OldValue,
+    const _Type_    _NewValue) noexcept
 {
     auto _Current = static_cast<_Type_*>(_First);
 
@@ -26,10 +26,10 @@ template <
 simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
     void*           _First,
     void*           _Last,
-    const _Type_&   _OldValue,
-    const _Type_&   _NewValue) noexcept
+    const _Type_    _OldValue,
+    const _Type_    _NewValue) noexcept
 {
-    using _Simd_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
     const auto _AlignedSize = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
@@ -42,19 +42,34 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
 
         do {
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
-            const auto _Compared = _SimdType_::equal
-        }
+            const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
+
+            _Replacement.maskStoreUnaligned(_First, _NativeMask);
+            AdvanceBytes(_First, sizeof(_SimdType_));
+        } while (_First != _StopAt);
     }
+
+    if (_First == _Last)
+        _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
 }
 
 template <typename _Type_>
-simd_stl_declare_const_function void simd_stl_stdcall ReplaceVectorized(
+void simd_stl_stdcall _ReplaceVectorized(
     void*           _First,
     void*           _Last,
-    const _Type_&   _OldValue,
-    const _Type_&   _NewValue) noexcept
+    const _Type_    _OldValue,
+    const _Type_    _NewValue) noexcept
 {
+    if (arch::ProcessorFeatures::AVX512F())
+        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
+    else if (arch::ProcessorFeatures::AVX2())
+        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _OldValue, _NewValue);
+    else if (arch::ProcessorFeatures::SSE41())
+        return _ReplaceVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last, _OldValue, _NewValue);
+    else if (arch::ProcessorFeatures::SSE2())
+        return _ReplaceVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _OldValue, _NewValue);
 
+    return _ReplaceScalar<_Type_>(_First, _Last, _OldValue, _NewValue);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

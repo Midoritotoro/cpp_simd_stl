@@ -1453,7 +1453,8 @@ template <
     class				_RegisterPolicy_,
     class               _DesiredType_,
     class               _MaskVectorType_,
-    class               _VectorType_>
+    class               _VectorType_,
+    std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
 simd_stl_always_inline void _SimdMaskStoreUnaligned(
     _DesiredType_*          _Where,
     const _MaskVectorType_  _Mask,
@@ -1468,7 +1469,8 @@ template <
     class				_RegisterPolicy_,
     class               _DesiredType_,
     class               _MaskVectorType_,
-    class               _VectorType_>
+    class               _VectorType_,
+    std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
 simd_stl_always_inline void _SimdMaskStoreAligned(
     _DesiredType_*          _Where,
     const _MaskVectorType_  _Mask,
