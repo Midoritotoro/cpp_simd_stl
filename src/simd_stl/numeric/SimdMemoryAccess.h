@@ -1752,7 +1752,7 @@ public:
 };
 
 template <>
-class _SimdMemoryAccess<arch::CpuFeature::AVX512BW, zmm512> :
+class _SimdMemoryAccess<arch::CpuFeature::AVX512BW, zmm512>:
     public _SimdMemoryAccess<arch::CpuFeature::AVX512F, zmm512>
 {
     static constexpr auto _Generation = arch::CpuFeature::AVX512BW;

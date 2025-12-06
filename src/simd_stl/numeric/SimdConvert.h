@@ -291,7 +291,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi16(_Broadcasted, _mm256_set1_epi16(1)));
         }
         else if constexpr (_Bits == 32) {
-            const auto _VectorMask = _mm256_setr_epi32((_Mask >> 16) & 0xFFFF, 0, 0, 0, _Mask & 0xFFFF, 0, 0, 0);
+            const auto _VectorMask = _mm256_setr_epi32(_Mask & 0xFFFF, 0, 0, 0, (_Mask >> 16) & 0xFFFF, 0, 0, 0);
 
             const auto _Select      = _mm256_set1_epi64x(0x8040201008040201ull);
             const auto _Shuffled    = _mm256_shuffle_epi8(_VectorMask,

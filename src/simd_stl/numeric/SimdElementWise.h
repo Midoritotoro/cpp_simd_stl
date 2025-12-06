@@ -365,6 +365,41 @@ public:
     }
 };
 
+static constexpr auto _Make8BitMaskExpandTable() noexcept {
+    std::array<uint64, 256> _Result;
+
+    for (int i = 0; i < 256; ++i) {
+        uint64 _Temp = 0;
+
+        for (int j = 0; j < 8; ++j)
+            if (i & (1 << j))
+                _Temp |= (uint64(0xFF) << (j * 8));
+
+        _Result[i] = _Temp;
+    }
+
+    return _Result;
+}
+
+static constexpr auto _Make16BitMaskExpandTable() noexcept {
+    std::array<uint32, 256> _Result;
+
+    for (int v = 0; v < 256; ++v) {
+        uint32 _Temp = 0;
+
+        for (int i = 0; i < 8; ++i)
+            if (v & (1 << i))
+                _Temp |= (0xFu << (i * 4));
+
+        _Result[v] = _Temp;
+    }
+
+    return _Result;
+}
+
+static inline constexpr auto _Mask8BitExpandTableAvx512BW = _Make8BitMaskExpandTable();
+static inline constexpr auto _Mask16BitExpandTableAvx512BW = _Make16BitMaskExpandTable();
+
 template <>
 class _SimdElementWise<arch::CpuFeature::AVX512BW, zmm512>:
     public _SimdElementWise<arch::CpuFeature::AVX512F, zmm512>
@@ -374,6 +409,34 @@ class _SimdElementWise<arch::CpuFeature::AVX512BW, zmm512>:
 
     template <typename _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <typename _Type_>
+    static simd_stl_always_inline auto _ExpandMaskBits(_Type_ _Mask) noexcept {
+        if constexpr (sizeof(_Type_) == 1) {
+            return _Mask8BitExpandTableAvx512BW[_Mask];
+        }
+        else if constexpr (sizeof(_Type_) == 2) {
+            uint8 _Low  = _Mask & 0xFF;
+            uint8 _High = (_Mask >> 8);
+
+            return ((static_cast<uint64>(_Mask16BitExpandTableAvx512BW[_High]) << 32)) | _Mask16BitExpandTableAvx512BW[_Low];
+        }
+        else if constexpr (sizeof(_Type_) == 4) {
+            uint64 v = _Mask;
+
+            v = (v | (v << 16)) & 0x0000FFFF0000FFFFull;
+            v = (v | (v << 8)) & 0x00FF00FF00FF00FFull;
+            v = (v | (v << 4)) & 0x0F0F0F0F0F0F0F0Full;
+            v = (v | (v << 2)) & 0x3333333333333333ull;
+            v = (v | (v << 1)) & 0x5555555555555555ull;
+
+            return (static_cast<uint64>(v | (v << 1)));
+        }
+        else {
+            return _Mask;
+        }
+
+    }
 public:
     template <
         typename    _DesiredType_,
@@ -395,7 +458,7 @@ public:
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
         return _IntrinBitcast<_VectorType_>(_mm512_mask_blend_epi8(
-            _Mask, _IntrinBitcast<__m512i>(_Second), _IntrinBitcast<__m512i>(_First)));
+            _ExpandMaskBits(_Mask), _IntrinBitcast<__m512i>(_Second), _IntrinBitcast<__m512i>(_First)));
     }
 
     template <
