@@ -87,17 +87,11 @@ public:
 
     ~basic_simd() noexcept;
 
-    /**
-        * @brief Выполняет действие конвертации вектора в '_BasicSimdTo_'
-        * Например: 
-        * basic_simd<SSE2, int32>(1).convert<basic_simd<SSE2, int8>>() ->
-        *     basic_simd<SSE2, int8>(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
-    */
     template <class _BasicSimdTo_>
     simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
 
     /**
-        * @brief Поддержан ли сет инструкций _SimdGeneration_ на текущей машине
+        * @brief Поддержан ли набор инструкций _SimdGeneration_ на текущей машине
     */
     static simd_stl_always_inline bool isSupported() noexcept;
 
@@ -237,6 +231,37 @@ public:
     simd_stl_always_inline void maskStoreAligned(
         void*                                                                   where,
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
+
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline void maskBlendStoreUnaligned(
+        void*                               where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    mask,
+        const basic_simd<_SimdGeneration_, _DesiredType_,
+            _RegisterPolicy_>&              source) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline void maskBlendStoreAligned(
+        void*                               where,
+        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+        _DesiredType_, _RegisterPolicy_>    mask,
+        const basic_simd<_SimdGeneration_, _DesiredType_,
+            _RegisterPolicy_>&              source) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline void maskBlendStoreUnaligned(
+        void*                                                                   where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline void maskBlendStoreAligned(
+        void*                                                                   where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept;
+
+
 
     /** 
         * @brief Деление вектора на константу времени компиляции.     
@@ -1202,6 +1227,63 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPol
 {
     _SimdMaskStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask._vector, _vector);
+}
+
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreUnaligned(
+    void*                               where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+    _DesiredType_, _RegisterPolicy_>    mask,
+    const basic_simd<_SimdGeneration_, _DesiredType_,
+        _RegisterPolicy_>&              source) const noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreAligned(
+    void*                               where,
+    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
+    _DesiredType_, _RegisterPolicy_>    mask,
+    const basic_simd<_SimdGeneration_, _DesiredType_,
+        _RegisterPolicy_>&              source) const noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreUnaligned(
+    void*                                                                   where,
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept
+{
+
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreAligned(
+    void*                                                                   where,
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept 
+{
+
 }
 
 template <

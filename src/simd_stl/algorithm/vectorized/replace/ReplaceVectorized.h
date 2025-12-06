@@ -60,9 +60,16 @@ void simd_stl_stdcall _ReplaceVectorized(
     const _Type_    _OldValue,
     const _Type_    _NewValue) noexcept
 {
-    if (arch::ProcessorFeatures::AVX512F())
-        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
-    else if (arch::ProcessorFeatures::AVX2())
+    //if (sizeof(_Type_) <= 2) {
+    //    if (arch::ProcessorFeatures::AVX512BW())
+    //        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _OldValue, _NewValue);
+    //}
+    //else {
+    //    if (arch::ProcessorFeatures::AVX512F())
+    //        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
+    //}
+
+    if (arch::ProcessorFeatures::AVX2())
         return _ReplaceVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _OldValue, _NewValue);
     else if (arch::ProcessorFeatures::SSE41())
         return _ReplaceVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last, _OldValue, _NewValue);

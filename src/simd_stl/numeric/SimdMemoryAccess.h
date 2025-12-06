@@ -1135,17 +1135,8 @@ public:
         const _MaskVectorType_  _Mask,
         const _VectorType_      _Vector) noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 8)
-            _mm512_mask_storeu_epi64(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
-                _IntrinBitcast<__m512i>(_Vector));
-        
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            _mm512_mask_storeu_epi32(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
-                _IntrinBitcast<__m512i>(_Vector));
-        
-        else
-            _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _Vector, _LoadUnaligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+        return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+            _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
     }
     
     template <
@@ -1158,17 +1149,8 @@ public:
         const _MaskVectorType_  _Mask,
         const _VectorType_      _Vector) noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 8)
-            _mm512_mask_store_epi64(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
-                _IntrinBitcast<__m512i>(_Vector));
-
-        else if constexpr (sizeof(_DesiredType_) == 4)
-            _mm512_mask_store_epi32(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
-                _IntrinBitcast<__m512i>(_Vector));
-
-        else
-            _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
-                _Vector, _LoadAligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+        return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+            _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
     }
 
     template <
@@ -1266,7 +1248,80 @@ public:
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::AVX512BW, zmm512> :
     public _SimdMemoryAccess<arch::CpuFeature::AVX512F, zmm512>
-{};
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy = zmm512;
+
+    template <class _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_storeu_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+        
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_storeu_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+        
+        else if constexpr (sizeof(_DesiredType_) == 2)
+            _mm512_mask_storeu_epi16(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+
+        else if constexpr (sizeof(_DesiredType_) == 1)
+            _mm512_mask_storeu_epi8(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*                          _Where,
+        const _Simd_mask_type<_DesiredType_>    _Mask,
+        const _VectorType_                      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_store_epi64(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_store_epi32(_Where, _Mask, _IntrinBitcast<__m512i>(_Vector));
+
+        else
+            return _MaskStoreUnaligned<_DesiredType_>(_Where, _Mask, _Vector);
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+            _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+            _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
+    }
+};
 
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::AVX512DQ, zmm512> :

@@ -4,30 +4,31 @@
 
 template <
     typename _Char_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class StdReverseBenchmark {
 public:
-    static void Reverse(benchmark::State& state) noexcept {
-        static constexpr FixedArray<_Char_, sizeForBenchmark> textArray = FixedArray<_Char_, sizeForBenchmark>{};
+    static inline auto array = FixedArray<_Char_, sizeForBenchmark>{};
 
+    static void Reverse(benchmark::State& state) noexcept {
         while (state.KeepRunning()) {
-            std::reverse(textArray.data, textArray.data + sizeForBenchmark);
-            benchmark::DoNotOptimize(textArray.data);
+            std::reverse(array.data, array.data + sizeForBenchmark);
+            benchmark::DoNotOptimize(array.data);
         }
     }
 };
 
 template <
     typename _Char_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class SimdStlReverseBenchmark {
 public:
+    static inline auto array = FixedArray<_Char_, sizeForBenchmark>{};
+
     static void Reverse(benchmark::State& state) noexcept {
-        static constexpr FixedArray<_Char_, sizeForBenchmark> textArray = FixedArray<_Char_, sizeForBenchmark>{};
 
         while (state.KeepRunning()) {
-            simd_stl::algorithm::reverse(textArray.data, textArray.data + sizeForBenchmark);
-            benchmark::DoNotOptimize(textArray.data);
+            simd_stl::algorithm::reverse(array.data, array.data + sizeForBenchmark);
+            benchmark::DoNotOptimize(array.data);
         }
     }
 };
