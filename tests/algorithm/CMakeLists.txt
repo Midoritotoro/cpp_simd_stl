@@ -15,7 +15,7 @@ enable_testing()
 macro(cpp_simd_stl_algorithm_add_test filename)
     add_executable(${filename} ${filename}.cpp)
 
-    set(CMAKE_CXX_FLAGS -march=native)
+    add_compile_options(/bigobj /Od /GL-)
 
     target_link_libraries(
       ${filename} PRIVATE

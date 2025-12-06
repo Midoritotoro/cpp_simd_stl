@@ -44,7 +44,11 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
             const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
 
-            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
+            if constexpr (sizeof(_Type_) <= 2)
+                _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
+            else 
+                _Replacement.maskStoreUnaligned(_First, _NativeMask);
+
             AdvanceBytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }

@@ -7,8 +7,17 @@ template <
     typename            _Type_,
     simd_stl::sizetype  _Size_>
 struct _ReplaceBenchmarkArray {
-    _Type_ array[_Size_];
+    _Type_* array;
+
+    _ReplaceBenchmarkArray() {
+        array = new _Type_[_Size_];
+    }
+
+    ~_ReplaceBenchmarkArray() {
+        delete[] array;
+    }
 };
+
 
 template <
     typename            _Type_,
@@ -59,6 +68,8 @@ public:
 };
 
 //SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int8, Replace);
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
+//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
+//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, int, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, long long, Replace);
 
 SIMD_STL_BENCHMARK_MAIN();
