@@ -417,20 +417,9 @@ class _SimdElementWise<arch::CpuFeature::AVX512BW, zmm512>:
         }
         else if constexpr (sizeof(_Type_) == 2) {
             uint8 _Low  = _Mask & 0xFF;
-            uint8 _High = (_Mask >> 8);
+            uint8 _High = _Mask >> 8;
 
             return ((static_cast<uint64>(_Mask16BitExpandTableAvx512BW[_High]) << 32)) | _Mask16BitExpandTableAvx512BW[_Low];
-        }
-        else if constexpr (sizeof(_Type_) == 4) {
-            uint64 v = _Mask;
-
-            v = (v | (v << 16)) & 0x0000FFFF0000FFFFull;
-            v = (v | (v << 8)) & 0x00FF00FF00FF00FFull;
-            v = (v | (v << 4)) & 0x0F0F0F0F0F0F0F0Full;
-            v = (v | (v << 2)) & 0x3333333333333333ull;
-            v = (v | (v << 1)) & 0x5555555555555555ull;
-
-            return (static_cast<uint64>(v | (v << 1)));
         }
         else {
             return _Mask;
@@ -446,7 +435,14 @@ public:
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept
     {
-        return _Blend<_DesiredType_>(_First, _Second, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        if constexpr (sizeof(_DesiredType_) == 2)
+            return _IntrinBitcast<_VectorType_>(_mm512_or_si512(
+                _mm512_and_si512(_IntrinBitcast<__m512i>(_Mask), _IntrinBitcast<__m512i>(_First)),
+                _mm512_andnot_si512(_IntrinBitcast<__m512i>(_Mask), _IntrinBitcast<__m512i>(_Second))));
+        
+        else
+            return _Blend<_DesiredType_>(_First, _Second, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        
     }
 
     template <
@@ -457,8 +453,12 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        return _IntrinBitcast<_VectorType_>(_mm512_mask_blend_epi8(
-            _ExpandMaskBits(_Mask), _IntrinBitcast<__m512i>(_Second), _IntrinBitcast<__m512i>(_First)));
+        if constexpr (sizeof(_Simd_mask_type<_DesiredType_>) == 4)
+            return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, __m512i, _DesiredType_>(_Mask));
+        
+        else
+            return _IntrinBitcast<_VectorType_>(_mm512_mask_blend_epi8(
+                _ExpandMaskBits(_Mask), _IntrinBitcast<__m512i>(_Second), _IntrinBitcast<__m512i>(_First)));
     }
 
     template <
