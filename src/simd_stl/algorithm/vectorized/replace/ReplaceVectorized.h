@@ -44,7 +44,7 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
             const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
 
-            _Replacement.maskStoreUnaligned(_First, _NativeMask);
+            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
             AdvanceBytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
@@ -60,14 +60,14 @@ void simd_stl_stdcall _ReplaceVectorized(
     const _Type_    _OldValue,
     const _Type_    _NewValue) noexcept
 {
-    //if (sizeof(_Type_) <= 2) {
-    //    if (arch::ProcessorFeatures::AVX512BW())
-    //        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _OldValue, _NewValue);
-    //}
-    //else {
-    //    if (arch::ProcessorFeatures::AVX512F())
-    //        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
-    //}
+    if (sizeof(_Type_) <= 2) {
+        if (arch::ProcessorFeatures::AVX512BW())
+            return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _OldValue, _NewValue);
+    }
+    else {
+        if (arch::ProcessorFeatures::AVX512F())
+            return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
+    }
 
     if (arch::ProcessorFeatures::AVX2())
         return _ReplaceVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _OldValue, _NewValue);

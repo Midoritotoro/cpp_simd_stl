@@ -150,8 +150,8 @@ public:
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept
     {
-        return _mm_blendv_epi8(_IntrinBitcast<__m128i>(_Second),
-            _IntrinBitcast<__m128i>(_First), _IntrinBitcast<__m128i>(_Mask));
+        return _IntrinBitcast<_VectorType_>(_mm_blendv_epi8(_IntrinBitcast<__m128i>(_Second),
+            _IntrinBitcast<__m128i>(_First), _IntrinBitcast<__m128i>(_Mask)));
     }
 
     template <
@@ -162,7 +162,7 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_, _DesiredType_>(_Mask));
     }
 };
 
@@ -251,7 +251,7 @@ template <>
 class _SimdElementWise<arch::CpuFeature::AVX2, ymm256>:
     public _SimdElementWise<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
+    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
     using _RegisterPolicy               = ymm256;
 
     template <typename _DesiredType_>
@@ -265,8 +265,8 @@ public:
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept
     {
-        return _mm256_blendv_epi8(_IntrinBitcast<__m256i>(_Second),
-            _IntrinBitcast<__m256i>(_First), _IntrinBitcast<__m256i>(_Mask));
+        return _IntrinBitcast<_VectorType_>(_mm256_blendv_epi8(_IntrinBitcast<__m256i>(_Second),
+            _IntrinBitcast<__m256i>(_First), _IntrinBitcast<__m256i>(_Mask)));
     }
 
     template <
@@ -277,7 +277,7 @@ public:
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
-        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_>(_Mask));
+        return _Blend<_DesiredType_>(_First, _Second, _SimdToVector<_Generation, _RegisterPolicy, _VectorType_, _DesiredType_>(_Mask));
     }
 
     template <
@@ -395,7 +395,7 @@ public:
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept
     {
         return _IntrinBitcast<_VectorType_>(_mm512_mask_blend_epi8(
-            _Mask, _IntrinBitcast<__m512i>(_First), _IntrinBitcast<__m512i>(_Second)));
+            _Mask, _IntrinBitcast<__m512i>(_Second), _IntrinBitcast<__m512i>(_First)));
     }
 
     template <

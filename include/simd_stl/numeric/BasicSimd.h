@@ -238,28 +238,26 @@ public:
         void*                               where,
         const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
         _DesiredType_, _RegisterPolicy_>    mask,
-        const basic_simd<_SimdGeneration_, _DesiredType_,
-            _RegisterPolicy_>&              source) const noexcept;
+        const basic_simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreAligned(
         void*                               where,
         const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
         _DesiredType_, _RegisterPolicy_>    mask,
-        const basic_simd<_SimdGeneration_, _DesiredType_,
-            _RegisterPolicy_>&              source) const noexcept;
+        const basic_simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreUnaligned(
-        void*                                                                   where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept;
+        void*               where,
+        const basic_simd&   mask,
+        const basic_simd&   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreAligned(
-        void*                                                                   where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept;
+        void*               where,
+        const basic_simd&   mask,
+        const basic_simd&   source) const noexcept;
 
 
 
@@ -1239,10 +1237,9 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPol
     void*                               where,
     const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
     _DesiredType_, _RegisterPolicy_>    mask,
-    const basic_simd<_SimdGeneration_, _DesiredType_,
-        _RegisterPolicy_>&              source) const noexcept
+    const basic_simd&                   source) const noexcept
 {
-
+    return _SimdMaskBlendStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
 }
 
 template <
@@ -1254,10 +1251,9 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPol
     void*                               where,
     const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
     _DesiredType_, _RegisterPolicy_>    mask,
-    const basic_simd<_SimdGeneration_, _DesiredType_,
-        _RegisterPolicy_>&              source) const noexcept
+    const basic_simd&                   source) const noexcept
 {
-
+    return _SimdMaskBlendStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
 }
 
 template <
@@ -1266,11 +1262,11 @@ template <
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreUnaligned(
-    void*                                                                   where,
-    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
-    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept
+    void*               where,
+    const basic_simd&   mask,
+    const basic_simd&   source) const noexcept
 {
-
+    return _SimdMaskBlendStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask._vector, _vector, source._vector);
 }
 
 template <
@@ -1279,11 +1275,11 @@ template <
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreAligned(
-    void*                                                                   where,
-    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask,
-    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    source) const noexcept 
+    void*               where,
+    const basic_simd&   mask,
+    const basic_simd&   source) const noexcept 
 {
-
+    return _SimdMaskBlendStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
 }
 
 template <
