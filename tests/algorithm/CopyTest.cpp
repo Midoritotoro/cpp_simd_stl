@@ -1,6 +1,6 @@
 #define NOMINMAX
 
-#include <simd_stl/algorithm/copy/Copy.h>
+#include <simd_stl/algorithm/copy/CopyN.h>
 #include <random> 
 #include <deque>
 #include <chrono>
@@ -171,6 +171,67 @@ int main() {
         auto its = src.begin();
         auto itd = dst.begin();
         for (; its != src.end(); ++its, ++itd) Assert(*its == *itd);
+    }
+
+    {
+        int src[5] = { 1, 2, 3, 4, 5 };
+        int dst[5] = {};
+        simd_stl::algorithm::copy_n(src, 5, dst);
+        for (int i = 0; i < 5; ++i) {
+            Assert(dst[i] == src[i]);
+        }
+    }
+
+    // --- частичное копирование ---
+    {
+        int src[5] = { 10, 20, 30, 40, 50 };
+        int dst[5] = {};
+        simd_stl::algorithm::copy_n(src, 3, dst);
+        Assert(dst[0] == 10);
+        Assert(dst[1] == 20);
+        Assert(dst[2] == 30);
+        // хвост не тронут
+        Assert(dst[3] == 0);
+        Assert(dst[4] == 0);
+    }
+
+    // --- копирование в std::vector ---
+    {
+        std::vector<int> src{ 7, 8, 9, 10 };
+        std::vector<int> dst(4);
+        simd_stl::algorithm::copy_n(src.data(), src.size(), dst.data());
+        for (size_t i = 0; i < src.size(); ++i) {
+            Assert(dst[i] == src[i]);
+        }
+    }
+
+    // --- разные типы ---
+    {
+        char src[3] = { 'a', 'b', 'c' };
+        char dst[3] = {};
+        simd_stl::algorithm::copy_n(src, 3, dst);
+        Assert(dst[0] == 'a');
+        Assert(dst[1] == 'b');
+        Assert(dst[2] == 'c');
+
+        float srcf[2] = { 1.5f, -2.5f };
+        float dstf[2] = {};
+        simd_stl::algorithm::copy_n(srcf, 2, dstf);
+        Assert(dstf[0] == 1.5f);
+        Assert(dstf[1] == -2.5f);
+    }
+
+    // --- пограничные случаи ---
+    {
+        int src[3] = { 42, 43, 44 };
+        int dst[3] = { 0, 0, 0 };
+        simd_stl::algorithm::copy_n(src, 0, dst); // ничего не копируем
+        Assert(dst[0] == 0 && dst[1] == 0 && dst[2] == 0);
+
+        simd_stl::algorithm::copy_n(src, 1, dst);
+        Assert(dst[0] == 42);
+        Assert(dst[1] == 0);
+        Assert(dst[2] == 0);
     }
 
     return 0;

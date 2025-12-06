@@ -19,10 +19,10 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _DesiredType_* _SimdCompressStoreUnaligned(
-    _DesiredType_* _Where,
+    _DesiredType_*                          _Where,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_>    _Mask,
-    _VectorType_                        _Vector) noexcept;
+        _DesiredType_, _RegisterPolicy_>    _Mask,
+    _VectorType_                            _Vector) noexcept;
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -169,6 +169,34 @@ public:
     {
         _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _Vector, _LoadAligned<_VectorType_>(_Where), _Mask));
+    }
+
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+            _Vector, _LoadUnaligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+            _Vector, _LoadAligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
     }
 
     template <
@@ -690,6 +718,54 @@ public:
         }
     }
 
+     template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
+                _IntrinBitcast<__m256i>(_Mask), _IntrinBitcast<__m256d>(_Vector));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
+                _IntrinBitcast<__m256i>(_Mask), _IntrinBitcast<__m256>(_Vector));
+        }
+        else {
+            _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _Vector, _LoadUnaligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+        }
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
+                _IntrinBitcast<__m256i>(_Mask), _IntrinBitcast<__m256d>(_Vector));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
+                _IntrinBitcast<__m256i>(_Mask), _IntrinBitcast<__m256>(_Vector));
+        }
+        else {
+            _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _Vector, _LoadAligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+        }
+    }
+
     template <
         typename _VectorType_,
         typename _DesiredType_>
@@ -1050,6 +1126,52 @@ public:
     }
 
     template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreUnaligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_storeu_epi64(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
+                _IntrinBitcast<__m512i>(_Vector));
+        
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_storeu_epi32(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
+                _IntrinBitcast<__m512i>(_Vector));
+        
+        else
+            _StoreUnaligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _Vector, _LoadUnaligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+    }
+    
+    template <
+        typename _DesiredType_,
+        typename _MaskVectorType_,
+        typename _VectorType_,
+        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
+    static simd_stl_always_inline void _MaskStoreAligned(
+        _DesiredType_*          _Where,
+        const _MaskVectorType_  _Mask,
+        const _VectorType_      _Vector) noexcept
+    {
+        if constexpr (sizeof(_DesiredType_) == 8)
+            _mm512_mask_store_epi64(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
+                _IntrinBitcast<__m512i>(_Vector));
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
+            _mm512_mask_store_epi32(_Where, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask),
+                _IntrinBitcast<__m512i>(_Vector));
+
+        else
+            _StoreAligned(_Where, _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
+                _Vector, _LoadAligned<_VectorType_>(_Where), _IntrinBitcast<_VectorType_>(_Mask)));
+    }
+
+    template <
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ _MaskLoadUnaligned(
@@ -1321,6 +1443,36 @@ simd_stl_always_inline void _SimdMaskStoreAligned(
     const type_traits::__deduce_simd_mask_type<
         _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask,
     const _VectorType_                                      _Vector) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskStoreAligned(_Where, _Mask, _Vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    class               _DesiredType_,
+    class               _MaskVectorType_,
+    class               _VectorType_>
+simd_stl_always_inline void _SimdMaskStoreUnaligned(
+    _DesiredType_*          _Where,
+    const _MaskVectorType_  _Mask,
+    const _VectorType_      _Vector) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskStoreUnaligned(_Where, _Mask, _Vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    class               _DesiredType_,
+    class               _MaskVectorType_,
+    class               _VectorType_>
+simd_stl_always_inline void _SimdMaskStoreAligned(
+    _DesiredType_*          _Where,
+    const _MaskVectorType_  _Mask,
+    const _VectorType_      _Vector) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskStoreAligned(_Where, _Mask, _Vector);

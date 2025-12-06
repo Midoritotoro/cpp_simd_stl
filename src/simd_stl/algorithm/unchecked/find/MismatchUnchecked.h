@@ -3,7 +3,7 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <src/simd_stl/algorithm/vectorized/MismatchVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/find/MismatchVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>

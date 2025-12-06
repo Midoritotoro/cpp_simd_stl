@@ -6,7 +6,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function void* simd_stl__RemoveCopyScalar(
+simd_stl_declare_const_function void* _RemoveCopyScalar(
     const void* _First,
     const void* _Last,
     void*       _Destination,

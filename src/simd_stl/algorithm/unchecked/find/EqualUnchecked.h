@@ -3,16 +3,11 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <simd_stl/compatibility/Nodiscard.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <src/simd_stl/algorithm/vectorized/EqualVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/find/EqualVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
-#include <src/simd_stl/type_traits/FunctionPass.h>
 
-#include <cmath>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 

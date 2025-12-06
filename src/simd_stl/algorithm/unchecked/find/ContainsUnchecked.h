@@ -3,7 +3,7 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <src/simd_stl/algorithm/vectorized/ContainsVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/find/ContainsVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 

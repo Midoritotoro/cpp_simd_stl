@@ -25,31 +25,28 @@ option(CPP_SIMD_STL_INSTALL "" ${PROJECT_IS_TOP_LEVEL})
 set(CPP_SIMD_STL_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/cpp_simd_stl")
 
 set(PRIVATE_SOURCES  
-    src/simd_stl/algorithm/vectorized/FindVectorized.cpp
+    "src/simd_stl/algorithm/vectorized/find/FindVectorized.cpp"
 )
 
 set(PRIVATE_HEADERS 
-    src/simd_stl/algorithm/vectorized/FindVectorized.h
-    src/simd_stl/algorithm/vectorized/ContainsRangeVectorized.h
-    src/simd_stl/algorithm/vectorized/ContainsVectorized.h
-    src/simd_stl/algorithm/vectorized/CountVectorized.h
-    src/simd_stl/algorithm/vectorized/FindLastRangeVectorized.h
-    src/simd_stl/algorithm/vectorized/FindLastVectorized.h
-    src/simd_stl/algorithm/vectorized/FindRangeVectorized.h
-    src/simd_stl/algorithm/vectorized/FindVectorized.h
-    src/simd_stl/algorithm/vectorized/MismatchVectorized.h
-    src/simd_stl/algorithm/vectorized/MinMaxVectorized.h
-    src/simd_stl/algorithm/vectorized/ReplaceVectorized.h
-    src/simd_stl/algorithm/vectorized/ReverseCopyVectorized.h
-    src/simd_stl/algorithm/vectorized/ReverseVectorized.h
-    src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h
-    src/simd_stl/algorithm/vectorized/EqualVectorized.h
-    src/simd_stl/algorithm/vectorized/FindEndVectorized.h
-    src/simd_stl/algorithm/vectorized/CopyVectorized.h
-    src/simd_stl/algorithm/vectorized/MoveVectorized.h
-    src/simd_stl/algorithm/vectorized/FillVectorized.h
-    src/simd_stl/algorithm/vectorized/RemoveVectorized.h
-    src/simd_stl/algorithm/vectorized/RemoveCopyVectorized.h
+    "src/simd_stl/algorithm/vectorized/find/FindVectorized.h"
+    
+    "src/simd_stl/algorithm/vectorized/find/ContainsVectorized.h"
+    src/simd_stl/algorithm/vectorized/find/CountVectorized.h
+    "src/simd_stl/algorithm/vectorized/find/FindLastVectorized.h"
+    src/simd_stl/algorithm/vectorized/find/FindVectorized.h
+    "src/simd_stl/algorithm/vectorized/find/MismatchVectorized.h"
+    src/simd_stl/algorithm/vectorized/replace/ReplaceVectorized.h
+    src/simd_stl/algorithm/vectorized/order/ReverseCopyVectorized.h
+    src/simd_stl/algorithm/vectorized/order/ReverseVectorized.h
+    src/simd_stl/algorithm/vectorized/swap/SwapRangesVectorized.h
+    "src/simd_stl/algorithm/vectorized/find/EqualVectorized.h"
+    "src/simd_stl/algorithm/vectorized/find/FindEndVectorized.h"
+    src/simd_stl/algorithm/vectorized/copy/CopyVectorized.h
+    src/simd_stl/algorithm/vectorized/copy/MoveVectorized.h
+    src/simd_stl/algorithm/vectorized/fill/FillVectorized.h
+    src/simd_stl/algorithm/vectorized/remove/RemoveVectorized.h
+    src/simd_stl/algorithm/vectorized/remove/RemoveCopyVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -74,7 +71,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/copy/MoveUnchecked.h
     src/simd_stl/algorithm/unchecked/copy/MoveBackwardUnchecked.h
 
-
+    src/simd_stl/algorithm/unchecked/replace/ReplaceIfUnchecked.h
+    src/simd_stl/algorithm/unchecked/replace/ReplaceUnchecked.h
 
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h
@@ -121,7 +119,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/concurrency/WindowsThreadPool.h
     src/simd_stl/concurrency/WindowsThreadPoolTasks.h
     
-    src/simd_stl/algorithm/vectorized/SearchVectorized.h
+    "src/simd_stl/algorithm/vectorized/find/SearchVectorized.h"
     src/simd_stl/algorithm/vectorized/traits/SearchLoop.h
     src/simd_stl/algorithm/FixedMemcmp.h
     src/simd_stl/algorithm/MsvcIteratorUnwrap.h
