@@ -13,11 +13,11 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_>
+	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
 _Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindUnchecked(
-	_UnwrappedIterator_	_FirstUnwrapped,
-	_UnwrappedIterator_	_LastUnwrapped,
-	const _Type_&		_Value) noexcept
+	_UnwrappedIterator_									_FirstUnwrapped,
+	_UnwrappedIterator_									_LastUnwrapped,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept
 {
 	using _DifferenceType = type_traits::IteratorDifferenceType<_UnwrappedIterator_>;
 

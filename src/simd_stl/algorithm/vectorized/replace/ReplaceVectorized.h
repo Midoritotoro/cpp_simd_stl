@@ -52,7 +52,7 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
             AdvanceBytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
-
+    
     if (_First == _Last)
         _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
 }
@@ -64,7 +64,8 @@ void simd_stl_stdcall _ReplaceVectorized(
     const _Type_    _OldValue,
     const _Type_    _NewValue) noexcept
 {
-    if (sizeof(_Type_) <= 2) {
+    
+    if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
             return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _OldValue, _NewValue);
     }

@@ -13,9 +13,9 @@ template <
 	class _Iterator_,
 	class _Type_ = type_traits::IteratorValueType<_Iterator_>>
 _Simd_nodiscard_inline_constexpr _Iterator_ find(
-	_Iterator_		_First,
-	_Iterator_		_Last,
-	const _Type_&	_Value) noexcept
+	_Iterator_											_First,
+	_Iterator_											_Last,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept
 {
 	__verifyRange(_First, _Last);
 
@@ -63,12 +63,12 @@ _Simd_nodiscard_inline_constexpr _InputIterator_ find_if(
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_,
+	class _Type_ = type_traits::IteratorValueType<_Iterator_>,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard _Iterator_ find(
 	_ExecutionPolicy_&&,
-	_Iterator_		_First,
-	_Iterator_		_Last,
-	const _Type_&	_Value) noexcept;
+	_Iterator_											_First,
+	_Iterator_											_Last,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept;
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -3,11 +3,13 @@
 #include <src/simd_stl/algorithm/vectorized/order/ReverseVectorized.h>
 #include <simd_stl/algorithm/swap/Swap.h>
 
+#include <simd_stl/concurrency/Execution.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _BidirectionalIterator_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
+_Simd_inline_constexpr void reverse(
     _BidirectionalIterator_ first,
     _BidirectionalIterator_ last) noexcept
 {
@@ -37,8 +39,9 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
 
 template <
     class _ExecutionPolicy_,
-    class _BidirectionalIterator_>
-simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse(
+    class _BidirectionalIterator_,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_inline_constexpr void reverse(
     _ExecutionPolicy_&&,
     _BidirectionalIterator_ first,
     _BidirectionalIterator_ last) noexcept

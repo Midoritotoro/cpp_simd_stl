@@ -60,13 +60,9 @@ simd_stl_always_inline sizetype ByteLength(
     const volatile void* first,
     const volatile void* last) noexcept
 {
-    const auto firstChar    = const_cast<const unsigned char*>(
-        reinterpret_cast<const volatile unsigned char*>(first));
-
-    const auto lastChar     = const_cast<const unsigned char*>(
-        reinterpret_cast<const volatile unsigned char*>(last));
-
-    return static_cast<sizetype>(lastChar - firstChar);
+    return static_cast<sizetype>(const_cast<const unsigned char*>(
+        reinterpret_cast<const volatile unsigned char*>(last)) - const_cast<const unsigned char*>(
+            reinterpret_cast<const volatile unsigned char*>(first)));
 }
 
 template <class _ContiguousIterator_>

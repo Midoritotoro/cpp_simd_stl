@@ -213,36 +213,27 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Reverse(_VectorType_ _Vector) noexcept {
         if constexpr (sizeof(_DesiredType_) == 8) {
-            const auto _ReversedXmmLanes = _mm256_shuffle_pd(
-                _IntrinBitcast<__m256d>(_Vector), _IntrinBitcast<__m256d>(_Vector), 0x05);
-
-            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_pd(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+            return _IntrinBitcast<_VectorType_>(_mm256_permute4x64_epi64(_IntrinBitcast<__m256>(_Vector), 0x1B));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
-            const auto _ReversedXmmLanes = _IntrinBitcast<__m256>(_mm256_shuffle_ps(_IntrinBitcast<__m256>(_Vector), _IntrinBitcast<__m256>(_Vector), 0x1B));
-            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_ps(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+            return _IntrinBitcast<_VectorType_>(_mm256_permutevar8x32_epi32(
+                _IntrinBitcast<__m256>(_Vector), _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7)));
         }
         else if constexpr (sizeof(_DesiredType_) == 2) {
-            auto _Low   = _IntrinBitcast<__m128i>(_Vector);
-            auto _High  = _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1);
+            const auto _ReverseXmmMask = _mm256_set_epi8(
+                1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14,
+                1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
 
-            const auto _Mask = _mm_set_epi8(1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
-
-            _Low    = _mm_shuffle_epi8(_Low, _Mask);
-            _High   = _mm_shuffle_epi8(_High, _Mask);
-
-            return _mm256_insertf128_si256(_IntrinBitcast<__m256i>(_High), _Low, 1);
+            const auto _Shuffled = _mm256_permute4x64_epi64(_IntrinBitcast<__m256>(_Vector), 0x4E);
+            return _mm256_shuffle_epi8(_Shuffled, _ReverseXmmMask);
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            auto _Low   = _IntrinBitcast<__m128i>(_Vector);
-            auto _High  = _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Vector), 1);
+            const auto _ReverseXmmMask = _mm256_set_epi8(
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
-            const auto _Mask = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-            _Low    = _mm_shuffle_epi8(_Low, _Mask);
-            _High   = _mm_shuffle_epi8(_High, _Mask);
-
-            return _mm256_insertf128_si256(_IntrinBitcast<__m256i>(_High), _Low, 1);
+            const auto _Shuffled = _mm256_permute4x64_epi64(_IntrinBitcast<__m256>(_Vector), 0x4E);
+            return _mm256_shuffle_epi8(_Shuffled, _ReverseXmmMask);
         }
     }
 };
@@ -284,22 +275,28 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Reverse(_VectorType_ _Vector) noexcept {
-        if constexpr (sizeof(_DesiredType_) == 2) {
-            const auto _ReversedXmmLanes = _IntrinBitcast<__m256i>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
-                _mm256_setr_epi8(30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
-                    14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1)));
+        if constexpr (sizeof(_DesiredType_) == 8) {
+            return _IntrinBitcast<_VectorType_>(_mm256_permute4x64_epi64(_IntrinBitcast<__m256i>(_Vector), 0x1B));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 4) {
+            return _IntrinBitcast<_VectorType_>(_mm256_permutevar8x32_epi32(
+                _IntrinBitcast<__m256i>(_Vector), _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7)));
+        }
+        else if constexpr (sizeof(_DesiredType_) == 2) {
+            const auto _ReverseXmmMask = _mm256_set_epi8(
+                1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14,
+                1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
 
-            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_si256(_ReversedXmmLanes, _ReversedXmmLanes, 1));
+            const auto _Shuffled = _mm256_permute4x64_epi64(_IntrinBitcast<__m256i>(_Vector), 0x4E);
+            return  _IntrinBitcast<_VectorType_>((_Shuffled, _ReverseXmmMask));
         }
         else if constexpr (sizeof(_DesiredType_) == 1) {
-            const auto _ReversedXmmLanes = _IntrinBitcast<__m256i>(_mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_Vector),
-                _mm256_setr_epi8(31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 
-                    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)));
+            const auto _ReverseXmmMask = _mm256_set_epi8(
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
-            return _IntrinBitcast<_VectorType_>(_mm256_permute2f128_si256(_ReversedXmmLanes, _ReversedXmmLanes, 1));
-        }
-        else {
-            return _SimdReverse<arch::CpuFeature::AVX, _RegisterPolicy, _DesiredType_>(_Vector);
+            const auto _Shuffled = _mm256_permute4x64_epi64(_IntrinBitcast<__m256i>(_Vector), 0x4E);
+            return _IntrinBitcast<_VectorType_>(_mm256_shuffle_epi8(_Shuffled, _ReverseXmmMask));
         }
     }
 };
@@ -436,10 +433,16 @@ public:
         _VectorType_ _Mask) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 2)
+#if 0
             return _IntrinBitcast<_VectorType_>(_mm512_mask_mov_epi8(
                 _IntrinBitcast<__m512i>(_Second),
                 _mm512_cmpneq_epi8_mask(_IntrinBitcast<__m512i>(_Mask), _mm512_setzero_si512()),
                 _IntrinBitcast<__m512i>(_First)));
+#else 
+            return _IntrinBitcast<_VectorType_>(
+                _mm512_ternarylogic_epi32(_IntrinBitcast<__m512i>(_Mask),
+                    _IntrinBitcast<__m512i>(_First), _IntrinBitcast<__m512i>(_Second), 0xCA));
+#endif
         
         else
             return _Blend<_DesiredType_>(_First, _Second, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));

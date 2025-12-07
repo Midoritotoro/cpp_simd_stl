@@ -3,7 +3,7 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SwapSafety.h>
 
-#include <src/simd_stl/algorithm/vectorized/SwapRangesVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/swap/SwapRangesVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 

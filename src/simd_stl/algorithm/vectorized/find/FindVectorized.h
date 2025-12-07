@@ -41,7 +41,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
     _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
-    const auto _AlignedSize = ByteLength(_FirstPointer, _LastPointer) & (~(sizeof(_SimdType_)- 1));
+    const auto _AlignedSize = ByteLength(_FirstPointer, _LastPointer) & (~(sizeof(_SimdType_) - 1));
 
     if (_AlignedSize != 0) {
         const auto _Comparand = _SimdType_(_Value);
@@ -50,9 +50,10 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
         AdvanceBytes(_StopAt, _AlignedSize);
 
         do {
-            const auto _Mask = _Comparand.maskEqual(_SimdType_::loadUnaligned(_FirstPointer));
+            const auto _Loaded = _SimdType_::loadUnaligned(_FirstPointer);
+            const auto _Mask = _Comparand.maskEqual(_Loaded);
 
-            if (_Mask.unwrap() != 0)
+            if (_Mask.anyOf())
                 return static_cast<const _Type_*>(_FirstPointer) + _Mask.countTrailingZeroBits();
 
             AdvanceBytes(_FirstPointer, sizeof(_SimdType_));

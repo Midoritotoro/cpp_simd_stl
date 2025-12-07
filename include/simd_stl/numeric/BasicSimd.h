@@ -23,24 +23,6 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-
-/**
-    * @class basic_simd
-    * @brief Обёртка над SIMD-векторами для различных архитектур CPU.
-    *
-    * Предоставляет высокоуровневый интерфейс для векторных вычислений:
-    * - арифметика
-    * - побитовые операции
-    * - перестановки и сдвиги
-    * - загрузка/сохранение
-    * - приведения типов
-    * - вставка и извлечение
-    * - проверка поддержки сета инструкций во времени выполнения
-    *
-    * @tparam _SimdGeneration_ Поколение SIMD (SSE-SSE4.2, AVX, AVX2, AVX-512F и т.д.).
-    * @tparam _Element_ Тип элементов вектора ('int', 'float', 'double' и т.д.). По умолчанию 'int'.
-    * @tparam _RegisterPolicy_ Тип регистра вектора (xmm, ymm, zmm).
-*/
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
@@ -60,21 +42,11 @@ public:
     using size_type     = uint32;
     using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
-    template <bool _ZeroMemset_ = true>
+    template <bool _ZeroMemset_ = false>
     basic_simd() noexcept;
 
-    /**
-        * @brief Заполнение вектора значением.
-        * @param value Значение, которым будет заполнен вектор.
-    */
     basic_simd(const value_type value) noexcept;
-
     basic_simd(vector_type other) noexcept;
-
-    /**
-        * @brief Загрузка вектора из памяти по адресу 'address'.
-        * @param address Адрес для загрузки.
-    */
     basic_simd(const void* address) noexcept;
 
     template <typename _OtherType_>
@@ -90,132 +62,58 @@ public:
     template <class _BasicSimdTo_>
     simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
 
-    /**
-        * @brief Поддержан ли набор инструкций _SimdGeneration_ на текущей машине
-    */
     static simd_stl_always_inline bool isSupported() noexcept;
 
-    /**
-        * @brief Заполнение вектора значением.
-        * @param value Значение, которым будет заполнен вектор.
-    */
     template <typename _DesiredType_>
     simd_stl_always_inline void fill(const typename std::type_identity<_DesiredType_>::type value) noexcept;
 
-    /**
-        * @brief Извлечение значения из вектора в позиции 'index' с предварительной проверкой границ.
-        * @param index Позиция для извлечения.
-        * @return Извлечённое значение.
-    */
     template <typename _DesiredType_>
     simd_stl_always_inline _DesiredType_ extract(const size_type index) const noexcept;
 
-    /**
-        * @brief Извлечение значения из вектора в позиции 'index' с предварительной проверкой границ.
-        * @param index Позиция для извлечения.
-        * @return Обёртка над извлеченным значением, позволяющая изменять соответствующий элемент вектора.
-    */
     template <typename _DesiredType_>
     simd_stl_always_inline BasicSimdElementReference<basic_simd> extractWrapped(const size_type index) noexcept;
 
-    /**
-        * @brief Вставка 'value' в позицию 'where' вектора
-        * @param where Позиция для вставки.
-        * @param value Значение для вставки.
-    */
     template <typename _DesiredType_>
     simd_stl_always_inline void insert(
         const size_type                                         where,
         const typename std::type_identity<_DesiredType_>::type  value) noexcept;
 
-    /**
-        * @brief Перемешивает элементы вектора в зависимости от установленных битов в маске
-        * @param mask Маска для перемешивания.
-    */
     template <
         typename    _DesiredType_,
         uint8 ...   _Indices_>
     simd_stl_always_inline void permute() noexcept;
 
-    /**
-        * @brief Вставка value в вектор, если соответствующий бит маски установлен.
-        * @param mask Числовая маска.
-        * @param value Значение для вставки.
-    */
-
     simd_stl_always_inline void expand(
         basic_simd_mask<_SimdGeneration_, _Element_>    mask,
         const value_type                                value) noexcept;
 
-    /**
-        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type) байт из памяти по невыровненному адресу.
-        * @param where Указатель на память для загрузки.
-        * @return Загруженный вектор.
-    */
     static simd_stl_always_inline basic_simd loadUnaligned(const void* where) noexcept;
-
-    /**
-        * @brief Загружает sizeof(basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type) байт из памяти по выровненному адресу.
-        * @param where Указатель на память для загрузки.
-        * @return Загруженный вектор.
-    */
     static simd_stl_always_inline basic_simd loadAligned(const void* where) noexcept;
 
-    /**
-        * @brief Сохраняет вектор в память по невыровненному адресу.
-        * @param where Указатель на память для сохранения вектора.
-    */
     simd_stl_always_inline void storeUnaligned(void* where) const noexcept;
-
-    /**
-        * @brief Сохраняет вектор в память по выровненному адресу.
-        * @param where Указатель на память для сохранения вектора.
-    */
     simd_stl_always_inline void storeAligned(void* where) const noexcept;
 
     static simd_stl_always_inline basic_simd loadUpperHalf(const void* where) noexcept;
     static simd_stl_always_inline basic_simd loadLowerHalf(const void* where) noexcept;
 
-    /**
-        * @brief Загружает вектор из памяти по невыровненному адресу, используя маску.
-        * @param where Указатель на память для загрузки.
-        * @param mask Маска.
-        * @return Загруженный вектор.
-    */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadUnaligned(
         const void*                             where,
         const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
             _DesiredType_, _RegisterPolicy_>    mask) noexcept;
 
-    /**
-        * @brief Загружает вектор из памяти по выровненному адресу, используя маску.
-        * @param where Указатель на память для загрузки.
-        * @param mask Маска.
-        * @return Загруженный вектор.
-    */
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadAligned(
         const void*                             where,
         const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
             _DesiredType_, _RegisterPolicy_>    mask) noexcept;
 
-    /**
-        * @brief Сохраняет элемент вектора в память по невыровненному адресу, если соответствующий бит маски установлен.
-        * @param where Указатель на память для сохранения вектора.
-        * @param mask Маска.
-    */
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
         void*                                   where,
         const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
             _DesiredType_, _RegisterPolicy_>    mask) const noexcept;
 
-    /**
-        * @brief Сохраняет элемент вектора в память по выровненному адресу, если соответствующий бит маски установлен.
-        * @param where Указатель на память для сохранения вектора.
-        * @param mask Маска.
-    */
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreAligned(
         void*                                   where,
@@ -259,29 +157,15 @@ public:
         const basic_simd&   mask,
         const basic_simd&   source) const noexcept;
 
-
-
-    /** 
-        * @brief Деление вектора на константу времени компиляции.     
-        * @tparam _Divisor_ делитель
-    */
     template <_Element_ _Divisor_>
     simd_stl_always_inline void divideByConst() noexcept;
 
-    /** 
-        * @brief Умножение вектора на константу времени компиляции.     
-        * @tparam _Divisor_ множитель
-    */
     template <_Element_ _Divisor_>
     simd_stl_always_inline void multiplyByConst() noexcept;
 
     simd_stl_always_inline vector_type unwrap() const noexcept {
         return _vector;
     }
-
-    /*
-        Операторы с числами
-    */
 
     simd_stl_always_inline friend basic_simd operator+<>(
         const basic_simd&   left,
@@ -299,10 +183,6 @@ public:
         const basic_simd&   left,
         const value_type    right) noexcept;
 
-    /*
-        Операторы с constexpr-числами
-    */
-
     template <_Element_ _Value_>
     simd_stl_always_inline friend basic_simd operator-<>(
         const basic_simd&                           left,
@@ -319,86 +199,30 @@ public:
         
     }
 
-    /*
-        Операторы с векторами
-    */
-
-    /**
-        * @brief Выполняет поэлементное сложение двух векторов.
-        * @param left Левый вектор-операнд.
-        * @param right Правый вектор-операнд.
-        * @return Новый вектор, содержащий сумму элементов `left` и `right`.
-    */
-
-    /**
-        * @brief Выполняет поэлементное сложение двух векторов.
-        * @param left Левый вектор-операнд.
-        * @param right Правый вектор-операнд.
-        * @return Новый вектор, содержащий сумму элементов `left` и `right`.
-    */
     simd_stl_always_inline friend basic_simd operator+ <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-    /**
-        * @brief Выполняет поэлементное вычитание двух векторов.
-        * @param left Левый вектор-операнд.
-        * @param right Правый вектор-операнд.
-        * @return Новый вектор, содержащий разность элементов `left` и `right`.
-    */
     simd_stl_always_inline friend basic_simd operator- <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-    /**
-        * @brief Выполняет поэлементное умножение двух векторов.
-        * @param left Левый вектор-операнд.
-        * @param right Правый вектор-операнд.
-        * @return Новый вектор, содержащий произведение элементов `left` и `right`.
-    */
     simd_stl_always_inline friend basic_simd operator* <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-
-    /**
-        * @brief Выполняет поэлементное деление двух векторов.
-        * @param left Левый вектор-операнд.
-        * @param right Правый вектор-операнд.
-        * @return Новый вектор, содержащий частное элементов `left` и `right`.
-    */
     simd_stl_always_inline friend basic_simd operator/ <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-    /**
-        * @brief Выполняет побитовое "И" двух векторов поэлементно.
-        * @param left Левый вектор.
-        * @param right Правый вектор.
-        * @return Новый вектор с результатом побитового "И" соответствующих элементов.
-    */
     simd_stl_always_inline friend basic_simd operator& <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-
-    /**
-        * @brief Выполняет побитовое "Или" двух векторов поэлементно.
-        * @param left Левый вектор.
-        * @param right Правый вектор.
-        * @return Новый вектор с результатом побитового "Или" соответствующих элементов.
-    */
     simd_stl_always_inline friend basic_simd operator| <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
 
-
-    /**
-        * @brief Выполняет побитовое "Исключающее или" двух векторов поэлементно.
-        * @param left Левый вектор.
-        * @param right Правый вектор.
-        * @return Новый вектор с результатом побитового "Исключающее или" соответствующих элементов.
-    */
     simd_stl_always_inline friend basic_simd operator^ <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
@@ -411,64 +235,33 @@ public:
         const basic_simd left,
         const uint32 shift) noexcept;
 
-
-
-
     simd_stl_always_inline basic_simd operator+() const noexcept;
-
-    /**
-        * @brief Унарный минус.
-    */
     simd_stl_always_inline basic_simd operator-() const noexcept;
 
-    /**
-        * @brief Инкрементирует каждый элемент вектора.
-    */
     simd_stl_always_inline basic_simd operator++(int) noexcept;
     simd_stl_always_inline basic_simd& operator++() noexcept;
-
-    simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
-    simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
-    
-    /**
-        * @brief Декрементирует каждый элемент вектора.
-    */
     simd_stl_always_inline basic_simd operator--(int) noexcept;
     simd_stl_always_inline basic_simd& operator--() noexcept;
 
     simd_stl_always_inline mask_type operator!() const noexcept;
     simd_stl_always_inline basic_simd operator~() const noexcept;
 
-
-    simd_stl_always_inline basic_simd& operator+=(const basic_simd& other) const noexcept;
-    simd_stl_always_inline basic_simd& operator-=(const basic_simd& other) noexcept;
-
-    simd_stl_always_inline basic_simd& operator*=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator/=(const basic_simd& other) noexcept;
-
-
-    simd_stl_always_inline basic_simd& operator%=(const basic_simd& other) noexcept;
-
     simd_stl_always_inline basic_simd& operator=(const basic_simd& left) noexcept;
 
-    /**
-       * @brief Получает элемент по индексу без проверки границ вектора.
-       * @param index Индекс элемента.
-       * @return Элемент вектора с типом 'value_type'.
-   */
     simd_stl_always_inline _Element_ operator[](const size_type index) const noexcept;
-
-    /**
-        * @brief Получает обёртку над элементом вектора по индексу без проверки границ вектора.
-        * @param index Индекс элемента.
-        * @return Обёртка над элементом вектора с типом 'BasicSimdElementReference<basic_simd>'.
-    */
     simd_stl_always_inline BasicSimdElementReference<basic_simd> operator[](const size_type index) noexcept;
-
 
     simd_stl_always_inline basic_simd& operator&=(const basic_simd& other) noexcept;
     simd_stl_always_inline basic_simd& operator|=(const basic_simd& other) noexcept;
     simd_stl_always_inline basic_simd& operator^=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator+=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator-=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator*=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator/=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator%=(const basic_simd& other) noexcept;
+    simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
+    simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
+
 
     simd_stl_always_inline friend bool operator== <>(
         const basic_simd& left,
@@ -586,9 +379,6 @@ public:
     static constexpr int registersCount() noexcept;
 
     simd_stl_always_inline static void streamingFence() noexcept;
-    
-    // Если _SimdGeneration_ не поддерживает потоковые загрузки/сохранения, то они будут заменены
-    // на обычные выровненные загрузки/сохранения
 
     simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
     simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
@@ -712,7 +502,7 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator+=(const basic_simd& other) const noexcept {
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator+=(const basic_simd& other) noexcept {
     return *this = (*this + other);
 }
 

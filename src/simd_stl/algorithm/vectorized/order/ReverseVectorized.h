@@ -63,7 +63,7 @@ void _ReverseVectorized(
         if (arch::ProcessorFeatures::AVX512BW())
             return _ReverseVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_FirstPointer, _LastPointer);
     }
-    else {
+    else if constexpr (sizeof(_Type_) >= 4) {
         if (arch::ProcessorFeatures::AVX512F())
             return _ReverseVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_FirstPointer, _LastPointer);
     }
