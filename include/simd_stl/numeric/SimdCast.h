@@ -116,5 +116,40 @@ simd_stl_nodiscard simd_stl_always_inline _Rebind_vector_generation_type<_ToSimd
         _ToElementType_, _FromVector_>>>(_SimdUnwrap(_From));
 }
 
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    class               _Type_,
+    class               _MaskType_>
+simd_stl_always_inline _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>
+    _SimdConvertToMaskForNativeStore(_MaskType_ _Mask) noexcept
+{
+    using _ConvertTo = _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
+
+    constexpr auto _FromSimd        = _Is_valid_basic_simd_v<_MaskType_>;
+    constexpr auto _ToSimd          = _Is_valid_basic_simd_v<_ConvertTo>;
+
+    constexpr auto _FromIntegral    = std::is_integral_v<_MaskType_>;
+    constexpr auto _ToIntegral      = std::is_integral_v<_ConvertTo>;
+
+    constexpr auto _BothSimd        = _FromSimd && _ToSimd;
+    constexpr auto _BothIntegral    = _FromIntegral && _ToIntegral;
+
+    if constexpr (_BothSimd) {
+        return _ConvertTo { _SimdUnwrap(_Mask) };
+    }
+    else if constexpr (_BothIntegral) {
+        return static_cast<_ConvertTo>(_Mask);
+    }
+    else if constexpr (_FromIntegral && _ToSimd) {
+        return _ConvertTo { _SimdToVector<_SimdGeneration_, _RegisterPolicy_, typename _ConvertTo::vector_type, _Type_>(_Mask) };
+    }
+    else if constexpr (_FromSimd && _ToIntegral) {
+        return _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _Type_>(_Mask);
+    }
+    else {
+        static_assert(false, "Invalid _ConvertTo");
+    }
+}
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

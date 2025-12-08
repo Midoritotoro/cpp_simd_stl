@@ -46,11 +46,11 @@ public:
     using mask_type     = _Mask_type<_Element_>;
 
     template <typename _DesiredType_ = value_type>
-    constexpr inline bool is_native_mask_load_supported_v = _Is_native_mask_load_supported_v<
+    static constexpr inline bool is_native_mask_load_supported_v = _Is_native_mask_load_supported_v<
         _Generation, policy_type, _DesiredType_>;
 
     template <typename _DesiredType_ = value_type>
-    constexpr inline bool is_native_mask_store_supported_v = _Is_native_mask_store_supported_v<
+    static constexpr inline bool is_native_mask_store_supported_v = _Is_native_mask_store_supported_v<
         _Generation, policy_type, _DesiredType_>;
 
 
@@ -106,6 +106,16 @@ public:
     static simd_stl_always_inline basic_simd maskLoadAligned(
         const void*                             where,
         const _Mask_type<_DesiredType_> mask) noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    static simd_stl_always_inline basic_simd maskLoadUnaligned(
+        const void*         where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&   mask) noexcept;
+
+    template <typename _DesiredType_ = value_type>
+    static simd_stl_always_inline basic_simd maskLoadAligned(
+        const void* where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
@@ -346,7 +356,7 @@ public:
 
     simd_stl_always_inline vector_type unwrap() const noexcept;
 
-    static simd_stl_always_inline auto makeTailMask(uint32 bytes) noexcept;
+    static simd_stl_always_inline _Make_tail_mask_return_type<basic_simd> makeTailMask(uint32 bytes) noexcept;
 private:
     vector_type _vector;
 };
@@ -868,6 +878,34 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
+static simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadUnaligned(
+        const void* where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& mask) noexcept
+{
+    return _SimdMaskLoadUnaligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
+        reinterpret_cast<const _DesiredType_*>(where), mask._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+static simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadAligned(
+        const void* where,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& mask) noexcept
+{
+    return _SimdMaskLoadAligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
+        reinterpret_cast<const _DesiredType_*>(where), mask._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskStoreUnaligned(
     void*                                   where,
     const _Mask_type<_DesiredType_>    mask) const noexcept
@@ -1321,8 +1359,10 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-auto basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::makeTailMask(uint32 bytes) noexcept {
-    return _SimdMakeTailMask<_SimdGeneration_, _Element_, _RegisterPolicy_>(bytes);
+_Make_tail_mask_return_type< basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::makeTailMask(uint32 bytes) noexcept 
+{
+    return _SimdMakeTailMask<_SimdGeneration_, _RegisterPolicy_>(bytes);
 }
 
 template <

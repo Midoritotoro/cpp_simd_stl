@@ -20,15 +20,6 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceScalar(
             *_Current = _NewValue;
 }
 
-__m256i _Avx2_tail_mask_32(const size_t _Count_in_bytes) noexcept {
-    static constexpr unsigned int _Tail_masks[16] = {
-        ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
-    return _mm256_loadu_si256(reinterpret_cast<const __m256i*>(
-        reinterpret_cast<const unsigned char*>(_Tail_masks) + (32 - _Count_in_bytes)));
-}
-
-
-
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
@@ -40,8 +31,8 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::is_native_mask_load_supported_v &&
-        _SimdType_::is_native_mask_store_supported_v;
+    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_load_supported_v<> &&
+        _SimdType_::template is_native_mask_store_supported_v<>;
 
     const auto _Size        = ByteLength(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
@@ -71,8 +62,9 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
             const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
             const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
-            const auto _StoreMask   = _Loaded.nativeEqual(_Comparand) & _TailMask;
-            _Replacement.maskBlendStoreUnaligned(_First, _StoreMask, _Loaded);
+            const auto _StoreMask   = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_, 
+                typename _SimdType_::policy_type, _Type_>(_Loaded.nativeEqual(_Comparand)) & _TailMask;
+            _Replacement.maskStoreUnaligned(_First, _StoreMask);
         }
 
         _SimdType_::zeroUpper();
