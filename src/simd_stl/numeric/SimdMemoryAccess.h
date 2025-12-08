@@ -1331,13 +1331,13 @@ public:
         const _Simd_mask_type<_DesiredType_>    _Mask) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 8) {
-            return _IntrinBitcast<_VectorType_>(_mm256_maskload_pd(
-                reinterpret_cast<const double*>(_Where),
+            return _IntrinBitcast<_VectorType_>(_mm256_maskload_epi64(
+                reinterpret_cast<const long long*>(_Where),
                 _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
-            return _IntrinBitcast<_VectorType_>(_mm256_maskload_ps(
-                reinterpret_cast<const float*>(_Where), 
+            return _IntrinBitcast<_VectorType_>(_mm256_maskload_epi32(
+                reinterpret_cast<const int*>(_Where), 
                 _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
         }
         else {

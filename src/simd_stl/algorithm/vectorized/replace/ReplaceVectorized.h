@@ -31,8 +31,9 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
+    constexpr auto _Is_masked_store_supported = _SimdType_::template is_native_mask_store_supported_v<>;
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_load_supported_v<> &&
-        _SimdType_::template is_native_mask_store_supported_v<>;
+        _Is_masked_store_supported;
 
     const auto _Size        = ByteLength(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
@@ -44,13 +45,13 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
     const auto _Replacement = _SimdType_(_NewValue);
 
     while (_First != _StopAt) {
-        const auto _Loaded = _SimdType_::loadUnaligned(_First);
-        const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
+        const auto _Loaded      = _SimdType_::loadUnaligned(_First);
+        const auto _NativeMask  = _Loaded.nativeEqual(_Comparand);
 
-        if constexpr (_Is_masked_memory_access_supported)
-            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
-        else
+        if constexpr (_Is_masked_store_supported)
             _Replacement.maskStoreUnaligned(_First, _NativeMask);
+        else
+            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
 
         AdvanceBytes(_First, sizeof(_SimdType_));
     }
@@ -62,19 +63,20 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
             const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
             const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
-            const auto _StoreMask   = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_, 
-                typename _SimdType_::policy_type, _Type_>(_Loaded.nativeEqual(_Comparand)) & _TailMask;
+            const auto _Mask                = _Loaded.nativeEqual(_Comparand);
+            const auto _MaskForNativeStore  = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
+                typename _SimdType_::policy_type, _Type_>(_Mask);
+
+            const auto _StoreMask   = _MaskForNativeStore & _TailMask;
             _Replacement.maskStoreUnaligned(_First, _StoreMask);
         }
-
-        _SimdType_::zeroUpper();
     }
     else {
-        _SimdType_::zeroUpper();
-
         if (_First == _Last)
             _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
     }
+
+    _SimdType_::zeroUpper();
 }
 
 template <typename _Type_>

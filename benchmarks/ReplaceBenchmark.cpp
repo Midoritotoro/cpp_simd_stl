@@ -69,7 +69,7 @@ public:
 
 //SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int8, Replace);
 //SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, int, Replace);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, long long, Replace);
+//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, int, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, long long, Replace);
 
 SIMD_STL_BENCHMARK_MAIN();

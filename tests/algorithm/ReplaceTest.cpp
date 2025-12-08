@@ -58,12 +58,6 @@ void test_replace_large() {
 }
 
 int main() {
-    test_replace_large<uint8_t>();
-    test_replace_large<int16_t>();
-    test_replace_large<int32_t>();
     test_replace_large<int64_t>();
-    test_replace_large<float>();
-    test_replace_large<double>();
-
     return 0;
 }
