@@ -36,7 +36,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #  endif // defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_msvc)
 #endif // defined (simd_stl_processor_x86)
 
-template <type_traits::standard_unsigned_integral _IntegralType_> 
+template <typename _IntegralType_> 
 constexpr simd_stl_always_inline int _BitHacksCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
 	if constexpr (sizeof(_IntegralType_) == 8) {
         _Value = _Value | (_Value >> 1);
@@ -82,7 +82,7 @@ constexpr simd_stl_always_inline int _BitHacksCountLeadingZeroBits(_IntegralType
 
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64))
 
-template <type_traits::standard_unsigned_integral _IntegralType_>
+template <typename _IntegralType_>
 simd_stl_always_inline int _BsrCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
     constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
     auto _Index = ulong(0);
@@ -102,7 +102,7 @@ simd_stl_always_inline int _BsrCountLeadingZeroBits(_IntegralType_ _Value) noexc
 
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64))
 
-template <type_traits::standard_unsigned_integral _IntegralType_>
+template <typename _IntegralType_>
 simd_stl_always_inline int _LzcntCountLeadingZeroBits(_IntegralType_ _Value) noexcept {
     constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
 

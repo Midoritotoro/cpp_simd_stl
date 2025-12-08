@@ -6,7 +6,7 @@
 #include <simd_stl/compatibility/Nodiscard.h>
 #include <simd_stl/compatibility/Inline.h>
 
-#include <src/simd_stl/algorithm/vectorized/FillVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/fill/FillVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
 #include <src/simd_stl/algorithm/AdvanceBytes.h>

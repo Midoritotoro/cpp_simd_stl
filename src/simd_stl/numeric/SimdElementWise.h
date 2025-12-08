@@ -322,9 +322,8 @@ public:
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept
     {
-        return _IntrinBitcast<_VectorType_>(_mm512_or_si512(
-            _mm512_and_si512(_IntrinBitcast<__m512i>(_Mask), _IntrinBitcast<__m512i>(_First)),
-            _mm512_andnot_si512(_IntrinBitcast<__m512i>(_Mask), _IntrinBitcast<__m512i>(_Second))));
+        return _IntrinBitcast<_VectorType_>(_mm512_ternarylogic_epi32(_IntrinBitcast<__m512i>(_Mask),
+            _IntrinBitcast<__m512i>(_First), _IntrinBitcast<__m512i>(_Second), 0xCA));
     }
 
     template <
@@ -433,16 +432,9 @@ public:
         _VectorType_ _Mask) noexcept
     {
         if constexpr (sizeof(_DesiredType_) == 2)
-#if 0
-            return _IntrinBitcast<_VectorType_>(_mm512_mask_mov_epi8(
-                _IntrinBitcast<__m512i>(_Second),
-                _mm512_cmpneq_epi8_mask(_IntrinBitcast<__m512i>(_Mask), _mm512_setzero_si512()),
-                _IntrinBitcast<__m512i>(_First)));
-#else 
             return _IntrinBitcast<_VectorType_>(
                 _mm512_ternarylogic_epi32(_IntrinBitcast<__m512i>(_Mask),
                     _IntrinBitcast<__m512i>(_First), _IntrinBitcast<__m512i>(_Second), 0xCA));
-#endif
         
         else
             return _Blend<_DesiredType_>(_First, _Second, _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));

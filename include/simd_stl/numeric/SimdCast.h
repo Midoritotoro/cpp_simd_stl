@@ -116,4 +116,5 @@ simd_stl_nodiscard simd_stl_always_inline _Rebind_vector_generation_type<_ToSimd
         _ToElementType_, _FromVector_>>>(_SimdUnwrap(_From));
 }
 
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

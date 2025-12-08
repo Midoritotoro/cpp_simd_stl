@@ -20,6 +20,15 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceScalar(
             *_Current = _NewValue;
 }
 
+__m256i _Avx2_tail_mask_32(const size_t _Count_in_bytes) noexcept {
+    static constexpr unsigned int _Tail_masks[16] = {
+        ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
+    return _mm256_loadu_si256(reinterpret_cast<const __m256i*>(
+        reinterpret_cast<const unsigned char*>(_Tail_masks) + (32 - _Count_in_bytes)));
+}
+
+
+
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
@@ -31,30 +40,49 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    const auto _AlignedSize = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
+    constexpr auto _Is_masked_memory_access_supported = _SimdType_::is_native_mask_load_supported_v &&
+        _SimdType_::is_native_mask_store_supported_v;
 
-    if (_AlignedSize != 0) {
-        void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+    const auto _Size        = ByteLength(_First, _Last);
+    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
-        const auto _Comparand   = _SimdType_(_OldValue);
-        const auto _Replacement = _SimdType_(_NewValue);
+    void* _StopAt = _First;
+    AdvanceBytes(_StopAt, _AlignedSize);
 
-        do {
-            const auto _Loaded = _SimdType_::loadUnaligned(_First);
-            const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
+    const auto _Comparand   = _SimdType_(_OldValue);
+    const auto _Replacement = _SimdType_(_NewValue);
 
-            if constexpr (sizeof(_Type_) <= 2)
-                _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
-            else 
-                _Replacement.maskStoreUnaligned(_First, _NativeMask);
+    while (_First != _StopAt) {
+        const auto _Loaded = _SimdType_::loadUnaligned(_First);
+        const auto _NativeMask = _Loaded.nativeEqual(_Comparand);
 
-            AdvanceBytes(_First, sizeof(_SimdType_));
-        } while (_First != _StopAt);
+        if constexpr (_Is_masked_memory_access_supported)
+            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
+        else
+            _Replacement.maskStoreUnaligned(_First, _NativeMask);
+
+        AdvanceBytes(_First, sizeof(_SimdType_));
     }
     
-    if (_First == _Last)
-        _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
+    if constexpr (_Is_masked_memory_access_supported) {
+        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+
+        if (_TailSize != 0) {
+            const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
+            const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+
+            const auto _StoreMask   = _Loaded.nativeEqual(_Comparand) & _TailMask;
+            _Replacement.maskBlendStoreUnaligned(_First, _StoreMask, _Loaded);
+        }
+
+        _SimdType_::zeroUpper();
+    }
+    else {
+        _SimdType_::zeroUpper();
+
+        if (_First == _Last)
+            _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
+    }
 }
 
 template <typename _Type_>

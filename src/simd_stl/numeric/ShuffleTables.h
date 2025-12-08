@@ -36,7 +36,6 @@ constexpr auto _MakeShuffleTables(
 
         _Result._Size[_VerticalIndex] = static_cast<uint8>(_ActiveGroupCount * _Multiplier);
 
-
         for (; _ActiveGroupCount != _HorizontalSize_ / _ElementGroupStride; ++_ActiveGroupCount)
             for (uint32 _ElementOffset = 0; _ElementOffset != _ElementGroupStride; ++_ElementOffset)
                 _Result._Shuffle[_VerticalIndex][_ActiveGroupCount * _ElementGroupStride + _ElementOffset] =

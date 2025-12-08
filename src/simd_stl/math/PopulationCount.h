@@ -41,7 +41,7 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
 
 
-template <type_traits::standard_unsigned_integral _IntegralType_>
+template <typename _IntegralType_>
 constexpr simd_stl_always_inline int _BitHacksPopulationCount(_IntegralType_ _Value) noexcept {
     if      constexpr (sizeof(_IntegralType_) == 8) {
         return (((_Value) & 0xfff) * static_cast<uint64>(0x1001001001001)
@@ -79,7 +79,7 @@ constexpr simd_stl_always_inline int _BitHacksPopulationCount(_IntegralType_ _Va
 
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
 
-template <type_traits::standard_unsigned_integral _IntegralType_>
+template <typename _IntegralType_>
 constexpr simd_stl_always_inline int _PopcntPopulationCount(_IntegralType_ _Value) noexcept {
     constexpr auto _Digits = std::numeric_limits<_IntegralType_>::digits;
 

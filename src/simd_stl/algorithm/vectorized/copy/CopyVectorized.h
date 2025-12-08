@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/simd_stl/algorithm/vectorized/MoveVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/copy/MoveVectorized.h>
 
 #include <simd_stl/memory/Intersects.h>
 #include <simd_stl/memory/Alignment.h>

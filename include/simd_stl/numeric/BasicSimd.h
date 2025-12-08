@@ -32,6 +32,9 @@ class basic_simd {
     static_assert(type_traits::__is_vector_type_supported_v<std::decay_t<_Element_>>);
 
     friend BasicSimdElementReference;
+
+    template <typename _DesiredType_>
+    using _Mask_type = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 public:
     using policy_type = _RegisterPolicy_;
     static constexpr auto _Generation = _SimdGeneration_;
@@ -40,7 +43,16 @@ public:
     using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
     using size_type     = uint32;
-    using mask_type     = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+    using mask_type     = _Mask_type<_Element_>;
+
+    template <typename _DesiredType_ = value_type>
+    constexpr inline bool is_native_mask_load_supported_v = _Is_native_mask_load_supported_v<
+        _Generation, policy_type, _DesiredType_>;
+
+    template <typename _DesiredType_ = value_type>
+    constexpr inline bool is_native_mask_store_supported_v = _Is_native_mask_store_supported_v<
+        _Generation, policy_type, _DesiredType_>;
+
 
     template <bool _ZeroMemset_ = false>
     basic_simd() noexcept;
@@ -62,8 +74,6 @@ public:
     template <class _BasicSimdTo_>
     simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
 
-    static simd_stl_always_inline bool isSupported() noexcept;
-
     template <typename _DesiredType_>
     simd_stl_always_inline void fill(const typename std::type_identity<_DesiredType_>::type value) noexcept;
 
@@ -78,15 +88,6 @@ public:
         const size_type                                         where,
         const typename std::type_identity<_DesiredType_>::type  value) noexcept;
 
-    template <
-        typename    _DesiredType_,
-        uint8 ...   _Indices_>
-    simd_stl_always_inline void permute() noexcept;
-
-    simd_stl_always_inline void expand(
-        basic_simd_mask<_SimdGeneration_, _Element_>    mask,
-        const value_type                                value) noexcept;
-
     static simd_stl_always_inline basic_simd loadUnaligned(const void* where) noexcept;
     static simd_stl_always_inline basic_simd loadAligned(const void* where) noexcept;
 
@@ -99,26 +100,22 @@ public:
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadUnaligned(
         const void*                             where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-            _DesiredType_, _RegisterPolicy_>    mask) noexcept;
+        const _Mask_type<_DesiredType_> mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
     static simd_stl_always_inline basic_simd maskLoadAligned(
         const void*                             where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-            _DesiredType_, _RegisterPolicy_>    mask) noexcept;
+        const _Mask_type<_DesiredType_> mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
         void*                                   where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-            _DesiredType_, _RegisterPolicy_>    mask) const noexcept;
+        const _Mask_type<_DesiredType_> mask) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreAligned(
         void*                                   where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-            _DesiredType_, _RegisterPolicy_>    mask) const noexcept;
+        const _Mask_type<_DesiredType_> mask) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
@@ -129,20 +126,17 @@ public:
     simd_stl_always_inline void maskStoreAligned(
         void*                                                                   where,
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
-
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreUnaligned(
         void*                               where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    mask,
+        const _Mask_type<_DesiredType_> mask,
         const basic_simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreAligned(
         void*                               where,
-        const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    mask,
+        const _Mask_type<_DesiredType_>    mask,
         const basic_simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
@@ -157,15 +151,19 @@ public:
         const basic_simd&   mask,
         const basic_simd&   source) const noexcept;
 
-    template <_Element_ _Divisor_>
-    simd_stl_always_inline void divideByConst() noexcept;
+    simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
+    simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
 
-    template <_Element_ _Divisor_>
-    simd_stl_always_inline void multiplyByConst() noexcept;
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
+        void*                       where,
+        _Mask_type<_DesiredType_>   mask) const noexcept;
 
-    simd_stl_always_inline vector_type unwrap() const noexcept {
-        return _vector;
-    }
+    template <typename _DesiredType_ = _Element_> 
+    simd_stl_always_inline _DesiredType_* compressStoreAligned(
+        void*                       where,
+        _Mask_type<_DesiredType_>   mask) const noexcept;
+
 
     simd_stl_always_inline friend basic_simd operator+<>(
         const basic_simd&   left,
@@ -182,22 +180,6 @@ public:
     simd_stl_always_inline friend basic_simd operator/<>(
         const basic_simd&   left,
         const value_type    right) noexcept;
-
-    template <_Element_ _Value_>
-    simd_stl_always_inline friend basic_simd operator-<>(
-        const basic_simd&                           left,
-        std::integral_constant<_Element_, _Value_>  right) noexcept
-    {
-
-    }
-
-    template <_Element_ _Divisor_>
-    simd_stl_always_inline friend basic_simd operator/<>(
-        const basic_simd& left,
-        std::integral_constant<_Element_, _Divisor_>  right) noexcept
-    {
-        
-    }
 
     simd_stl_always_inline friend basic_simd operator+ <>(
         const basic_simd& left,
@@ -258,7 +240,6 @@ public:
     simd_stl_always_inline basic_simd& operator-=(const basic_simd& other) noexcept;
     simd_stl_always_inline basic_simd& operator*=(const basic_simd& other) noexcept;
     simd_stl_always_inline basic_simd& operator/=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator%=(const basic_simd& other) noexcept;
     simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
     simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
 
@@ -266,33 +247,6 @@ public:
     simd_stl_always_inline friend bool operator== <>(
         const basic_simd& left,
         const basic_simd& right) noexcept;
-
-    //    template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd pow(const basic_simd& exp) const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd sqrt() const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd rsqrt() const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd exp() const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd log() const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd log10() const noexcept;
-
-    //    template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd abs() const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd minimum(const basic_simd& other) const noexcept;
-
-    //     template <typename _DesiredType_ = value_type>
-    //simd_stl_always_inline basic_simd maximum(const basic_simd& other) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline bool isEqual(const basic_simd& right) const noexcept;
@@ -367,42 +321,32 @@ public:
         typename _DesiredType_ = value_type>
     simd_stl_always_inline _DesiredOutputType_ reduce() const noexcept;
 
-    template <typename _ElementType_ = _Element_>
-    static constexpr int width() noexcept;
-
-    template <typename _ElementType_ = _Element_>
-    static constexpr int size() noexcept;
-
-    template <typename _ElementType_ = _Element_>
-    static constexpr int length() noexcept;
-
-    static constexpr int registersCount() noexcept;
-
     simd_stl_always_inline static void streamingFence() noexcept;
-
-    simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
-    simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
-
     static simd_stl_always_inline void zeroUpper() noexcept;
-
-    template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline _DesiredType_* compressStoreUnaligned(
-        void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
-
-    template <typename _DesiredType_ = _Element_> 
-    simd_stl_always_inline _DesiredType_* compressStoreAligned(
-        void*                                                                   where,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(
         const basic_simd&                       _Vector,
-        type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-            _DesiredType_, _RegisterPolicy_>    _Mask) noexcept;
+        _Mask_type<_DesiredType_>    _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
+
+    template <typename _ElementType_ = _Element_>
+    static simd_stl_always_inline constexpr int width() noexcept;
+
+    template <typename _ElementType_ = _Element_>
+    static simd_stl_always_inline constexpr int size() noexcept;
+
+    template <typename _ElementType_ = _Element_>
+    static simd_stl_always_inline constexpr int length() noexcept;
+
+    static simd_stl_always_inline constexpr int registersCount() noexcept;
+    static simd_stl_always_inline bool isSupported() noexcept;
+
+    simd_stl_always_inline vector_type unwrap() const noexcept;
+
+    static simd_stl_always_inline auto makeTailMask(uint32 bytes) noexcept;
 private:
     vector_type _vector;
 };
@@ -413,8 +357,7 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <bool _ZeroMemset_>
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd() noexcept
-{
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd() noexcept {
     if constexpr (_ZeroMemset_)
         _vector = _SimdBroadcastZeros<_SimdGeneration_, _RegisterPolicy_, vector_type>();
 }
@@ -531,15 +474,6 @@ template <
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator/=(const basic_simd& other) noexcept {
     return *this = (*this / other);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator%=(const basic_simd& other) noexcept {
-
 }
 
 template <
@@ -666,17 +600,6 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator^=(const basic_simd& other) noexcept {
     return *this = (*this ^ other);
 }
-
-//template <
-//    arch::CpuFeature    _SimdGeneration_,
-//    typename            _Element_>
-//template <_Element_ _Value_>
-//simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
-//    const basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&  left,
-//    std::integral_constant<_Element_, _Value_>      right) noexcept
-//{
-//    return imp
-//}
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -864,29 +787,6 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    typename    _DesiredType_,
-    uint8 ...   _Indices_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::permute() noexcept
-{
-    // 
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::expand(
-    basic_simd_mask<_SimdGeneration_, _Element_>    mask,
-    const value_type                                value) noexcept
-{
-    //
-}   
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::loadUnaligned(const void* where)  noexcept
 {
@@ -943,7 +843,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadUnaligned(
     const void*                                                                                     where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept
+    const _Mask_type<_DesiredType_>   mask) noexcept
 {
     return _SimdMaskLoadUnaligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
         reinterpret_cast<const _DesiredType_*>(where), mask);
@@ -957,7 +857,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_> 
 basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskLoadAligned(
     const void*                                                                                     where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) noexcept
+    const _Mask_type<_DesiredType_>   mask) noexcept
 {
     return _SimdMaskLoadAligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
         reinterpret_cast<const _DesiredType_*>(where), mask);
@@ -970,8 +870,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskStoreUnaligned(
     void*                                   where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    mask) const noexcept
+    const _Mask_type<_DesiredType_>    mask) const noexcept
 {
     _SimdMaskStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask, _vector);
@@ -984,8 +883,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskStoreAligned(
     void*                                   where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    mask) const noexcept
+    const _Mask_type<_DesiredType_>    mask) const noexcept
 {
     _SimdMaskStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask, _vector);
@@ -1025,8 +923,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreUnaligned(
     void*                               where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_>    mask,
+    const _Mask_type<_DesiredType_>   mask,
     const basic_simd&                   source) const noexcept
 {
     return _SimdMaskBlendStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
@@ -1039,8 +936,7 @@ template <
 template <typename _DesiredType_>
 simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::maskBlendStoreAligned(
     void*                               where,
-    const type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_>    mask,
+    const _Mask_type<_DesiredType_>   mask,
     const basic_simd&                   source) const noexcept
 {
     return _SimdMaskBlendStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
@@ -1070,24 +966,6 @@ simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPol
     const basic_simd&   source) const noexcept 
 {
     return _SimdMaskBlendStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(where, mask, _vector, source._vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <_Element_ _Divisor_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::divideByConst() noexcept {
-    
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <_Element_ _Divisor_>
-simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::multiplyByConst() noexcept {
-    
 }
 
 template <
@@ -1433,6 +1311,24 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::unwrap() const noexcept
+{
+    return _vector;
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+auto basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::makeTailMask(uint32 bytes) noexcept {
+    return _SimdMakeTailMask<_SimdGeneration_, _Element_, _RegisterPolicy_>(bytes);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::streamingFence() noexcept {
     return _SimdStreamingFence<_SimdGeneration_>();
 }
@@ -1469,7 +1365,7 @@ template <
 template <typename _DesiredType_> 
 _DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreUnaligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
+    _Mask_type<_DesiredType_>   mask) const noexcept
 {
     return _SimdCompressStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask, _vector);
@@ -1482,7 +1378,7 @@ template <
 template <typename _DesiredType_> 
 _DesiredType_* basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compressStoreAligned(
     void*                                                                   where,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>   mask) const noexcept
+    _Mask_type<_DesiredType_>   mask) const noexcept
 {
     return _SimdCompressStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(where), mask, _vector);
@@ -1495,8 +1391,7 @@ template <
 template <typename _DesiredType_>
 void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
     const basic_simd&                       _Vector,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_, 
-        _DesiredType_, _RegisterPolicy_>    _Mask) noexcept
+    _Mask_type<_DesiredType_>   _Mask) noexcept
 {
     return _SimdBlend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Vector, _Mask);
 }

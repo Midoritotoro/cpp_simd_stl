@@ -45,6 +45,12 @@ class _SimdMemoryAccess<arch::CpuFeature::SSE2, numeric::xmm128> {
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = false;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = false;
+
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
         return _IntrinBitcast<_VectorType_>(_mm_loadh_pd(
@@ -427,12 +433,26 @@ public:
 
         return _Where;
     }
+
+    template <typename _Element_>
+    static simd_stl_always_inline auto _SimdMakeTailMask(uint32 bytes) noexcept {
+        static constexpr unsigned int _TailMask[8] = { ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0 };
+        return _mm_loadu_si128(reinterpret_cast<const __m128i*>(
+            reinterpret_cast<const unsigned char*>(_TailMask) + (16 - bytes)));
+    }
 };
 
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::SSE3, numeric::xmm128> :
     public _SimdMemoryAccess<arch::CpuFeature::SSE2, numeric::xmm128>
-{};
+{
+public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = false;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = false;
+};
 
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::SSSE3, numeric::xmm128> :
@@ -444,6 +464,12 @@ class _SimdMemoryAccess<arch::CpuFeature::SSSE3, numeric::xmm128> :
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = false;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = false;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -603,12 +629,18 @@ class _SimdMemoryAccess<arch::CpuFeature::SSE41, numeric::xmm128> :
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = false;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = false;
+
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _NonTemporalLoad(const void* where) noexcept {
         return _IntrinBitcast<_VectorType_>(_mm_stream_load_si128(reinterpret_cast<const __m128i*>(where)));
     }
 
-        template <
+    template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline void _MaskStoreUnaligned(
@@ -744,7 +776,14 @@ public:
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::SSE42, numeric::xmm128> :
     public _SimdMemoryAccess<arch::CpuFeature::SSE41, numeric::xmm128>
-{};
+{
+public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = false;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = false;
+};
 
 #pragma endregion
 
@@ -765,7 +804,36 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX, numeric::ymm256>
     static constexpr int32 _Max() noexcept {
         return (_First_ > _Second_) ? _First_ : _Second_;
     }
+
+    template <sizetype _TypeSize_>
+    struct _Native_mask_load_support:
+        std::bool_constant<false> 
+    {};
+
+    template <>
+    struct _Native_mask_load_support<4>:
+        std::bool_constant<true> 
+    {}; 
+
+    template <>
+    struct _Native_mask_load_support<8>:
+        std::bool_constant<true>
+    {}; 
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = _Native_mask_load_support<_TypeSize_>::value;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
+
+    template <typename _Element_>
+    static simd_stl_always_inline auto _SimdMakeTailMask(uint32 bytes) noexcept {
+        static constexpr unsigned int _TailMask[16] = {
+            ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
+        return _mm256_loadu_si256(reinterpret_cast<const __m256i*>(
+            reinterpret_cast<const unsigned char*>(_TailMask) + (32 - bytes)));
+    }
+
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
         return _IntrinBitcast<_VectorType_>(_mm256_insertf128_si256(_mm256_setzero_si256(), 
@@ -1136,7 +1204,28 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX2, numeric::ymm256>:
     static constexpr int32 _Max() noexcept {
         return (_First_ > _Second_) ? _First_ : _Second_;
     }
+    
+    template <sizetype _TypeSize_>
+    struct _Native_mask_load_support :
+        std::bool_constant<false>
+    {};
+
+    template <>
+    struct _Native_mask_load_support<4> :
+        std::bool_constant<true>
+    {};
+
+    template <>
+    struct _Native_mask_load_support<8> :
+        std::bool_constant<true>
+    {};
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = _Native_mask_load_support<_TypeSize_>::value;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
+
     template <
         typename _VectorType_,
         typename _DesiredType_>
@@ -1438,7 +1527,28 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX512F, zmm512>
 
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <sizetype _TypeSize_>
+    struct _Native_mask_load_support :
+        std::bool_constant<false>
+    {};
+
+    template <>
+    struct _Native_mask_load_support<4> :
+        std::bool_constant<true>
+    {};
+
+    template <>
+    struct _Native_mask_load_support<8> :
+        std::bool_constant<true>
+    {};
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = _Native_mask_load_support<_TypeSize_>::value;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
+
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _LoadUpperHalf(const void* _Where) noexcept {
         return _IntrinBitcast<_VectorType_>(_mm256_lddqu_si256(reinterpret_cast<const __m256i*>(_Where)));
@@ -1760,7 +1870,29 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX512BW, zmm512>:
 
     template <class _DesiredType_>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+
+    template <sizetype _TypeSize_>
+    struct _Native_mask_store_support :
+        std::bool_constant<false>
+    {};
+
+    template <>
+    struct _Native_mask_store_support<4> :
+        std::bool_constant<true>
+    {};
+
+    template <>
+    struct _Native_mask_store_support<8> :
+        std::bool_constant<true>
+    {};
 public:
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_load_supported = true;
+
+    template <sizetype _TypeSize_>
+    static constexpr auto _Native_mask_store_supported = _Native_mask_store_support<_TypeSize_>::value;
+
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -2195,6 +2327,28 @@ simd_stl_always_inline _DesiredType_* _SimdCompressStoreAligned(
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _CompressStoreAligned(_Where, _Mask, _Vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _Type_>
+constexpr inline bool _Is_native_mask_load_supported_v = _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>
+    ::template _Native_mask_load_supported<sizeof(_Type_)>;
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _Type_>
+constexpr inline bool _Is_native_mask_store_supported_v = _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>
+    ::template _Native_mask_store_supported<sizeof(_Type_)>;
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline auto _SimdMakeTailMask(uint32 bytes) noexcept {
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MakeTailMask(bytes);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -7,6 +7,8 @@
 #include <simd_stl/arch/ProcessorFeatures.h>
 
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
+#include <simd_stl/numeric/BasicSimd.h>
+
 
 #define __SIMD_STL_COPY_CACHE_SIZE_LIMIT 3*1024*1024
 
