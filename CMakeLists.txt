@@ -47,6 +47,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/fill/FillVectorized.h
     src/simd_stl/algorithm/vectorized/remove/RemoveVectorized.h
     src/simd_stl/algorithm/vectorized/remove/RemoveCopyVectorized.h
+    src/simd_stl/algorithm/vectorized/transform/TransformVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -73,6 +74,9 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/algorithm/unchecked/replace/ReplaceIfUnchecked.h
     src/simd_stl/algorithm/unchecked/replace/ReplaceUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/transform/TransformUnchecked.h
+    src/simd_stl/algorithm/vectorized/VectorizedOperators.h
 
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h

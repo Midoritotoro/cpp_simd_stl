@@ -46,7 +46,7 @@ template <class _Type_ = void>
 struct divides {
     simd_stl_nodiscard constexpr _Type_ operator()(
         const _Type_& left,
-        const _Type_& right) const 
+        const _Type_& right) const noexcept(noexcept(left / right))
     {
         return left / right;
     }

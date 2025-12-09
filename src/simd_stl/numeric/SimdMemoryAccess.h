@@ -1686,7 +1686,7 @@ public:
     static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
 
     static simd_stl_always_inline auto _MakeTailMask(uint32 _Bytes) noexcept {
-        const auto _Elements = _Bytes / sizeof(uint32);
+        const auto _Elements = _Bytes >> 2;
         return (_Elements == 0) ? 0 : (static_cast<uint16>((1u << _Elements) - 1));
     }
 

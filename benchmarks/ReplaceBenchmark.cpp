@@ -18,7 +18,6 @@ struct _ReplaceBenchmarkArray {
     }
 };
 
-
 template <
     typename            _Type_,
     simd_stl::sizetype  _Size_>
@@ -28,7 +27,7 @@ _ReplaceBenchmarkArray<_Type_, _Size_> _GenerateArrayForReplaceBenchmark() noexc
     for (simd_stl::sizetype i = 0; i < _Size_; ++i)
         result.array[i] = i;
 
-    for (simd_stl::sizetype i = 0; i < _Size_; i += 10)
+    for (simd_stl::sizetype i = 0; i < _Size_; i += 2)
         result.array[i] = simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1;
 
     return result;
@@ -67,9 +66,9 @@ public:
     }
 };
 
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int8, Replace);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, int, Replace);
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, long long, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int8, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int32, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int64, Replace);
 
 SIMD_STL_BENCHMARK_MAIN();

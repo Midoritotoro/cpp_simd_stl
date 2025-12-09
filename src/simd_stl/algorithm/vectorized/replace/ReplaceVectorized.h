@@ -32,8 +32,8 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
     constexpr auto _Is_masked_store_supported = _SimdType_::template is_native_mask_store_supported_v<>;
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_load_supported_v<> &&
-        _Is_masked_store_supported;
+    constexpr auto _Is_masked_memory_access_supported = _Is_masked_store_supported &&
+        _SimdType_::template is_native_mask_load_supported_v<>;
 
     const auto _Size        = ByteLength(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
@@ -72,8 +72,8 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
         }
     }
     else {
-        if (_First == _Last)
-            _ReplaceScalar(_First, _Last, _OldValue, _NewValue);
+        if (_First != _Last)
+            _ReplaceScalar<_Type_>(_First, _Last, _OldValue, _NewValue);
     }
 
     _SimdType_::zeroUpper();
