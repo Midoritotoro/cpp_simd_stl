@@ -148,16 +148,16 @@ _Type_* simd_stl_stdcall _TransformVectorized(
     void*               _Destination,
     _UnaryPredicate_    _Predicate) noexcept
 {
-    if constexpr (sizeof(_Type_) <= 2) {
+   // if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
             return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(
                 _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(
-                _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
-    }
+    //}
+    //else {
+    //    if (arch::ProcessorFeatures::AVX512F())
+    //        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(
+    //            _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
+    //}
 
     if (arch::ProcessorFeatures::AVX2())
         return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(
