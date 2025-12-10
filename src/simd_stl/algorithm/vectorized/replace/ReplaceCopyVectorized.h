@@ -61,14 +61,16 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
 
         if (_TailSize != 0) {
             const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
-            const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+            auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
             const auto _Mask                = _Loaded.nativeEqual(_Comparand);
             const auto _MaskForNativeStore  = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
                 typename _SimdType_::policy_type, _Type_>(_Mask);
 
             const auto _StoreMask   = _MaskForNativeStore & _TailMask;
-            _Replacement.maskBlendStoreUnaligned(_Destination, _StoreMask, _Loaded);
+
+            _Loaded.blend(_Replacement, ~_StoreMask);
+            _Loaded.maskStoreUnaligned(_Destination, _StoreMask);
         }
     }
     else {

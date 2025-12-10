@@ -31,7 +31,7 @@ void test_replace_copy_container(Container& c, const T& old_value, const T& new_
 
 template <typename T>
 void test_replace_copy_large() {
-    const size_t total_bytes = 258;
+    const size_t total_bytes = 3000;
     const size_t N = std::max<size_t>(1, total_bytes / sizeof(T));
 
     {
@@ -46,17 +46,17 @@ void test_replace_copy_large() {
         test_replace_copy_container<std::array<T, 1024>, T>(arr, T(20), T(110));
     }
 
-    //{
-    //    std::deque<T> dq(N);
-    //    fill_sequential<std::deque<T>, T>(dq);
-    //    test_replace_copy_container<std::deque<T>, T>(dq, T(30), T(120));
-    //}
+    {
+        std::deque<T> dq(N);
+        fill_sequential<std::deque<T>, T>(dq);
+        test_replace_copy_container<std::deque<T>, T>(dq, T(30), T(120));
+    }
 
-    //{
-    //    std::list<T> lst;
-    //    for (size_t i = 0; i < N; ++i) lst.push_back(static_cast<T>(i + 1));
-    //    test_replace_copy_container<std::list<T>, T>(lst, T(40), T(118));
-    //}
+    {
+        std::list<T> lst;
+        for (size_t i = 0; i < N; ++i) lst.push_back(static_cast<T>(i + 1));
+        test_replace_copy_container<std::list<T>, T>(lst, T(40), T(118));
+    }
 }
 
 int main() {

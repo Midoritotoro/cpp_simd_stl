@@ -336,8 +336,13 @@ public:
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(
-        const basic_simd&                       _Vector,
-        _Mask_type<_DesiredType_>    _Mask) noexcept;
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    _Vector,
+        _Mask_type<_DesiredType_>                                               _Mask) noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline void blend(
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Vector,
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
@@ -1429,11 +1434,25 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
-void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
-    const basic_simd&                       _Vector,
-    _Mask_type<_DesiredType_>   _Mask) noexcept
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    _Vector,
+    _Mask_type<_DesiredType_>                                               _Mask) noexcept
 {
-    return _SimdBlend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Vector, _Mask);
+    _vector = _IntrinBitcast<vector_type>(_SimdBlend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        _IntrinBitcast<decltype(_Vector._vector)>(_vector), _Vector._vector, _Mask));
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Vector,
+    const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept
+{
+    _vector = _IntrinBitcast<vector_type>(_SimdBlend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        _IntrinBitcast<decltype(_Vector._vector)>(_vector), _Vector._vector, _Mask._vector));
 }
 
 template <
