@@ -136,6 +136,8 @@ set(PRIVATE_HEADERS
 )
 
 set(PUBLIC_HEADERS
+    include/simd_stl/algorithm/algorithm 
+
     include/simd_stl/math/BitMath.h
     include/simd_stl/math/IntegralTypesConversions.h
 
