@@ -35,25 +35,25 @@ void test_replace_large() {
     {
         std::vector<T> v(N);
         fill_sequential<std::vector<T>, T>(v);
-        test_replace_container<std::vector<T>, T>(v, T(10), T(999));
+        test_replace_container<std::vector<T>, T>(v, T(10), T(250));
     }
 
     {
         std::array<T, 1024> arr;
         fill_sequential<std::array<T, 1024>, T>(arr);
-        test_replace_container<std::array<T, 1024>, T>(arr, T(20), T(888));
+        test_replace_container<std::array<T, 1024>, T>(arr, T(20), T(220));
     }
 
     {
         std::deque<T> dq(N);
         fill_sequential<std::deque<T>, T>(dq);
-        test_replace_container<std::deque<T>, T>(dq, T(30), T(777));
+        test_replace_container<std::deque<T>, T>(dq, T(30), T(222));
     }
 
     {
         std::list<T> lst;
         for (size_t i = 0; i < N; ++i) lst.push_back(static_cast<T>(i + 1));
-        test_replace_container<std::list<T>, T>(lst, T(40), T(666));
+        test_replace_container<std::list<T>, T>(lst, T(40), T(150));
     }
 }
 

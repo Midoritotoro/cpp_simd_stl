@@ -5,6 +5,7 @@
 #include <src/simd_stl/algorithm/unchecked/replace/ReplaceUnchecked.h>
 
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -42,31 +43,33 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
 template <
     class _ExecutionPolicy_,
     class _ForwardIterator_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
+    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace(
     _ExecutionPolicy_&&,
-    _ForwardIterator_                                   first,
-    _ForwardIterator_                                   last,
-    const typename std::type_identity<_Type_>::type&    oldValue,
-    const typename std::type_identity<_Type_>::type&    newValue) noexcept
+    _ForwardIterator_                                   _First,
+    _ForwardIterator_                                   _Last,
+    const typename std::type_identity<_Type_>::type&    _OldValue,
+    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept
 {
-    return simd_stl::algorithm::replace(first, last, oldValue, newValue);
+    return simd_stl::algorithm::replace(_First, _Last, _OldValue, _NewValue);
 }
 
 template <
     class _ExecutionPolicy_,
     class _ForwardIterator_,
     class _UnaryPredicate_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
+    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>,
+    concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
     _ExecutionPolicy_&&,
-    _ForwardIterator_                                   first,
-    _ForwardIterator_                                   last,
-    _UnaryPredicate_                                    predicate,
-    const typename std::type_identity<_Type_>::type&    newValue) noexcept(
+    _ForwardIterator_                                   _First,
+    _ForwardIterator_                                   _Last,
+    _UnaryPredicate_                                    _Predicate,
+    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept(
         type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
 {
-    return simd_stl::algorithm::replace_if(first, last, type_traits::passFunction(predicate), newValue);
+    return simd_stl::algorithm::replace_if(_First, _Last, type_traits::passFunction(_Predicate), _NewValue);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

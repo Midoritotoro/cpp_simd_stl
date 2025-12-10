@@ -22,8 +22,7 @@ _Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
     using _IteratorValueType = type_traits::IteratorValueType<_UnwrappedInputIterator_>;
 
     constexpr auto _Is_vectorizable = type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _IteratorValueType>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _IteratorValueType>
-        && _Is_predicate_vectorizable_v<_UnaryPredicate_>;
+        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _IteratorValueType>;
 
     if constexpr (_Is_vectorizable) {
 #if simd_stl_has_cxx20
@@ -65,8 +64,7 @@ _Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
 
     constexpr auto _Is_vectorizable = type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedFirstInputIterator_, _IteratorValueType>
         && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _IteratorValueType>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedSecondInputIterator_, _IteratorValueType>
-        && _Is_predicate_vectorizable_v<_BinaryPredicate_>;
+        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedSecondInputIterator_, _IteratorValueType>;
 
     if constexpr (_Is_vectorizable) {
 #if simd_stl_has_cxx20

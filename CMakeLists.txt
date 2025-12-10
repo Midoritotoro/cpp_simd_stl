@@ -37,6 +37,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/find/FindVectorized.h
     "src/simd_stl/algorithm/vectorized/find/MismatchVectorized.h"
     src/simd_stl/algorithm/vectorized/replace/ReplaceVectorized.h
+    src/simd_stl/algorithm/vectorized/replace/ReplaceCopyVectorized.h
     src/simd_stl/algorithm/vectorized/order/ReverseCopyVectorized.h
     src/simd_stl/algorithm/vectorized/order/ReverseVectorized.h
     src/simd_stl/algorithm/vectorized/swap/SwapRangesVectorized.h
@@ -71,6 +72,9 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/copy/CopyBackwardUnchecked.h
     src/simd_stl/algorithm/unchecked/copy/MoveUnchecked.h
     src/simd_stl/algorithm/unchecked/copy/MoveBackwardUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/replace/ReplaceCopyIfUnchecked.h
+    src/simd_stl/algorithm/unchecked/replace/ReplaceCopyUnchecked.h
 
     src/simd_stl/algorithm/unchecked/replace/ReplaceIfUnchecked.h
     src/simd_stl/algorithm/unchecked/replace/ReplaceUnchecked.h
@@ -204,6 +208,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/algorithm/remove/RemoveCopy.h
 
     include/simd_stl/algorithm/replace/Replace.h
+    include/simd_stl/algorithm/replace/ReplaceCopy.h
 
     include/simd_stl/algorithm/order/Reverse.h
     include/simd_stl/algorithm/order/ReverseCopy.h

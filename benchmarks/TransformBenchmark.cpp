@@ -73,7 +73,7 @@ public:
     }
 };
 
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlTransformBenchmark, StdTransformBenchmark, simd_stl::int64, Transform<simd_stl::type_traits::plus<>>);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlTransformBenchmark, StdTransformBenchmark, simd_stl::int32, Transform<simd_stl::type_traits::multiplies<>>);
 
 
 SIMD_STL_BENCHMARK_MAIN();

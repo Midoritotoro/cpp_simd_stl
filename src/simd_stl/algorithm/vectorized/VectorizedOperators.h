@@ -5,132 +5,35 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-template <class _Predicate_> 
-struct _VectorizedUnaryPredicateInvoker {
-    static constexpr bool _Is_predicate_vectorizable = false;
+template <
+    class _UnaryPredicate_,
+    class _BasicSimd_,
+    class = void>
+constexpr inline bool _Is_unary_predicate_vectorizable_v = false;
 
-    template <class _BasicSimd_> 
-    static simd_stl_always_inline _BasicSimd_ _Invoke(const _BasicSimd_& _Simd) noexcept;
-};
+template <
+    class _UnaryPredicate_,
+    class _BasicSimd_>
+constexpr inline bool _Is_unary_predicate_vectorizable_v<_UnaryPredicate_, _BasicSimd_, std::void_t<
+    decltype(std::declval<_UnaryPredicate_>()(std::declval<_BasicSimd_>()))>> = true;
 
-template <>
-struct _VectorizedUnaryPredicateInvoker<type_traits::negate<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
+template <
+    class _BinaryPredicate_,
+    class _BasicSimd_,
+    class = void>
+constexpr inline bool _Is_binary_predicate_vectorizable_v = false;
 
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(const _BasicSimd_& _Simd) noexcept {
-        static_assert(numeric::_Is_valid_basic_simd_v<_BasicSimd_>);
-        return (-_Simd);
-    }
-};
+template <
+    class _BinaryPredicate_,
+    class _BasicSimd_>
+constexpr inline bool _Is_binary_predicate_vectorizable_v<_BinaryPredicate_, _BasicSimd_, std::void_t<
+    decltype(std::declval<_BinaryPredicate_>()(std::declval<_BasicSimd_>(), std::declval<_BasicSimd_>()))>> = true;
 
-template <>
-struct _VectorizedUnaryPredicateInvoker<type_traits::bit_not<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(const _BasicSimd_& _Simd) noexcept {
-        static_assert(numeric::_Is_valid_basic_simd_v<_BasicSimd_>);
-        return (~_Simd);
-    }
-};
-
-template <class _Predicate_>
-struct _VectorizedBinaryPredicateInvoker {
-    static constexpr bool _Is_predicate_vectorizable = false;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept;
-};
-
-template <>
-struct _VectorizedBinaryPredicateInvoker<type_traits::bit_and<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept
-    {
-        return (_Left & _Right);
-    }
-};
-
-template <>
-struct _VectorizedBinaryPredicateInvoker<type_traits::bit_or<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept
-    {
-        return (_Left | _Right);
-    }
-};
-
-template <>
-struct _VectorizedBinaryPredicateInvoker<type_traits::bit_xor<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept
-    {
-        return (_Left ^ _Right);
-    }
-};
-
-template <>
-struct _VectorizedBinaryPredicateInvoker<type_traits::plus<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept
-    {
-        return (_Left + _Right);
-    }
-};
-
-template <>
-struct _VectorizedBinaryPredicateInvoker<type_traits::minus<>> {
-    static constexpr bool _Is_predicate_vectorizable = true;
-
-    template <class _BasicSimd_>
-    static simd_stl_always_inline _BasicSimd_ _Invoke(
-        const _BasicSimd_& _Left,
-        const _BasicSimd_& _Right) noexcept
-    {
-        return (_Left - _Right);
-    }
-};
-
-template <class _Predicate_> 
-constexpr inline auto _Is_predicate_vectorizable_v = _VectorizedBinaryPredicateInvoker<_Predicate_>::_Is_predicate_vectorizable ||
-    _VectorizedUnaryPredicateInvoker<_Predicate_>::_Is_predicate_vectorizable;
 
 template <
     class _Predicate_,
-    class _BasicSimd_>
-simd_stl_always_inline _BasicSimd_ _InvokeVectorizedTransformPredicate(const _BasicSimd_& _Simd) noexcept {
-    static_assert(_Is_predicate_vectorizable_v<_Predicate_>);
-    return _VectorizedUnaryPredicateInvoker<_Predicate_>::_Invoke(_Simd);
-}
-
-template <
-    class _Predicate_,
-    class _BasicSimd_>
-simd_stl_always_inline _BasicSimd_ _InvokeVectorizedTransformPredicate(
-    const _BasicSimd_& _Left,
-    const _BasicSimd_& _Right) noexcept 
-{
-    static_assert(_Is_predicate_vectorizable_v<_Predicate_>);
-    return _VectorizedBinaryPredicateInvoker<_Predicate_>::_Invoke(_Left, _Right);
-}
+    class _BasicSimd_> 
+constexpr inline auto _Is_predicate_vectorizable_v = _Is_unary_predicate_vectorizable_v<_Predicate_, _BasicSimd_> ||
+    _Is_binary_predicate_vectorizable_v<_Predicate_, _BasicSimd_>;
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
