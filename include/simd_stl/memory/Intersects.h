@@ -38,7 +38,6 @@ void _CheckIntersection(
 	using _FirstForwardIteratorUnwrappedType_	= algorithm::unwrapped_iterator_type<_FirstForwardIterator_>;
 	using _SecondForwardIteratorUnwrappedType_	= algorithm::unwrapped_iterator_type<_SecondForwardIterator_>;
 
-
 	if constexpr (
 		type_traits::is_iterator_contiguous_v<_FirstForwardIteratorUnwrappedType_> &&
 		type_traits::is_iterator_contiguous_v<_SecondForwardIteratorUnwrappedType_>)

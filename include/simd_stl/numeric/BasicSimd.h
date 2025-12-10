@@ -1364,10 +1364,10 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-_Make_tail_mask_return_type< basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
+_Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
     basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::makeTailMask(uint32 bytes) noexcept 
 {
-    return _SimdMakeTailMask<_SimdGeneration_, _RegisterPolicy_>(bytes);
+    return _SimdMakeTailMask<_SimdGeneration_, _RegisterPolicy_, _Element_>(bytes);
 }
 
 template <

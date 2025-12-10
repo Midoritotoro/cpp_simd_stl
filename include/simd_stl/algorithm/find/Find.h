@@ -19,7 +19,8 @@ _Simd_nodiscard_inline_constexpr _Iterator_ find(
 {
 	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(_First, _FindUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
+	_SeekPossiblyWrappedIterator(_First, _FindUnchecked(_UnwrapIterator(_First),
+		_UnwrapIterator(_Last), _Value));
 
 	return _First;
 }

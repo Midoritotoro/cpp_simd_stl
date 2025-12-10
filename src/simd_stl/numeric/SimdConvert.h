@@ -495,7 +495,11 @@ template <
     typename            _VectorType_>
 simd_stl_always_inline auto _SimdToMask(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
-    return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToMask<_DesiredType_>(_Vector);
+
+    if constexpr (std::is_integral_v<_VectorType_>)
+        return _Vector;
+    else
+        return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToMask<_DesiredType_>(_Vector);
 }
 
 template <
@@ -506,7 +510,11 @@ template <
     typename            _MaskType_>
 simd_stl_always_inline _VectorType_ _SimdToVector(_MaskType_ _Mask) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
-    return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToVector<_VectorType_, _DesiredType_>(_Mask);
+
+    if constexpr (_Is_intrin_type_v<_MaskType_>)
+        return _IntrinBitcast<_VectorType_>(_Mask);
+    else
+        return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToVector<_VectorType_, _DesiredType_>(_Mask);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

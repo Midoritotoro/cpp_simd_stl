@@ -464,6 +464,7 @@ public:
         return _Where;
     }
 
+    template <typename _Type_>
     static simd_stl_always_inline auto _MakeTailMask(uint32 bytes) noexcept {
         static constexpr unsigned int _TailMask[8] = { ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0 };
         return _mm_loadu_si128(reinterpret_cast<const __m128i*>(
@@ -885,6 +886,7 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
 
+    template <typename _Type_>
     static simd_stl_always_inline auto _MakeTailMask(uint32 _Bytes) noexcept {
         static constexpr unsigned int _TailMask[16] = {
             ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1653,7 +1655,7 @@ public:
 
 #pragma endregion
 
-#pragma region Avx512 memory access 
+#pragma region Avx512 memory access
 
 template <>
 class _SimdMemoryAccess<arch::CpuFeature::AVX512F, zmm512>
@@ -1685,9 +1687,10 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto _Native_mask_store_supported = _Native_mask_load_support<_TypeSize_>::value;
 
+    template <typename _Type_>
     static simd_stl_always_inline auto _MakeTailMask(uint32 _Bytes) noexcept {
-        const auto _Elements = _Bytes >> 2;
-        return (_Elements == 0) ? 0 : (static_cast<uint16>((1u << _Elements) - 1));
+        const auto _Elements = _Bytes / sizeof(_Type_);
+        return (_Elements == 0) ? 0 : (static_cast<_Simd_mask_type<_Type_>>((1ull << _Elements) - 1));
     }
 
     template <typename _VectorType_>
@@ -2059,6 +2062,12 @@ public:
 
     template <sizetype _TypeSize_>
     static constexpr auto _Native_mask_store_supported = true;
+
+    template <typename _Type_>
+    static simd_stl_always_inline auto _MakeTailMask(uint32 _Bytes) noexcept {
+        const auto _Elements = _Bytes / sizeof(_Type_);
+        return (_Elements == 0) ? 0 : (static_cast<_Simd_mask_type<_Type_>>((1ull << _Elements) - 1));
+    }
 
     template <
         typename _DesiredType_,
@@ -2607,9 +2616,10 @@ constexpr inline bool _Is_native_mask_store_supported_v = _SimdMemoryAccess<_Sim
 
 template <
     arch::CpuFeature	_SimdGeneration_,
-    class               _RegisterPolicy_>
+    class               _RegisterPolicy_,
+    typename            _Type_>
 simd_stl_always_inline auto _SimdMakeTailMask(uint32 _Bytes) noexcept {
-    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MakeTailMask(_Bytes);
+    return _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MakeTailMask<_Type_>(_Bytes);
 }
 
 template <
@@ -2620,6 +2630,18 @@ using _Make_tail_mask_return_type_helper = std::conditional_t<_Is_intrin_type_v<
 
 template <class _BasicSimd_>
 using _Make_tail_mask_return_type = _Make_tail_mask_return_type_helper<_BasicSimd_,
-    type_traits::invoke_result_type<decltype(_SimdMakeTailMask<_BasicSimd_::_Generation, typename _BasicSimd_::policy_type>), uint32>>;
+    type_traits::invoke_result_type<decltype(_SimdMakeTailMask<_BasicSimd_::_Generation, typename _BasicSimd_::policy_type,
+    typename _BasicSimd_::value_type>), uint32>>;
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _MaskOrBasicSimdType_>
+simd_stl_always_inline auto _SimdToNativeMask(_MaskOrBasicSimdType_ _Mask) noexcept {
+    if constexpr (_Is_valid_basic_simd_v<_MaskOrBasicSimdType_>)
+        return _Mask.toMask();
+    else
+        return _Mask;
+}
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

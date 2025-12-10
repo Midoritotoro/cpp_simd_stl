@@ -33,8 +33,7 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    constexpr auto _Is_masked_store_supported = _SimdType_::template is_native_mask_store_supported_v<>;
-    constexpr auto _Is_masked_memory_access_supported = _Is_masked_store_supported &&
+    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
 
     const auto _Size        = ByteLength(_First, _Last);

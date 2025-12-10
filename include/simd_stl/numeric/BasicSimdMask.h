@@ -19,6 +19,9 @@ public:
 	using mask_type = typename implementation::mask_type;
 	using size_type = typename implementation::size_type;
 
+	basic_simd_mask() noexcept
+	{}
+
 	basic_simd_mask(const mask_type mask) noexcept:
 		_mask(mask)
 	{}
@@ -140,6 +143,11 @@ public:
 
 	constexpr simd_stl_always_inline basic_simd_mask& operator|=(const basic_simd_mask& other) noexcept {
 		_mask |= other._mask;
+		return *this;
+	}
+
+	constexpr simd_stl_always_inline basic_simd_mask& operator=(mask_type other) noexcept {
+		_mask = other;
 		return *this;
 	}
 
