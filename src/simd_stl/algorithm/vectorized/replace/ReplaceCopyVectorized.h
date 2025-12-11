@@ -32,6 +32,7 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
     const _Type_    _NewValue) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
@@ -76,8 +77,6 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
         if (_First != _Last)
             _ReplaceCopyScalar<_Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
     }
-
-    _SimdType_::zeroUpper();
 }
 
 template <typename _Type_>

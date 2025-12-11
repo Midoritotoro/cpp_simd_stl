@@ -44,6 +44,7 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype _MismatchVectori
     const sizetype      _Size) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     const auto _Bytes        = _Size * sizeof(_Type_);
 

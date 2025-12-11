@@ -15,8 +15,9 @@ struct _SwapRangesVectorizedInternal {
 		_Type_*		second,
 		sizetype	count) noexcept
 	{
-		using _SimdType_ = numeric::basic_simd<_SimdGeneration_, int>;
-		
+		using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+		numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+
 		const auto bytes		= sizeof(_Type_) * count;
 		const auto alignedBytes = bytes & (~(sizeof(_SimdType_) - 1));
 
@@ -34,8 +35,6 @@ struct _SwapRangesVectorizedInternal {
 				AdvanceBytes(first, sizeof(_SimdType_));
 				AdvanceBytes(second, sizeof(_SimdType_));
 			} while (first != stopAt);
-
-			_SimdType_::zeroUpper();
 		}
 
 		auto remainingCount = (bytes - alignedBytes) / sizeof(_Type_);

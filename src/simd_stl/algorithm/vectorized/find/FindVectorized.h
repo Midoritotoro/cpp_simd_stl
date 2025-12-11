@@ -42,6 +42,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
     _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
@@ -87,7 +88,6 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
             _Last = _FindScalar(_First, _Last, _Value);
     }
 
-    _SimdType_::zeroUpper();
     return _Last;
 }
 

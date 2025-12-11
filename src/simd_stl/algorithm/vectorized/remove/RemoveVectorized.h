@@ -45,6 +45,8 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
     _Type_      _Value) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+
     const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
     void* _Current = _First;

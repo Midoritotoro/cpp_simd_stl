@@ -29,6 +29,8 @@ simd_stl_declare_const_function simd_stl_always_inline void _ReverseVectorizedIn
     void* _LastPointer) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+
     const auto _AlignedSize  = ByteLength(_FirstPointer, _LastPointer) & (~((sizeof(_SimdType_) << 1) - 1));
 
     if (_AlignedSize != 0) {

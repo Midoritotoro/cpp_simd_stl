@@ -82,7 +82,8 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
     _MemCmpLike_    memcmpLike) noexcept
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
-     
+    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+
     if constexpr ((_NeedleLength_ * sizeof(_Type_)) > sizeof(_SimdType_))
         return FindEndScalar<_Type_>(
             firstPointer, firstRangeLength, secondPointer, _NeedleLength_);

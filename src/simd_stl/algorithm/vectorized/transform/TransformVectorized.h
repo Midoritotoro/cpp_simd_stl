@@ -83,8 +83,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
 
             if (_TailSize != 0) {
                 const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-                const auto _Applied = _InvokeVectorizedTransformPredicate<_UnaryPredicate_>(
-                    _SimdType_::maskLoadUnaligned(_First, _TailMask));
+                const auto _Applied = _Predicate(_SimdType_::maskLoadUnaligned(_First, _TailMask));
 
                 _Applied.maskStoreUnaligned(_Destination, _TailMask);
             }
