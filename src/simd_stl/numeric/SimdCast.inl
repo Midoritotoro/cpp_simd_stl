@@ -7,7 +7,7 @@ template <
     class _VectorType_,
     bool _IsBasicSimd_,
     bool _IsIntrin_>
-    struct _Rebind_vector_element_t {
+struct _Rebind_vector_element_t {
     using type = void;
 };
 

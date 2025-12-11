@@ -185,4 +185,31 @@ template <
 using _Native_compare_return_type_helper = std::conditional_t<_Is_intrin_type_v<_ReturnType_>,
 	basic_simd<_BasicSimd_::_Generation, _DesiredType_, typename _BasicSimd_::policy_type>, _ReturnType_>;
 
+template <
+    class _RebindType_,
+    class _VectorType_,
+    bool _IsBasicSimd_  = _Is_valid_basic_simd_v<_VectorType_>,
+    bool _IsIntrin_     = _Is_intrin_type_v<_VectorType_>>
+struct _Rebind_vector_element_t;
+
+template <
+    arch::CpuFeature	_ToSimdGeneration_,
+    class               _RebindType_,
+    class               _VectorType_,
+    bool                _IsBasicSimd_ = _Is_valid_basic_simd_v<_VectorType_>,
+    bool                _IsIntrin_ = _Is_intrin_type_v<_VectorType_>>
+struct _Rebind_vector_generation_t;
+
+template <
+    class _RebindType_,
+    class _VectorType_>
+using _Rebind_vector_element_type = typename _Rebind_vector_element_t<_RebindType_, _VectorType_>::type;
+
+template <
+    arch::CpuFeature	_ToSimdGeneration_,
+    class               _RebindType_,
+    class               _VectorType_>
+using _Rebind_vector_generation_type = typename _Rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
+
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

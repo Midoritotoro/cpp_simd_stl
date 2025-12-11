@@ -133,6 +133,16 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdIntegralTypesCheck.h
     src/simd_stl/numeric/SimdMemoryAccess.h
 
+    src/simd_stl/numeric/SimdBroadcast.inl
+    src/simd_stl/numeric/SimdArithmetic.inl
+    src/simd_stl/numeric/SimdConvert.inl
+    src/simd_stl/numeric/SimdCompare.inl
+    src/simd_stl/numeric/SimdElementAccess.inl
+    src/simd_stl/numeric/SimdElementWise.inl
+    src/simd_stl/numeric/SimdMemoryAccess.inl
+
+    src/simd_stl/numeric/SimdOperations.h
+
     src/simd_stl/numeric/BasicSimd.inl
     src/simd_stl/numeric/SimdCast.inl
     src/simd_stl/numeric/BasicSimdMaskImplementation.inl
