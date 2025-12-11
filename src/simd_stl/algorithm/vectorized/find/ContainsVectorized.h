@@ -81,7 +81,7 @@ simd_stl_declare_const_function bool simd_stl_stdcall _ContainsVectorizedInterna
     }
     else {
         if (_First != _Last)
-            return _ContainsScalar(_FirstPointer, _LastPointer, _Value);
+            return _ContainsScalar(_First, _Last, _Value);
     }
 }
 

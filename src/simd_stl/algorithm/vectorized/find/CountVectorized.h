@@ -24,30 +24,49 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
 simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall _CountVectorizedInternal(
-    const void*     _FirstPointer,
+    const void*     _First,
     const sizetype  _Bytes,
     _Type_          _Value) noexcept
 {
     using _SimdType_    = numeric::basic_simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    auto _AlignedSize   = _Bytes & (~(sizeof(_SimdType_) - 1));
+    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
+        _SimdType_::template is_native_mask_load_supported_v<>;
 
+    auto _AlignedSize   = _Bytes & (~(sizeof(_SimdType_) - 1));
     sizetype _Count = 0;
 
-    if (_AlignedSize != 0) {
-        const auto _Comparand = _SimdType_(_Value);
+    const auto _Comparand = _SimdType_(_Value);
 
-        for (sizetype _Index = 0; _Index < _AlignedSize; _Index += sizeof(_SimdType_)) {
-            const auto _Loaded   = _SimdType_::loadUnaligned(static_cast<const char*>(_FirstPointer) + _Index);
-            const auto _Compared = _Comparand.maskEqual(_Loaded);
+    const void* _StopAt = _First; 
+    AdvanceBytes(_StopAt, _AlignedSize);
 
-            _Count += _Compared.countSet();
-        }
+    while (_First != _StopAt) {
+        const auto _Loaded   = _SimdType_::loadUnaligned(_First);
+        const auto _Compared = _Comparand.maskEqual(_Loaded);
+
+        _Count += _Compared.countSet();
+        AdvanceBytes(_First, sizeof(_SimdType_));
+       
     }
    
-    AdvanceBytes(_FirstPointer, _AlignedSize);
-    return _CountScalar(_FirstPointer, (_Bytes - _AlignedSize), _Count, _Value);
+    if constexpr (_Is_masked_memory_access_supported) {
+        const auto _TailSize = _Bytes & (sizeof(_SimdType_) - sizeof(_Type_));
+
+        if (_TailSize != 0) {
+            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
+            const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+
+            const auto _Compared = _Comparand.maskEqual(_Loaded);
+            _Count += _Compared.countSet();
+        }
+
+        return _Count;
+    }
+    else {
+        return _CountScalar(_First, (_Bytes - _AlignedSize), _Count, _Value);
+    }
 }
 
 template <class _Type_>

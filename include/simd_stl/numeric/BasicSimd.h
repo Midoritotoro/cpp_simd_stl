@@ -1466,8 +1466,8 @@ void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reverse() noexce
 
 template <arch::CpuFeature _SimdGeneration_>
 struct zero_upper_at_exit_guard {
-    zero_upper_at_exit_guard(const zero_upper_at_exit_guard&) noexcept = delete;
-    zero_upper_at_exit_guard(zero_upper_at_exit_guard&&) noexcept  = delete;
+    zero_upper_at_exit_guard(const zero_upper_at_exit_guard&) noexcept  = delete;
+    zero_upper_at_exit_guard(zero_upper_at_exit_guard&&) noexcept       = delete;
 
     zero_upper_at_exit_guard() noexcept
     {}
