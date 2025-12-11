@@ -2227,7 +2227,7 @@ public:
             return _IntrinBitcast<_VectorType_>(_mm512_mask_load_epi32(_mm512_setzero_si512(), _Mask, _Where));
 
         else
-            return _MaskLoadUnaligned<_VectorType_>(_Where, _Mask);
+            return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where, _Mask);
     }
 
 

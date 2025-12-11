@@ -133,6 +133,11 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdIntegralTypesCheck.h
     src/simd_stl/numeric/SimdMemoryAccess.h
 
+    src/simd_stl/numeric/BasicSimd.inl
+    src/simd_stl/numeric/SimdCast.inl
+    src/simd_stl/numeric/BasicSimdMaskImplementation.inl
+    src/simd_stl/numeric/BasicSimdElementReference.inl
+
     src/simd_stl/concurrency/WindowsThread.h
     src/simd_stl/concurrency/ThreadYield.h
     src/simd_stl/concurrency/WindowsThreadPool.h

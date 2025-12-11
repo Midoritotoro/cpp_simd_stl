@@ -20,136 +20,45 @@ public:
     using value_type    = _ImposedElementType_;
 
     BasicSimdElementReference(
-        parent_type*    parent,
-        uint32          index = 0
-    ) noexcept:
-        _parent(parent),
-        _index(index)
-    {
-        DebugAssert(parent != nullptr);
-        DebugAssert(index >= 0 && index < parent_type::template size<value_type>());
-    }
+        parent_type*    _Parent,
+        uint32          _Index = 0) noexcept;
 
-    ~BasicSimdElementReference() noexcept 
-    {}
+    ~BasicSimdElementReference() noexcept;
 
-    simd_stl_always_inline uint32 index() const noexcept {
-        return _index;
-    }
+    simd_stl_always_inline uint32 index() const noexcept;
+    simd_stl_always_inline value_type get() const noexcept;
+    simd_stl_always_inline void set(value_type value) noexcept;
 
-    simd_stl_always_inline value_type get() const noexcept {
-        return _parent->extract<value_type>(_index);
-    }
+    simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator++() noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator--() noexcept;
+    simd_stl_always_inline BasicSimdElementReference operator++(int) noexcept;
+    simd_stl_always_inline BasicSimdElementReference operator--(int) noexcept;
 
-    simd_stl_always_inline void set(value_type value) noexcept {
-        _parent->insert<value_type>(_index, value);
-    }
+    simd_stl_always_inline value_type operator-() noexcept;
+    simd_stl_always_inline value_type operator+() noexcept;
+    simd_stl_always_inline operator value_type() const noexcept;
 
-    simd_stl_always_inline BasicSimdElementReference& operator=(const value_type other) noexcept {
-        set(other);
-        return *this;
-    }
+    simd_stl_always_inline bool operator==(const value_type other) const noexcept;
+    simd_stl_always_inline bool operator!=(const value_type other) const noexcept;
+    simd_stl_always_inline bool operator>(const value_type other) const noexcept;
+    simd_stl_always_inline bool operator<(const value_type other) const noexcept;
+    simd_stl_always_inline bool operator<=(const value_type other) const noexcept;
+    simd_stl_always_inline bool operator>=(const value_type other) const noexcept;
 
-    simd_stl_always_inline BasicSimdElementReference& operator++() noexcept {
-        set(get() + 1);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator--() noexcept {
-        set(get() - 1);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference operator++(int) noexcept {
-        auto self = *this;
-        set(get() + 1);
-        return self;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference operator--(int) noexcept {
-        auto self = *this;
-        set(get() - 1);
-        return self;
-    }
-
-    simd_stl_always_inline value_type operator-() noexcept {
-        return -get();
-    }
-
-    simd_stl_always_inline value_type operator+() noexcept {
-        return get();
-    }
-
-    simd_stl_always_inline operator value_type() const noexcept {
-        return get();
-    }
-
-    simd_stl_always_inline bool operator==(const value_type other) const noexcept {
-        return get() == other;
-    }
-
-    simd_stl_always_inline bool operator!=(const value_type other) const noexcept {
-        return get() != other;
-    }
-
-    simd_stl_always_inline bool operator>(const value_type other) const noexcept {
-        return get() > other;
-    }
-
-    simd_stl_always_inline bool operator<(const value_type other) const noexcept {
-        return get() < other;
-    }
-
-    simd_stl_always_inline bool operator<=(const value_type other) const noexcept {
-        return get() <= other;
-    }
-
-    simd_stl_always_inline bool operator>=(const value_type other) const noexcept {
-        return get() >= other;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator+=(const value_type other) noexcept {
-        set(get() + other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator-=(const value_type other) noexcept {
-        set(get() - other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator*=(const value_type other) noexcept {
-        set(get() * other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator/=(const value_type other) noexcept {
-        set(get() / other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator%=(const value_type other) noexcept {
-        set(get() % other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator&=(const value_type other) noexcept {
-        set(get() & other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator^=(const value_type other) noexcept {
-        set(get() ^ other);
-        return *this;
-    }
-
-    simd_stl_always_inline BasicSimdElementReference& operator|=(const value_type other) noexcept {
-        set(get() | other);
-        return *this;
-    }
+    simd_stl_always_inline BasicSimdElementReference& operator+=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator-=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator*=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator/=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator%=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator&=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator^=(const value_type other) noexcept;
+    simd_stl_always_inline BasicSimdElementReference& operator|=(const value_type other) noexcept;
 private:
     parent_type*    _parent = nullptr;
     uint32          _index  = 0;
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
+
+#include <src/simd_stl/numeric/BasicSimdElementReference.inl>
