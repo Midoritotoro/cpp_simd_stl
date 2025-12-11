@@ -1,7 +1,9 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/vectorized/RemoveCopyVectorized.h>
-#include <simd_stl/algorithm/find/Find.h>
+#include <src/simd_stl/algorithm/unchecked/remove/RemoveCopyUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/remove/RemoveCopyIfUnchecked.h>
+
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -9,93 +11,46 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _InputIterator_,
 	class _OutputIterator_,
-	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterator_ remove_copy(
-	_InputIterator_			first,
-	const _InputIterator_	last,
-	_OutputIterator_		destination,
-	const _Type_&			value) noexcept
+	class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
+_Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
+	_InputIterator_										_First,
+	_InputIterator_										_Last,
+	_OutputIterator_									_Destination,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept
 {
 	__verifyRange(first, last);
+	
+	_SeekPossiblyWrappedIterator(_Destination, _RemoveCopyUnchecked(_UnwrapIterator(_First),
+		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), _Value));
 
-	using _InputIteratorUnwrappedType_	= unwrapped_iterator_type<_InputIterator_>;
-	using _OutputIteratorUnwrappedType_ = unwrapped_iterator_type<_OutputIterator_>;
-
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
-
-	auto destinationUnwrapped	= _UnwrapIterator(destination);
-
-	if constexpr (
-		type_traits::is_vectorized_find_algorithm_safe_v<_InputIteratorUnwrappedType_, _Type_>	&&
-		type_traits::is_vectorized_find_algorithm_safe_v<_OutputIteratorUnwrappedType_, _Type_> &&
-		type_traits::IteratorCopyCategory<_InputIteratorUnwrappedType_, _OutputIteratorUnwrappedType_>::BitcopyAssignable)
-	{
-#if simd_stl_has_cxx20
-		if (type_traits::is_constant_evaluated() == false)
-#endif
-		{
-			if (math::couldCompareEqualToValueType<_InputIteratorUnwrappedType_>(value) == false)
-				return destination;
-
-			const auto destinationAddress = std::to_address(destinationUnwrapped);
-			auto position = _RemoveCopyVectorized<type_traits::IteratorValueType<_InputIteratorUnwrappedType_>>(
-				std::to_address(firstUnwrapped), std::to_address(lastUnwrapped), destinationAddress, value);
-
-			if constexpr (std::is_pointer_v<_OutputIterator_>)
-				destinationUnwrapped = reinterpret_cast<type_traits::IteratorValueType<_OutputIteratorUnwrappedType_>*>(position);
-			else
-				destinationUnwrapped += static_cast<type_traits::IteratorDifferenceType<_OutputIteratorUnwrappedType_>>(
-					reinterpret_cast<type_traits::IteratorValueType<_OutputIteratorUnwrappedType_>*>(position) - destinationAddress);
-
-			_SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
-			return destination;
-		}
-	}
-
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped) {
-		const auto firstValue = std::move(*firstUnwrapped);
-
-		if (firstValue != value)
-			*destinationUnwrapped++ = std::move(firstValue);
-	}
-
-	_SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
-	return destination;
+	return _Destination;
 }
 
 template <
 	class _InputIterator_,
 	class _OutputIterator_,
 	class _UnaryPredicate_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterator_ remove_copy_if(
-	_InputIterator_			first,
-	const _InputIterator_	last,
-	_OutputIterator_		destination,
-	_UnaryPredicate_		predicate) noexcept
+_Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy_if(
+	_InputIterator_		_First,
+	_InputIterator_		_Last,
+	_OutputIterator_	_Destination,
+	_UnaryPredicate_	_Predicate) noexcept
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
+	
+	_SeekPossiblyWrappedIterator(_Destination, _RemoveCopyIfUnchecked(_UnwrapIterator(_First),
+		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate)));
 
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
-
-	auto destinationUnwrapped	= _UnwrapIterator(destination);
-
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (predicate(*firstUnwrapped) == false)
-			*destinationUnwrapped++ = std::move(*firstUnwrapped);
-
-
-	_SeekPossiblyWrappedIterator(destination, destinationUnwrapped);
-	return destination;
+	return _Destination;
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _InputIterator_,
 	class _OutputIterator_,
-	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterator_ remove_copy(
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_nodiscard_inline _OutputIterator_ remove_copy(
 	_ExecutionPolicy_&&,
 	_InputIterator_		first,
 	_InputIterator_		last,
@@ -109,8 +64,9 @@ template <
 	class _ExecutionPolicy_,
 	class _InputIterator_,
 	class _OutputIterator_,
-	class _UnaryPredicate_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _OutputIterator_ remove_copy_if(
+	class _UnaryPredicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
+_Simd_nodiscard_inline _OutputIterator_ remove_copy_if(
 	_ExecutionPolicy_&&,
 	_InputIterator_		first,
 	_InputIterator_		last,

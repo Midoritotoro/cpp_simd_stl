@@ -50,7 +50,7 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
     void* _Current = _First;
 
     if (_AlignedSize != 0) {
-        const auto _Comparand = _SimdType_(value);
+        const auto _Comparand = _SimdType_(_Value);
 
         const void* _StopAt = _First;
         AdvanceBytes(_StopAt, _AlignedSize);
@@ -64,30 +64,34 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
         } while (_Current != _StopAt);
     }
 
-    return (current == _Last) ? _First : _RemoveScalar<_Type_>(_First, _Current, _Last, _Value);
+    return (_Current == _Last) ? _First : _RemoveScalar<_Type_>(_First, _Current, _Last, _Value);
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* _RemoveVectorized(
+simd_stl_declare_const_function simd_stl_always_inline _Type_* _RemoveVectorized(
     void*       _First,
     const void* _Last,
     _Type_      _Value) noexcept
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return _RemoveVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value);
+            return const_cast<_Type_*>(static_cast<const _Type_*>(
+                _RemoveVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value)));
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return _RemoveVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value);
+            return const_cast<_Type_*>(static_cast<const _Type_*>(
+                _RemoveVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value)));
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return _RemoveVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value);
+        return const_cast<_Type_*>(static_cast<const _Type_*>(
+            _RemoveVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value)));
     else if (arch::ProcessorFeatures::SSSE3())
-        return _RemoveVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Value);
+        return const_cast<_Type_*>(static_cast<const _Type_*>(
+            _RemoveVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Value)));
 
-    return _RemoveScalar<_Type_>(_First, _First, _Last, _Value);
+    return const_cast<_Type_*>(static_cast<const _Type_*>(_RemoveScalar<_Type_>(_First, _First, _Last, _Value)));
 }
 
 

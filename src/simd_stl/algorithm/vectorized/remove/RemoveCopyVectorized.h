@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/simd_stl/algorithm/vectorized/RemoveVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/remove/RemoveVectorized.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -57,7 +57,7 @@ simd_stl_declare_const_function void* _RemoveCopyVectorizedInternal(
 }
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline void* simd_stl_stdcall _RemoveCopyVectorized(
+simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall _RemoveCopyVectorized(
     const void* _First,
     const void* _Last,
     void*       _Destination,
@@ -65,19 +65,23 @@ simd_stl_declare_const_function simd_stl_always_inline void* simd_stl_stdcall _R
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Destination, _Value);
+            return static_cast<_Type_*>(_RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(
+                _First, _Last, _Destination, _Value));
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Destination, _Value);
+            return static_cast<_Type_*>(_RemoveCopyVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(
+                _First, _Last, _Destination, _Value));
     }
 
-    else if (arch::ProcessorFeatures::AVX2())
-        return _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination, _Value);
+    if (arch::ProcessorFeatures::AVX2())
+        return static_cast<_Type_*>(
+            _RemoveCopyVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination, _Value));
     else if (arch::ProcessorFeatures::SSSE3())
-        return _RemoveCopyVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Destination, _Value);
+        return static_cast<_Type_*>(
+            _RemoveCopyVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Destination, _Value));
 
-    return _RemoveCopyScalar<_Type_>(_First, _Last, _Destination, _Value);
+    return static_cast<_Type_*>(_RemoveCopyScalar<_Type_>(_First, _Last, _Destination, _Value));
 }
 
 

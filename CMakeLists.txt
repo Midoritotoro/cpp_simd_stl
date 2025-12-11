@@ -80,6 +80,17 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/replace/ReplaceUnchecked.h
 
     src/simd_stl/algorithm/unchecked/transform/TransformUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/batch/ForEachUnchecked.h
+    src/simd_stl/algorithm/unchecked/batch/ForEachNUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/remove/RemoveUnchecked.h
+    src/simd_stl/algorithm/unchecked/remove/RemoveIfUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/remove/RemoveCopyUnchecked.h
+    src/simd_stl/algorithm/unchecked/remove/RemoveCopyIfUnchecked.h
+
+
     src/simd_stl/algorithm/vectorized/VectorizedOperators.h
 
     src/simd_stl/math/CountTrailingZeros.h
@@ -161,6 +172,9 @@ set(PUBLIC_HEADERS
     include/simd_stl/concurrency/algorithm/find/ParallelAllOf.h
     include/simd_stl/concurrency/algorithm/find/ParallelAnyOf.h
     include/simd_stl/concurrency/algorithm/find/ParallelNoneOf.h
+
+    include/simd_stl/algorithm/batch/ForEach.h
+    include/simd_stl/algorithm/batch/ForEachN.h
 
     include/simd_stl/compatibility/AlignmentMacros.h
     include/simd_stl/compatibility/BranchPrediction.h

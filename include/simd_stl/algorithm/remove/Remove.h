@@ -1,106 +1,52 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
+#include <src/simd_stl/algorithm/unchecked/remove/RemoveUnchecked.h>
+#include <src/simd_stl/algorithm/unchecked/remove/RemoveIfUnchecked.h>
 
-#include <src/simd_stl/algorithm/vectorized/RemoveVectorized.h>
-
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <simd_stl/concurrency/Execution.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
-	class _Iterator_,
-	class _Type_>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove(
-	_Iterator_			first,
-	const _Iterator_	last,
-	const _Type_&		value) noexcept
+	class _InputIterator_,
+	class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
+simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _InputIterator_ remove(
+	_InputIterator_										_First,
+	_InputIterator_										_Last,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
+	_SeekPossiblyWrappedIterator(_First, _RemoveUnchecked(
+		_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
 
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
-
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_IteratorUnwrappedType_, _Type_>) {
-#if simd_stl_has_cxx20
-		if (type_traits::is_constant_evaluated() == false)
-#endif
-		{
-			if (math::couldCompareEqualToValueType<_IteratorUnwrappedType_>(value) == false)
-				return last;
-
-			const auto firstAddress = std::to_address(firstUnwrapped);
-			const auto position		= _RemoveVectorized<
-				type_traits::IteratorValueType<_IteratorUnwrappedType_>>(firstAddress, std::to_address(lastUnwrapped), value);
-
-			if constexpr (std::is_pointer_v<_Iterator_>)
-				_SeekPossiblyWrappedIterator(first, reinterpret_cast<const _Type_*>(position));
-			else
-				_SeekPossiblyWrappedIterator(first, first + static_cast<type_traits::IteratorDifferenceType<_Iterator_>>(
-					reinterpret_cast<const _Type_*>(position) - reinterpret_cast<const _Type_*>(firstAddress)));
-
-			return first;
-		}
-	}
-
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (*firstUnwrapped == value)
-			break;
-
-	for (auto current = firstUnwrapped; ++current != lastUnwrapped;) {
-		const auto currentValue = std::move(*current);
-
-		if (currentValue != value)
-			*firstUnwrapped++ = std::move(currentValue);
-	}
-
-	_SeekPossiblyWrappedIterator(first, firstUnwrapped);
-	return first;
+	return _First;
 }
 
 template <
 	class _Iterator_,
 	class _UnaryPredicate_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove_if(
-	_Iterator_			first,
-	const _Iterator_	last,
-	_UnaryPredicate_	predicate) noexcept(
+	_Iterator_			_First,
+	_Iterator_			_Last,
+	_UnaryPredicate_	_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-		type_traits::IteratorValueType<_Iterator_>>)
+			type_traits::IteratorValueType<_Iterator_>>)
 {
-	__verifyRange(first, last);
+	__verifyRange(_First, _Last);
 
-	using _IteratorUnwrappedType_ = unwrapped_iterator_type<_Iterator_>;
+	_SeekPossiblyWrappedIterator(_First, _RemoveIfUnchecked(
+		_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
 
-	auto firstUnwrapped			= _UnwrapIterator(first);
-	const auto lastUnwrapped	= _UnwrapIterator(last);
-
-	for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-		if (predicate(*firstUnwrapped))
-			break;
-
-	if (firstUnwrapped == lastUnwrapped)
-		return last;
-
-	for (auto current = firstUnwrapped; ++current != lastUnwrapped;) {
-		const auto currentValue = std::move(*current);
-
-		if (predicate(currentValue) == false)
-			*firstUnwrapped++ = std::move(currentValue);
-	}
-
-	_SeekPossiblyWrappedIterator(first, firstUnwrapped);
-	return first;
+	return _First;
 }
 
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_>
+	class _Type_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove(
 	_ExecutionPolicy_&&,
 	_Iterator_		first,
@@ -113,14 +59,15 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _UnaryPredicate_>
+	class _UnaryPredicate_,
+	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ remove_if(
 	_ExecutionPolicy_&&,
 	_Iterator_			first,
 	_Iterator_			last,
 	_UnaryPredicate_	predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-		type_traits::IteratorValueType<_Iterator_>>)
+			type_traits::IteratorValueType<_Iterator_>>)
 {
 	return simd_stl::algorithm::remove_if(first, last, type_traits::passFunction(predicate));
 }
