@@ -131,21 +131,22 @@ simd_stl_always_inline _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, 
     constexpr auto _BothSimd = _FromSimd && _ToSimd;
     constexpr auto _BothIntegral = _FromIntegral && _ToIntegral;
 
-    if constexpr (_BothSimd) {
-        return _ConvertTo{ _SimdUnwrap(_Mask) };
-    }
-    else if constexpr (_BothIntegral) {
+    if constexpr (_BothSimd)
+        return _ConvertTo { _SimdUnwrap(_Mask) };
+
+    else if constexpr (_BothIntegral)
         return static_cast<_ConvertTo>(_Mask);
-    }
-    else if constexpr (_FromIntegral && _ToSimd) {
-        return _ConvertTo{ _SimdToVector<_SimdGeneration_, _RegisterPolicy_, typename _ConvertTo::vector_type, _Type_>(_Mask) };
-    }
-    else if constexpr (_FromSimd && _ToIntegral) {
+
+    else if constexpr (_FromIntegral && _ToSimd)
+        return _ConvertTo { _SimdToVector<_SimdGeneration_, _RegisterPolicy_,
+            typename _ConvertTo::vector_type, _Type_>(_Mask) 
+        };
+
+    else if constexpr (_FromSimd && _ToIntegral)
         return _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _Type_>(_Mask);
-    }
-    else {
+
+    else
         static_assert(false, "Invalid _ConvertTo");
-    }
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
