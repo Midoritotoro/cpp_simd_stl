@@ -29,8 +29,8 @@ int main() {
     }
 
     {
-        std::vector<int> v1(10, 0);
-        std::vector<int> v2(10, 0);
+        std::vector<char> v1(10, 0);
+        std::vector<char> v2(10, 0);
 
         simd_stl::algorithm::fill_n(v1.begin(), 5, 99);
         std::fill_n(v2.begin(), 5, 99);

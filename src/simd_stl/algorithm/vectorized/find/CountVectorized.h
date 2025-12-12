@@ -48,7 +48,6 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
 
         _Count += _Compared.countSet();
         AdvanceBytes(_First, sizeof(_SimdType_));
-       
     }
    
     if constexpr (_Is_masked_memory_access_supported) {
