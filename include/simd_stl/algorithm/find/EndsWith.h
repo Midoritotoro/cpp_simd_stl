@@ -2,7 +2,7 @@
 
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 
-#include <src/simd_stl/algorithm/vectorized/SearchVectorized.h>
+#include <src/simd_stl/algorithm/vectorized/find/SearchVectorized.h>
 #include <src/simd_stl/type_traits/CanMemcmpElements.h>
 
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>

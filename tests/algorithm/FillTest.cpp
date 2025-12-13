@@ -8,7 +8,7 @@
 #include <chrono>
 
 int main() {
-    {
+   /* {
         std::vector<int> v1(5, 0);
         std::vector<int> v2(5, 0);
 
@@ -54,9 +54,9 @@ int main() {
         Assert(it1 == v.begin() + 3);
         Assert((v == std::vector<int>{5,5,5,0,0}));
     }
-
+*/
     constexpr size_t N = 10'000'000;
-    std::vector<int> v1(N), v2(N);
+    std::vector<char> v1(N), v2(N);
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();

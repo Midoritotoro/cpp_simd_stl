@@ -15,7 +15,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     typename    _Type_,
     class       _Integral_>
-simd_stl_always_inline simd_stl_constexpr_cxx20 void RewindBytes(
+simd_stl_always_inline void RewindBytes(
     _Type_*&    target,
     _Integral_  offset) noexcept
 {
@@ -26,7 +26,7 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void RewindBytes(
 template <
     typename    _Type_,
     class       _Integral_>
-simd_stl_always_inline simd_stl_constexpr_cxx20 void RewindBytes(
+simd_stl_always_inline void RewindBytes(
     const _Type_*&  target,
     _Integral_      offset) noexcept
 {
@@ -37,7 +37,7 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void RewindBytes(
 template <
     typename    _Type_,
     class       _Integral_>
-simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
+simd_stl_always_inline void AdvanceBytes(
     _Type_*&    target,
     _Integral_  offset) noexcept
 {
@@ -48,7 +48,7 @@ simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
 template <
     typename    _Type_,
     class       _Integral_>
-simd_stl_always_inline simd_stl_constexpr_cxx20 void AdvanceBytes(
+simd_stl_always_inline void AdvanceBytes(
     const _Type_*&  target,
     _Integral_      offset) noexcept
 {

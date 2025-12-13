@@ -67,7 +67,7 @@ _Simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ _FindEndUncheck
 
 			for (;;) {
 				if (_First2Unwrapped == _Next2Unwrapped) {
-					_SeekPossiblyWrappedIterator(_First1, _Next1Unwrapped);
+					_SeekPossiblyWrappedIterator(_First1Unwrapped, _Next1Unwrapped);
 					return _First1Unwrapped;
 				}
 

@@ -58,7 +58,7 @@ template <
 class _VectorizedMemsetImplementation;
 
 template <typename _Type_>
-void* _MemsetScalar(
+simd_stl_always_inline void* _MemsetScalar(
     void*       _Destination,
     _Type_      _Value,
     sizetype    _Length) noexcept
@@ -668,7 +668,7 @@ class _VectorizedMemsetImplementation<arch::CpuFeature::AVX512F, _Type_, false>
 {
 public:
     template <sizetype _Step_>
-    static void* _Memset(
+    simd_stl_always_inline static void* _Memset(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -678,7 +678,7 @@ public:
     }
 
     template <>
-    static void* _Memset<16>(
+    simd_stl_always_inline static void* _Memset<16>(
         void* _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -693,7 +693,7 @@ public:
     }
 
     template <>
-    static void* _Memset<32>(
+    simd_stl_always_inline static void* _Memset<32>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -708,7 +708,7 @@ public:
     }
 
     template <>
-    static void* _Memset<64>(
+    simd_stl_always_inline static void* _Memset<64>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -723,7 +723,7 @@ public:
     }
 
     template <>
-    static void* _Memset<128>(
+    simd_stl_always_inline static void* _Memset<128>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -738,7 +738,7 @@ public:
     }
 
     template <>
-    static void* _Memset<256>(
+    simd_stl_always_inline static void* _Memset<256>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -753,7 +753,7 @@ public:
     }
 
     template <>
-    static void* _Memset<512>(
+    simd_stl_always_inline static void* _Memset<512>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -768,7 +768,7 @@ public:
     }
 
     template <>
-    static void* _Memset<1024>(
+    simd_stl_always_inline static void* _Memset<1024>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -783,7 +783,7 @@ public:
     }
 
     template <>
-    static void* _Memset<2048>(
+    simd_stl_always_inline static void* _Memset<2048>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -796,6 +796,21 @@ public:
 
         return _Destination;
     }
+
+    template <>
+    simd_stl_always_inline static void* _Memset<4096>(
+        void* _Destination,
+        _Type_      _Value,
+        sizetype    _Length) noexcept
+    {
+        __m512i* _Pointer = static_cast<__m512i*>(_Destination);
+
+        while (_Length--) {
+            __SIMD_STL_REPEAT_N(64, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+        }
+
+        return _Destination;
+    }
 };
 
 template <typename _Type_>
@@ -803,7 +818,7 @@ class _VectorizedMemsetImplementation<arch::CpuFeature::AVX512F, _Type_, true>
 {
 public:
     template <sizetype _Step_>
-    static void* _Memset(
+    simd_stl_always_inline static void* _Memset(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -813,7 +828,7 @@ public:
     }
 
     template <>
-    static void* _Memset<16>(
+    simd_stl_always_inline static void* _Memset<16>(
         void* _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -828,7 +843,7 @@ public:
     }
 
     template <>
-    static void* _Memset<32>(
+    simd_stl_always_inline static void* _Memset<32>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -843,7 +858,7 @@ public:
     }
 
     template <>
-    static void* _Memset<64>(
+    simd_stl_always_inline static void* _Memset<64>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -858,7 +873,7 @@ public:
     }
 
     template <>
-    static void* _Memset<128>(
+    simd_stl_always_inline static void* _Memset<128>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -873,7 +888,7 @@ public:
     }
 
     template <>
-    static void* _Memset<256>(
+    simd_stl_always_inline static void* _Memset<256>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -888,7 +903,7 @@ public:
     }
 
     template <>
-    static void* _Memset<512>(
+    simd_stl_always_inline static void* _Memset<512>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -903,7 +918,7 @@ public:
     }
 
     template <>
-    static void* _Memset<1024>(
+    simd_stl_always_inline static void* _Memset<1024>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -918,7 +933,7 @@ public:
     }
 
     template <>
-    static void* _Memset<2048>(
+    simd_stl_always_inline static void* _Memset<2048>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -932,8 +947,23 @@ public:
         return _Destination;
     }
 
+    template <>
+    simd_stl_always_inline static void* _Memset<4096>(
+        void* _Destination,
+        _Type_      _Value,
+        sizetype    _Length) noexcept
+    {
+        __m512i* _Pointer = static_cast<__m512i*>(_Destination);
+
+        while (_Length--) {
+            __SIMD_STL_REPEAT_N(64, _mm512_store_si512(_Pointer++, _Value));
+        }
+
+        return _Destination;
+    }
+
     template <sizetype _Step_>
-    static void* _MemsetAlignedStreaming(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -943,7 +973,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<16>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<16>(
         void* _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -960,7 +990,7 @@ public:
     }
     
     template <>
-    static void* _MemsetAlignedStreaming<32>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<32>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -977,7 +1007,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<64>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<64>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -994,7 +1024,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<128>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<128>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1011,7 +1041,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<256>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<256>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1028,7 +1058,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<512>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<512>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1045,7 +1075,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<1024>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<1024>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1062,7 +1092,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<2048>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<2048>(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1079,7 +1109,7 @@ public:
     }
 
     template <>
-    static void* _MemsetAlignedStreaming<4096>(
+    simd_stl_always_inline static void* _MemsetAlignedStreaming<4096>(
         void* _Destination,
         _Type_      _Value,
         sizetype    _Length) noexcept
@@ -1113,12 +1143,16 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
     template <typename _MemsetType_>
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::SSE2, _MemsetType_, _Aligned_>;
 
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void*       _Destination, 
         sizetype    _Bytes) const noexcept 
     {
         void* _Return       = _Destination;
         sizetype _Offset    = 0;
+
+        __m128i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = _mm_setzero_si128();
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1131,9 +1165,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, _Broadcasted, _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _Broadcasted, _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1142,9 +1176,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<32>(_Destination, _mm_setzero_si128(), _Bytes >> 5);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<32>(_Destination, _Broadcasted, _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<32>(_Destination, _mm_setzero_si128(), _Bytes >> 5);
+                    _MemsetImplementation<__m128i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1153,9 +1187,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<64>(_Destination, _mm_setzero_si128(), _Bytes >> 6);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<64>(_Destination, _mm_setzero_si128(), _Bytes >> 6);
+                    _MemsetImplementation<__m128i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1164,9 +1198,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<128>(_Destination, _mm_setzero_si128(), _Bytes >> 7);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<128>(_Destination, _mm_setzero_si128(), _Bytes >> 7);
+                    _MemsetImplementation<__m128i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1175,9 +1209,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<256>(_Destination, _mm_setzero_si128(), _Bytes >> 8);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<256>(_Destination, _mm_setzero_si128(), _Bytes >> 8);
+                    _MemsetImplementation<__m128i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1196,12 +1230,16 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
     template <typename _MemsetType_>
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::AVX, _MemsetType_, _Aligned_>;
 
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void*       _Destination, 
         sizetype    _Bytes) const noexcept 
     {
         void* _Return       = _Destination;
         sizetype _Offset    = 0;
+
+        __m256i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = _mm256_setzero_si256();
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1214,9 +1252,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1225,9 +1263,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, _mm256_setzero_si256(), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, _Broadcasted, _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _mm256_setzero_si256(), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1236,9 +1274,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<64>(_Destination, _mm256_setzero_si256(), _Bytes >> 6);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<64>(_Destination, _mm256_setzero_si256(), _Bytes >> 6);
+                    _MemsetImplementation<__m256i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1247,9 +1285,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<128>(_Destination, _mm256_setzero_si256(), _Bytes >> 7);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<128>(_Destination, _mm256_setzero_si256(), _Bytes >> 7);
+                    _MemsetImplementation<__m256i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1258,9 +1296,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 512)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<256>(_Destination, _mm256_setzero_si256(), _Bytes >> 8);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<256>(_Destination, _mm256_setzero_si256(), _Bytes >> 8);
+                    _MemsetImplementation<__m256i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1269,9 +1307,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<512>(_Destination, _mm256_setzero_si256(), _Bytes >> 9);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<512>(_Destination, _Broadcasted, _Bytes >> 9);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<512>(_Destination, _mm256_setzero_si256(), _Bytes >> 9);
+                    _MemsetImplementation<__m256i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
                 AdvanceBytes(_Destination, _Offset);
@@ -1290,12 +1328,16 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
     template <typename _MemsetType_>
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::AVX512F, _MemsetType_, _Aligned_>;
 
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void* _Destination,
         sizetype    _Bytes) const noexcept
     {
         void* _Return = _Destination;
         sizetype _Offset = 0;
+
+        __m512i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = _mm512_setzero_si512();
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1308,9 +1350,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _mm_setzero_si128(), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1319,9 +1361,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, _mm256_setzero_si256(), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _mm256_setzero_si256(), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1330,9 +1372,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<64>(_Destination, _mm512_setzero_si512(), _Bytes >> 6);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<64>(_Destination, _mm512_setzero_si512(), _Bytes >> 6);
+                    _MemsetImplementation<__m512i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1341,9 +1383,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<128>(_Destination, _mm512_setzero_si512(), _Bytes >> 7);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<128>(_Destination, _mm512_setzero_si512(), _Bytes >> 7);
+                    _MemsetImplementation<__m512i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1352,9 +1394,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 512)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<256>(_Destination, _mm512_setzero_si512(), _Bytes >> 8);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<256>(_Destination, _mm512_setzero_si512(), _Bytes >> 8);
+                    _MemsetImplementation<__m512i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1363,9 +1405,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 1024)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<512>(_Destination, _mm512_setzero_si512(), _Bytes >> 9);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<512>(_Destination, _Broadcasted, _Bytes >> 9);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<512>(_Destination, _mm512_setzero_si512(), _Bytes >> 9);
+                    _MemsetImplementation<__m512i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
                 AdvanceBytes(_Destination, _Offset);
@@ -1374,9 +1416,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 2048)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<1024>(_Destination, _mm512_setzero_si512(), _Bytes >> 10);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<1024>(_Destination, _Broadcasted, _Bytes >> 10);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, _mm512_setzero_si512(), _Bytes >> 10);
+                    _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, _Broadcasted, _Bytes >> 10);
 
                 _Offset = _Bytes & -1024;
                 AdvanceBytes(_Destination, _Offset);
@@ -1385,9 +1427,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 4096)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<2048>(_Destination, _mm512_setzero_si512(), _Bytes >> 11);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<2048>(_Destination, _Broadcasted, _Bytes >> 11);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, _mm512_setzero_si512(), _Bytes >> 11);
+                    _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, _Broadcasted, _Bytes >> 11);
 
                 _Offset = _Bytes & -2048;
                 AdvanceBytes(_Destination, _Offset);
@@ -1396,9 +1438,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<4096>(_Destination, _mm512_setzero_si512(), _Bytes >> 12);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<4096>(_Destination, _Broadcasted, _Bytes >> 12);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, _mm512_setzero_si512(), _Bytes >> 12);
+                    _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, _Broadcasted, _Bytes >> 12);
 
                 _Offset = _Bytes & -4096;
                 AdvanceBytes(_Destination, _Offset);
@@ -1428,13 +1470,17 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::SSE2, _MemsetType_, _Aligned_>;
 
     template <typename _Type_>
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Bytes) const noexcept
     {
         void* _Return = _Destination;
         sizetype _Offset = 0;
+
+        __m128i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1447,11 +1493,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, _Broadcasted, _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _Broadcasted, _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1460,11 +1504,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<32>(_Destination, _Broadcasted, _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m128i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1473,11 +1515,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m128i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1486,11 +1526,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m128i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1499,11 +1537,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m128i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1523,13 +1559,17 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::AVX, _MemsetType_, _Aligned_>;
 
     template <typename _Type_>
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void*       _Destination,
         _Type_      _Value,
         sizetype    _Bytes) const noexcept
     {
         void* _Return = _Destination;
         sizetype _Offset = 0;
+
+        __m256i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1542,11 +1582,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1555,11 +1593,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, _Broadcasted, _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1568,11 +1604,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m256i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1581,11 +1615,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m256i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1594,11 +1626,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 512)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m256i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1607,11 +1637,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<512>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 9);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<512>(_Destination, _Broadcasted, _Bytes >> 9);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<512>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 9);
+                    _MemsetImplementation<__m256i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
                 AdvanceBytes(_Destination, _Offset);
@@ -1631,13 +1659,17 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
     using _MemsetImplementation = _VectorizedMemsetImplementation<arch::CpuFeature::AVX512F, _MemsetType_, _Aligned_>;
 
     template <typename _Type_>
-    void* operator()(
+    simd_stl_always_inline void* operator()(
         void* _Destination,
         _Type_      _Value,
         sizetype    _Bytes) const noexcept
     {
         void* _Return = _Destination;
         sizetype _Offset = 0;
+
+        __m512i _Broadcasted;
+        if (_Bytes > 16)
+            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1650,11 +1682,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 AdvanceBytes(_Destination, _Offset);
@@ -1663,11 +1693,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 AdvanceBytes(_Destination, _Offset);
@@ -1676,11 +1704,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 128)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<64>(_Destination, _Broadcasted, _Bytes >> 6);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<64>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 6);
+                    _MemsetImplementation<__m512i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
                 AdvanceBytes(_Destination, _Offset);
@@ -1689,11 +1715,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 256)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<128>(_Destination, _Broadcasted, _Bytes >> 7);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<128>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 7);
+                    _MemsetImplementation<__m512i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
                 AdvanceBytes(_Destination, _Offset);
@@ -1702,11 +1726,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 512)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<256>(_Destination, _Broadcasted, _Bytes >> 8);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<256>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 8);
+                    _MemsetImplementation<__m512i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
                 AdvanceBytes(_Destination, _Offset);
@@ -1715,11 +1737,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 1024)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<512>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 9);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<512>(_Destination, _Broadcasted, _Bytes >> 9);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<512>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 9);
+                    _MemsetImplementation<__m512i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
                 AdvanceBytes(_Destination, _Offset);
@@ -1728,11 +1748,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 2048)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<1024>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 10);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<1024>(_Destination, _Broadcasted, _Bytes >> 10);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 10);
+                    _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, _Broadcasted, _Bytes >> 10);
 
                 _Offset = _Bytes & -1024;
                 AdvanceBytes(_Destination, _Offset);
@@ -1741,11 +1759,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 4096)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<2048>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 11);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<2048>(_Destination, _Broadcasted, _Bytes >> 11);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 11);
+                    _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, _Broadcasted, _Bytes >> 11);
 
                 _Offset = _Bytes & -2048;
                 AdvanceBytes(_Destination, _Offset);
@@ -1754,11 +1770,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<4096>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 12);
+                    _MemsetImplementation<__m512i>::_MemsetAlignedStreaming<4096>(_Destination, _Broadcasted, _Bytes >> 12);
                 else
-                    _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, numeric::_SimdBroadcast<
-                        arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value), _Bytes >> 12);
+                    _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, _Broadcasted, _Bytes >> 12);
 
                 _Offset = _Bytes & -4096;
                 AdvanceBytes(_Destination, _Offset);
@@ -1775,7 +1789,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_> 
-void* _MemsetVectorizedInternal(
+simd_stl_always_inline void* _MemsetVectorizedInternal(
     void*       _Destination,
     _Type_      _Value,
     sizetype    _Bytes) noexcept
@@ -1847,7 +1861,7 @@ void* _MemsetVectorizedInternal(
 }
 
 template <typename _Type_>
-void* _MemsetVectorized(
+void* simd_stl_stdcall _MemsetVectorized(
     void*       _Destination,
     _Type_      _Value,
     sizetype    _Bytes) noexcept

@@ -68,7 +68,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 		>
 	)
 {
-	return simd_stl::algorithm::find_end(_First1, _Last1, _First2, _Last2, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::find_end(_First1, _Last1, _First2, _Last2, type_traits::passFunction(_Predicate));
 }
 
 template <
