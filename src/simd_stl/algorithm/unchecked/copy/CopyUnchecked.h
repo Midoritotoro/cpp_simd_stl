@@ -27,7 +27,7 @@ _Simd_inline_constexpr _OutputUnwrappedIterator_ _CopyUnchecked(
 #endif // simd_stl_has_cxx20
         {
             auto _FirstAddress = std::to_address(_FirstUnwrapped);
-
+ 
             _MemcpyVectorized(std::to_address(_DestinationUnwrapped), _FirstAddress, 
                 ByteLength(_FirstAddress, std::to_address(_LastUnwrapped)));
 

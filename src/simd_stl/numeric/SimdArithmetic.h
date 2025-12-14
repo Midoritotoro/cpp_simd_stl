@@ -157,14 +157,8 @@ public:
     static simd_stl_always_inline _VectorType_ _Multiply(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept
-    {
-       if constexpr (_Is_epi64_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epu64_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epi32_v<_DesiredType_>) {
+    {   
+        if constexpr (_Is_epi32_v<_DesiredType_>) {
            const auto _ShuffledLeft         = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Left), 0xF5);
            const auto _ShuffledRight        = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Right), 0xF5);
 
@@ -179,18 +173,6 @@ public:
 
         else if constexpr (_Is_epu32_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_epu32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epi16_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epi16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epu16_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epu16(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epi8_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
-
-        else if constexpr (_Is_epu8_v<_DesiredType_>)
-            return _IntrinBitcast<_VectorType_>(_mm_mul_epi8(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
 
         else if constexpr (_Is_ps_v<_DesiredType_>)
             return _IntrinBitcast<_VectorType_>(_mm_mul_ps(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));

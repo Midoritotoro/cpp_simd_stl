@@ -35,33 +35,47 @@ _ReplaceBenchmarkArray<_Type_, _Size_> _GenerateArrayForReplaceBenchmark() noexc
 
 template <
     typename _Type_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class StdReplaceBenchmark {
 public:
-    static inline auto array = _GenerateArrayForReplaceBenchmark<_Type_, sizeForBenchmark>();
-
     static void Replace(benchmark::State& state) noexcept {
+        _Type_ array[sizeForBenchmark];
+
+        for (simd_stl::sizetype i = 0; i < sizeForBenchmark; ++i)
+            array[i] = i;
+
+        for (simd_stl::sizetype i = 0; i < sizeForBenchmark; i += 2)
+            array[i] = simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1;
+
         while (state.KeepRunning()) {
-            std::replace(array.array, array.array + sizeForBenchmark, static_cast<_Type_>((simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1)),
+            std::replace(array, array + sizeForBenchmark, static_cast<_Type_>((simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1)),
                 simd_stl::math::MaximumIntegralLimit<_Type_>());
 
-            benchmark::DoNotOptimize(array.array);
+            benchmark::DoNotOptimize(array);
+            benchmark::ClobberMemory();
         }
     }
 };
 
 template <
     typename _Type_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class SimdStlReplaceBenchmark {
 public:
-    static inline auto array = _GenerateArrayForReplaceBenchmark<_Type_, sizeForBenchmark>();
-
     static void Replace(benchmark::State& state) noexcept {
+        _Type_ array[sizeForBenchmark];
+
+        for (simd_stl::sizetype i = 0; i < sizeForBenchmark; ++i)
+            array[i] = i;
+
+        for (simd_stl::sizetype i = 0; i < sizeForBenchmark; i += 2)
+            array[i] = simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1;
+
         while (state.KeepRunning()) {
-            simd_stl::algorithm::replace(array.array, array.array + sizeForBenchmark,
+            simd_stl::algorithm::replace(array, array + sizeForBenchmark,
                 (simd_stl::math::MaximumIntegralLimit<_Type_>() >> 1), simd_stl::math::MaximumIntegralLimit<_Type_>());
-            benchmark::DoNotOptimize(array.array);
+            benchmark::DoNotOptimize(array);
+            benchmark::ClobberMemory();
         }
     }
 };

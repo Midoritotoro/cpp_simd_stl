@@ -43,44 +43,44 @@ void test_binary(size_t bytes, BinaryOp op) {
 
 void testAll(uint8_t bytes) noexcept {
     test_unary<uint8_t>(bytes, [](uint8_t x) { return static_cast<uint8_t>(~x); });
-    test_unary<uint8_t>(bytes, simd_stl::type_traits::negate<uint8_t>());
-    test_binary<uint8_t>(bytes, simd_stl::type_traits::plus<uint8_t>());
-    test_binary<uint8_t>(bytes, simd_stl::type_traits::minus<uint8_t>());
-    test_binary<uint8_t>(bytes, simd_stl::type_traits::multiplies<uint8_t>());
+    test_unary<uint8_t>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<uint8_t>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<uint8_t>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<uint8_t>(bytes, simd_stl::type_traits::multiplies<>());
 
     // --- uint16_t ---
-    test_unary<uint16_t>(bytes, simd_stl::type_traits::negate<uint16_t>());
-    test_binary<uint16_t>(bytes, simd_stl::type_traits::plus<uint16_t>());
-    test_binary<uint16_t>(bytes, simd_stl::type_traits::minus<uint16_t>());
-    test_binary<uint16_t>(bytes, simd_stl::type_traits::multiplies<uint16_t>());
+    test_unary<uint16_t>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<uint16_t>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<uint16_t>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<uint16_t>(bytes, simd_stl::type_traits::multiplies<>());
 
     // --- uint32_t ---
-    test_unary<uint32_t>(bytes, simd_stl::type_traits::negate<uint32_t>());
-    test_binary<uint32_t>(bytes, simd_stl::type_traits::plus<uint32_t>());
-    test_binary<uint32_t>(bytes, simd_stl::type_traits::minus<uint32_t>());
-    test_binary<uint32_t>(bytes, simd_stl::type_traits::multiplies<uint32_t>());
+    test_unary<uint32_t>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<uint32_t>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<uint32_t>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<uint32_t>(bytes, simd_stl::type_traits::multiplies<>());
 
     // --- uint64_t ---
-    test_unary<uint64_t>(bytes, simd_stl::type_traits::negate<uint64_t>());
-    test_binary<uint64_t>(bytes, simd_stl::type_traits::plus<uint64_t>());
-    test_binary<uint64_t>(bytes, simd_stl::type_traits::minus<uint64_t>());
-    test_binary<uint64_t>(bytes, simd_stl::type_traits::multiplies<uint64_t>());
+    test_unary<uint64_t>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<uint64_t>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<uint64_t>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<uint64_t>(bytes, simd_stl::type_traits::multiplies<>());
 
     // --- float ---
     test_unary<float>(bytes, [](float x) { return x + 1.5f; });
-    test_unary<float>(bytes, simd_stl::type_traits::negate<float>());
-    test_binary<float>(bytes, simd_stl::type_traits::plus<float>());
-    test_binary<float>(bytes, simd_stl::type_traits::minus<float>());
-    test_binary<float>(bytes, simd_stl::type_traits::multiplies<float>());
-    test_binary<float>(bytes, simd_stl::type_traits::divides<float>());
+    test_unary<float>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<float>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<float>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<float>(bytes, simd_stl::type_traits::multiplies<>());
+    test_binary<float>(bytes, simd_stl::type_traits::divides<>());
 
             // --- double ---
     test_unary<double>(bytes, [](double x) { return x * 2.0; });
-    test_unary<double>(bytes, simd_stl::type_traits::negate<double>());
-    test_binary<double>(bytes, simd_stl::type_traits::plus<double>());
-    test_binary<double>(bytes, simd_stl::type_traits::minus<double>());
-    test_binary<double>(bytes, simd_stl::type_traits::multiplies<double>());
-    test_binary<double>(bytes, simd_stl::type_traits::divides<double>());
+    test_unary<double>(bytes, simd_stl::type_traits::negate<>());
+    test_binary<double>(bytes, simd_stl::type_traits::plus<>());
+    test_binary<double>(bytes, simd_stl::type_traits::minus<>());
+    test_binary<double>(bytes, simd_stl::type_traits::multiplies<>());
+    test_binary<double>(bytes, simd_stl::type_traits::divides<>());
 }
 
 int main() {

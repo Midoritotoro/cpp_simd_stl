@@ -82,9 +82,10 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
             const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
 
             if (_TailSize != 0) {
-                const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-                const auto _Applied = _Predicate(_SimdType_::maskLoadUnaligned(_First, _TailMask));
+                const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
+                const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
+                const auto _Applied     = _Predicate(_Loaded);
                 _Applied.maskStoreUnaligned(_Destination, _TailMask);
             }
         }
@@ -112,10 +113,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
 {
     using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
 
-    if constexpr (_Is_predicate_vectorizable_v<_BinaryPredicate_, _SimdType_> == false)
-        return _TransformScalar<_Type_>(_First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate));
-    else {
-
+    if constexpr (_Is_predicate_vectorizable_v<_BinaryPredicate_, _SimdType_>) {
         constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
             _SimdType_::template is_native_mask_load_supported_v<>;
 
@@ -141,7 +139,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
             _Destination = _TransformScalar<_Type_>(_First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate));
     }
 
-    return _Destination;
+    return _TransformScalar<_Type_>(_First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate));
 }
 
 template <

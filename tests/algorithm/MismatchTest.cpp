@@ -15,16 +15,16 @@ void check_equal(It1 simd_first, It1 std_first, It2 simd_second, It2 std_second)
 
 int main() {
     {
-        std::vector<int> a(64, 1);
-        std::vector<int> b(64, 1);
+        std::vector<int> a(63, 1);
+        std::vector<int> b(63, 1);
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);
     }
 
     {
-        std::vector<int> a(64, 1);
-        std::vector<int> b(64, 1);
+        std::vector<int> a(152, 1);
+        std::vector<int> b(152, 1);
         b[32] = 9;
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
@@ -34,8 +34,8 @@ int main() {
     }
 
     {
-        std::vector<int> a(64, 1);
-        std::vector<int> b(64, 1);
+        std::vector<int> a(115, 1);
+        std::vector<int> b(115, 1);
         b[63] = 7;
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
@@ -45,8 +45,8 @@ int main() {
     }
 
     {
-        std::vector<int> a(64, 1);
-        std::vector<int> b(64, 1);
+        std::vector<int> a(24, 1);
+        std::vector<int> b(24, 1);
         b[0] = 0;
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
@@ -56,7 +56,7 @@ int main() {
     }
 
     {
-        std::vector<int> a(64, 1);
+        std::vector<int> a(55, 1);
         std::vector<int> b(32, 1);
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin(), b.end());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin(), b.end());

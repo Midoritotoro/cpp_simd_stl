@@ -10,10 +10,15 @@ template <
 class StdFindBenchmark {
 public:
     static void Find(benchmark::State& state) noexcept {
-        static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
+        _Char_ array[sizeForBenchmark];
+
+        for (int i = 0; i < sizeForBenchmark; ++i)
+            array[i] = i;
 
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(std::find(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+            auto* result = std::find(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
         }
     }
 };
@@ -24,14 +29,19 @@ template <
 class SimdStlFindBenchmark {
 public:
     static void Find(benchmark::State& state) noexcept {
-        static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
+        _Char_ array[sizeForBenchmark];
+
+        for (int i = 0; i < sizeForBenchmark; ++i)
+            array[i] = i;
 
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(simd_stl::algorithm::find(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+            auto* result = simd_stl::algorithm::find(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
         }
     }
 };
 
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, char, Find);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, simd_stl::uint64, Find);
 
 SIMD_STL_BENCHMARK_MAIN();

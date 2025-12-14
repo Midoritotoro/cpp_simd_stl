@@ -105,7 +105,7 @@ enum SizeForBenchmark : simd_stl::uint32 {
 #define SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(name, type) \
     template <size_t N>\
     struct name<type, N> {\
-        type data[N + 1];\
+        type data[N];\
     \
         constexpr name() {\
             for (size_t i = 0; i < N; ++i) {\
@@ -159,12 +159,12 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
      BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(repititions)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true);                                  \
     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(repititions)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true);                                   
 #endif // SIMD_STL_ADD_BENCHMARK_WITH_CUSTOM_REPITITIONS
 
@@ -175,12 +175,12 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
      BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true);                                  \
     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true);                                   
 #endif // SIMD_STL_ADD_BENCHMARK
 
@@ -189,13 +189,13 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
      BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true)                                   \
         ->Args({__VA_ARGS__});                                          \
     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true)                                    \
+        ->ReportAggregatesOnly(false)                                    \
         ->DisplayAggregatesOnly(true)                                   \
         ->Args({__VA_ARGS__});                                            
 #endif // SIMD_STL_ADD_BENCHMARK_ARGS

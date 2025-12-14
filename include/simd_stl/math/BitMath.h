@@ -17,7 +17,6 @@ constexpr simd_stl_always_inline int CountTrailingZeroBits(_IntegralType_ _Value
 #if defined(simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
     if (!type_traits::is_constant_evaluated()) {
         if (arch::ProcessorFeatures::AVX2())
-            // Поддерживается tzcnt
             return _TzcntCountTrailingZeroBits(_Value);
         else
             return _BsfCountTrailingZeroBits(_Value);
@@ -34,7 +33,6 @@ constexpr simd_stl_always_inline int CountLeadingZeroBits(_IntegralType_ _Value)
 #if defined(simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
     if (!type_traits::is_constant_evaluated()) {
         if (arch::ProcessorFeatures::AVX2())
-            // Поддерживается lzcnt
             return _LzcntCountLeadingZeroBits(_Value);
         else
             return _BsrCountLeadingZeroBits(_Value);
@@ -52,7 +50,6 @@ constexpr simd_stl_always_inline int PopulationCount(_IntegralType_ _Value) noex
 #if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
     if (!type_traits::is_constant_evaluated()) {
         if (arch::ProcessorFeatures::POPCNT())
-            // Поддерживается popcnt
             return _PopcntPopulationCount(_Value);
     }
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
