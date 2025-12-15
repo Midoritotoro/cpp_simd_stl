@@ -11,11 +11,11 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_>
+	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
 _Simd_nodiscard_inline_constexpr sizetype _CountUnchecked(
-	_UnwrappedIterator_		_FirstUnwrapped,
-	_UnwrappedIterator_		_LastUnwrapped,
-	const _Type_&			_Value) noexcept
+	_UnwrappedIterator_									_FirstUnwrapped,
+	_UnwrappedIterator_									_LastUnwrapped,
+	const typename std::type_identity<_Type_>::type&	_Value) noexcept
 {
 	if constexpr (type_traits::is_iterator_random_ranges_v<_UnwrappedIterator_>) {
 		const auto _Size = ByteLength(_FirstUnwrapped, _LastUnwrapped);
@@ -25,10 +25,7 @@ _Simd_nodiscard_inline_constexpr sizetype _CountUnchecked(
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 			{
-				if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(_Value) == false)
-					return 0;
-
-				return _CountVectorized<_Type_>(std::to_address(_FirstUnwrapped), _Size, _Value);
+				return _CountVectorized(std::to_address(_FirstUnwrapped), _Size, _Value);
 			}
 		}
 	}

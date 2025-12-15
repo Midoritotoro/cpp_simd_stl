@@ -16,17 +16,11 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(vector_type other) noexcept :
-    _vector(other)
-{
-}
-
 template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(const void* address) noexcept {
-    _vector = _SimdLoadUnaligned<_SimdGeneration_, _RegisterPolicy_, vector_type>(address);
+    typename _IntrinType_,
+    std::enable_if_t<_Is_intrin_type_v<_IntrinType_>, int>>
+basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::basic_simd(_IntrinType_ other) noexcept {
+    _vector = simd_cast<vector_type>(other);
 }
 
 template <

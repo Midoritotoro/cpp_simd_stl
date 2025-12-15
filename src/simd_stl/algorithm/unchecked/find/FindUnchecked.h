@@ -26,9 +26,6 @@ _Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindUnchecked(
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(_Value) == false)
-				return _LastUnwrapped;
-
 			const auto _FirstAddress = std::to_address(_FirstUnwrapped);
 			const auto _Position = _FindVectorized(_FirstAddress, std::to_address(_LastUnwrapped), _Value);
 

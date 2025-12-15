@@ -57,8 +57,12 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
             const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
             const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
-            const auto _Compared = _Comparand.maskEqual(_Loaded);
-            _Count += _Compared.countSet();
+            const auto _Compared = _Comparand.nativeEqual(_Loaded) & _TailMask;
+            const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_, _Type_>(
+                numeric::_SimdToNativeMask<_SimdGeneration_, typename _SimdType_::policy_type, 
+                std::remove_cv_t<decltype(_Compared)>>(_Compared));
+
+            _Count += _Mask.countSet();
         }
 
         return _Count;

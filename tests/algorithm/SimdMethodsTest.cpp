@@ -36,7 +36,7 @@ void testMethods() {
         for (int i = 0; i < N; ++i)
             arr[i] = i + 1;
 
-        Simd v3(arr);
+        Simd v3 = Simd::loadUnaligned(arr);
         for (int i = 0; i < v2.size(); ++i)
             Assert(v3.extract<T>(i) == arr[i]);
 
@@ -177,7 +177,7 @@ void testMethods() {
         alignas(64) T src[N];
         for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
 
-        Simd v(src);
+        Simd v = Simd::loadUnaligned(src);
 
 
         typename Simd::mask_type mask = 0;
@@ -215,9 +215,9 @@ void testMethods() {
             vc[i] = static_cast<T>(i + 2);
         }
 
-        Simd a(va.data());
-        Simd b(vb.data());
-        Simd c(vc.data());
+        Simd a = Simd::loadUnaligned(va.data());
+        Simd b = Simd::loadUnaligned(vb.data());
+        Simd c = Simd::loadUnaligned(vc.data());
 
         // --- isEqual ---
         Assert(a.isEqual(b) && "isEqual failed on equal vectors");
@@ -260,8 +260,8 @@ void testMethods() {
             srcB[i] = static_cast<T>(100 + i);
         }
 
-        Simd a(srcA);
-        Simd b(srcB);
+        Simd a = Simd::loadUnaligned(srcA);
+        Simd b = Simd::loadUnaligned(srcB);
 
         typename Simd::mask_type m = 0;
         for (size_t i = 0; i < N; i += 2)
@@ -288,8 +288,8 @@ void testMethods() {
             srcB[i] = static_cast<T>(200 + i);
         }
 
-        Simd a(srcA);
-        Simd b(srcB);
+        Simd a = Simd::loadUnaligned(srcA);
+        Simd b = Simd::loadUnaligned(srcB);
 
         typename Simd::mask_type m = 0;
 

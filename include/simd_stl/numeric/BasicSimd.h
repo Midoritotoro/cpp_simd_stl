@@ -58,8 +58,11 @@ public:
     basic_simd() noexcept;
 
     basic_simd(const value_type value) noexcept;
-    basic_simd(vector_type other) noexcept;
-    basic_simd(const void* address) noexcept;
+
+    template <
+        typename _IntrinType_,
+        std::enable_if_t<_Is_intrin_type_v<_IntrinType_>, int> = 0>
+    basic_simd(_IntrinType_ other) noexcept;
 
     template <typename _OtherType_>
     basic_simd(const basic_simd<_SimdGeneration_, _OtherType_, _RegisterPolicy_>& other) noexcept;
