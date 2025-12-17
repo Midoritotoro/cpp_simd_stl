@@ -69,32 +69,31 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype _MismatchVectori
         } while (_First != _StopAt);
     }
 
+    const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+
+    if (_TailSize == 0)
+        return _Length;
+
     if constexpr (_Is_masked_memory_access_supported) {
-        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+        const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
 
-        if (_TailSize != 0) {
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
+        const auto _LoadedFirst = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+        const auto _LoadedSecond = _SimdType_::maskLoadUnaligned(_Second, _TailMask);
 
-            const auto _LoadedFirst = _SimdType_::maskLoadUnaligned(_First, _TailMask);
-            const auto _LoadedSecond = _SimdType_::maskLoadUnaligned(_Second, _TailMask);
+        const auto _Compared = _LoadedFirst.nativeEqual(_LoadedSecond) & _TailMask;
+        const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,
+            _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
+                typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
 
-            const auto _Compared = _LoadedFirst.nativeEqual(_LoadedSecond) & _TailMask;
-            const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,
-                _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
-                    typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
+        const auto _AllEqualMask = (1u << (_TailSize / sizeof(_Type_))) - 1;
 
-            const auto _AllEqualMask = (1u << (_TailSize / sizeof(_Type_))) - 1;
-
-            if (_Mask != _AllEqualMask)
-                return (static_cast<const _Type_*>(_First) - _CachedFirst) + _Mask.countTrailingOneBits();
-        }
+        if (_Mask != _AllEqualMask)
+            return (static_cast<const _Type_*>(_First) - _CachedFirst) + _Mask.countTrailingOneBits();
 
         return _Length;
     }
     else {
-        return (_AlignedSize == _Size)
-            ? _Length
-            : _Size + _MismatchScalar<_Type_>(_First, _Second, (_Size - _AlignedSize) / sizeof(_Type_));
+        return _MismatchScalar<_Type_>(_First, _Second, _TailSize / sizeof(_Type_));
     }
 }
 

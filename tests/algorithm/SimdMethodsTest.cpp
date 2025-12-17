@@ -308,6 +308,26 @@ void testMethods() {
             }
         }
     }
+    
+    // Reduce by sum
+
+    {
+        simd_stl::numeric::_Reduce_type<T> reduced = 0;
+
+        alignas(64) T array[N] = {};
+        for (auto i = 0; i < N; ++i) {
+            array[i] = (unsigned char)(i * 0x7fdbu);
+        }
+
+        for (auto i = 0; i < N; ++i) {
+            reduced += (unsigned char)(array[i]);
+        }
+
+        Simd a = Simd::loadUnaligned(array);
+        auto simdReduced = a.reduce();
+
+        Assert(simdReduced == reduced);
+    }
 }
 
 template <simd_stl::arch::CpuFeature _Generation_>

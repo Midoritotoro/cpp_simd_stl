@@ -67,26 +67,24 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Eq
         } while (_First != _StopAt);
     }
 
-    if (_Size == _AlignedSize)
+    const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+
+    if (_TailSize == 0)
         return true;
 
     if constexpr (_Is_masked_memory_access_supported) {
-        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
-
-        if (_TailSize != 0) {
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
+        const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
             
-            const auto _LoadedFirst = _SimdType_::maskLoadUnaligned(_First, _TailMask);
-            const auto _LoadedSecond = _SimdType_::maskLoadUnaligned(_Second, _TailMask);
+        const auto _LoadedFirst = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+        const auto _LoadedSecond = _SimdType_::maskLoadUnaligned(_Second, _TailMask);
             
-            const auto _Compared = _LoadedFirst.nativeEqual(_LoadedSecond) & _TailMask;
-            const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,
-                _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
-                    typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
+        const auto _Compared = _LoadedFirst.nativeEqual(_LoadedSecond) & _TailMask;
+        const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,
+            _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
+                typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
 
-            const auto _AllEqualMask = (1u << (_TailSize / sizeof(_Type_))) - 1;
-            return (_Mask == _AllEqualMask);
-        }
+        const auto _AllEqualMask = (1u << (_TailSize / sizeof(_Type_))) - 1;
+        return (_Mask == _AllEqualMask);
     }
     else {
         return _EqualScalar<_Type_>(_First, _Second, (_Size - _AlignedSize) / sizeof(_Type_));

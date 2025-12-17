@@ -18,6 +18,7 @@ _Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindLastUnchecked(
 	const _Type_&		_Value) noexcept
 {
 	using _DifferenceType = type_traits::IteratorDifferenceType<_UnwrappedIterator_>;
+	const auto _CachedLast = _LastUnwrapped;
 
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
@@ -37,11 +38,14 @@ _Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindLastUnchecked(
 		}
 	}
 
-	for (; _LastUnwrapped != _FirstUnwrapped; --_LastUnwrapped)
-		if (*_LastUnwrapped == _Value)
-			break;
+	while (_LastUnwrapped != _FirstUnwrapped) {
+		--_LastUnwrapped;
 
-	return _LastUnwrapped;
+		if (*_LastUnwrapped == _Value)
+			return _LastUnwrapped;
+	}
+
+	return _CachedLast;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

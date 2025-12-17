@@ -50,7 +50,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
     const auto _Size        = ByteLength(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
-    const auto _Comparand = _SimdType_(_Value);
+    auto _Comparand = _SimdType_(_Value);
 
     if (_AlignedSize != 0) {
         const void* _StopAt = _First;
@@ -71,8 +71,8 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _FindVectoriz
         const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
 
         if (_TailSize != 0) {
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-            const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+            const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
+            const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
             const auto _Compared = _Comparand.nativeEqual(_Loaded) & _TailMask;
             const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,

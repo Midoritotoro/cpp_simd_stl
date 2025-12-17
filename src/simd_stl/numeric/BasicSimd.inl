@@ -80,9 +80,18 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::broadcastZeros() noexcept {
+    _vector = _SimdBroadcastZeros<_SimdGeneration_, _RegisterPolicy_, vector_type>();
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline void
-basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::fill(const typename std::type_identity<_DesiredType_>::type value) noexcept {
+simd_stl_always_inline void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
+    ::fill(const typename std::type_identity<_DesiredType_>::type value) noexcept
+{
     _vector = _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_, vector_type>(value);
 }
 
@@ -333,7 +342,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
     return _SimdAdd<_SimdGeneration_, _RegisterPolicy_, _Element_>(
-        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_>(right.unwrap()));
+        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_, 
+            typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type>(right));
 }
 
 template <
@@ -345,7 +355,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
     return _SimdSubstract<_SimdGeneration_, _RegisterPolicy_, _Element_>(
-        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_>(right.unwrap()));
+        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_, 
+            typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type>(right));
 }
 
 template <
@@ -357,7 +368,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
     return _SimdMultiply<_SimdGeneration_, _RegisterPolicy_, _Element_>(
-        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_>(right.unwrap()));
+        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_, 
+            typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type>(right));
 }
 
 
@@ -370,7 +382,8 @@ simd_stl_always_inline basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     const typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  right) noexcept
 {
     return _SimdDivide<_SimdGeneration_, _RegisterPolicy_, _Element_>(
-        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_>(right.unwrap()));
+        left._vector, _SimdBroadcast<_SimdGeneration_, _RegisterPolicy_, 
+            typename basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type>(right));
 }
 
 template <
@@ -928,11 +941,9 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    typename _DesiredOutputType_,
-    typename _DesiredType_>
-simd_stl_always_inline _DesiredOutputType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reduce() const noexcept {
-
+template <typename _DesiredType_>
+simd_stl_always_inline _Reduce_type<_DesiredType_> basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reduce() const noexcept {
+    return _SimdReduce<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <

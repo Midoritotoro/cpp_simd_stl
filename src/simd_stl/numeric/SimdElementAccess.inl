@@ -98,7 +98,8 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::SSE2, 
         }
 
 #if defined(simd_stl_processor_x86_64)
-        return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE)));
+        const auto _Shuffled = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE);
+        return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_Shuffled));
 #else
         const auto _HighDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE));
         const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF));

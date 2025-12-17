@@ -8,29 +8,44 @@
 
 template <typename It, typename T>
 It stl_find_last(It first, It last, const T& value) {
-    auto rfirst = std::make_reverse_iterator(last);
-    auto rlast = std::make_reverse_iterator(first);
-    auto rit = std::find(rfirst, rlast, value);
-    if (rit == rlast) return last;
-    return rit.base() - 1;
+    const auto cachedLast = last;
+
+    while (last != first) {
+        --last;
+
+        if (*last == value)
+            return last;
+    }
+
+    return cachedLast;
 }
 
 template <typename It, typename Pred>
 It stl_find_last_if(It first, It last, Pred pred) {
-    auto rfirst = std::make_reverse_iterator(last);
-    auto rlast = std::make_reverse_iterator(first);
-    auto rit = std::find_if(rfirst, rlast, pred);
-    if (rit == rlast) return last;
-    return rit.base() - 1;
+    const auto cachedLast = last;
+
+    while (last != first) {
+        --last;
+
+        if (pred(*last))
+            return last;
+    }
+
+    return cachedLast;
 }
 
 template <typename It, typename Pred>
 It stl_find_last_if_not(It first, It last, Pred pred) {
-    auto rfirst = std::make_reverse_iterator(last);
-    auto rlast = std::make_reverse_iterator(first);
-    auto rit = std::find_if_not(rfirst, rlast, pred);
-    if (rit == rlast) return last;
-    return rit.base() - 1;
+    const auto cachedLast = last;
+
+    while (last != first) {
+        --last;
+
+        if (!pred(*last))
+            return last;
+    }
+
+    return cachedLast;
 }
 
 template <typename T>
@@ -52,7 +67,7 @@ void run_tests_for_type() {
 
     {
         std::vector<T> v(64, T(0));
-        v[10] = T(42);
+        v[15] = T(42);
 
         auto simd = simd_stl::algorithm::find_last(v.begin(), v.end(), T(42));
         auto stl = stl_find_last(v.begin(), v.end(), T(42));

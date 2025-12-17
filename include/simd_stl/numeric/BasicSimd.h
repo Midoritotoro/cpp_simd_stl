@@ -77,7 +77,9 @@ public:
     template <class _BasicSimdTo_>
     simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
 
-    template <typename _DesiredType_>
+    simd_stl_always_inline void broadcastZeros() noexcept;
+
+    template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void fill(const typename std::type_identity<_DesiredType_>::type value) noexcept;
 
     template <typename _DesiredType_>
@@ -329,10 +331,8 @@ public:
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> toMask() const noexcept;
 
-    template <
-        typename _DesiredOutputType_,
-        typename _DesiredType_ = value_type>
-    simd_stl_always_inline _DesiredOutputType_ reduce() const noexcept;
+    template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline _Reduce_type<_DesiredType_> reduce() const noexcept;
 
     simd_stl_always_inline static void streamingFence() noexcept;
     static simd_stl_always_inline void zeroUpper() noexcept;
