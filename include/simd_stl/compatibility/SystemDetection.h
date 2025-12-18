@@ -80,7 +80,18 @@
 #  define simd_stl_os_unix
 #endif
 
+#if defined(simd_stl_os_win)
+#  define NOMINMAX
+#endif // defined(simd_stl_os_win)
 
 #if defined(simd_stl_os_windows)
 #  include <windows.h>
 #endif // defined(simd_stl_os_windows)
+
+#if defined(max) 
+#  undef max
+#endif
+
+#if defined(min) 
+#  undef min
+#endif

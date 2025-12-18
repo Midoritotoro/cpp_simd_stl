@@ -49,6 +49,9 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/remove/RemoveVectorized.h
     src/simd_stl/algorithm/vectorized/remove/RemoveCopyVectorized.h
     src/simd_stl/algorithm/vectorized/transform/TransformVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MinmaxElementVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MinElementVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MaxElementVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -89,6 +92,11 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/algorithm/unchecked/remove/RemoveCopyUnchecked.h
     src/simd_stl/algorithm/unchecked/remove/RemoveCopyIfUnchecked.h
+
+    src/simd_stl/algorithm/unchecked/minmax/MinmaxElementUnchecked.h
+    src/simd_stl/algorithm/unchecked/minmax/MinElementUnchecked.h
+    src/simd_stl/algorithm/unchecked/minmax/MaxElementUnchecked.h
+
 
 
     src/simd_stl/algorithm/vectorized/VectorizedOperators.h
@@ -164,6 +172,7 @@ set(PRIVATE_HEADERS
 set(PUBLIC_HEADERS
     include/simd_stl/algorithm/algorithm 
 
+    include/simd_stl/math/Math.h
     include/simd_stl/math/BitMath.h
     include/simd_stl/math/IntegralTypesConversions.h
 
@@ -243,6 +252,14 @@ set(PUBLIC_HEADERS
 
     include/simd_stl/algorithm/order/Reverse.h
     include/simd_stl/algorithm/order/ReverseCopy.h
+
+    include/simd_stl/algorithm/minmax/Min.h
+    include/simd_stl/algorithm/minmax/Max.h
+    include/simd_stl/algorithm/minmax/Minmax.h
+    include/simd_stl/algorithm/minmax/MaxElement.h
+    include/simd_stl/algorithm/minmax/MinElement.h
+    include/simd_stl/algorithm/minmax/MinmaxElement.h
+
 
 
     include/simd_stl/system/Handle.h

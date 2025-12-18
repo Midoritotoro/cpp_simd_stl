@@ -4,6 +4,8 @@
 #include <src/simd_stl/numeric/SimdElementAccess.h>
 #include <src/simd_stl/numeric/SimdDivisors.h>
 
+#include <src/simd_stl/numeric/SimdCompare.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -98,6 +100,40 @@ public:
     static simd_stl_always_inline _VectorType_ _BitOr(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Min(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Max(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
 };
 
 template <>
@@ -229,6 +265,40 @@ public:
     static simd_stl_always_inline _VectorType_ _BitOr(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Min(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Max(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
 };
 
 #pragma endregion
@@ -237,9 +307,43 @@ public:
 
 template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512> {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512F;
-    using _RegisterPolicy = zmm512;
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy               = zmm512;
 public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Min(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Max(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -513,6 +617,62 @@ template <
 simd_stl_always_inline auto _SimdReduce(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Reduce<_DesiredType_>(_Vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdMin(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Min<_DesiredType_>(_Left, _Right);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdMax(_VectorType_ _Vector) noexcept {
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Max<_DesiredType_>(_Vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdMin(_VectorType_ _Vector) noexcept {
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Min<_DesiredType_>(_Vector);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdMax(
+    _VectorType_ _Left, 
+    _VectorType_ _Right) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Max<_DesiredType_>(_Left, _Right);
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdAbs(_VectorType_ _Vector) noexcept {
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Abs<_DesiredType_>(_Vector);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

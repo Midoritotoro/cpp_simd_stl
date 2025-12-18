@@ -1,5 +1,8 @@
 ﻿#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/math/Math.h>
+
 #include <string>
+
 
 template <typename _Simd_>
 void mask_compress_any(
@@ -327,6 +330,46 @@ void testMethods() {
         auto simdReduced = a.reduce();
 
         Assert(simdReduced == reduced);
+    }
+
+
+    {
+        alignas(64) T arrA[N], arrB[N];
+        for (size_t i = 0; i < N; ++i) {
+            arrA[i] = static_cast<T>(i - 2);   // значения от -2
+            arrB[i] = static_cast<T>(N - i);   // обратная последовательность
+        }
+
+        Simd a = Simd::loadUnaligned(arrA);
+        Simd b = Simd::loadUnaligned(arrB);
+
+        // --- min(vector, vector) ---
+        auto minVec = a.min(b);
+        for (size_t i = 0; i < N; ++i) {
+            Assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
+        }
+
+        // --- max(vector, vector) ---
+        auto maxVec = a.max(b);
+        for (size_t i = 0; i < N; ++i) {
+            Assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
+        }
+
+        //// --- min() скалярный ---
+        //T minScalar = a.min();
+        //T expectedMin = *std::min_element(arrA, arrA + N);
+        //Assert(minScalar == expectedMin);
+
+        //// --- max() скалярный ---
+        //T maxScalar = a.max();
+        //T expectedMax = *std::max_element(arrA, arrA + N);
+        //Assert(maxScalar == expectedMax);
+
+        //// --- abs() ---
+        //auto absVec = a.abs();
+        //for (size_t i = 0; i < N; ++i) {
+        //    Assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
+        //}
     }
 }
 

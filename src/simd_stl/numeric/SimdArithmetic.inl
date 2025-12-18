@@ -35,6 +35,95 @@ using _Reduce_type = typename _Reduce_type_helper<_Type_>::type;
 template <
     typename _DesiredType_,
     typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Min(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_epi16(
+            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_epu8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_epu8(
+            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_ps(
+            _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_pd(
+            _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::less<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Min(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Max(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_epi16(
+            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_epu8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_epu8(
+            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_ps(
+            _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_pd(
+            _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Max(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Abs(_VectorType_ _Vector) noexcept {
+
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>
+    ::_AdjustToUnsigned(_VectorType_ _Vector) noexcept
+{
+
+}
+
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
 simd_stl_always_inline auto _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Reduce(_VectorType_ _Vector) noexcept {
     using _ReduceType = _Reduce_type<_DesiredType_>;
 
@@ -364,6 +453,126 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE41, xmm
 template <
     typename _DesiredType_,
     typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
+    ::_AdjustToUnsigned(_VectorType_ _Vector) noexcept
+{
+
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Min(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epi32(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epu32(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epi16(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epu16(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epi8(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epu8(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_ps(
+            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_pd(
+            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::less<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Min(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Max(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epi32(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epu32(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epi16(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epu16(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epi8(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epu8(
+            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_ps(
+            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_pd(
+            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Max(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Abs(_VectorType_ _Vector) noexcept {
+
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
 simd_stl_always_inline auto _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Reduce(_VectorType_ _Vector) noexcept {
     using _ReduceType = _Reduce_type<_DesiredType_>;
 
@@ -655,6 +864,98 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm2
 #pragma endregion
 
 #pragma region Avx512 Simd arithmetic
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>
+    ::_AdjustToUnsigned(_VectorType_ _Vector) noexcept
+{
+
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Min(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epu32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_epu32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_ps(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_min_pd(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::less<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Min(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Max(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_epu32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_epu32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_ps(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_max_pd(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right)));
+    }
+    else {
+        const auto _Mask = _SimdCompare<_Generation, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
+        return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(_Left, _Right, _Mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Max(_VectorType_ _Vector) noexcept {
+    return 0;
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Abs(_VectorType_ _Vector) noexcept {
+
+}
 
 template <
     typename _DesiredType_,

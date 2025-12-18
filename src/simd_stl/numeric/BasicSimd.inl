@@ -1102,6 +1102,59 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::min(
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept 
+{
+    return _SimdMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::min() const noexcept {
+    return _SimdMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::max(
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept
+{
+    return _SimdMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::max() const noexcept {
+    return _SimdMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::abs() const noexcept 
+{
+    return _SimdAbs<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
 void basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reverse() noexcept {
     _vector = _SimdReverse<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }

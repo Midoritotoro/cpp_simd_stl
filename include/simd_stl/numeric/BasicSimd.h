@@ -1,13 +1,5 @@
 ﻿#pragma once 
 
-#if defined(max) 
-#  undef max
-#endif
-
-#if defined(min) 
-#  undef min
-#endif
-
 #include <src/simd_stl/numeric/SimdArithmetic.h>
 
 #include <src/simd_stl/numeric/SimdCompare.h>
@@ -346,6 +338,23 @@ public:
     simd_stl_always_inline void blend(
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Vector,
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> min(
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline _DesiredType_ min() const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> max(
+        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline _DesiredType_ max() const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> abs() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
