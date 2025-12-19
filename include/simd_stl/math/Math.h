@@ -9,7 +9,11 @@ __SIMD_STL_MATH_NAMESPACE_BEGIN
 template <typename _Type_>
 _Simd_nodiscard_inline_constexpr _Type_ abs(_Type_ _Value) noexcept {
 	static_assert(std::is_integral_v<_Type_> || std::is_floating_point_v<_Type_>);
-	return (_Value < 0) ? -_Value : _Value;
+
+	if constexpr (std::is_unsigned_v<_Type_>)
+		return _Value;
+	else
+		return (_Value < 0) ? -_Value : _Value;
 }
 
 __SIMD_STL_MATH_NAMESPACE_END

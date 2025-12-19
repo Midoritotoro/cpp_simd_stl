@@ -108,7 +108,11 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (std::is_unsigned_v<_DesiredType_>)
+        return _Vector;
+    else if (_Is_epi64_v<_DesiredType_>) {
 
+    }
 }
 
 template <
@@ -885,7 +889,7 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, z
         return _IntrinBitcast<_VectorType_>(_mm512_min_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm512_min_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        return _IntrinBitcast<_VectorType_>(_mm512_min_epu64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
         return _IntrinBitcast<_VectorType_>(_mm512_min_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
@@ -923,7 +927,7 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, z
         return _IntrinBitcast<_VectorType_>(_mm512_max_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm512_max_epi64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
+        return _IntrinBitcast<_VectorType_>(_mm512_max_epu64(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
         return _IntrinBitcast<_VectorType_>(_mm512_max_epi32(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right)));

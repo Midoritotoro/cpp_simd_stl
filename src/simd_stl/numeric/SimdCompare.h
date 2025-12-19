@@ -201,6 +201,13 @@ public:
     static simd_stl_always_inline _VectorType_ _CompareGreater(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _CompareLess(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
 };
 
 #pragma endregion

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <numeric>
+#include <stdfloat>
 
 __SIMD_STL_NAMESPACE_BEGIN
 
@@ -36,6 +37,9 @@ using ulonglong = uint64;
 
 using ulong32   = unsigned long;
 using long32    = long;
+
+using float32 = float;
+using float64 = double;
 
 template <int>      struct IntegerForSize;
 

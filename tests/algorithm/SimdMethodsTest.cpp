@@ -365,11 +365,11 @@ void testMethods() {
         //T expectedMax = *std::max_element(arrA, arrA + N);
         //Assert(maxScalar == expectedMax);
 
-        //// --- abs() ---
-        //auto absVec = a.abs();
-        //for (size_t i = 0; i < N; ++i) {
-        //    Assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
-        //}
+        // --- abs() ---
+        auto absVec = a.abs();
+        for (size_t i = 0; i < N; ++i) {
+            Assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
+        }
     }
 }
 
