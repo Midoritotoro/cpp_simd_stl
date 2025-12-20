@@ -1,6 +1,5 @@
 #pragma once 
 
-
 #include <src/simd_stl/numeric/SimdElementAccess.h>
 #include <src/simd_stl/numeric/SimdDivisors.h>
 
@@ -145,7 +144,7 @@ template <>
 class _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    static constexpr auto _Generation   = arch::CpuFeature::SSSE3;
     using _RegisterPolicy               = numeric::xmm128;
 public:
     template <
@@ -168,11 +167,37 @@ template <>
 class _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>:
     public _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>
 {
+    static constexpr auto _Generation   = arch::CpuFeature::SSE41;
+    using _RegisterPolicy               = numeric::xmm128;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Multiply(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 };

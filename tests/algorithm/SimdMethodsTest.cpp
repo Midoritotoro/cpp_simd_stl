@@ -392,16 +392,16 @@ void testMethods() {
 }
 
 int main() {
-    //testMethods<simd_stl::arch::CpuFeature::SSE2>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE3>();
+    testMethods<simd_stl::arch::CpuFeature::SSE2>();
+    testMethods<simd_stl::arch::CpuFeature::SSE3>();
     testMethods<simd_stl::arch::CpuFeature::SSSE3>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE41>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE42>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX2>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512F>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
+    testMethods<simd_stl::arch::CpuFeature::SSE41>();
+    testMethods<simd_stl::arch::CpuFeature::SSE42>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512F>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
 
     return 0;
 }
