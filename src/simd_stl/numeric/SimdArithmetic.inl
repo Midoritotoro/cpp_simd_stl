@@ -108,10 +108,37 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_Abs(_VectorType_ _Vector) noexcept {
-    if constexpr (std::is_unsigned_v<_DesiredType_>)
+    if constexpr (std::is_unsigned_v<_DesiredType_>) {
         return _Vector;
-    else if (_Is_epi64_v<_DesiredType_>) {
+    }
+    else if constexpr (_Is_epi64_v<_DesiredType_>) {
+        const auto _HighSign    = _mm_srai_epi32(_IntrinBitcast<__m128i>(_Vector), 31);
+        const auto _Sign        = _mm_shuffle_epi32(_HighSign, 0xF5);
 
+        const auto _Invert  = _mm_xor_si128(_IntrinBitcast<__m128i>(_Vector), _Sign);
+        return _IntrinBitcast<_VectorType_>(_mm_sub_epi64(_Invert, _Sign));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_>) {
+        const auto _Sign    = _mm_srai_epi32(_IntrinBitcast<__m128i>(_Vector), 31);
+        const auto _Invert  = _mm_xor_si128(_IntrinBitcast<__m128i>(_Vector), _Sign);
+
+        return _IntrinBitcast<_VectorType_>(_mm_sub_epi32(_Invert, _Sign));
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_>) {
+        const auto _Negate = _mm_sub_epi16(_mm_setzero_si128(), _IntrinBitcast<__m128i>(_Vector));
+        return _mm_max_epi16(_IntrinBitcast<__m128i>(_Vector), _Negate);
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_>) {
+        const auto _Negate = _mm_sub_epi8(_mm_setzero_si128(), _IntrinBitcast<__m128i>(_Vector));
+        return _IntrinBitcast<_VectorType_>(_mm_min_epu8(_IntrinBitcast<__m128i>(_Vector), _Negate));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        const auto _Mask = _mm_set1_epi32(0x7FFFFFFF);
+        return _IntrinBitcast<_VectorType_>(_mm_and_ps(_IntrinBitcast<__m128>(_Vector), _IntrinBitcast<__m128>(_Mask)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        const auto _Mask = _mm_set_epi32(0xFFFFFFFFu, 0x7FFFFFFFu, 0xFFFFFFFFu, 0x7FFFFFFFu);
+        return _IntrinBitcast<_VectorType_>(_mm_and_pd(_IntrinBitcast<__m128d>(_Vector), _IntrinBitcast<__m128d>(_Mask)));
     }
 }
 
@@ -457,6 +484,39 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE41, xmm
 template <
     typename _DesiredType_,
     typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (std::is_unsigned_v<_DesiredType_>) {
+        return _Vector;
+    }
+    else if constexpr (_Is_epi64_v<_DesiredType_>) {
+        const auto _Sign        = _mm256_cmpgt_epi64(_mm256_setzero_si256(), _Vector);
+        const auto _Inverted    = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Vector), _Sign);
+
+        return _IntrinBitcast<_VectorType_>(_mm256_sub_epi64(_Inverted, _Sign));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_abs_epi32(_IntrinBitcast<__m256i>(_Vector)));
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_abs_epi16(_IntrinBitcast<__m256i>(_Vector)));
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_abs_epi8(_IntrinBitcast<__m256i>(_Vector)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        const auto _Mask = _mm256_set_epi32(0xFFFFFFFFu, 0x7FFFFFFFu, 0xFFFFFFFFu, 0x7FFFFFFFu,
+            0xFFFFFFFFu, 0x7FFFFFFFu, 0xFFFFFFFFu, 0x7FFFFFFFu);
+        return _IntrinBitcast<_VectorType_>(_mm256_and_pd(_IntrinBitcast<__m256d>(_Vector), _IntrinBitcast<__m256d>(_Mask)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        const auto _Mask = _mm256_set1_epi32(0x7FFFFFFFu);
+        return _IntrinBitcast<_VectorType_>(_mm256_and_ps(_IntrinBitcast<__m256>(_Vector), _IntrinBitcast<__m256>(_Mask)));
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
     ::_AdjustToUnsigned(_VectorType_ _Vector) noexcept
 {
@@ -565,13 +625,6 @@ template <
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Max(_VectorType_ _Vector) noexcept {
     return 0;
-}
-
-template <
-    typename _DesiredType_,
-    typename _VectorType_>
-simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_Abs(_VectorType_ _Vector) noexcept {
-
 }
 
 template <
@@ -958,7 +1011,31 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (std::is_unsigned_v<_DesiredType_>) {
+        return _Vector;
+    }
+    else if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_epi64(_IntrinBitcast<__m512i>(_Vector)));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_epi32(_IntrinBitcast<__m512i>(_Vector)));
+    }
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_ps(_IntrinBitcast<__m512>(_Vector)));
+    }
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_pd(_IntrinBitcast<__m512d>(_Vector)));
+    }
+    else {
+        const auto _Low     = _IntrinBitcast<__m256i>(_Vector);
+        const auto _High    = _mm512_extractf64x4_pd(_IntrinBitcast<__m512d>(_Vector), 1);
 
+        auto _Result = _IntrinBitcast<__m512i>(_SimdAbs<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_Low));
+        _Result = _IntrinBitcast<__m512i>(_mm512_insertf64x4(_IntrinBitcast<__m512d>(_Result), 
+            _IntrinBitcast<__m256d>(_SimdAbs<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_High)), 1));
+
+        return _IntrinBitcast<_VectorType_>(_Result);
+    }
 }
 
 template <
@@ -1261,6 +1338,21 @@ simd_stl_always_inline auto _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>:
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         return _SimdReduce<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_IntrinBitcast<__m256i>(_Vector)) +
             _SimdReduce<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_mm512_extractf64x4_pd(_IntrinBitcast<__m512d>(_Vector), 1));
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (_Is_epi16_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_epi16(_IntrinBitcast<__m512i>(_Vector)));
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm512_abs_epi8(_IntrinBitcast<__m512i>(_Vector)));
+    }
+    else {
+        return _SimdAbs<arch::CpuFeature::AVX512F, zmm512, _DesiredType_>(_Vector);
     }
 }
 

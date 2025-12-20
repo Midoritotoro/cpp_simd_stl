@@ -438,6 +438,11 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
 };
 
 template <>
