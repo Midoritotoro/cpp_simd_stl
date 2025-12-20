@@ -1103,10 +1103,10 @@ template <
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
-    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::min(
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::verticalMin(
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept 
 {
-    return _SimdMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
+    return _SimdVerticalMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
 }
 
 template <
@@ -1114,8 +1114,8 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::min() const noexcept {
-    return _SimdMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::horizontalMin() const noexcept {
+    return _SimdHorizontalMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <
@@ -1124,10 +1124,10 @@ template <
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
 simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
-    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::max(
+    basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::verticalMax(
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept
 {
-    return _SimdMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
+    return _SimdVerticalMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, _Other.unwrap());
 }
 
 template <
@@ -1135,8 +1135,8 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::max() const noexcept {
-    return _SimdMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+simd_stl_always_inline _DesiredType_ basic_simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::horizontalMax() const noexcept {
+    return _SimdHorizontalMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <

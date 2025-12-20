@@ -340,18 +340,18 @@ public:
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> min(
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMin(
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_ min() const noexcept;
+    simd_stl_always_inline _DesiredType_ horizontalMin() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> max(
+    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMax(
         const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_ max() const noexcept;
+    simd_stl_always_inline _DesiredType_ horizontalMax() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> abs() const noexcept;

@@ -104,26 +104,26 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Min(
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Max(
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
@@ -152,6 +152,16 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
 };
 
 template <>
@@ -269,26 +279,26 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Min(
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Max(
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
@@ -313,26 +323,26 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Min(
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Min(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Max(
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
         _VectorType_ _Left,
         _VectorType_ _Right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Max(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
 
     template <
         typename _DesiredType_,
@@ -629,12 +639,12 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ _SimdMin(
+simd_stl_always_inline _VectorType_ _SimdVerticalMin(
     _VectorType_ _Left,
     _VectorType_ _Right) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Min<_DesiredType_>(_Left, _Right);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _VerticalMin<_DesiredType_>(_Left, _Right);
 }
 
 template <
@@ -642,9 +652,9 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdMax(_VectorType_ _Vector) noexcept {
+simd_stl_always_inline _DesiredType_ _SimdHorizontalMax(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Max<_DesiredType_>(_Vector);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _HorizontalMax<_DesiredType_>(_Vector);
 }
 
 template <
@@ -652,9 +662,9 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdMin(_VectorType_ _Vector) noexcept {
+simd_stl_always_inline _DesiredType_ _SimdHorizontalMin(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Min<_DesiredType_>(_Vector);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _HorizontalMin<_DesiredType_>(_Vector);
 }
 
 template <
@@ -662,12 +672,12 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ _SimdMax(
+simd_stl_always_inline _VectorType_ _SimdVerticalMax(
     _VectorType_ _Left, 
     _VectorType_ _Right) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Max<_DesiredType_>(_Left, _Right);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _VerticalMax<_DesiredType_>(_Left, _Right);
 }
 
 template <

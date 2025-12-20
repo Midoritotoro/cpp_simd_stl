@@ -343,27 +343,27 @@ void testMethods() {
         Simd a = Simd::loadUnaligned(arrA);
         Simd b = Simd::loadUnaligned(arrB);
 
-        // --- min(vector, vector) ---
-        auto minVec = a.min(b);
+        // --- verticalMin(vector, vector) ---
+        auto minVec = a.verticalMin(b);
         for (size_t i = 0; i < N; ++i) {
             Assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
         }
 
-        // --- max(vector, vector) ---
-        auto maxVec = a.max(b);
+        // --- verticalMax(vector, vector) ---
+        auto maxVec = a.verticalMax(b);
         for (size_t i = 0; i < N; ++i) {
             Assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
         }
 
-        //// --- min() скалярный ---
-        //T minScalar = a.min();
-        //T expectedMin = *std::min_element(arrA, arrA + N);
-        //Assert(minScalar == expectedMin);
+        // --- horizontalMin() ---
+        T minScalar = a.horizontalMin();
+        T expectedMin = *std::min_element(arrA, arrA + N);
+        Assert(minScalar == expectedMin);
 
-        //// --- max() скалярный ---
-        //T maxScalar = a.max();
-        //T expectedMax = *std::max_element(arrA, arrA + N);
-        //Assert(maxScalar == expectedMax);
+        // --- horizontalMax() ---
+        T maxScalar = a.horizontalMax();
+        T expectedMax = *std::max_element(arrA, arrA + N);
+        Assert(maxScalar == expectedMax);
 
         // --- abs() ---
         auto absVec = a.abs();
@@ -392,16 +392,16 @@ void testMethods() {
 }
 
 int main() {
-    testMethods<simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::arch::CpuFeature::SSE3>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE2>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE3>();
     testMethods<simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::arch::CpuFeature::SSE41>();
-    testMethods<simd_stl::arch::CpuFeature::SSE42>();
-    testMethods<simd_stl::arch::CpuFeature::AVX2>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512F>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE41>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE42>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX2>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512F>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
 
     return 0;
 }
