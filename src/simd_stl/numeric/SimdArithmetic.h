@@ -472,6 +472,30 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
     static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
 
     template <
