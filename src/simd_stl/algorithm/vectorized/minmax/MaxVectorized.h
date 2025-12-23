@@ -11,7 +11,7 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxScalar(
     const void* _Last) noexcept
 {
     if (_First == _Last)
-        return _Last;
+        return -1;
 
     const _Type_* _FirstCasted = static_cast<const _Type_*>(_First);
     auto _Max = _FirstCasted;
@@ -51,7 +51,7 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInte
 
         while (_First != _StopAt) {
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
-            _MaximumValues = _MinimumValues.verticalMax(Loaded);
+            _MaximumValues = _MaximumValues.verticalMax(_Loaded);
 
             AdvanceBytes(_First, sizeof(_SimdType_));
         };
@@ -61,10 +61,10 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInte
 
     if constexpr (_Is_masked_memory_access_supported) {
         if (_TailSize != 0) {
-            if (_AlignedSize != 0) {
-                const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-                const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
 
+            if (_AlignedSize != 0) {
+                const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
                 _MaximumValues = _MaximumValues.verticalMax(_Loaded);
             }
             else {
@@ -84,7 +84,7 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInte
         }
     }
 
-    return _MinimumValues.horizontalMaximum();
+    return _MaximumValues.horizontalMax();
 }
 
 template <class _Type_>
@@ -103,6 +103,10 @@ simd_stl_declare_const_function _Type_ simd_stl_stdcall _MaxVectorized(
 
     if (arch::ProcessorFeatures::AVX2())
         return _MaxVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last);
+    else if (arch::ProcessorFeatures::SSE41())
+        return _MaxVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last);
+    else if (arch::ProcessorFeatures::SSSE3())
+        return _MaxVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last);
     else if (arch::ProcessorFeatures::SSE2())
         return _MaxVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last);
 
