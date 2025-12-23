@@ -57,7 +57,6 @@ template <class _Type_>
 constexpr inline bool is_iterator_v<_Type_, std::void_t<
 	typename std::iterator_traits<_Type_>::iterator_category>> = true;
 
-
 template <class _Iterator_>
 constexpr inline bool is_iterator_input_cxx17_v = std::is_convertible_v<
 	typename std::iterator_traits<_Iterator_>::iterator_category, std::input_iterator_tag>;

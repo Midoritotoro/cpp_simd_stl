@@ -52,6 +52,9 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/vectorized/minmax/MinmaxElementVectorized.h
     src/simd_stl/algorithm/vectorized/minmax/MinElementVectorized.h
     src/simd_stl/algorithm/vectorized/minmax/MaxElementVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MinVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MaxVectorized.h
+    src/simd_stl/algorithm/vectorized/minmax/MinmaxVectorized.h
 
     src/simd_stl/algorithm/AlgorithmDebug.h
     src/simd_stl/algorithm/AdvanceBytes.h
@@ -97,7 +100,9 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/minmax/MinElementUnchecked.h
     src/simd_stl/algorithm/unchecked/minmax/MaxElementUnchecked.h
 
-
+    src/simd_stl/algorithm/unchecked/minmax/MinUnchecked.h
+    src/simd_stl/algorithm/unchecked/minmax/MaxUnchecked.h
+    src/simd_stl/algorithm/unchecked/minmax/MinmaxUnchecked.h
 
     src/simd_stl/algorithm/vectorized/VectorizedOperators.h
 

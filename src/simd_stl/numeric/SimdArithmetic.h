@@ -109,6 +109,14 @@ public:
 
     template <
         typename _DesiredType_,
+        typename _VectorType_,
+        typename _ReduceBinaryFunction_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
+        _VectorType_            _Vector,
+        _ReduceBinaryFunction_  _Reduce) noexcept;
+
+    template <
+        typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
 
@@ -151,6 +159,14 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        typename _ReduceBinaryFunction_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
+        _VectorType_            _Vector,
+        _ReduceBinaryFunction_  _Reduce) noexcept;
 
     template <
         typename _DesiredType_,
@@ -327,6 +343,14 @@ public:
 
     template <
         typename _DesiredType_,
+        typename _VectorType_,
+        typename _ReduceBinaryFunction_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
+        _VectorType_            _Vector,
+        _ReduceBinaryFunction_  _Reduce) noexcept;
+
+    template <
+        typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
 
@@ -345,6 +369,14 @@ class _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512> {
     static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
     using _RegisterPolicy               = zmm512;
 public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        typename _ReduceBinaryFunction_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
+        _VectorType_            _Vector,
+        _ReduceBinaryFunction_  _Reduce) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -468,7 +500,17 @@ template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512> :
     public _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>
 {
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    using _RegisterPolicy               = zmm512;
 public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        typename _ReduceBinaryFunction_>
+    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
+        _VectorType_            _Vector,
+        _ReduceBinaryFunction_  _Reduce) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -738,6 +780,48 @@ simd_stl_always_inline _VectorType_ _SimdAbs(_VectorType_ _Vector) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Abs<_DesiredType_>(_Vector);
 }
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_,
+    typename            _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdHorizontalFold(
+    _VectorType_            _Vector, 
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
+    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    return _SimdArithmetic<_SimdGeneration_, _RegisterPolicy_>::template _HorizontalFold<_DesiredType_>(_Vector, type_traits::passFunction(_Reduce));
+}
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_, 
+    typename            _DesiredType_>
+struct _VerticalMinWrapper {
+    template <typename _VectorType_>
+    simd_stl_always_inline _VectorType_ operator()(
+        _VectorType_ _Left,
+        _VectorType_ _Right) const noexcept
+    {
+        return _SimdVerticalMin<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_Left, _Right);
+    }
+};
+
+template <
+    arch::CpuFeature    _SimdGeneration_,
+    class               _RegisterPolicy_, 
+    typename            _DesiredType_>
+struct _VerticalMaxWrapper {
+    template <typename _VectorType_>
+    simd_stl_always_inline _VectorType_ operator()(
+        _VectorType_ _Left,
+        _VectorType_ _Right) const noexcept
+    {
+        return _SimdVerticalMax<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_Left, _Right);
+    }
+};
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

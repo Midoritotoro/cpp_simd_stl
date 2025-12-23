@@ -63,28 +63,36 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm1
 
 template <
     typename _DesiredType_,
-    typename _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_HorizontalMin(_VectorType_ _Vector) noexcept {
+    typename _VectorType_,
+    typename _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_HorizontalFold(
+    _VectorType_            _Vector,
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First   = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second  = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128d>(_Vector);
 
-        return (_First < _Second) ? _First : _Second;
+        const auto _Shuffled    = _mm_shuffle_pd(_HorizontalFoldedValues, _HorizontalFoldedValues, 1);
+        _HorizontalFoldedValues = _Reduce(_Shuffled, _HorizontalFoldedValues);
+
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _mm_cvtsd_f64(_HorizontalFoldedValues);
+        else
+            return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_HorizontalFoldedValues));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128i>(_Vector);
 
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
+        const auto _Shuffled1   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
 
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
+        const auto _Shuffled2   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
 
         if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMinimumValues));
+            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalFoldedValues));
         else
-            return _mm_cvtsi128_si32(_HorizontalMinimumValues);
+            return _mm_cvtsi128_si32(_HorizontalFoldedValues);
     }
     else {
         constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
@@ -92,14 +100,24 @@ simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm
         _DesiredType_ _Array[_Length];
         _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Array, _Vector);
 
-        _DesiredType_ _Minimum = _Array[0];
+        _DesiredType_ _Folded = _Array[0];
 
-        for (auto _Index = 0; _Index < _Length; ++_Index)
-            if (_Array[_Index] < _Minimum)
-                _Minimum = _Array[_Index];
+        for (auto _Index = 1; _Index < _Length; ++_Index)
+            if (_Reduce(_Array[_Index], _Folded))
+                _Folded = _Array[_Index];
 
-        return _Minimum;
+        return _Folded;
     }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_HorizontalMin(_VectorType_ _Vector) noexcept {
+    if constexpr (sizeof(_DesiredType_) >= 4)
+        return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
+    else
+        return _HorizontalFold<_DesiredType_>(_Vector, [](auto&& _Left, auto&& _Right) { return _Left < _Right; });
 }
 
 template <
@@ -135,41 +153,10 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm128>::_HorizontalMax(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First   = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second  = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
-
-        return (_First > _Second) ? _First : _Second;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMaximumValues));
-        else
-            return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
-    else {
-        constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-
-        _DesiredType_ _Array[_Length];
-        _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Array, _Vector);
-
-        _DesiredType_ _Maximum = _Array[0];
-
-        for (auto _Index = 0; _Index < _Length; ++_Index)
-            if (_Array[_Index] > _Maximum)
-                _Maximum = _Array[_Index];
-
-        return _Maximum;
-    }
+    if constexpr (sizeof(_DesiredType_) >= 4)
+        return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
+    else
+        return _HorizontalFold<_DesiredType_>(_Vector, [] (auto&& _Left, auto&& _Right) { return _Left > _Right; });
 }
 
 template <
@@ -491,132 +478,92 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::SSE2, xmm1
 
     else if constexpr (std::is_same_v<_VectorType_, __m128>)
         return _mm_or_ps(_Left, _Right);
+
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_,
+    typename _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>::_HorizontalFold(
+    _VectorType_            _Vector,
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128d>(_Vector);
+
+        const auto _Shuffled    = _mm_shuffle_pd(_HorizontalFoldedValues, _HorizontalFoldedValues, 1);
+        _HorizontalFoldedValues = _Reduce(_Shuffled, _HorizontalFoldedValues);
+
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _mm_cvtsd_f64(_HorizontalFoldedValues);
+        else
+            return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_HorizontalFoldedValues));
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128i>(_Vector);
+
+        const auto _Shuffled1   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        if constexpr (_Is_ps_v<_DesiredType_>)
+            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalFoldedValues));
+        else
+            return _mm_cvtsi128_si32(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
+
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128i>(_Vector);
+        
+        const auto _Shuffled1   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffle2    = _mm_shuffle_epi32(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffle2);
+
+        const auto _Shuffle3    = _mm_shuffle_epi8(_HorizontalFoldedValues, _ShuffleWords);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffle3);
+
+        return _mm_cvtsi128_si32(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+        const auto _ShuffleBytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
+        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
+
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m128i>(_Vector);
+
+        const auto _Shuffled1   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm_shuffle_epi32(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm_shuffle_epi8(_HorizontalFoldedValues, _ShuffleWords);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _mm_shuffle_epi8(_HorizontalFoldedValues, _ShuffleBytes);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        return _mm_cvtsi128_si32(_HorizontalFoldedValues);
+    }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>::_HorizontalMin(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
-
-        return (_First < _Second) ? _First : _Second;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMinimumValues));
-        else
-            return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-        
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffle2        = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle3);
-
-        return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleBytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleBytes);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>::_HorizontalMax(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
-
-        return (_First > _Second) ? _First : _Second;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMaximumValues));
-        else
-            return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-        
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffle2        = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle3);
-
-        return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleBytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleBytes);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -644,8 +591,7 @@ simd_stl_always_inline auto _SimdArithmetic<arch::CpuFeature::SSSE3, xmm128>::_R
 
         return static_cast<_ReduceType>(_mm_cvtsi128_si32(_Reduce5));
     }
-    else 
-    {
+    else {
         return _SimdReduce<arch::CpuFeature::SSE2, _RegisterPolicy, _DesiredType_>(_Vector);
     }
 }
@@ -675,63 +621,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>::_HorizontalMin(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
-
-        return (_First < _Second) ? _First : _Second;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMinimumValues));
-        else
-            return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-        
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffle2        = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle3);
-
-        return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleBytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _mm_shuffle_epi8(_HorizontalMinimumValues, _ShuffleBytes);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        return _mm_cvtsi128_si32(_HorizontalMinimumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -786,63 +676,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::SSE41, xmm128>::_HorizontalMax(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        const auto _First = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(_Vector, 0);
-        const auto _Second = _SimdExtract<_Generation, _RegisterPolicy, _DesiredType_>(
-            _mm_bsrli_si128(_IntrinBitcast<__m128i>(_Vector), 8), 0);
-
-        return (_First > _Second) ? _First : _Second;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm_cvtss_f32(_IntrinBitcast<__m128>(_HorizontalMaximumValues));
-        else
-            return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-        
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffle2        = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle3);
-
-        return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleBytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-        const auto _ShuffleWords = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m128i>(_Vector);
-
-        const auto _Shuffled1       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _mm_shuffle_epi8(_HorizontalMaximumValues, _ShuffleBytes);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        return _mm_cvtsi128_si32(_HorizontalMaximumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 
@@ -941,78 +775,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_HorizontalMin(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-        _DesiredType_ _Array[_Length];
-
-        _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Array, _Vector);
-        _DesiredType_ _Minimum = _Array[0];
-
-        for (auto _Index = 0; _Index < _Length; ++_Index)
-            if (_Array[_Index] < _Minimum)
-                _Minimum = _Array[_Index];
-
-        return _Minimum;
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m256i>(_Vector);
-
-        const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle1);
-
-        const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle3);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm256_cvtss_f32(_IntrinBitcast<__m256>(_HorizontalMinimumValues));
-        else 
-            return _mm256_cvtsi256_si32(_IntrinBitcast<__m256i>(_HorizontalMinimumValues));
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m256i>(_Vector);
-
-        const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle1);
-
-        const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle3);
-
-        const auto _Shuffle4        = _mm256_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle4);
-
-        return _mm256_cvtsi256_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-        const auto _ShuffleBytes = _mm256_broadcastsi128_si256(_mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1));
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m256i>(_Vector);
-
-        const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle1);
-
-        const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle2);
-
-        const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle3);
-
-        const auto _Shuffle4        = _mm256_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle4);
-
-        const auto _Shuffle5        = _mm256_shuffle_epi8(_HorizontalMinimumValues, _ShuffleBytes);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffle5);
-
-        return _mm256_cvtsi256_si32(_HorizontalMinimumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -1060,39 +823,45 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm2
     }
 }
 
+
 template <
     typename _DesiredType_,
-    typename _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_HorizontalMax(_VectorType_ _Vector) noexcept {
+    typename _VectorType_,
+    typename _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_HorizontalFold(
+    _VectorType_            _Vector,
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-        _DesiredType_ _Array[_Length];
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m256d>(_Vector);
+        
+        const auto _Shuffled1   = _mm256_shuffle_pd(_HorizontalFoldedValues, _HorizontalFoldedValues, 5);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
 
-        _SimdStoreUnaligned<_Generation, _RegisterPolicy>(_Array, _Vector);
-        _DesiredType_ _Maximum = _Array[0];
+        const auto _Shuffled2   = _mm256_permute4x64_epi64(_IntrinBitcast<__m256i>(_HorizontalFoldedValues), 0x1B);
+        _HorizontalFoldedValues = _IntrinBitcast<__m256d>(_Reduce(_IntrinBitcast<__m256i>(_HorizontalFoldedValues), _IntrinBitcast<__m256i>(_Shuffled2)));
 
-        for (auto _Index = 0; _Index < _Length; ++_Index)
-            if (_Array[_Index] > _Maximum)
-                _Maximum = _Array[_Index];
-
-        return _Maximum;
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _mm256_cvtsd_f64(_HorizontalFoldedValues);
+        else 
+            return _mm256_cvtsi256_si64(_IntrinBitcast<__m256i>(_HorizontalFoldedValues));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
         auto _HorizontalMaximumValues = _IntrinBitcast<__m256i>(_Vector);
 
         const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle1);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle1);
 
         const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle2);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle2);
 
         const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle3);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle3);
 
         if constexpr (_Is_ps_v<_DesiredType_>)
             return _mm256_cvtss_f32(_IntrinBitcast<__m256>(_HorizontalMaximumValues));
         else 
-            return _mm256_cvtsi256_si32(_IntrinBitcast<__m256i>(_HorizontalMaximumValues));
+            return _mm256_cvtsi256_si32(_HorizontalMaximumValues);
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
@@ -1100,16 +869,16 @@ simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm
         auto _HorizontalMaximumValues = _IntrinBitcast<__m256i>(_Vector);
 
         const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle1);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle1);
 
         const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle2);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle2);
 
         const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle3);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle3);
 
         const auto _Shuffle4        = _mm256_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle4);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle4);
 
         return _mm256_cvtsi256_si32(_HorizontalMaximumValues);
     }
@@ -1120,22 +889,29 @@ simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm
         auto _HorizontalMaximumValues = _IntrinBitcast<__m256i>(_Vector);
       
         const auto _Shuffle1        = _mm256_permute4x64_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle1);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle1);
 
         const auto _Shuffle2        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle2);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle2);
 
         const auto _Shuffle3        = _mm256_shuffle_epi32(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle3);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle3);
 
         const auto _Shuffle4        = _mm256_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle4);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle4);
 
         const auto _Shuffle5        = _mm256_shuffle_epi8(_HorizontalMaximumValues, _ShuffleBytes);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffle5);
+        _HorizontalMaximumValues    = _Reduce(_HorizontalMaximumValues, _Shuffle5);
 
         return _mm256_cvtsi256_si32(_HorizontalMaximumValues);
     }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>::_HorizontalMax(_VectorType_ _Vector) noexcept {
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -1444,6 +1220,118 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, z
 
 template <
     typename _DesiredType_,
+    typename _VectorType_,
+    typename _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_HorizontalFold(
+    _VectorType_            _Vector,
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        if constexpr (_Is_pd_v<_DesiredType_>)
+            return _mm512_cvtsd_f64(_IntrinBitcast<__m512d>(_HorizontalFoldedValues));
+        else
+            return _mm512_cvtsi512_si64(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalFoldedValues), 0xB1));
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        if constexpr (_Is_ps_v<_DesiredType_>)
+            return _mm512_cvtss_f32(_IntrinBitcast<__m512>(_HorizontalFoldedValues));
+        else
+            return _mm512_cvtsi512_si32(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalFoldedValues), 0xB1));
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalFoldedValues), _ShuffleWords);
+        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
+            _IntrinBitcast<__m512d>(_HorizontalFoldedValues), 1)), _ShuffleWords);
+        
+        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
+        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
+
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled5));
+
+        return _mm512_cvtsi512_si32(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
+        const auto _ShuffleBytes = _mm256_broadcastsi128_si256(_mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1));
+
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalFoldedValues), 0xB1));
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalFoldedValues), _ShuffleWords);
+        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
+            _IntrinBitcast<__m512d>(_HorizontalFoldedValues), 1)), _ShuffleWords);
+        
+        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
+        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
+
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled5));
+
+        const auto _Shuffled6Low = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalFoldedValues), _ShuffleBytes);
+        const auto _Shuffled6High = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
+            _IntrinBitcast<__m512d>(_HorizontalFoldedValues), 1)), _ShuffleBytes);
+
+        auto _Shuffled6 = _IntrinBitcast<__m512d>(_Shuffled6Low);
+        _Shuffled6 = _mm512_insertf64x4(_Shuffled6, _IntrinBitcast<__m256d>(_Shuffled6High), 1);
+
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled6));
+
+        return _mm512_cvtsi512_si32(_HorizontalFoldedValues);
+    }
+}
+
+template <
+    typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_VerticalMin(
     _VectorType_ _Left,
@@ -1477,108 +1365,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_HorizontalMin(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        if constexpr (_Is_pd_v<_DesiredType_>)
-            return _mm512_cvtsd_f64(_IntrinBitcast<__m512d>(_HorizontalMinimumValues));
-        else
-            return _mm512_cvtsi512_si64(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMinimumValues), 0xB1));
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm512_cvtss_f32(_IntrinBitcast<__m512>(_HorizontalMinimumValues));
-        else
-            return _mm512_cvtsi512_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMinimumValues), 0xB1));
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMinimumValues), _ShuffleWords);
-        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMinimumValues), 1)), _ShuffleWords);
-        
-        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
-        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
-
-        _HorizontalMinimumValues = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        return _mm512_cvtsi512_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-        const auto _ShuffleBytes = _mm256_broadcastsi128_si256(_mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1));
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMinimumValues), 0xB1));
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMinimumValues), _ShuffleWords);
-        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMinimumValues), 1)), _ShuffleWords);
-        
-        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
-        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
-
-        _HorizontalMinimumValues = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        const auto _Shuffled6Low = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMinimumValues), _ShuffleBytes);
-        const auto _Shuffled6High = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMinimumValues), 1)), _ShuffleBytes);
-
-        auto _Shuffled6 = _IntrinBitcast<__m512d>(_Shuffled6Low);
-        _Shuffled6 = _mm512_insertf64x4(_Shuffled6, _IntrinBitcast<__m256d>(_Shuffled6High), 1);
-
-        _HorizontalMinimumValues = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled6));
-
-        return _mm512_cvtsi512_si32(_HorizontalMinimumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -1616,108 +1403,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>::_HorizontalMax(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        if constexpr (_Is_pd_v<_DesiredType_>)
-            return _mm512_cvtsd_f64(_IntrinBitcast<__m512d>(_HorizontalMaximumValues));
-        else
-            return _mm512_cvtsi512_si64(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMaximumValues), 0xB1));
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        if constexpr (_Is_ps_v<_DesiredType_>)
-            return _mm512_cvtss_f32(_IntrinBitcast<__m512>(_HorizontalMaximumValues));
-        else
-            return _mm512_cvtsi512_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMaximumValues), 0xB1));
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMaximumValues), _ShuffleWords);
-        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMaximumValues), 1)), _ShuffleWords);
-        
-        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
-        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
-
-        _HorizontalMaximumValues = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        return _mm512_cvtsi512_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm256_broadcastsi128_si256(_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
-        const auto _ShuffleBytes = _mm256_broadcastsi128_si256(_mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1));
-
-        auto _HorizontalMaximumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMaximumValues), 0xB1));
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        const auto _Shuffled5Low    = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMaximumValues), _ShuffleWords);
-        const auto _Shuffled5High   = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMaximumValues), 1)), _ShuffleWords);
-        
-        auto _Shuffled5 = _IntrinBitcast<__m512d>(_Shuffled5Low);
-        _Shuffled5 = _mm512_insertf64x4(_Shuffled5, _IntrinBitcast<__m256d>(_Shuffled5High), 1);
-
-        _HorizontalMaximumValues = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        const auto _Shuffled6Low = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_HorizontalMaximumValues), _ShuffleBytes);
-        const auto _Shuffled6High = _mm256_shuffle_epi8(_IntrinBitcast<__m256i>(_mm512_extractf64x4_pd(
-            _IntrinBitcast<__m512d>(_HorizontalMaximumValues), 1)), _ShuffleBytes);
-
-        auto _Shuffled6 = _IntrinBitcast<__m512d>(_Shuffled6Low);
-        _Shuffled6 = _mm512_insertf64x4(_Shuffled6, _IntrinBitcast<__m256d>(_Shuffled6High), 1);
-
-        _HorizontalMaximumValues = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled6));
-
-        return _mm512_cvtsi512_si32(_HorizontalMaximumValues);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -2031,6 +1717,80 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512F, z
 
 template <
     typename _DesiredType_,
+    typename _VectorType_,
+    typename _ReduceBinaryFunction_>
+simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>::_HorizontalFold(
+    _VectorType_            _Vector,
+    _ReduceBinaryFunction_  _Reduce) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) >= 4) {
+        return _SimdHorizontalFold<arch::CpuFeature::AVX512F, _RegisterPolicy, _DesiredType_>(_Vector, _Reduce);
+    }
+    else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
+        const auto _ShuffleWords = _mm512_set_epi8(
+            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
+            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
+            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
+            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
+
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalFoldedValues), 0xB1));
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        const auto _Shuffled5   = _mm512_shuffle_epi8(_HorizontalFoldedValues, _ShuffleWords);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled5));
+
+        return _mm512_cvtsi512_si32(_HorizontalFoldedValues);
+    }
+    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
+        const auto _ShuffleWords = _mm512_set_epi8(
+            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
+            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
+            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
+            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
+
+        const auto _ShuffleBytes = _mm512_set_epi8(
+            62, 63, 60, 61, 58, 59, 56, 57, 54, 55, 52, 53, 50, 51, 48, 49,
+            46, 47, 44, 45, 42, 43, 40, 41, 38, 39, 36, 37, 34, 35, 32, 33,
+            30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
+            14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
+
+        auto _HorizontalFoldedValues = _IntrinBitcast<__m512i>(_Vector);
+
+        const auto _Shuffled1   = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalFoldedValues);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled1);
+
+        const auto _Shuffled2   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0x4E);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled2);
+
+        const auto _Shuffled3   = _mm512_permutex_epi64(_HorizontalFoldedValues, 0xB1);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled3);
+
+        const auto _Shuffled4   = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalFoldedValues), 0xB1));
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _Shuffled4);
+
+        const auto _Shuffled5   = _mm512_shuffle_epi8(_HorizontalFoldedValues, _ShuffleWords);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled5));
+
+        const auto _Shuffled6   = _mm512_shuffle_epi8(_HorizontalFoldedValues, _ShuffleBytes);
+        _HorizontalFoldedValues = _Reduce(_HorizontalFoldedValues, _IntrinBitcast<__m512i>(_Shuffled6));
+
+        return _mm512_cvtsi512_si32(_HorizontalFoldedValues);
+    }
+}
+
+template <
+    typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>::_VerticalMin(
     _VectorType_ _Left,
@@ -2052,70 +1812,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>::_HorizontalMin(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm512_set_epi8(
-            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
-            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
-            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
-            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMinimumValues), 0xB1));
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        const auto _Shuffled5       = _mm512_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        return _mm512_cvtsi512_si32(_HorizontalMinimumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm512_set_epi8(
-            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
-            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
-            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
-            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        const auto _ShuffleBytes = _mm512_set_epi8(
-            62, 63, 60, 61, 58, 59, 56, 57, 54, 55, 52, 53, 50, 51, 48, 49,
-            46, 47, 44, 45, 42, 43, 40, 41, 38, 39, 36, 37, 34, 35, 32, 33,
-            30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
-            14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-
-        auto _HorizontalMinimumValues = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMinimumValues);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0x4E);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMinimumValues, 0xB1);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMinimumValues), 0xB1));
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _Shuffled4);
-
-        const auto _Shuffled5       = _mm512_shuffle_epi8(_HorizontalMinimumValues, _ShuffleWords);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        const auto _Shuffled6       = _mm512_shuffle_epi8(_HorizontalMinimumValues, _ShuffleBytes);
-        _HorizontalMinimumValues    = _VerticalMin<_DesiredType_>(_HorizontalMinimumValues, _IntrinBitcast<__m512i>(_Shuffled6));
-
-        return _mm512_cvtsi512_si32(_HorizontalMinimumValues);
-    }
-    else {
-        return _SimdHorizontalMin<arch::CpuFeature::AVX512F, zmm512, _DesiredType_>(_Vector);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMinWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
@@ -2141,70 +1838,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>::_HorizontalMax(_VectorType_ _Vector) noexcept {
-    if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm512_set_epi8(
-            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
-            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
-            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
-            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        auto _HorizontalMaximumValues   = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMaximumValues), 0xB1));
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        const auto _Shuffled5    = _mm512_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        return _mm512_cvtsi512_si32(_HorizontalMaximumValues);
-    }
-    else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        const auto _ShuffleWords = _mm512_set_epi8(
-            61, 60, 63, 62, 57, 56, 59, 58, 53, 52, 55, 54, 49, 48, 51, 50,
-            45, 44, 47, 46, 41, 40, 43, 42, 37, 36, 39, 38, 33, 32, 35, 34,
-            29, 28, 31, 30, 25, 24, 27, 26, 21, 20, 23, 22, 17, 16, 19, 18,
-            13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
-
-        const auto _ShuffleBytes = _mm512_set_epi8(
-            62, 63, 60, 61, 58, 59, 56, 57, 54, 55, 52, 53, 50, 51, 48, 49,
-            46, 47, 44, 45, 42, 43, 40, 41, 38, 39, 36, 37, 34, 35, 32, 33,
-            30, 31, 28, 29, 26, 27, 24, 25, 22, 23, 20, 21, 18, 19, 16, 17,
-            14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
-
-        auto _HorizontalMaximumValues   = _IntrinBitcast<__m512i>(_Vector);
-
-        const auto _Shuffled1       = _mm512_permutexvar_epi64(_mm512_setr_epi64(7, 6, 5, 4, 3, 2, 1, 0), _HorizontalMaximumValues);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled1);
-
-        const auto _Shuffled2       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0x4E);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled2);
-
-        const auto _Shuffled3       = _mm512_permutex_epi64(_HorizontalMaximumValues, 0xB1);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled3);
-
-        const auto _Shuffled4       = _IntrinBitcast<__m512i>(_mm512_permute_ps(_IntrinBitcast<__m512>(_HorizontalMaximumValues), 0xB1));
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _Shuffled4);
-
-        const auto _Shuffled5       = _mm512_shuffle_epi8(_HorizontalMaximumValues, _ShuffleWords);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled5));
-
-        const auto _Shuffled6       = _mm512_shuffle_epi8(_HorizontalMaximumValues, _ShuffleBytes);
-        _HorizontalMaximumValues    = _VerticalMax<_DesiredType_>(_HorizontalMaximumValues, _IntrinBitcast<__m512i>(_Shuffled6));
-
-        return _mm512_cvtsi512_si32(_HorizontalMaximumValues);
-    }
-    else {
-        return _SimdHorizontalMax<arch::CpuFeature::AVX512F, zmm512, _DesiredType_>(_Vector);
-    }
+    return _HorizontalFold<_DesiredType_>(_Vector, _VerticalMaxWrapper<_Generation, _RegisterPolicy, _DesiredType_>{});
 }
 
 template <
