@@ -1,9 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/algorithm/AlgorithmDebug.h>
-#include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
-
-#include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
+#include <src/simd_stl/algorithm/unchecked/minmax/MinUnchecked.h>
 #include <simd_stl/concurrency/Execution.h>
 
 
@@ -28,19 +25,26 @@ _Simd_nodiscard_inline _Type_ min(
 	return _Predicate(_Right, _Left) ? _Right : _Left;
 }
 
-template <class _Type_>
-_Simd_nodiscard_inline _Type_ min(std::initializer_list<_Type_> _InitializerList) noexcept {
-
+template <
+	class _InputIterator_,
+	class _Type_>
+_Simd_nodiscard_inline std::optional<_Type_> min_range(
+	_InputIterator_ _First,
+	_InputIterator_ _Last) noexcept
+{
+	return _MinUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last));
 }
 
 template <
+	class _InputIterator_,
 	class _Type_,
 	class _Predicate_>
-_Simd_nodiscard_inline _Type_ min(
-	std::initializer_list<_Type_>	_InitializerList,
-	_Predicate_						_Predicate) noexcept
+_Simd_nodiscard_inline std::optional<_Type_> min_range(
+	_InputIterator_ _First,
+	_InputIterator_ _Last,
+	_Predicate_		_Predicate) noexcept
 {
-
+	return _MinUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate));
 }
-	
+
 __SIMD_STL_ALGORITHM_NAMESPACE_END
