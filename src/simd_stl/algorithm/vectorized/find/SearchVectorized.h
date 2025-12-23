@@ -115,7 +115,7 @@ private:
 		if (mainLength <= 0)
 			return nullptr;
 		
-		using _SimdType_ = numeric::basic_simd<arch::CpuFeature::SSE2, _Type_>;
+		using _SimdType_ = numeric::simd<arch::CpuFeature::SSE2, _Type_>;
 		constexpr auto subSizeInBytes = sizeof(_Type_) * needleLength;
 
 		if constexpr (subSizeInBytes > sizeof(_SimdType_))
@@ -164,7 +164,7 @@ private:
 		if (((subLength & (~sizetype{ 0xF }))) != 0)
 			return _Search<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength, type_traits::equal_to<>{});
 
-		using _SimdType_ = numeric::basic_simd<arch::CpuFeature::SSE2, _Type_>;
+		using _SimdType_ = numeric::simd<arch::CpuFeature::SSE2, _Type_>;
 
 		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
 		const auto subInBytes			= sizeof(_Type_) * subLength;

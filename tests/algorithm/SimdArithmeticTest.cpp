@@ -2,7 +2,7 @@
 #include <string>
 
 template <typename T, simd_stl::arch::CpuFeature Arch>
-bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>& vec) {
+bool areEqual(simd_stl::numeric::simd<Arch, T>& simd, const std::vector<T>& vec) {
     std::vector<T> simd_data(vec.size());
     simd.storeUnaligned(simd_data.data());
     return std::equal(simd_data.begin(), simd_data.end(), vec.begin());
@@ -10,11 +10,11 @@ bool areEqual(simd_stl::numeric::basic_simd<Arch, T>& simd, const std::vector<T>
 
 template <typename T, simd_stl::arch::CpuFeature Arch>
 void testArithmeticOperations() {
-    using Simd = simd_stl::numeric::basic_simd<Arch, T>;
+    using Simd = simd_stl::numeric::simd<Arch, T>;
 
-    constexpr size_t num_elements = simd_stl::numeric::basic_simd<Arch, T>::template size(); // Get the number of elements in SIMD vector
+    constexpr size_t num_elements = simd_stl::numeric::simd<Arch, T>::template size(); // Get the number of elements in SIMD vector
     std::vector<T> initial_values(num_elements, 51);
-    simd_stl::numeric::basic_simd<Arch, T> simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data());
+    simd_stl::numeric::simd<Arch, T> simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data());
     std::vector<T> array(num_elements);
 
     // Division by constexpr number 
@@ -30,14 +30,14 @@ void testArithmeticOperations() {
     simd = simd + simd;
     simd.storeUnaligned(array.data());
     Assert(areEqual(simd, expected_addition) && "Addition test failed");
-    simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+    simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
 
     // Subtraction
     std::vector<T> expected_subtraction(num_elements, 0);
     simd = simd - simd;
     simd.storeUnaligned(array.data());
     Assert(areEqual(simd, expected_subtraction) && "Subtraction test failed");
-    simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+    simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
 
     //// Multiplication
     //std::vector<T> expected_multiplication(num_elements);
@@ -62,7 +62,7 @@ void testArithmeticOperations() {
         simd = simd & simd;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_bitwise_and) && "Bitwise AND test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 
     //// Bitwise OR
@@ -71,7 +71,7 @@ void testArithmeticOperations() {
         simd = simd | simd;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_bitwise_or) && "Bitwise OR test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 
     //// Bitwise XOR
@@ -80,7 +80,7 @@ void testArithmeticOperations() {
         simd = simd ^ simd;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_bitwise_xor) && "Bitwise XOR test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 
     // Left Shift
@@ -90,7 +90,7 @@ void testArithmeticOperations() {
         simd = simd << 2;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_left_shift) && "Left Shift test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 
     // Right Shift
@@ -100,7 +100,7 @@ void testArithmeticOperations() {
         simd = simd >> 2;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_right_shift) && "Right Shift test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 
     // Unary Minus
@@ -110,7 +110,7 @@ void testArithmeticOperations() {
     simd.storeUnaligned(array.data());
     
     Assert(areEqual(simd, expected_unary_minus) && "Unary Minus test failed");
-    simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+    simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
 
     // Bitwise NOT (Complement)
     if constexpr (std::is_integral_v<T>) {
@@ -119,7 +119,7 @@ void testArithmeticOperations() {
         simd = ~simd;
         simd.storeUnaligned(array.data());
         Assert(areEqual(simd, expected_bitwise_not) && "Bitwise NOT test failed");
-        simd = simd_stl::numeric::basic_simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
+        simd = simd_stl::numeric::simd<Arch, T>::loadUnaligned(initial_values.data()); // Reset
     }
 }
 

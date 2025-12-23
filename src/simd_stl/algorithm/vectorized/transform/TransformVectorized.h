@@ -55,7 +55,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
     void*               _Destination,
     _UnaryPredicate_    _Predicate) noexcept
 {
-    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
 
     if constexpr (_Is_predicate_vectorizable_v<_UnaryPredicate_, _SimdType_> == false) {
         return _TransformScalar<_Type_>(_First, _Last, _Destination, type_traits::passFunction(_Predicate));
@@ -111,7 +111,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
     void*               _Destination,
     _BinaryPredicate_   _Predicate) noexcept
 {
-    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
 
     if constexpr (_Is_predicate_vectorizable_v<_BinaryPredicate_, _SimdType_>) {
         constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&

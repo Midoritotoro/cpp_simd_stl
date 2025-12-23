@@ -29,7 +29,7 @@ template <
     class _VectorType_>
 struct _Rebind_vector_element_t<_RebindType_, _VectorType_, true, false> {
     using type = std::conditional_t<_Is_intrin_type_v<_RebindType_> || _Is_valid_basic_simd_v<_RebindType_>,
-        _RebindType_, basic_simd<_VectorType_::_Generation, _RebindType_, typename _VectorType_::policy_type>>;
+        _RebindType_, simd<_VectorType_::_Generation, _RebindType_, typename _VectorType_::policy_type>>;
 };
 
 template <
@@ -55,7 +55,7 @@ template <
     class               _RebindType_,
     class               _VectorType_>
 struct _Rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_, true, false> {
-    using type = basic_simd<_ToSimdGeneration_, _RebindType_, _DefaultRegisterPolicy<_ToSimdGeneration_>>;
+    using type = simd<_ToSimdGeneration_, _RebindType_, _DefaultRegisterPolicy<_ToSimdGeneration_>>;
 };
 
 template <
@@ -117,10 +117,10 @@ template <
     class               _RegisterPolicy_,
     class               _Type_,
     class               _MaskType_>
-simd_stl_always_inline _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Type_, 
+simd_stl_always_inline _Make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, 
     _RegisterPolicy_>> _SimdConvertToMaskForNativeStore(_MaskType_ _Mask) noexcept
 {
-    using _ConvertTo = _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
+    using _ConvertTo = _Make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
 
     constexpr auto _FromSimd = _Is_valid_basic_simd_v<_MaskType_>;
     constexpr auto _ToSimd = _Is_valid_basic_simd_v<_ConvertTo>;

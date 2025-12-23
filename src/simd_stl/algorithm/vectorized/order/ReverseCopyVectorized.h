@@ -27,7 +27,7 @@ void simd_stl_stdcall _ReverseCopyVectorized(
     const void* _Last,
     void*       _Destination) noexcept
 {
-    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     const auto _AlignedSize = ByteLength(_First, _Last) & (~((sizeof(_SimdType_)) - 1));

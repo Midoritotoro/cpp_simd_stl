@@ -11,7 +11,7 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-class basic_simd;
+class simd;
 
 constexpr auto _XmmWidth = sizeof(__m128);
 constexpr auto _YmmWidth = sizeof(__m256);
@@ -114,18 +114,18 @@ struct _Is_valid_basic_simd:
 template <class _BasicSimd_>
 struct _Is_valid_basic_simd<
     _BasicSimd_,
-    std::void_t<basic_simd<
+    std::void_t<simd<
         _BasicSimd_::_Generation,
         typename _BasicSimd_::value_type,
         typename _BasicSimd_::policy_type>>> 
     : std::bool_constant<
         type_traits::is_virtual_base_of_v<
-            basic_simd<_BasicSimd_::_Generation,
+            simd<_BasicSimd_::_Generation,
                        typename _BasicSimd_::value_type,
                        typename _BasicSimd_::policy_type>,
             _BasicSimd_> ||
         std::is_same_v<
-            basic_simd<_BasicSimd_::_Generation,
+            simd<_BasicSimd_::_Generation,
                        typename _BasicSimd_::value_type,
                        typename _BasicSimd_::policy_type>,
             _BasicSimd_>> 
@@ -183,7 +183,7 @@ template <
 	typename	_ReturnType_,
 	typename	_DesiredType_>
 using _Native_compare_return_type_helper = std::conditional_t<_Is_intrin_type_v<_ReturnType_>,
-	basic_simd<_BasicSimd_::_Generation, _DesiredType_, typename _BasicSimd_::policy_type>, _ReturnType_>;
+	simd<_BasicSimd_::_Generation, _DesiredType_, typename _BasicSimd_::policy_type>, _ReturnType_>;
 
 template <
     class _RebindType_,

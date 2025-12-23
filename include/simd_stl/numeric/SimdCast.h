@@ -37,7 +37,7 @@ template <
     class               _RegisterPolicy_,
     class               _Type_,
     class               _MaskType_>
-_Simd_nodiscard_inline _Make_tail_mask_return_type<basic_simd<_SimdGeneration_, _Type_,
+_Simd_nodiscard_inline _Make_tail_mask_return_type<simd<_SimdGeneration_, _Type_,
     _RegisterPolicy_>> _SimdConvertToMaskForNativeStore(_MaskType_ _Mask) noexcept;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

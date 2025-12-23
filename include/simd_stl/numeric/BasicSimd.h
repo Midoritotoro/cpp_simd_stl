@@ -19,7 +19,7 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_ = _DefaultRegisterPolicy<_SimdGeneration_>>
-class basic_simd {
+class simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
     static_assert(type_traits::__is_vector_type_supported_v<std::decay_t<_Element_>>);
 
@@ -47,24 +47,24 @@ public:
 
 
     template <bool _ZeroMemset_ = false>
-    basic_simd() noexcept;
+    simd() noexcept;
 
-    basic_simd(const value_type value) noexcept;
+    simd(const value_type value) noexcept;
 
     template <
         typename _IntrinType_,
         std::enable_if_t<_Is_intrin_type_v<_IntrinType_>, int> = 0>
-    basic_simd(_IntrinType_ other) noexcept;
+    simd(_IntrinType_ other) noexcept;
 
     template <typename _OtherType_>
-    basic_simd(const basic_simd<_SimdGeneration_, _OtherType_, _RegisterPolicy_>& other) noexcept;
+    simd(const simd<_SimdGeneration_, _OtherType_, _RegisterPolicy_>& other) noexcept;
 
     template <
         arch::CpuFeature    _OtherFeature_,
         typename            _OtherType_>
-    basic_simd(const basic_simd<_OtherFeature_, _OtherType_, _RegisterPolicy_>& other) noexcept;
+    simd(const simd<_OtherFeature_, _OtherType_, _RegisterPolicy_>& other) noexcept;
 
-    ~basic_simd() noexcept;
+    ~simd() noexcept;
 
     template <class _BasicSimdTo_>
     simd_stl_always_inline _BasicSimdTo_ convert() const noexcept;
@@ -78,41 +78,41 @@ public:
     simd_stl_always_inline _DesiredType_ extract(const size_type index) const noexcept;
 
     template <typename _DesiredType_>
-    simd_stl_always_inline BasicSimdElementReference<basic_simd> extractWrapped(const size_type index) noexcept;
+    simd_stl_always_inline BasicSimdElementReference<simd> extractWrapped(const size_type index) noexcept;
 
     template <typename _DesiredType_>
     simd_stl_always_inline void insert(
         const size_type                                         where,
         const typename std::type_identity<_DesiredType_>::type  value) noexcept;
 
-    static simd_stl_always_inline basic_simd loadUnaligned(const void* where) noexcept;
-    static simd_stl_always_inline basic_simd loadAligned(const void* where) noexcept;
+    static simd_stl_always_inline simd loadUnaligned(const void* where) noexcept;
+    static simd_stl_always_inline simd loadAligned(const void* where) noexcept;
 
     simd_stl_always_inline void storeUnaligned(void* where) const noexcept;
     simd_stl_always_inline void storeAligned(void* where) const noexcept;
 
-    static simd_stl_always_inline basic_simd loadUpperHalf(const void* where) noexcept;
-    static simd_stl_always_inline basic_simd loadLowerHalf(const void* where) noexcept;
+    static simd_stl_always_inline simd loadUpperHalf(const void* where) noexcept;
+    static simd_stl_always_inline simd loadLowerHalf(const void* where) noexcept;
 
     template <typename _DesiredType_ = value_type>
-    static simd_stl_always_inline basic_simd maskLoadUnaligned(
+    static simd_stl_always_inline simd maskLoadUnaligned(
         const void*                             where,
         const _Mask_type<_DesiredType_> mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
-    static simd_stl_always_inline basic_simd maskLoadAligned(
+    static simd_stl_always_inline simd maskLoadAligned(
         const void*                             where,
         const _Mask_type<_DesiredType_> mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
-    static simd_stl_always_inline basic_simd maskLoadUnaligned(
+    static simd_stl_always_inline simd maskLoadUnaligned(
         const void*         where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&   mask) noexcept;
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&   mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
-    static simd_stl_always_inline basic_simd maskLoadAligned(
+    static simd_stl_always_inline simd maskLoadAligned(
         const void* where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& mask) noexcept;
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& mask) noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
@@ -127,38 +127,38 @@ public:
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreUnaligned(
         void*                                                                   where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskStoreAligned(
         void*                                                                   where,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    mask) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreUnaligned(
         void*                               where,
         const _Mask_type<_DesiredType_> mask,
-        const basic_simd&                   source) const noexcept;
+        const simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreAligned(
         void*                               where,
         const _Mask_type<_DesiredType_>    mask,
-        const basic_simd&                   source) const noexcept;
+        const simd&                   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreUnaligned(
         void*               where,
-        const basic_simd&   mask,
-        const basic_simd&   source) const noexcept;
+        const simd&   mask,
+        const simd&   source) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline void maskBlendStoreAligned(
         void*               where,
-        const basic_simd&   mask,
-        const basic_simd&   source) const noexcept;
+        const simd&   mask,
+        const simd&   source) const noexcept;
 
-    simd_stl_always_inline static basic_simd nonTemporalLoad(const void* where) noexcept;
+    simd_stl_always_inline static simd nonTemporalLoad(const void* where) noexcept;
     simd_stl_always_inline void nonTemporalStore(void* where) const noexcept;
 
     template <typename _DesiredType_ = _Element_> 
@@ -172,153 +172,153 @@ public:
         _Mask_type<_DesiredType_>   mask) const noexcept;
 
 
-    simd_stl_always_inline friend basic_simd operator+<>(
-        const basic_simd&   left,
+    simd_stl_always_inline friend simd operator+<>(
+        const simd&   left,
         const value_type    right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator-<>(
-        const basic_simd&   left,
+    simd_stl_always_inline friend simd operator-<>(
+        const simd&   left,
         const value_type    right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator*<>(
-        const basic_simd&   left,
+    simd_stl_always_inline friend simd operator*<>(
+        const simd&   left,
         const value_type    right) noexcept;
   
-    simd_stl_always_inline friend basic_simd operator/<>(
-        const basic_simd&   left,
+    simd_stl_always_inline friend simd operator/<>(
+        const simd&   left,
         const value_type    right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator+ <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator+ <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator- <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator- <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator* <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator* <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator/ <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator/ <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator& <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator& <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator| <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator| <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator^ <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+    simd_stl_always_inline friend simd operator^ <>(
+        const simd& left,
+        const simd& right) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator>> <>(
-        const basic_simd left,
+    simd_stl_always_inline friend simd operator>> <>(
+        const simd left,
         const uint32 shift) noexcept;
 
-    simd_stl_always_inline friend basic_simd operator<< <>(
-        const basic_simd left,
+    simd_stl_always_inline friend simd operator<< <>(
+        const simd left,
         const uint32 shift) noexcept;
 
-    simd_stl_always_inline basic_simd operator+() const noexcept;
-    simd_stl_always_inline basic_simd operator-() const noexcept;
+    simd_stl_always_inline simd operator+() const noexcept;
+    simd_stl_always_inline simd operator-() const noexcept;
 
-    simd_stl_always_inline basic_simd operator++(int) noexcept;
-    simd_stl_always_inline basic_simd& operator++() noexcept;
-    simd_stl_always_inline basic_simd operator--(int) noexcept;
-    simd_stl_always_inline basic_simd& operator--() noexcept;
+    simd_stl_always_inline simd operator++(int) noexcept;
+    simd_stl_always_inline simd& operator++() noexcept;
+    simd_stl_always_inline simd operator--(int) noexcept;
+    simd_stl_always_inline simd& operator--() noexcept;
 
     simd_stl_always_inline mask_type operator!() const noexcept;
-    simd_stl_always_inline basic_simd operator~() const noexcept;
+    simd_stl_always_inline simd operator~() const noexcept;
 
-    simd_stl_always_inline basic_simd& operator=(const basic_simd& left) noexcept;
+    simd_stl_always_inline simd& operator=(const simd& left) noexcept;
 
     simd_stl_always_inline _Element_ operator[](const size_type index) const noexcept;
-    simd_stl_always_inline BasicSimdElementReference<basic_simd> operator[](const size_type index) noexcept;
+    simd_stl_always_inline BasicSimdElementReference<simd> operator[](const size_type index) noexcept;
 
-    simd_stl_always_inline basic_simd& operator&=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator|=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator^=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator+=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator-=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator*=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator/=(const basic_simd& other) noexcept;
-    simd_stl_always_inline basic_simd& operator>>=(const uint32 shift) noexcept;
-    simd_stl_always_inline basic_simd& operator<<=(const uint32 shift) noexcept;
+    simd_stl_always_inline simd& operator&=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator|=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator^=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator+=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator-=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator*=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator/=(const simd& other) noexcept;
+    simd_stl_always_inline simd& operator>>=(const uint32 shift) noexcept;
+    simd_stl_always_inline simd& operator<<=(const uint32 shift) noexcept;
 
 
     simd_stl_always_inline friend bool operator== <>(
-        const basic_simd& left,
-        const basic_simd& right) noexcept;
+        const simd& left,
+        const simd& right) noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline bool isEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline bool isEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskNotEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskNotEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreater(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreater(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLess(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLess(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreaterEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskGreaterEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLessEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> maskLessEqual(const simd& right) const noexcept;
 
     
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> notEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> notEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> equal(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> equal(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greater(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greater(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> less(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> less(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greaterEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> greaterEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> lessEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> lessEqual(const simd& right) const noexcept;
 
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::not_equal_to<>> 
-        nativeNotEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::not_equal_to<>> 
+        nativeNotEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::equal_to<>>
-        nativeEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::equal_to<>>
+        nativeEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::greater<>>
-        nativeGreater(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::greater<>>
+        nativeGreater(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::less<>>
-        nativeLess(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::less<>>
+        nativeLess(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::greater_equal<>>
-        nativeGreaterEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::greater_equal<>>
+        nativeGreaterEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Native_compare_return_type<basic_simd, _DesiredType_, type_traits::less_equal<>>
-        nativeLessEqual(const basic_simd& right) const noexcept;
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, type_traits::less_equal<>>
+        nativeLessEqual(const simd& right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline basic_simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> toMask() const noexcept;
@@ -331,30 +331,30 @@ public:
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    _Vector,
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>&    _Vector,
         _Mask_type<_DesiredType_>                                               _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void blend(
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Vector,
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept;
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Vector,
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMin(
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMin(
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_ horizontalMin() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMax(
-        const basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> verticalMax(
+        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& _Other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_ horizontalMax() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline basic_simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> abs() const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> abs() const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
@@ -373,7 +373,7 @@ public:
 
     simd_stl_always_inline vector_type unwrap() const noexcept;
 
-    static simd_stl_always_inline _Make_tail_mask_return_type<basic_simd> makeTailMask(uint32 bytes) noexcept;
+    static simd_stl_always_inline _Make_tail_mask_return_type<simd> makeTailMask(uint32 bytes) noexcept;
 private:
     vector_type _vector;
 };

@@ -34,7 +34,7 @@ simd_stl_declare_const_function void* _RemoveCopyVectorizedInternal(
     void*       _Destination,
     _Type_      _Value) noexcept
 {
-    using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
 
     const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 

@@ -15,7 +15,7 @@ struct _SwapRangesVectorizedInternal {
 		_Type_*		second,
 		sizetype	count) noexcept
 	{
-		using _SimdType_ = numeric::basic_simd<_SimdGeneration_, _Type_>;
+		using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
 		numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
 		const auto bytes		= sizeof(_Type_) * count;
