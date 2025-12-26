@@ -28,10 +28,11 @@ _Simd_nodiscard_inline _Type_ max(
 template <
 	class _InputIterator_,
 	class _Type_>
-_Simd_nodiscard_inline std::optional<_Type_> max_range(
+_Simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last) noexcept
 {
+	Assert(_First != _Last && "max_range requires non-empty range");
 	return _MaxUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last));
 }
 
@@ -39,11 +40,12 @@ template <
 	class _InputIterator_,
 	class _Type_,
 	class _Predicate_>
-_Simd_nodiscard_inline std::optional<_Type_> max_range(
+_Simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last,
 	_Predicate_		_Predicate) noexcept
 {
+	Assert(_First != _Last && "max_range requires non-empty range");
 	return _MaxUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate));
 }
 

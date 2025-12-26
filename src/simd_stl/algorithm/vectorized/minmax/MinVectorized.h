@@ -16,7 +16,7 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MinScalar(
     const _Type_* _FirstCasted = static_cast<const _Type_*>(_First);
     auto _Min = _FirstCasted;
 
-    for (; ++_FirstCasted != _FirstCasted; )
+    for (; ++_FirstCasted != _Last; )
         if (*_FirstCasted < *_Min)
             _Min = _FirstCasted;
 

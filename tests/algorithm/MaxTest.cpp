@@ -1,10 +1,9 @@
-#include <cAssert>
+#include <cassert>
 #include <cstdint>
 #include <vector>
 #include <list>
 #include <deque>
 #include <limits>
-#include <optional>
 #include <type_traits>
 #include <simd_stl/algorithm/minmax/Max.h>
 
@@ -12,10 +11,10 @@ template <class T>
 T ref_max_scalar(T a, T b) { return (a < b) ? b : a; }
 
 template <class It>
-std::optional<typename std::iterator_traits<It>::value_type>
+typename std::iterator_traits<It>::value_type
 ref_max_range(It first, It last) {
     using V = typename std::iterator_traits<It>::value_type;
-    if (first == last) return {};
+    assert(first != last && "ref_max_range requires non-empty range");
     V best = *first;
     for (++first; first != last; ++first)
         if (best < *first) best = *first;
@@ -36,26 +35,25 @@ void test_container(std::size_t bytes) {
     Cont c;
     auto v = make_data<T>(bytes);
     c.insert(c.end(), v.begin(), v.end());
+    if (c.empty()) return; 
     auto got = max_range<typename Cont::iterator, T>(c.begin(), c.end());
     auto ref = ref_max_range(c.begin(), c.end());
-    Assert(got.has_value() && ref.has_value());
-    Assert(*got == *ref);
+    assert(got == ref);
 }
 
 template <class T>
 void run_tests_for_type() {
     using simd_stl::algorithm::max;
 
-    Assert(max<T>(1, 2) == ref_max_scalar<T>(1, 2));
-    Assert(max<T>(2, 1) == ref_max_scalar<T>(2, 1));
-    Assert(max<T>(0, 0) == ref_max_scalar<T>(0, 0));
-    Assert(max<T>(std::numeric_limits<T>::min(),
+    assert(max<T>(1, 2) == ref_max_scalar<T>(1, 2));
+    assert(max<T>(2, 1) == ref_max_scalar<T>(2, 1));
+    assert(max<T>(0, 0) == ref_max_scalar<T>(0, 0));
+    assert(max<T>(std::numeric_limits<T>::min(),
         std::numeric_limits<T>::max())
         == ref_max_scalar<T>(std::numeric_limits<T>::min(),
             std::numeric_limits<T>::max()));
 
-
-    for (std::size_t sz : { 0u, 16u, 64u, 512u, 4000u}) {
+    for (std::size_t sz : {16u, 64u, 512u, 4000u}) {
         test_container<std::vector<T>, T>(sz);
         test_container<std::list<T>, T>(sz);
         test_container<std::deque<T>, T>(sz);
@@ -71,6 +69,5 @@ int main() {
     run_tests_for_type<uint32_t>();
     run_tests_for_type<int64_t>();
     run_tests_for_type<uint64_t>();
-
     return 0;
 }

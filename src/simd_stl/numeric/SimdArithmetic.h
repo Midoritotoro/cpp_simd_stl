@@ -552,8 +552,8 @@ class _SimdArithmetic<arch::CpuFeature::AVX512DQ, zmm512> :
 {};
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::AVX512VL, zmm512> :
-    public _SimdArithmetic<arch::CpuFeature::AVX512DQ, zmm512>
+class _SimdArithmetic<arch::CpuFeature::AVX512VL, ymm256> :
+    public _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
 {};
 
 #pragma endregion

@@ -45,7 +45,6 @@ public:
     static constexpr inline bool is_native_mask_store_supported_v = _Is_native_mask_store_supported_v<
         _Generation, policy_type, _DesiredType_>;
 
-
     template <bool _ZeroMemset_ = false>
     simd() noexcept;
 
