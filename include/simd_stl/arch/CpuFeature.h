@@ -17,14 +17,12 @@ enum class CpuFeature : simd_stl::uchar {
 	AVX2,
 	AVX512F,
 	AVX512BW,
-	AVX512CD,
 	AVX512DQ,
-	AVX512ER,
-	AVX512PF,
-	AVX512VL,
-	//AVX512VL_And_AVX512DQ,
-	//AVX512BW_And_AVX512VL,
-	//AVX512F_And_AVX512VL
+	AVX512BWDQ,		// AVX512BW + AVX512DQ
+	AVX512VLBWDQ,	// AVX512VL + AVX512BW + AVX512DQ
+	AVX512VLDQ,		// AVX512VL + AVX512DQ
+	AVX512VLBW,		// AVX512VL + AVX512BW
+	AVX512VLF		// AVX512VL + AVX512F
 };
 
 template <
@@ -54,7 +52,8 @@ struct Contains {
 
 #define __xmm_features arch::CpuFeature::SSE, arch::CpuFeature::SSE2, arch::CpuFeature::SSE3, arch::CpuFeature::SSSE3, arch::CpuFeature::SSE41, arch::CpuFeature::SSE42
 #define __ymm_features arch::CpuFeature::AVX, arch::CpuFeature::AVX2
-#define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512CD, arch::CpuFeature::AVX512ER, arch::CpuFeature::AVX512PF, arch::CpuFeature::AVX512VL, arch::CpuFeature::AVX512DQ
+#define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512DQ, arch::CpuFeature::AVX512VLDQ, arch::CpuFeature::AVX512VLBW, arch::CpuFeature::AVX512VLF
+
 
 template <arch::CpuFeature _SimdGeneration_> 
 constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, __xmm_features>::value;

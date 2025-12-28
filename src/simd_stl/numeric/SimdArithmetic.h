@@ -500,7 +500,7 @@ template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512> :
     public _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512BW;
     using _RegisterPolicy               = zmm512;
 public:
     template <
@@ -548,13 +548,95 @@ public:
 
 template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512DQ, zmm512> :
-    public _SimdArithmetic<arch::CpuFeature::AVX512BW, zmm512>
+    public _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512>
 {};
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::AVX512VL, ymm256> :
+class _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>:
+    public _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
+{
+    static constexpr auto _Generation   = arch::CpuFeature::AVX512VLF;
+    using _RegisterPolicy               = ymm256;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBW, ymm256> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>
+{};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLDQ, ymm256> :
     public _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
 {};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+{};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::SSE42, xmm128>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLF;
+    using _RegisterPolicy = xmm128;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMin(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _VerticalMax(
+        _VectorType_ _Left,
+        _VectorType_ _Right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBW, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128>
+{
+};
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLDQ, xmm128> :
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
+{
+};
+
+
+template <>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+{
+};
+
 
 #pragma endregion
 

@@ -234,7 +234,7 @@ public:
         _VectorType_                        _Vector) noexcept;
 
     template <typename _Type_>
-    static simd_stl_always_inline auto _MakeTailMask(uint32 bytes) noexcept;
+    static simd_stl_always_inline __m128i _MakeTailMask(uint32 bytes) noexcept;
 };
 
 template <>
@@ -429,12 +429,6 @@ template <>
 class _SimdMemoryAccess<arch::CpuFeature::SSE42, numeric::xmm128> :
     public _SimdMemoryAccess<arch::CpuFeature::SSE41, numeric::xmm128>
 {
-public:
-    template <sizetype _TypeSize_>
-    static constexpr auto _Native_mask_load_supported = false;
-
-    template <sizetype _TypeSize_>
-    static constexpr auto _Native_mask_store_supported = false;
 };
 
 #pragma endregion
@@ -1166,10 +1160,25 @@ class _SimdMemoryAccess<arch::CpuFeature::AVX512DQ, zmm512> :
     public _SimdMemoryAccess<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
+
 template <>
-class _SimdMemoryAccess<arch::CpuFeature::AVX512VL, zmm512> :
-    public _SimdMemoryAccess<arch::CpuFeature::AVX512DQ, zmm512>
-{};
+class _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, ymm256> :
+    public _SimdMemoryAccess<arch::CpuFeature::AVX2, ymm256>
+{
+};
+
+template <>
+class _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, ymm256> :
+    public _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, ymm256>
+{
+};
+
+template <>
+class _SimdMemoryAccess<arch::CpuFeature::AVX512VLDQ, ymm256> :
+    public _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, ymm256>
+{
+};
+
 
 #pragma endregion
 

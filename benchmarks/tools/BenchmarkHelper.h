@@ -175,13 +175,11 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
      BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(false)                                    \
-        ->DisplayAggregatesOnly(true);                                  \
-    BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
+        ->ReportAggregatesOnly(true);                                       \
+     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)   \
         ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
         ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(false)                                    \
-        ->DisplayAggregatesOnly(true);                                   
+        ->ReportAggregatesOnly(true);                                       
 #endif // SIMD_STL_ADD_BENCHMARK
 
 #if !defined(SIMD_STL_ADD_BENCHMARK_ARGS)

@@ -18,7 +18,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
-    class               _RegisterPolicy_ = _DefaultRegisterPolicy<_SimdGeneration_>>
+    class               _RegisterPolicy_>
 class simd {
     static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
     static_assert(type_traits::__is_vector_type_supported_v<std::decay_t<_Element_>>);

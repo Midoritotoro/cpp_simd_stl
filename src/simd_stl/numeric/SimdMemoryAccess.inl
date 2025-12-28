@@ -429,7 +429,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::SSE2, 
 }
 
 template <typename _Type_>
-simd_stl_always_inline auto _SimdMemoryAccess<arch::CpuFeature::SSE2, numeric::xmm128>::_MakeTailMask(uint32 bytes) noexcept {
+simd_stl_always_inline __m128i _SimdMemoryAccess<arch::CpuFeature::SSE2, numeric::xmm128>::_MakeTailMask(uint32 bytes) noexcept {
     constexpr unsigned int _TailMask[8] = { ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0 };
     return _mm_loadu_si128(reinterpret_cast<const __m128i*>(
         reinterpret_cast<const unsigned char*>(_TailMask) + (16 - bytes)));

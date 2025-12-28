@@ -29,6 +29,7 @@ struct zmm512 {
 	static constexpr auto _Width = _ZmmWidth;
 };
 
+
 template <arch::CpuFeature _SimdGeneration_>
 using _DefaultRegisterPolicy = std::conditional_t<
 	arch::__is_xmm_v<_SimdGeneration_>,

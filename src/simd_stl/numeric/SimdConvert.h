@@ -177,7 +177,7 @@ public:
 
 template <>
 class _SimdConvertImplementation<arch::CpuFeature::AVX512DQ, zmm512>:
-    public _SimdConvertImplementation<arch::CpuFeature::AVX512BW, zmm512>
+    public _SimdConvertImplementation<arch::CpuFeature::AVX512F, zmm512>
 {
     static constexpr auto _Generation = arch::CpuFeature::AVX512DQ;
     using _RegisterPolicy = zmm512;
@@ -197,9 +197,140 @@ public:
 };
 
 template <>
-class _SimdConvertImplementation<arch::CpuFeature::AVX512VL, zmm512> :
-    public _SimdConvertImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLF, ymm256> :
+	public _SimdConvertImplementation<arch::CpuFeature::AVX2, ymm256>
 {};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, ymm256> :
+	public _SimdConvertImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBW;
+    using _RegisterPolicy = ymm256;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
+	public _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, ymm256>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLDQ;
+    using _RegisterPolicy = ymm256;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLF, xmm128> :
+	public _SimdConvertImplementation<arch::CpuFeature::SSE42, xmm128>
+{};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, xmm128> :
+	public _SimdConvertImplementation<arch::CpuFeature::AVX512VLF, xmm128>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBW;
+    using _RegisterPolicy = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, xmm128> :
+	public _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, xmm128>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLDQ;
+    using _RegisterPolicy = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
+
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBWDQ;
+    using _RegisterPolicy = ymm256;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
+
+
+template <>
+class _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+{
+    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBWDQ;
+    using _RegisterPolicy = xmm128;
+
+    template <typename _DesiredType_>
+    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _ToMask(_VectorType_ _Vector) noexcept;
+
+    template <
+        typename _VectorType_,
+        typename _DesiredType_>
+    static simd_stl_always_inline _VectorType_ _ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept;
+};
 
 #pragma endregion
 

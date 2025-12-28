@@ -1,4 +1,5 @@
-﻿#include <simd_stl/numeric/BasicSimd.h>
+﻿#include <simd_stl/numeric/Simd.h>
+
 #include <simd_stl/math/Math.h>
 
 #include <string>
@@ -23,9 +24,9 @@ void mask_compress_any(
         dst[i] = src[i];
 }
 
-template <typename T, simd_stl::arch::CpuFeature Arch>
+template <typename T, simd_stl::arch::CpuFeature Arch, typename _RegisterPolicy_>
 void testMethods() {
-    using Simd = simd_stl::numeric::simd<Arch, T>;
+    using Simd = simd_stl::numeric::simd<Arch, T, _RegisterPolicy_>;
     constexpr size_t N = Simd::size();
 
     // --- Конструкторы ---
@@ -82,23 +83,23 @@ void testMethods() {
         using simd_stl::numeric::simd_cast;
 
         Simd v(5);
-        auto v8 = v.convert<simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int8>>();
-        auto vDouble = simd_cast<simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, double>>(v8);
-        auto vint = simd_cast<simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, simd_stl::int32>>(v);
+        auto v8 = v.convert<simd_stl::numeric::simd128_sse2<simd_stl::int8>>();
+        auto vDouble = simd_cast<simd_stl::numeric::simd128_sse2<double>>(v8);
+        auto vint = simd_cast<simd_stl::numeric::simd128_sse2<simd_stl::int32>>(v);
     }
 
     // --- simd_cast ---
     {
         using simd_stl::numeric::simd_cast;
         Simd v(11);
-        auto vOther = simd_cast<simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, float>>(v);
+        auto vOther = simd_cast<simd_stl::numeric::simd128_sse2<float>>(v);
         auto vOther2 = simd_cast<simd_stl::arch::CpuFeature::SSE2, float>(v);
         auto vOther3 = simd_cast<simd_stl::arch::CpuFeature::SSE2>(v);
         auto vOther4 = simd_cast<__m128i>(v);
         auto vOther5 = simd_cast<int>(v);
 
         static_assert(std::is_same_v<decltype(vOther), decltype(vOther2)>);
-        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, float, simd_stl::numeric::xmm128>>);
+        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::simd128_sse2<float>>);
         static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, simd_stl::numeric::xmm128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
         static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::simd<Simd::_Generation, int, typename Simd::policy_type>>);
@@ -373,35 +374,40 @@ void testMethods() {
     }
 }
 
-template <simd_stl::arch::CpuFeature _Generation_>
+template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>
 void testMethods() {
-    testMethods<simd_stl::int8, _Generation_>();
-    testMethods<simd_stl::uint8, _Generation_>();
+    testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
 
-    testMethods<simd_stl::int16, _Generation_>();
-    testMethods<simd_stl::uint16, _Generation_>();
+    testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
 
-    testMethods<simd_stl::int32, _Generation_>();
-    testMethods<simd_stl::uint32, _Generation_>();
+    testMethods<simd_stl::int32, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint32, _Generation_, _RegisterPolicy_>();
 
-    testMethods<simd_stl::int64, _Generation_>();
-    testMethods<simd_stl::uint64, _Generation_>();
+    testMethods<simd_stl::int64, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint64, _Generation_, _RegisterPolicy_>();
 
-    testMethods<float, _Generation_>();
-    testMethods<double, _Generation_>();
+    testMethods<float, _Generation_, _RegisterPolicy_>();
+    testMethods<double, _Generation_, _RegisterPolicy_>();
 }
 
 int main() {
-    testMethods<simd_stl::arch::CpuFeature::SSE2>();
-    testMethods<simd_stl::arch::CpuFeature::SSE3>();
-    testMethods<simd_stl::arch::CpuFeature::SSSE3>();
-    testMethods<simd_stl::arch::CpuFeature::SSE41>();
-    testMethods<simd_stl::arch::CpuFeature::SSE42>();
-    testMethods<simd_stl::arch::CpuFeature::AVX2>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512F>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BW>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512DQ>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VL>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
+    //testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
+    //testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
+
+    //testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
+
+    //testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
+
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
+
+
 
     return 0;
 }

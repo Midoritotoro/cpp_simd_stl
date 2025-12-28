@@ -343,8 +343,6 @@ template <
         return _IntrinBitcast<_VectorType_>(_mm512_maskz_mov_epi64(_Mask, _mm512_set1_epi64(-1)));
 }
 
-
-
 template <
     typename _DesiredType_,
     typename _VectorType_>
@@ -388,6 +386,197 @@ template <
 
     else if constexpr (_Bits == 8)
         return _IntrinBitcast<_VectorType_>(_mm512_movm_epi64(_Mask));
+}
+ 
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, ymm256>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, ymm256>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 32)
+        return static_cast<_MaskType>(_mm256_movepi8_mask(_IntrinBitcast<__m256i>(_Vector)));
+    else if constexpr (_Bits == 16)
+        return static_cast<_MaskType>(_mm256_movepi16_mask(_IntrinBitcast<__m256i>(_Vector)));
+    else
+        return _SimdToMask<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, ymm256>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 32)
+        return _IntrinBitcast<_VectorType_>(_mm256_movm_epi8(_Mask));
+    else if constexpr (_Bits == 16)
+        return _IntrinBitcast<_VectorType_>(_mm256_movm_epi16(_Mask));
+    else
+        return _SimdToVector<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_>(_Mask);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, ymm256>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, ymm256>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 8)
+        return static_cast<_MaskType>(_mm256_movepi32_mask(_IntrinBitcast<__m256i>(_Vector)));
+    else if constexpr (_Bits == 4)
+        return static_cast<_MaskType>(_mm256_movepi64_mask(_IntrinBitcast<__m256i>(_Vector)));
+    else
+        return _SimdToMask<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, ymm256>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 8)
+        return _IntrinBitcast<_VectorType_>(_mm256_movm_epi32(_Mask));
+
+    else if constexpr (_Bits == 4)
+        return _IntrinBitcast<_VectorType_>(_mm256_movm_epi64(_Mask));
+
+    else
+        return _SimdToVector<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_>(_Mask);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, xmm128>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, xmm128>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 16)
+        return static_cast<_MaskType>(_mm_movepi8_mask(_IntrinBitcast<__m128i>(_Vector)));
+    else if constexpr (_Bits == 8)
+        return static_cast<_MaskType>(_mm_movepi16_mask(_IntrinBitcast<__m128i>(_Vector)));
+    else
+        return _SimdToMask<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLBW, xmm128>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 16)
+        return _IntrinBitcast<_VectorType_>(_mm_movm_epi8(_Mask));
+    else if constexpr (_Bits == 8)
+        return _IntrinBitcast<_VectorType_>(_mm_movm_epi16(_Mask));
+    else
+        return _SimdToVector<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_>(_Mask);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, xmm128>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, xmm128>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 4)
+        return static_cast<_MaskType>(_mm_movepi32_mask(_IntrinBitcast<__m128i>(_Vector)));
+    else if constexpr (_Bits == 2)
+        return static_cast<_MaskType>(_mm_movepi64_mask(_IntrinBitcast<__m128i>(_Vector)));
+    else
+        return _SimdToMask<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLDQ, xmm128>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    using _MaskType = _Simd_mask_type<_DesiredType_>;
+    constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (_Bits == 4)
+        return _IntrinBitcast<_VectorType_>(_mm_movm_epi32(_Mask));
+    else if constexpr (_Bits == 2)
+        return _IntrinBitcast<_VectorType_>(_mm_movm_epi64(_Mask));
+    else
+        return _SimdToVector<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_>(_Mask);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) <= 2)
+        return _SimdToMask<arch::CpuFeature::AVX512VLBW, _RegisterPolicy, _DesiredType_>(_Vector);
+    else
+        return _SimdToMask<arch::CpuFeature::AVX512VLDQ, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    if constexpr (sizeof(_DesiredType_) <= 2)
+        return _SimdToVector<arch::CpuFeature::AVX512VLBW, _RegisterPolicy, _DesiredType_>(_Mask);
+    else
+        return _SimdToVector<arch::CpuFeature::AVX512VLDQ, _RegisterPolicy, _DesiredType_>(_Mask);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>::_Simd_mask_type<_DesiredType_> 
+    _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>::_ToMask(_VectorType_ _Vector) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) <= 2)
+        return _SimdToMask<arch::CpuFeature::AVX512VLBW, _RegisterPolicy, _DesiredType_>(_Vector);
+    else
+        return _SimdToMask<arch::CpuFeature::AVX512VLDQ, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _VectorType_,
+    typename _DesiredType_>
+simd_stl_always_inline _VectorType_ _SimdConvertImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+    ::_ToVector(_Simd_mask_type<_DesiredType_> _Mask) noexcept 
+{
+    if constexpr (sizeof(_DesiredType_) <= 2)
+        return _SimdToVector<arch::CpuFeature::AVX512VLBW, _RegisterPolicy, _DesiredType_>(_Mask);
+    else
+        return _SimdToVector<arch::CpuFeature::AVX512VLDQ, _RegisterPolicy, _DesiredType_>(_Mask);
 }
 
 #pragma endregion

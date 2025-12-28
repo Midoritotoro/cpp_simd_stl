@@ -952,10 +952,7 @@ template <
     class               _RegisterPolicy_>
 template <typename _ElementType_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::width() noexcept {
-    static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
-
-    constexpr auto width = sizeof(vector_type);
-    return width;
+    return sizeof(vector_type);
 }
 
 template <
@@ -1165,7 +1162,8 @@ zero_upper_at_exit_guard<_SimdGeneration_>::zero_upper_at_exit_guard() noexcept
 
 template <arch::CpuFeature _SimdGeneration_>
 zero_upper_at_exit_guard<_SimdGeneration_>::~zero_upper_at_exit_guard() noexcept {
-    simd<_SimdGeneration_, int>::zeroUpper();
+    if constexpr (type_traits::is_zeroupper_required_v<_SimdGeneration_>)
+        _mm256_zeroupper();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

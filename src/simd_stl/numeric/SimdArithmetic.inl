@@ -1881,6 +1881,99 @@ simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512BW, 
     }
 }
 
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>::_VerticalMin(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epi64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_min_epu64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else {
+        return _SimdVerticalMin<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_, _VectorType_>(_Left, _Right);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>::_VerticalMax(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epi64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm256_max_epu64(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+    }
+    else {
+        return _SimdVerticalMax<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_, _VectorType_>(_Left, _Right);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (_Is_epi64_v<_DesiredType_>)
+        return _IntrinBitcast<_VectorType_>(_mm256_abs_epi64(_IntrinBitcast<__m256i>(_Vector)));
+    else
+        return _SimdAbs<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128>::_VerticalMin(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_min_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else {
+        return _SimdVerticalMin<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_, _VectorType_>(_Left, _Right);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128>::_VerticalMax(
+    _VectorType_ _Left,
+    _VectorType_ _Right) noexcept
+{
+    if constexpr (_Is_epi64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else if constexpr (_Is_epu64_v<_DesiredType_>) {
+        return _IntrinBitcast<_VectorType_>(_mm_max_epu64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+    }
+    else {
+        return _SimdVerticalMax<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_, _VectorType_>(_Left, _Right);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline _VectorType_ _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128>::_Abs(_VectorType_ _Vector) noexcept {
+    if constexpr (_Is_epi64_v<_DesiredType_>)
+        return _IntrinBitcast<_VectorType_>(_mm_abs_epi64(_IntrinBitcast<__m128i>(_Vector)));
+    else
+        return _SimdAbs<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_>(_Vector);
+}
+
+
 #pragma endregion
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

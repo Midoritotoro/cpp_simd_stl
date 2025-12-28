@@ -101,8 +101,18 @@ class _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VL, zmm512> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, ymm256> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX2, ymm256>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, ymm256> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+{};
+
+template <>
+class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
+	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, ymm256>
 {};
 
 #pragma endregion

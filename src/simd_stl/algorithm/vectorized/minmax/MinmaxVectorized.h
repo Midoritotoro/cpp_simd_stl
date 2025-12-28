@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/numeric/Simd.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -25,24 +25,21 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<_Type_, _Type_>
     return { *_Min, *_Max };
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline std::pair<_Type_, _Type_> _MinmaxVectorizedInternal(
+template <class _Simd_>
+simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_::value_type, typename _Simd_::value_type> _MinmaxVectorizedInternal(
     const void* _First,
     const void* _Last) noexcept
 {
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+    numeric::zero_upper_at_exit_guard<_Simd_::_Generation> _Guard;
 
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
-        _SimdType_::template is_native_mask_load_supported_v<>;
+    constexpr auto _Is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
+        _Simd_::template is_native_mask_load_supported_v<>;
 
     const auto _Size = ByteLength(_First, _Last);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+    const auto _AlignedSize = _Size & (~(sizeof(_Simd_) - 1));
 
-    auto _MaximumValues = _SimdType_();
-    auto _MinimumValues = _SimdType_();
+    auto _MaximumValues = _Simd_();
+    auto _MinimumValues = _Simd_();
 
     _MaximumValues.broadcastZeros();
     _MinimumValues.broadcastZeros();
@@ -53,24 +50,25 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<_Type_, _Type_>
         const void* _StopAt = _First;
         AdvanceBytes(_StopAt, _AlignedSize);
 
-        _MaximumValues = _SimdType_::loadUnaligned(_First);
-        AdvanceBytes(_First, sizeof(_SimdType_));
+        _MaximumValues = _Simd_::loadUnaligned(_First);
+        AdvanceBytes(_First, sizeof(_Simd_));
 
         while (_First != _StopAt) {
-            const auto _Loaded = _SimdType_::loadUnaligned(_First);
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            const auto _Loaded = _Simd_::loadUnaligned(_First);
 
             _MaximumValues = _MaximumValues.verticalMax(_Loaded);
             _MinimumValues = _MinimumValues.verticalMin(_Loaded);
+
+            AdvanceBytes(_First, sizeof(_Simd_));
         }
     }
 
-    const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+    const auto _TailSize = _Size & (sizeof(_Simd_) - sizeof(typename _Simd_::value_type));
     
     if (_TailSize != 0) {
         if constexpr (_Is_masked_memory_access_supported) {
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-            const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+            const auto _TailMask = _Simd_::makeTailMask(_TailSize);
+            const auto _Loaded = _Simd_::maskLoadUnaligned(_First, _TailMask);
 
             if (_HasAlignedPart) {
                 _MaximumValues = _MaximumValues.verticalMax(_Loaded);
@@ -83,7 +81,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<_Type_, _Type_>
         }
         else {
             if (_HasAlignedPart) {
-                const auto _Minmax = _MinmaxScalar<_Type_>(_First, _Last);
+                const auto _Minmax = _MinmaxScalar<typename _Simd_::value_type>(_First, _Last);
 
                 const auto _HorizontalMax = _MaximumValues.horizontalMax();
                 const auto _HorizontalMin = _MinimumValues.horizontalMin();
@@ -94,7 +92,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<_Type_, _Type_>
                 };
             }
             else {
-                return _MinmaxScalar<_Type_>(_First, _Last);
+                return _MinmaxScalar<typename _Simd_::value_type>(_First, _Last);
             }
         }
     }
@@ -108,22 +106,22 @@ simd_stl_declare_const_function std::pair<_Type_, _Type_> simd_stl_stdcall _Minm
     const void* _Last) noexcept
 {
     if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return _MinmaxVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last);
+        if (arch::ProcessorFeatures::AVX512VL() && arch::ProcessorFeatures::AVX512BW())
+            return _MinmaxVectorizedInternal<numeric::simd256_avx512vlbw<_Type_>>(_First, _Last);
     }
     else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return _MinmaxVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last);
+        if (arch::ProcessorFeatures::AVX512VL() && arch::ProcessorFeatures::AVX512F())
+            return _MinmaxVectorizedInternal<numeric::simd256_avx512vlf<_Type_>>(_First, _Last);
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return _MinmaxVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last);
+        return _MinmaxVectorizedInternal<numeric::simd256_avx2<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSE41())
-        return _MinmaxVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last);
+        return _MinmaxVectorizedInternal<numeric::simd128_sse41<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSSE3())
-        return _MinmaxVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last);
+        return _MinmaxVectorizedInternal<numeric::simd128_ssse3<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSE2())
-        return _MinmaxVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last);
+        return _MinmaxVectorizedInternal<numeric::simd128_sse2<_Type_>>(_First, _Last);
 
     return _MinmaxScalar<_Type_>(_First, _Last);
 }

@@ -40,7 +40,7 @@ public:
     }
 };
 
-// SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlMinmaxBenchmark, StdMinmaxBenchmark, simd_stl::uint8, MinmaxRange);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlMinmaxBenchmark, StdMinmaxBenchmark, simd_stl::uint8, MinmaxRange);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlMinmaxBenchmark, StdMinmaxBenchmark, simd_stl::uint16, MinmaxRange);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlMinmaxBenchmark, StdMinmaxBenchmark, simd_stl::uint32, MinmaxRange);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlMinmaxBenchmark, StdMinmaxBenchmark, simd_stl::uint64, MinmaxRange);
