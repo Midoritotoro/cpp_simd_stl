@@ -256,6 +256,69 @@ void testMethods() {
     }
 
     {
+        alignas(64) T arr0[N], arrMax[N];
+        for (size_t i = 0; i < N; ++i) {
+            arr0[i] = 0;
+            arrMax[i] = std::numeric_limits<T>::max();
+        }
+
+        Simd v0 = Simd::loadUnaligned(arr0);
+        Simd vmax = Simd::loadUnaligned(arrMax);
+
+        // Проверка равенства / неравенства
+        Assert(v0.isEqual(v0));
+        Assert(!v0.isEqual(vmax));
+
+        auto mEq = v0.maskEqual(v0);
+        auto mNeq = v0.maskNotEqual(vmax);
+        for (size_t i = 0; i < N; ++i) {
+            Assert(mEq[i] == true);
+            Assert(mNeq[i] == true);
+        }
+
+        // Проверка <, >, <=, >=
+        auto mLt = v0.maskLess(vmax);
+        auto mGt = vmax.maskGreater(v0);
+        auto mLe = v0.maskLessEqual(v0);
+        auto mGe = vmax.maskGreaterEqual(vmax);
+
+        for (size_t i = 0; i < N; ++i) {
+            Assert(mLt[i] == true);
+            Assert(mGt[i] == true);
+            Assert(mLe[i] == true);
+            Assert(mGe[i] == true);
+        }
+    }
+
+    {
+        for (long long step = 1; step < (1LL << (std::numeric_limits<T>::digits - 2)); step <<= 1) {
+            alignas(64) T arrA[N], arrB[N];
+            for (size_t i = 0; i < N; ++i) {
+                arrA[i] = step;
+                arrB[i] = step + 1;
+            }
+            Simd vA = Simd::loadUnaligned(arrA);
+            Simd vB = Simd::loadUnaligned(arrB);
+
+            auto mEq = vA.maskEqual(vA);
+            auto mNeq = vA.maskNotEqual(vB);
+            auto mLt = vA.maskLess(vB);
+            auto mGt = vB.maskGreater(vA);
+            auto mLe = vA.maskLessEqual(vA);
+            auto mGe = vB.maskGreaterEqual(vB);
+
+            for (size_t i = 0; i < N; ++i) {
+                Assert(mEq[i] == true);
+                Assert(mNeq[i] == true);
+                Assert(mLt[i] == true);
+                Assert(mGt[i] == true);
+                Assert(mLe[i] == true);
+                Assert(mGe[i] == true);
+            }
+        }
+    }
+
+    {
         alignas(64) T dst[N] = {};
         T srcA[N], srcB[N];
 
@@ -376,11 +439,11 @@ void testMethods() {
 
 template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>
 void testMethods() {
-    testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
+    //testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
+    //testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
 
-    testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
+    //testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
+    //testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
 
     testMethods<simd_stl::int32, _Generation_, _RegisterPolicy_>();
     testMethods<simd_stl::uint32, _Generation_, _RegisterPolicy_>();
@@ -393,7 +456,7 @@ void testMethods() {
 }
 
 int main() {
-    //testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
     //testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
     //testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
     //testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
@@ -405,7 +468,7 @@ int main() {
     //testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
     //testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
 
 
 

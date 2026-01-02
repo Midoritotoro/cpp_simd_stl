@@ -68,8 +68,7 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         const auto _RotatedMask = _mm_shuffle_epi32(_EqualMask, 0xB1);
         const auto _CombinedMask = _mm_and_si128(_EqualMask, _RotatedMask);
 
-        const auto _SignMask = _mm_srai_epi32(_CombinedMask, 31);
-        return _IntrinBitcast<_VectorType_>(_mm_shuffle_epi32(_SignMask, 0xF5));
+        return _IntrinBitcast<_VectorType_>(_CombinedMask);
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(
@@ -268,11 +267,11 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi8(
             _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
     }
-    else if constexpr (_Is_ps_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
+    else if constexpr (_Is_ps_v<_DesiredType_>) {
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_ps(
             _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
     }
-    else if constexpr (_Is_pd_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
+    else if constexpr (_Is_pd_v<_DesiredType_>) {
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_pd(
             _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
     }

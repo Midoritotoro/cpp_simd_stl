@@ -203,7 +203,7 @@ simd_stl_always_inline _VectorType_ _SimdElementWise<arch::CpuFeature::AVX2, ymm
             1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
 
         const auto _Shuffled = _mm256_permute4x64_epi64(_IntrinBitcast<__m256i>(_Vector), 0x4E);
-        return  _IntrinBitcast<_VectorType_>((_Shuffled, _ReverseXmmMask));
+        return _IntrinBitcast<_VectorType_>(_mm256_shuffle_epi8(_Shuffled, _ReverseXmmMask));
     }
     else if constexpr (sizeof(_DesiredType_) == 1) {
         const auto _ReverseXmmMask = _mm256_set_epi8(
@@ -358,12 +358,19 @@ template <
 static simd_stl_always_inline _VectorType_ _SimdElementWise<arch::CpuFeature::AVX512BW, zmm512>::_Reverse(_VectorType_ _Vector) noexcept {
     if constexpr (sizeof(_DesiredType_) == 2) {
         const auto _Shuffle = _mm512_setr_epi16(
-            31, 30, 29, 28, 27, 26, 25, 24,
-            23, 22, 21, 20, 19, 18, 17, 16,
-            15, 14, 13, 12, 11, 10, 9, 8,
-            7, 6, 5, 4, 3, 2, 1, 0);
+            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,
+            15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
         return _IntrinBitcast<_VectorType_>(_mm512_permutexvar_epi16(_Shuffle, _IntrinBitcast<__m512i>(_Vector)));
+    }
+    else if constexpr (sizeof(_DesiredType_) == 1) {
+        const auto _Shuffle = _mm512_setr_epi8(
+            63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 48,
+            47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32,
+            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,
+            15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+
+        return _IntrinBitcast<_VectorType_>(_mm512_shuffle_epi8(_IntrinBitcast<__m512i>(_Vector),  _Shuffle));
     }
     else {
         return _SimdReverse<arch::CpuFeature::AVX512F, _RegisterPolicy, _DesiredType_>(_Vector);

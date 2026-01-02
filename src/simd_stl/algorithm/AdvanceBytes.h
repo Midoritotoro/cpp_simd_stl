@@ -67,26 +67,26 @@ simd_stl_always_inline sizetype ByteLength(
 
 template <class _ContiguousIterator_>
 constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> IteratorsDifference(
-    const _ContiguousIterator_& firstIterator,
-    const _ContiguousIterator_& lastIterator) noexcept
+    const _ContiguousIterator_& _FirstIterator,
+    const _ContiguousIterator_& _LastIterator) noexcept
 {
     using _DifferenceType_ = type_traits::IteratorDifferenceType<_ContiguousIterator_>;
 
     if constexpr (std::is_pointer_v<_ContiguousIterator_> || type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
-        return static_cast<_DifferenceType_>(lastIterator - firstIterator);
+        return static_cast<_DifferenceType_>(_LastIterator - _FirstIterator);
 
-    const auto pointerLikeAddress1 = std::to_address(firstIterator);
-    const auto pointerLikeAddress2 = std::to_address(lastIterator);
+    const auto _PointerLikeAddress1 = std::to_address(_FirstIterator);
+    const auto _PointerLikeAddress2 = std::to_address(_LastIterator);
 
     using _IteratorValueType_ = type_traits::IteratorValueType<_ContiguousIterator_>;
 
-    const auto firstIteratorAddress = const_cast<const _IteratorValueType_*>(
-        reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress1));
+    const auto _FirstIteratorAddress = const_cast<const _IteratorValueType_*>(
+        reinterpret_cast<const volatile _IteratorValueType_*>(_PointerLikeAddress1));
 
-    const auto lastIteratorAddress = const_cast<const _IteratorValueType_*>(
-        reinterpret_cast<const volatile _IteratorValueType_*>(pointerLikeAddress2));
+    const auto _LastIteratorAddress = const_cast<const _IteratorValueType_*>(
+        reinterpret_cast<const volatile _IteratorValueType_*>(_PointerLikeAddress2));
 
-    return static_cast<_DifferenceType_>(lastIteratorAddress - firstIteratorAddress);
+    return static_cast<_DifferenceType_>(_LastIteratorAddress - _FirstIteratorAddress);
 }
 
 template <class _InputIterator_> 

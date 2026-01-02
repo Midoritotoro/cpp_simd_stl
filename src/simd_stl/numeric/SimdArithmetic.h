@@ -633,7 +633,7 @@ class _SimdArithmetic<arch::CpuFeature::AVX512VLDQ, xmm128> :
 
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>
 {
 };
 

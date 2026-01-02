@@ -130,46 +130,6 @@ public:
         const _VectorType_      _Vector) noexcept;
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-
-    template <
         typename _VectorType_,
         typename _DesiredType_>
     static simd_stl_always_inline _VectorType_ _MaskLoadUnaligned(
@@ -383,46 +343,6 @@ public:
     static simd_stl_always_inline _VectorType_ _MaskLoadAligned(
         const void*             _Where,
         const _MaskVectorType_  _Mask) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
 };
 
 template <>
@@ -552,46 +472,6 @@ public:
         void*                   _Where,
         const _MaskVectorType_  _Mask,
         const _VectorType_      _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
 
     template <
         typename _VectorType_,
@@ -727,46 +607,6 @@ public:
     static simd_stl_always_inline _VectorType_ _MaskLoadAligned(
         const void*             _Where,
         const _MaskVectorType_  _Mask) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
 
     template <
         typename _DesiredType_,
@@ -974,45 +814,6 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* _CompressStoreUnaligned(
         _DesiredType_*                      _Where,
         _Simd_mask_type<_DesiredType_>      _Mask,
@@ -1045,46 +846,6 @@ public:
 
     template <typename _Type_>
     static simd_stl_always_inline auto _MakeTailMask(uint32 _Bytes) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                                   _Where,
-        const _Simd_mask_type<_DesiredType_>    _Mask,
-        const _VectorType_                      _Vector,
-        const _VectorType_                      _AdditionalSource) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreUnaligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void _MaskBlendStoreAligned(
-        void*                   _Where,
-        const _MaskVectorType_  _Mask,
-        const _VectorType_      _Vector,
-        const _VectorType_      _AdditionalSource) noexcept;
 
     template <
         typename _DesiredType_,
@@ -1410,76 +1171,6 @@ simd_stl_always_inline void _SimdMaskStoreAligned(
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
     _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskStoreAligned<_DesiredType_>(_Where, _Mask, _Vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _VectorType_>
-simd_stl_always_inline void _SimdMaskBlendStoreUnaligned(
-    void*                                                   _Where,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask,
-    const _VectorType_                                      _Vector,
-    const _VectorType_                                      _AdditionalSource) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskBlendStoreUnaligned<_DesiredType_>(
-        _Where, _Mask, _Vector, _AdditionalSource);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _VectorType_>
-simd_stl_always_inline void _SimdMaskBlendStoreAligned(
-    void*                                                   _Where,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  _Mask,
-    const _VectorType_                                      _Vector,
-    const _VectorType_                                      _AdditionalSource) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskBlendStoreAligned<_DesiredType_>(
-        _Where, _Mask, _Vector, _AdditionalSource);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _MaskVectorType_,
-    class               _VectorType_,
-    std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-simd_stl_always_inline void _SimdMaskBlendStoreUnaligned(
-    void*                   _Where,
-    const _MaskVectorType_  _Mask,
-    const _VectorType_      _Vector,
-    const _VectorType_      _AdditionalSource) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskBlendStoreUnaligned<_DesiredType_>(
-        _Where, _Mask, _Vector, _AdditionalSource);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _MaskVectorType_,
-    class               _VectorType_,
-    std::enable_if_t<_Is_intrin_type_v<_MaskVectorType_>, int> = 0>
-simd_stl_always_inline void _SimdMaskBlendStoreAligned(
-    void*                   _Where,
-    const _MaskVectorType_  _Mask,
-    const _VectorType_      _Vector,
-    const _VectorType_      _AdditionalSource) noexcept
-{
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdMemoryAccess<_SimdGeneration_, _RegisterPolicy_>::template _MaskBlendStoreAligned<_DesiredType_>(
-        _Where, _Mask, _Vector, _AdditionalSource);
 }
 
 template <
