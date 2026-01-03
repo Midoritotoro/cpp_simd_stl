@@ -155,6 +155,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdMemoryAccess.inl
 
     src/simd_stl/numeric/SimdOperations.h
+    src/simd_stl/numeric/ZmmThreshold.h
+    src/simd_stl/numeric/CachePrefetcher.h
 
     src/simd_stl/numeric/BasicSimd.inl
     src/simd_stl/numeric/SimdCast.inl

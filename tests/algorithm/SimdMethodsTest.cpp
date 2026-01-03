@@ -29,7 +29,6 @@ void testMethods() {
     using Simd = simd_stl::numeric::simd<Arch, T, _RegisterPolicy_>;
     constexpr size_t N = Simd::size();
 
-    // --- Конструкторы ---
     {
         Simd v1;
         Simd v2(5);
@@ -40,7 +39,7 @@ void testMethods() {
         for (int i = 0; i < N; ++i)
             arr[i] = i + 1;
 
-        Simd v3 = Simd::loadUnaligned(arr);
+        Simd v3 = Simd::load(arr);
         for (int i = 0; i < v2.size(); ++i)
             Assert(v3.extract<T>(i) == arr[i]);
 
@@ -48,11 +47,10 @@ void testMethods() {
         Simd v4(v3.unwrap());
         for (int i = 0; i < v2.size(); ++i) Assert(v4.extract<T>(i) == arr[i]);
 
-        Simd v5(v3); // copy ctor
+        Simd v5(v3);
         for (int i = 0; i < v2.size(); ++i) Assert(v5.extract<T>(i) == arr[i]);
     }
 
-    // --- fill / extract / insert ---
     {
         Simd v;
         v.fill<T>(42);
@@ -62,33 +60,13 @@ void testMethods() {
         Assert(v.extract<T>(0) == 99);
     }
 
-    // --- extractWrapped ---
     {
         Simd v(7);
-        auto ref = v.extractWrapped<T>(0);
+        auto ref = v.extract_wrapped<T>(0);
         ref = 123;
         Assert(v.extract<T>(0) == 123);
     }
 
-    // --- expand ---
-    {
-        /* Simd v(0);
-         typename Simd::mask_type mask;
-         v.expand(mask, 77);
-         Assert(v.extract(0) == 77);*/
-    }
-
-    // --- convert---
-    {
-        using simd_stl::numeric::simd_cast;
-
-        Simd v(5);
-        auto v8 = v.convert<simd_stl::numeric::simd128_sse2<simd_stl::int8>>();
-        auto vDouble = simd_cast<simd_stl::numeric::simd128_sse2<double>>(v8);
-        auto vint = simd_cast<simd_stl::numeric::simd128_sse2<simd_stl::int32>>(v);
-    }
-
-    // --- simd_cast ---
     {
         using simd_stl::numeric::simd_cast;
         Simd v(11);
@@ -105,28 +83,25 @@ void testMethods() {
         static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::simd<Simd::_Generation, int, typename Simd::policy_type>>);
     }
 
-    // --- load/store aligned/unaligned ---
     {
         alignas(16) simd_stl::int32 arr[4] = { 10,20,30,40 };
-        Simd v = Simd::loadAligned(arr);
+        Simd v = Simd::load(arr, simd_stl::numeric::aligned_policy{});
         simd_stl::int32 out[4] = {};
-        v.storeAligned(out);
+        v.store(out, simd_stl::numeric::aligned_policy{});
         for (int i = 0; i < 4; ++i) Assert(out[i] == arr[i]);
 
-        Simd v2 = Simd::loadUnaligned(arr);
+        Simd v2 = Simd::load(arr);
         simd_stl::int32 out2[4] = {};
-        v2.storeUnaligned(out2);
+        v2.store(out2);
         for (int i = 0; i < 4; ++i) Assert(out2[i] == arr[i]);
     }
 
-    // --- unwrap ---
     {
-        Simd v(99);
+        Simd v(42);
         auto raw = v.unwrap();
-        (void)raw; // smoke‑check
+        (void)raw;
     }
 
-    // --- maskLoad/maskStore aligned/unaligned ---
     {
         alignas(64) T src[N];
         alignas(64) T dst[N];
@@ -139,7 +114,7 @@ void testMethods() {
             if (i % 2 == 0)
                 mask |= (typename Simd::mask_type(1) << i);
 
-        Simd loaded_unaligned = Simd::maskLoadUnaligned(src, mask);
+        Simd loaded_unaligned = Simd::mask_load(src, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 Assert(loaded_unaligned.extract<T>(i) == src[i]);
@@ -147,8 +122,7 @@ void testMethods() {
                 Assert(loaded_unaligned.extract<T>(i) == T(0));
         }
 
-        // --- maskLoadAligned ---
-        Simd loaded_aligned = Simd::maskLoadAligned(src, mask);
+        Simd loaded_aligned = Simd::mask_load(src, mask, simd_stl::numeric::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 Assert(loaded_aligned.extract<T>(i) == src[i]);
@@ -156,19 +130,17 @@ void testMethods() {
                 Assert(loaded_aligned.extract<T>(i) == T(0));
         }
 
-        // --- maskStoreUnaligned ---
         Simd v(77);
-        v.maskStoreUnaligned(dst, mask);
+        v.mask_store(dst, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 Assert(dst[i] == T(77));
             else
-                Assert(dst[i] == T(100 + i)); // не изменён
+                Assert(dst[i] == T(100 + i));
         }
 
-        // --- maskStoreAligned ---
         for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i);
-        v.maskStoreAligned(dst, mask);
+        v.mask_store(dst, mask, simd_stl::numeric::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if (mask & (typename Simd::mask_type(1) << i))
                 Assert(dst[i] == T(77));
@@ -181,17 +153,16 @@ void testMethods() {
         alignas(64) T src[N];
         for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
 
-        Simd v = Simd::loadUnaligned(src);
+        Simd v = Simd::load(src);
 
 
         typename Simd::mask_type mask = 0;
         for (size_t i = 0; i < N; i += 2)
-            mask |= (typename Simd::mask_type(1) << i); // 0101... 
+            mask |= (typename Simd::mask_type(1) << i);
 
-        // --- compressStoreUnaligned ---
         {
             alignas(64) T dst[N] = {};
-            v.compressStoreUnaligned(dst, mask);
+            v.compress_store(dst, mask);
 
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
@@ -199,10 +170,9 @@ void testMethods() {
             Assert(std::equal(expected, expected + N, dst));
         }
 
-        // --- compressStoreAligned ---
         {
             alignas(64) T dst[N] = {};
-            v.compressStoreAligned(dst, mask);
+            v.compress_store(dst, mask, simd_stl::numeric::aligned_policy{});
 
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
@@ -219,36 +189,32 @@ void testMethods() {
             vc[i] = static_cast<T>(i + 2);
         }
 
-        Simd a = Simd::loadUnaligned(va.data());
-        Simd b = Simd::loadUnaligned(vb.data());
-        Simd c = Simd::loadUnaligned(vc.data());
+        Simd a = Simd::load(va.data());
+        Simd b = Simd::load(vb.data());
+        Simd c = Simd::load(vc.data());
 
-        // --- isEqual ---
-        Assert(a.isEqual(b) && "isEqual failed on equal vectors");
-        Assert(!a.isEqual(c) && "isEqual failed on different vectors");
+        Assert(a == b);
+        Assert(a != c);
 
-        // --- maskEqual ---
-        auto mEq = a.maskEqual(b);
+        auto mEq = a.mask_compare(b, simd_stl::type_traits::equal_to<>{});
         for (size_t i = 0; i < N; ++i) {
             Assert(mEq[i] == true);
         }
 
-        // --- maskNotEqual ---
-        auto mNeq = a.maskNotEqual(c);
+        auto mNeq = a.mask_compare(c, simd_stl::type_traits::not_equal_to<>{});
         for (size_t i = 0; i < N; ++i) {
             Assert(mNeq[i] == true);
         }
 
-        // --- maskGreater / maskLess ---
-        auto mGt = c.maskGreater(a);
-        auto mLt = a.maskLess(c);
+        auto mGt = c.mask_compare(a, simd_stl::type_traits::greater<>{});
+        auto mLt = a.mask_compare(c, simd_stl::type_traits::less<>{});
         for (size_t i = 0; i < N; ++i) {
             Assert(mGt[i] == true);
             Assert(mLt[i] == true);
         }
 
-        auto mGe = a.maskGreaterEqual(b);
-        auto mLe = a.maskLessEqual(b);
+        auto mGe = a.mask_compare(b, simd_stl::type_traits::greater_equal<>{});
+        auto mLe = a.mask_compare(b, simd_stl::type_traits::less_equal<>{});
         for (size_t i = 0; i < N; ++i) {
             Assert(mGe[i] == true);
             Assert(mLe[i] == true);
@@ -262,25 +228,22 @@ void testMethods() {
             arrMax[i] = std::numeric_limits<T>::max();
         }
 
-        Simd v0 = Simd::loadUnaligned(arr0);
-        Simd vmax = Simd::loadUnaligned(arrMax);
+        Simd v0 = Simd::load(arr0);
+        Simd vmax = Simd::load(arrMax);
 
-        // Проверка равенства / неравенства
-        Assert(v0.isEqual(v0));
-        Assert(!v0.isEqual(vmax));
+        Assert(v0 != vmax);
 
-        auto mEq = v0.maskEqual(v0);
-        auto mNeq = v0.maskNotEqual(vmax);
+        auto mEq = v0.mask_compare(v0, simd_stl::type_traits::equal_to<>{});
+        auto mNeq = v0.mask_compare(vmax, simd_stl::type_traits::not_equal_to<>{});
         for (size_t i = 0; i < N; ++i) {
             Assert(mEq[i] == true);
             Assert(mNeq[i] == true);
         }
 
-        // Проверка <, >, <=, >=
-        auto mLt = v0.maskLess(vmax);
-        auto mGt = vmax.maskGreater(v0);
-        auto mLe = v0.maskLessEqual(v0);
-        auto mGe = vmax.maskGreaterEqual(vmax);
+        auto mLt = v0.mask_compare(vmax, simd_stl::type_traits::less<>{});
+        auto mGt = vmax.mask_compare(v0, simd_stl::type_traits::greater<>{});
+        auto mLe = v0.mask_compare(v0, simd_stl::type_traits::less_equal<>{});
+        auto mGe = vmax.mask_compare(vmax, simd_stl::type_traits::greater_equal<>{});
 
         for (size_t i = 0; i < N; ++i) {
             Assert(mLt[i] == true);
@@ -297,15 +260,15 @@ void testMethods() {
                 arrA[i] = step;
                 arrB[i] = step + 1;
             }
-            Simd vA = Simd::loadUnaligned(arrA);
-            Simd vB = Simd::loadUnaligned(arrB);
+            Simd vA = Simd::load(arrA);
+            Simd vB = Simd::load(arrB);
 
-            auto mEq = vA.maskEqual(vA);
-            auto mNeq = vA.maskNotEqual(vB);
-            auto mLt = vA.maskLess(vB);
-            auto mGt = vB.maskGreater(vA);
-            auto mLe = vA.maskLessEqual(vA);
-            auto mGe = vB.maskGreaterEqual(vB);
+            auto mEq = vA.mask_compare(vA, simd_stl::type_traits::equal_to<>{});
+            auto mNeq = vA.mask_compare(vB, simd_stl::type_traits::not_equal_to<>{});
+            auto mLt = vA.mask_compare(vB, simd_stl::type_traits::less<>{});
+            auto mGt = vB.mask_compare(vA, simd_stl::type_traits::greater<>{});
+            auto mLe = vA.mask_compare(vA, simd_stl::type_traits::less_equal<>{});
+            auto mGe = vB.mask_compare(vB, simd_stl::type_traits::greater_equal<>{});
 
             for (size_t i = 0; i < N; ++i) {
                 Assert(mEq[i] == true);
@@ -317,67 +280,7 @@ void testMethods() {
             }
         }
     }
-
-    {
-        alignas(64) T dst[N] = {};
-        T srcA[N], srcB[N];
-
-        for (size_t i = 0; i < N; ++i) {
-            srcA[i] = static_cast<T>(i + 1);
-            srcB[i] = static_cast<T>(100 + i);
-        }
-
-        Simd a = Simd::loadUnaligned(srcA);
-        Simd b = Simd::loadUnaligned(srcB);
-
-        typename Simd::mask_type m = 0;
-        for (size_t i = 0; i < N; i += 2)
-            m |= (typename Simd::mask_type(1) << i);
-
-        a.maskBlendStoreUnaligned(dst, m, b);
-
-        for (size_t i = 0; i < N; ++i) {
-            if (m & (typename Simd::mask_type(1) << i)) {
-                Assert(dst[i] == srcA[i]);
-            }
-            else {
-                Assert(dst[i] == srcB[i]);
-            }
-        }
-    }
-
-    {
-        alignas(64) T dst[N] = {};
-        T srcA[N], srcB[N];
-
-        for (size_t i = 0; i < N; ++i) {
-            srcA[i] = static_cast<T>(10 * (i + 1));
-            srcB[i] = static_cast<T>(200 + i);
-        }
-
-        Simd a = Simd::loadUnaligned(srcA);
-        Simd b = Simd::loadUnaligned(srcB);
-
-        typename Simd::mask_type m = 0;
-
-        for (size_t i = 0; i < N / 2; ++i) {
-            m |= (typename Simd::mask_type(1) << i);
-        }
-
-        a.maskBlendStoreAligned(dst, m, b);
-
-        for (size_t i = 0; i < N; ++i) {
-            if (i < N / 2) {
-                Assert(dst[i] == srcA[i]);
-            }
-            else {
-                Assert(dst[i] == srcB[i]);
-            }
-        }
-    }
-    
-    // Reduce by sum
-
+  
     {
         simd_stl::numeric::_Reduce_type<T> reduced = 0;
 
@@ -390,8 +293,8 @@ void testMethods() {
             reduced += (unsigned char)(array[i]);
         }
 
-        Simd a = Simd::loadUnaligned(array);
-        auto simdReduced = a.reduce();
+        Simd a = Simd::load(array);
+        auto simdReduced = a.reduce_add();
 
         Assert(simdReduced == reduced);
     }
@@ -400,36 +303,31 @@ void testMethods() {
     {
         alignas(64) T arrA[N], arrB[N];
         for (size_t i = 0; i < N; ++i) {
-            arrA[i] = static_cast<T>(i - 2);   // значения от -2
-            arrB[i] = static_cast<T>(N - i);   // обратная последовательность
+            arrA[i] = static_cast<T>(i - 2);
+            arrB[i] = static_cast<T>(N - i);
         }
 
-        Simd a = Simd::loadUnaligned(arrA);
-        Simd b = Simd::loadUnaligned(arrB);
+        Simd a = Simd::load(arrA);
+        Simd b = Simd::load(arrB);
 
-        // --- verticalMin(vector, vector) ---
-        auto minVec = a.verticalMin(b);
+        auto minVec = a.vertical_min(b);
         for (size_t i = 0; i < N; ++i) {
             Assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
         }
 
-        // --- verticalMax(vector, vector) ---
-        auto maxVec = a.verticalMax(b);
+        auto maxVec = a.vertical_max(b);
         for (size_t i = 0; i < N; ++i) {
             Assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
         }
 
-        // --- horizontalMin() ---
-        T minScalar = a.horizontalMin();
+        T minScalar = a.horizontal_min();
         T expectedMin = *std::min_element(arrA, arrA + N);
         Assert(minScalar == expectedMin);
 
-        // --- horizontalMax() ---
-        T maxScalar = a.horizontalMax();
+        T maxScalar = a.horizontal_max();
         T expectedMax = *std::max_element(arrA, arrA + N);
         Assert(maxScalar == expectedMax);
 
-        // --- abs() ---
         auto absVec = a.abs();
         for (size_t i = 0; i < N; ++i) {
             Assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
@@ -439,11 +337,11 @@ void testMethods() {
 
 template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>
 void testMethods() {
-    //testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
-    //testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
 
-    //testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
-    //testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
 
     testMethods<simd_stl::int32, _Generation_, _RegisterPolicy_>();
     testMethods<simd_stl::uint32, _Generation_, _RegisterPolicy_>();
@@ -457,18 +355,26 @@ void testMethods() {
 
 int main() {
     testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::xmm128>();
+
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::ymm256>();
 
 
 

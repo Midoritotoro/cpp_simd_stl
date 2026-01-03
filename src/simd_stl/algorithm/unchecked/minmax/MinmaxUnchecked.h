@@ -16,7 +16,7 @@ using _Minmax_return_type = std::pair<
 template <
 	class _UnwrappedInputIterator_,
 	class _BinaryPredicate_>
-_Simd_nodiscard_inline_constexpr _Minmax_return_type<_UnwrappedInputIterator_> _MinmaxUnchecked(
+__simd_nodiscard_inline_constexpr _Minmax_return_type<_UnwrappedInputIterator_> _MinmaxUnchecked(
 	_UnwrappedInputIterator_	_FirstUnwrapped,
 	_UnwrappedInputIterator_	_LastUnwrapped,
 	_BinaryPredicate_			_Predicate) noexcept
@@ -36,7 +36,7 @@ _Simd_nodiscard_inline_constexpr _Minmax_return_type<_UnwrappedInputIterator_> _
 }
 
 template <class _UnwrappedInputIterator_>
-_Simd_nodiscard_inline_constexpr _Minmax_return_type<_UnwrappedInputIterator_> _MinmaxUnchecked(
+__simd_nodiscard_inline_constexpr _Minmax_return_type<_UnwrappedInputIterator_> _MinmaxUnchecked(
 	_UnwrappedInputIterator_ _FirstUnwrapped,
 	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
 {

@@ -75,7 +75,7 @@ constexpr inline bool ConvertIntegral(
 template <
     class _InputIterator_,
     class _Type_>
-simd_stl_nodiscard simd_stl_always_inline constexpr bool couldCompareEqualToValueType(const _Type_& _Value) noexcept {
+__simd_nodiscard_inline constexpr bool couldCompareEqualToValueType(const _Type_& __value) noexcept {
     if constexpr (std::disjunction_v<
 #if defined(__cpp_lib_byte)
         std::is_same<_Type_, std::byte>,

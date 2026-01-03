@@ -69,12 +69,20 @@ template <
     class               _VectorType_>
 using _Rebind_vector_generation_type = typename _Rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
-template <class _VectorType_>
+template <class _VectorType_, std::enable_if_t<_Is_valid_basic_simd_v<_VectorType_> || _Is_intrin_type_v<_VectorType_>, int>>
 simd_stl_nodiscard simd_stl_always_inline _Unwrapped_vector_type<_VectorType_> _SimdUnwrap(_VectorType_ _Vector) noexcept {
     if constexpr (_Is_valid_basic_simd_v<_VectorType_>)
         return _Vector.unwrap();
     else
         return _Vector;
+}
+
+template <class _MaskType_, std::enable_if_t<_Is_valid_basic_simd_v<_MaskType_> || _Is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_>, int>>
+__simd_nodiscard_inline auto _SimdUnwrapMask(_MaskType_ _Mask) noexcept {
+    if constexpr (std::is_integral_v<_MaskType_>)
+        return _Mask;
+    else
+        return _SimdUnwrap(_Mask);
 }
 
 template <

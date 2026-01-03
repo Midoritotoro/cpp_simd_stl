@@ -64,18 +64,18 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
         constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
             _SimdType_::template is_native_mask_load_supported_v<>;
 
-        const auto _Size = ByteLength(_First, _Last);
+        const auto _Size = __byte_length(_First, _Last);
         const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         while (_First != _StopAt) {
             const auto _Applied = _Predicate(_SimdType_::loadUnaligned(_First));
             _Applied.storeUnaligned(_Destination);
 
-            AdvanceBytes(_Destination, sizeof(_SimdType_));
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_Destination, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
         }
 
         if constexpr (_Is_masked_memory_access_supported) {
@@ -117,11 +117,11 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
         constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
             _SimdType_::template is_native_mask_load_supported_v<>;
 
-        const auto _Size = ByteLength(_First1, _Last1);
+        const auto _Size = __byte_length(_First1, _Last1);
         const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
         const void* _StopAt = _First1;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         while (_First1 != _StopAt) {
             const auto _Loaded1 = _SimdType_::loadUnaligned(_First1);
@@ -130,9 +130,9 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
             const auto _Applied = _Predicate(_Loaded1, _Loaded2);
             _Applied.storeUnaligned(_Destination);
 
-            AdvanceBytes(_First1, sizeof(_SimdType_));
-            AdvanceBytes(_First2, sizeof(_SimdType_));
-            AdvanceBytes(_Destination, sizeof(_SimdType_));
+            __advance_bytes(_First1, sizeof(_SimdType_));
+            __advance_bytes(_First2, sizeof(_SimdType_));
+            __advance_bytes(_Destination, sizeof(_SimdType_));
         }
 
         if (_First1 != _Last1)

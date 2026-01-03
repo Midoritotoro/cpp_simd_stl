@@ -11,26 +11,26 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_>
-_Simd_nodiscard_inline_constexpr bool _ContainsUnchecked(
-	_UnwrappedIterator_			_FirstUnwrapped,
-	const _UnwrappedIterator_	_LastUnwrapped,
-	const _Type_&				_Value) noexcept
+	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
+__simd_nodiscard_inline_constexpr bool __contains_unchecked(
+	_UnwrappedIterator_									__first_unwrapped,
+	_UnwrappedIterator_									__last_unwrapped,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
 		{
-			if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(_Value) == false)
+			if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(__value) == false)
 				return false;
 
-			return _ContainsVectorized(std::to_address(_FirstUnwrapped), std::to_address(_LastUnwrapped), _Value);
+			return __contains_vectorized(std::to_address(__first_unwrapped), std::to_address(__last_unwrapped), __value);
 		}
 	}
 
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (*_FirstUnwrapped == _Value)
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		if (*__first_unwrapped == __value)
 			return true;
 
 	return false;

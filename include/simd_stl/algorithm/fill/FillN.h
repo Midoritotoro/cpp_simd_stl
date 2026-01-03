@@ -18,7 +18,7 @@ template <
     class _ForwardIterator_,
     class _SizeType_,
     class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
-_Simd_inline_constexpr _ForwardIterator_ fill_n(
+__simd_inline_constexpr _ForwardIterator_ fill_n(
     _ForwardIterator_                                   first,
     _SizeType_                                          count,
     const typename std::type_identity<_Type_>::type&    value) noexcept
@@ -31,7 +31,7 @@ _Simd_inline_constexpr _ForwardIterator_ fill_n(
         for (_SizeType_ current = 0; current < count; ++current, ++firstUnwrapped)
             *firstUnwrapped = value;
 
-    _SeekPossiblyWrappedIterator(first, first + count);
+    __seek_possibly_wrapped_iterator(first, first + count);
     return first;
 }
 
@@ -40,7 +40,7 @@ template <
     class _ForwardIterator_,
     class _SizeType_,
     class _Type_>
-_Simd_inline_constexpr _ForwardIterator_ fill_n(
+__simd_inline_constexpr _ForwardIterator_ fill_n(
     _ExecutionPolicy_&&,
     _ForwardIterator_   first,
     _SizeType_          count,

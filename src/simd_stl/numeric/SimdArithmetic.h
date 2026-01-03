@@ -585,11 +585,12 @@ class _SimdArithmetic<arch::CpuFeature::AVX512VLBW, ymm256> :
 
 template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512VLDQ, ymm256> :
-    public _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>:
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLBW, ymm256>
 {};
 
 template <>
@@ -627,13 +628,14 @@ class _SimdArithmetic<arch::CpuFeature::AVX512VLBW, xmm128> :
 
 template <>
 class _SimdArithmetic<arch::CpuFeature::AVX512VLDQ, xmm128> :
-    public _SimdArithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLF, xmm128>
 {
 };
 
 
 template <>
-class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class _SimdArithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>:
+    public _SimdArithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
 {
 };
 

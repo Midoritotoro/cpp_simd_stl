@@ -11,7 +11,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedIterator_,
 	class _UnaryPredicate_>
-_Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _RemoveIfUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedIterator_ _RemoveIfUnchecked(
 	_UnwrappedIterator_			_FirstUnwrapped,
 	_UnwrappedIterator_			_LastUnwrapped,
 	_UnaryPredicate_			_Predicate) noexcept(

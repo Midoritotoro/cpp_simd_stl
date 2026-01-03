@@ -85,7 +85,7 @@ simd_stl_nodiscard constexpr decltype(auto) _UnwrapIteratorOffset(
 template <
     class _Iterator_,
     class _UnwrappedIterator_>
-constexpr void _SeekPossiblyWrappedIterator(
+constexpr void __seek_possibly_wrapped_iterator(
     _Iterator_&             iterator,
     _UnwrappedIterator_&&   unwrappedIterator) noexcept(
         type_traits::is_wrapped_iterator_seekable_v<_Iterator_, _UnwrappedIterator_> == false || 

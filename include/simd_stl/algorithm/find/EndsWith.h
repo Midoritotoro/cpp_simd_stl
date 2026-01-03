@@ -49,8 +49,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 		type_traits::is_iterator_random_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	)
 	{
-		const auto firstRangeLength		= IteratorsDifference(first1Unwrapped, last1Unwrapped);
-		const auto secondRangeLength	= IteratorsDifference(first2Unwrapped, last2Unwrapped);
+		const auto firstRangeLength		= __iterators_difference(first1Unwrapped, last1Unwrapped);
+		const auto secondRangeLength	= __iterators_difference(first2Unwrapped, last2Unwrapped);
 
 		if (firstRangeLength < secondRangeLength)
 			return false;

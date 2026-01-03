@@ -9,12 +9,12 @@ template <
     class _InputIterator_,
     class _SizeType_,
     class _OutputIterator_>
-_Simd_inline_constexpr _OutputIterator_ copy_n(
-    _InputIterator_     _First,
+__simd_inline_constexpr _OutputIterator_ copy_n(
+    _InputIterator_     __first,
     _SizeType_          _ElementsCount,
     _OutputIterator_    _Destination) noexcept
 {
-    return simd_stl::algorithm::copy(_First, _First + _ElementsCount, _Destination);
+    return simd_stl::algorithm::copy(__first, __first + _ElementsCount, _Destination);
 }
 
 template <

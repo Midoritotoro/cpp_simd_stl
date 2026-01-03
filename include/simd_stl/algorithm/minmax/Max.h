@@ -7,7 +7,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-_Simd_nodiscard_inline _Type_ max(
+__simd_nodiscard_inline _Type_ max(
 	const _Type_& _Left,
 	const _Type_& _Right) noexcept
 {
@@ -17,7 +17,7 @@ _Simd_nodiscard_inline _Type_ max(
 template <
 	class _Type_,
 	class _Predicate_>
-_Simd_nodiscard_inline _Type_ max(
+__simd_nodiscard_inline _Type_ max(
 	const _Type_&	_Left,
 	const _Type_&	_Right,
 	_Predicate_		_Predicate) noexcept
@@ -28,7 +28,7 @@ _Simd_nodiscard_inline _Type_ max(
 template <
 	class _InputIterator_,
 	class _Type_>
-_Simd_nodiscard_inline _Type_ max_range(
+__simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last) noexcept
 {
@@ -40,7 +40,7 @@ template <
 	class _InputIterator_,
 	class _Type_,
 	class _Predicate_>
-_Simd_nodiscard_inline _Type_ max_range(
+__simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last,
 	_Predicate_		_Predicate) noexcept

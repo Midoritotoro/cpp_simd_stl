@@ -10,7 +10,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -25,8 +25,8 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mi
 	const auto _MismatchPosition = _MismatchUnchecked(_UnwrapIterator(_First1), _UnwrapIterator(_Last1),
 		_UnwrapIterator(_First2), type_traits::passFunction(_Predicate));
 
-	_SeekPossiblyWrappedIterator(_First1, _MismatchPosition.first);
-	_SeekPossiblyWrappedIterator(_First2, _MismatchPosition.second);
+	__seek_possibly_wrapped_iterator(_First1, _MismatchPosition.first);
+	__seek_possibly_wrapped_iterator(_First2, _MismatchPosition.second);
 
 	return { _First1, _First2 };
 }
@@ -35,7 +35,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -52,8 +52,8 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mi
 	const auto _MismatchPosition = _MismatchUnchecked(_UnwrapIterator(_First1), _UnwrapIterator(_Last1),
 		_UnwrapIterator(_First2), _UnwrapIterator(_Last2), type_traits::passFunction(_Predicate));
 
-	_SeekPossiblyWrappedIterator(_First1, _MismatchPosition.first);
-	_SeekPossiblyWrappedIterator(_First2, _MismatchPosition.second);
+	__seek_possibly_wrapped_iterator(_First1, _MismatchPosition.first);
+	__seek_possibly_wrapped_iterator(_First2, _MismatchPosition.second);
 
 	return { _First1, _First2 };
 }
@@ -61,7 +61,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mi
 template <
 	class _FirstIterator_,
 	class _SecondIterator_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2) noexcept(
@@ -76,7 +76,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mi
 template <
 	class _FirstIterator_,
 	class _SecondIterator_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -95,7 +95,7 @@ template <
 	class _SecondIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -115,7 +115,7 @@ template <
 	class _SecondIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -135,7 +135,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -153,7 +153,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
+__simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> mismatch(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,

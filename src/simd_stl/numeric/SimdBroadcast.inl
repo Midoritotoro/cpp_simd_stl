@@ -7,7 +7,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
 	class _DesiredType_,
 	class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::SSE2, numeric::xmm128>::_Broadcast(_DesiredType_ _Value) noexcept
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
@@ -30,7 +30,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 }
 
 template <class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::SSE2, numeric::xmm128>::_BroadcastZeros() noexcept 
 {
 	if constexpr (std::is_same_v<_VectorType_, __m128i>)
@@ -50,7 +50,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 template <
 	class _DesiredType_,
 	class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX, numeric::ymm256>::_Broadcast(_DesiredType_ _Value) noexcept 
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
@@ -73,7 +73,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 }
 
 template <class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX, numeric::ymm256>::_BroadcastZeros() noexcept 
 {
 	if constexpr (std::is_same_v<_VectorType_, __m256i>)
@@ -90,7 +90,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 template <
 	class _DesiredType_,
 	class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX2, ymm256>::_Broadcast(_DesiredType_ _Value) noexcept
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
@@ -123,7 +123,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 template <
 	class _DesiredType_,
 	class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX512F, numeric::zmm512>::_Broadcast(_DesiredType_ _Value) noexcept 
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
@@ -150,7 +150,7 @@ _Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 }
 
 template <class _VectorType_>
-_Simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
+__simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX512F, numeric::zmm512>::_BroadcastZeros() noexcept
 {
 	if constexpr (std::is_same_v<_VectorType_, __m512i>)

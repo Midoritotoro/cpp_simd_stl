@@ -6,7 +6,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _UnwrappedInputIterator_>
-_Simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
 	_UnwrappedInputIterator_ _FirstUnwrapped,
 	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
 {
@@ -43,7 +43,7 @@ _Simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
 template <
 	class _UnwrappedInputIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
 	_UnwrappedInputIterator_	_FirstUnwrapped,
 	_UnwrappedInputIterator_	_LastUnwrapped,
 	_Predicate_					_Predicate) noexcept

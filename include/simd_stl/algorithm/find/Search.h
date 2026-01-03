@@ -10,7 +10,7 @@ template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
 	class _Predicate_> 
-_Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
+__simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_FirstForwardIterator_	_First1,
 	_FirstForwardIterator_	_Last1,
 	_SecondForwardIterator_ _First2,
@@ -24,7 +24,7 @@ _Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	__verifyRange(_First1, _Last1);
 	__verifyRange(_First2, _Last2);
 	
-	_SeekPossiblyWrappedIterator(_First1, _SearchUnchecked(_UnwrapIterator(_First1),
+	__seek_possibly_wrapped_iterator(_First1, _SearchUnchecked(_UnwrapIterator(_First1),
 		_UnwrapIterator(_Last1), _UnwrapIterator(_First2), _UnwrapIterator(_Last2), 
 		type_traits::passFunction(_Predicate)));
 
@@ -34,7 +34,7 @@ _Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_>
-_Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
+__simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_FirstForwardIterator_	_First1,
 	_FirstForwardIterator_	_Last1,
 	_SecondForwardIterator_ _First2,
@@ -50,7 +50,7 @@ _Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 template <
 	class _ForwardIterator_, 
 	class _Searcher_>
-_Simd_nodiscard_inline_constexpr _ForwardIterator_ search(
+__simd_nodiscard_inline_constexpr _ForwardIterator_ search(
 	_ForwardIterator_ _First, 
 	_ForwardIterator_ _Last,
 	const _Searcher_& _Searcher) noexcept(
@@ -66,7 +66,7 @@ template <
 	class _SecondForwardIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
+__simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_ExecutionPolicy_&&,
 	_FirstForwardIterator_	_First1,
 	_FirstForwardIterator_	_Last1,
@@ -86,7 +86,7 @@ template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
+__simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_ExecutionPolicy_&&,
 	_FirstForwardIterator_	_First1,
 	_FirstForwardIterator_	_Last1,

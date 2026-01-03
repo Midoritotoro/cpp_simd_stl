@@ -18,7 +18,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _InputIterato
 {
 	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(_First, _RemoveUnchecked(
+	__seek_possibly_wrapped_iterator(_First, _RemoveUnchecked(
 		_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
 
 	return _First;
@@ -36,7 +36,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 {
 	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(_First, _RemoveIfUnchecked(
+	__seek_possibly_wrapped_iterator(_First, _RemoveIfUnchecked(
 		_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
 
 	return _First;

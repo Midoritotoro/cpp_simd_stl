@@ -13,7 +13,7 @@ template <
     class _UnwrappedInputIterator_,
     class _UnwrappedOutputIterator_,
     class _UnaryPredicate_>
-_Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
     _UnwrappedInputIterator_    _FirstUnwrapped,
     _UnwrappedInputIterator_    _LastUnwrapped,
     _UnwrappedOutputIterator_   _DestinationUnwrapped,
@@ -53,7 +53,7 @@ template <
     class _UnwrappedSecondInputIterator_,
     class _UnwrappedOutputIterator_,
     class _BinaryPredicate_>
-_Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
     _UnwrappedFirstInputIterator_   _First1Unwrapped,
     _UnwrappedFirstInputIterator_   _Last1Unwrapped,
     _UnwrappedSecondInputIterator_  _First2Unwrapped,

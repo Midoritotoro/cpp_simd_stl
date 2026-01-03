@@ -26,7 +26,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdBlend(
-    _VectorType_                            _First,
+    _VectorType_                            __first,
     _VectorType_                            _Second,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_,
         _DesiredType_, _RegisterPolicy_>    _Mask) noexcept;
@@ -45,7 +45,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
 
@@ -53,7 +53,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
 
@@ -94,7 +94,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
 
@@ -102,7 +102,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
 };
@@ -129,7 +129,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
 
@@ -137,7 +137,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
 
@@ -161,14 +161,14 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
 
@@ -195,7 +195,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
 
@@ -203,7 +203,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
     template <
@@ -229,7 +229,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_ _First,
+        _VectorType_ __first,
         _VectorType_ _Second,
         _VectorType_ _Mask) noexcept;
 
@@ -237,7 +237,7 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ _Blend(
-        _VectorType_                        _First,
+        _VectorType_                        __first,
         _VectorType_                        _Second,
         _Simd_mask_type<_DesiredType_>      _Mask) noexcept;
 
@@ -255,20 +255,42 @@ class _SimdElementWise<arch::CpuFeature::AVX512DQ, zmm512> :
 template <>
 class _SimdElementWise<arch::CpuFeature::AVX512VLF, ymm256> :
     public _SimdElementWise<arch::CpuFeature::AVX2, ymm256>
-{
-};
+{};
 
 template <>
 class _SimdElementWise<arch::CpuFeature::AVX512VLBW, ymm256> :
     public _SimdElementWise<arch::CpuFeature::AVX512VLF, ymm256>
-{
-};
+{};
 
 template <>
 class _SimdElementWise<arch::CpuFeature::AVX512VLDQ, ymm256> :
+    public _SimdElementWise<arch::CpuFeature::AVX512VLF, ymm256>
+{};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
     public _SimdElementWise<arch::CpuFeature::AVX512VLBW, ymm256>
-{
-};
+{};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX512VLF, xmm128> :
+    public _SimdElementWise<arch::CpuFeature::SSE42, xmm128>
+{};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX512VLBW, xmm128> :
+    public _SimdElementWise<arch::CpuFeature::AVX512VLF, xmm128>
+{};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX512VLDQ, xmm128> :
+    public _SimdElementWise<arch::CpuFeature::AVX512VLF, xmm128>
+{};
+
+template <>
+class _SimdElementWise<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
+    public _SimdElementWise<arch::CpuFeature::AVX512VLBW, xmm128>
+{};
 
 #pragma endregion
 
@@ -288,13 +310,13 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdBlend(
-    _VectorType_                            _First,
+    _VectorType_                            __first,
     _VectorType_                            _Second,
     type_traits::__deduce_simd_mask_type<_SimdGeneration_,
         _DesiredType_, _RegisterPolicy_>    _Mask) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Blend<_DesiredType_>(_First, _Second, _Mask);
+    return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Blend<_DesiredType_>(__first, _Second, _Mask);
 }
 
 template <
@@ -303,12 +325,12 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ _SimdBlend(
-    _VectorType_    _First,
+    _VectorType_    __first,
     _VectorType_    _Second,
     _VectorType_    _Mask) noexcept
 {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Blend<_DesiredType_>(_First, _Second, _Mask);
+    return _SimdElementWise<_SimdGeneration_, _RegisterPolicy_>::template _Blend<_DesiredType_>(__first, _Second, _Mask);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

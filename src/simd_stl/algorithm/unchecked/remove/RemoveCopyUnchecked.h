@@ -13,7 +13,7 @@ template <
 	class _UnwrappedInputIterator_,
 	class _UnwrappedOutputIterator_,
 	class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-_Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _RemoveCopyUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _RemoveCopyUnchecked(
 	_UnwrappedInputIterator_							_FirstUnwrapped,
 	_UnwrappedInputIterator_							_LastUnwrapped,
 	_UnwrappedOutputIterator_							_DestinationUnwrapped,

@@ -36,11 +36,11 @@ simd_stl_declare_const_function void* _RemoveCopyVectorizedInternal(
 {
     using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
 
-    const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
+    const auto _AlignedSize  = __byte_length(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
     if (_AlignedSize != 0) {
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         const auto _Comparand = _SimdType_(_Value);
 
@@ -49,7 +49,7 @@ simd_stl_declare_const_function void* _RemoveCopyVectorizedInternal(
             const auto _Mask = _Loaded.maskEqual(_Comparand);
 
             _Destination = _Loaded.compressStoreUnaligned(_Destination, _Mask.unwrap());
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
 

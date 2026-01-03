@@ -20,7 +20,7 @@ simd_stl_nodiscard simd_stl_always_inline bool intersects(
 	const auto secondRangeBeginAddress	= reinterpret_cast<const volatile char*>(std::to_address(secondBegin));
 
 	const auto firstRangeEndAddress		= reinterpret_cast<const volatile char*>(std::to_address(firstEnd));
-	const auto secondRangeEndAddress	= reinterpret_cast<const volatile char*>(secondRangeBeginAddress) + algorithm::ByteLength(firstRangeBeginAddress, firstRangeEndAddress);
+	const auto secondRangeEndAddress	= reinterpret_cast<const volatile char*>(secondRangeBeginAddress) + algorithm::__byte_length(firstRangeBeginAddress, firstRangeEndAddress);
 
 	return ((firstRangeBeginAddress > secondRangeBeginAddress) && (firstRangeBeginAddress < secondRangeEndAddress)) ||
 		((secondRangeBeginAddress > firstRangeBeginAddress) && (secondRangeBeginAddress < firstRangeEndAddress));

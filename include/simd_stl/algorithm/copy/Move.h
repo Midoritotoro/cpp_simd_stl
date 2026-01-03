@@ -9,14 +9,14 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _InputIterator_,
     class _OutputIterator_>
-_Simd_inline_constexpr _OutputIterator_ move(
+__simd_inline_constexpr _OutputIterator_ move(
     _InputIterator_     _First,
     _InputIterator_     _Last,
     _OutputIterator_    _Destination) noexcept
 {
     __verifyRange(_First, _Last);
 
-    _SeekPossiblyWrappedIterator(_Destination, _MoveUnchecked(_UnwrapIterator(_First),
+    __seek_possibly_wrapped_iterator(_Destination, _MoveUnchecked(_UnwrapIterator(_First),
         _UnwrapIterator(_Last), _UnwrapUnverifiedIterator(_Destination)));
 
     return _Destination;

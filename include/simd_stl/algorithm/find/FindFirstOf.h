@@ -91,13 +91,13 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	for (; first1Unwrapped != last1Unwrapped; ++first1Unwrapped) {
         for (auto mid2Unwrapped = first2Unwrapped; mid2Unwrapped != last2Unwrapped; ++mid2Unwrapped) {
             if (predicate(*first1Unwrapped, *mid2Unwrapped)) {
-				_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
+				__seek_possibly_wrapped_iterator(first1, first1Unwrapped);
                 return first1;
             }
         }
     }
 
-	_SeekPossiblyWrappedIterator(first1, first1Unwrapped);
+	__seek_possibly_wrapped_iterator(first1, first1Unwrapped);
     return first1;
 }
 

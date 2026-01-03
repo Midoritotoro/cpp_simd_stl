@@ -14,7 +14,7 @@ template <
     class _InputIterator_,
     class _OutputIterator_,
     class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
-_Simd_inline_constexpr void replace_copy(
+__simd_inline_constexpr void replace_copy(
         _InputIterator_                                     _First,
         _InputIterator_                                     _Last,
         _OutputIterator_                                    _Destination,
@@ -31,7 +31,7 @@ template <
     class _OutputIterator_,
     class _UnaryPredicate_,
     class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
-_Simd_inline_constexpr simd_stl_always_inline void replace_copy_if(
+__simd_inline_constexpr simd_stl_always_inline void replace_copy_if(
     _InputIterator_                                     _First,
     _InputIterator_                                     _Last,
     _OutputIterator_                                    _Destination,
@@ -51,7 +51,7 @@ template <
     class _DestinationForwardIterator_,
     class _Type_ = type_traits::IteratorValueType<_SourceForwardIterator_>,
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_inline_constexpr void replace_copy(
+__simd_inline_constexpr void replace_copy(
     _ExecutionPolicy_&&,
     _SourceForwardIterator_                             _First,
     _SourceForwardIterator_                             _Last,
@@ -69,7 +69,7 @@ template <
     class _UnaryPredicate_,
     class _Type_ = type_traits::IteratorValueType<_SourceForwardIterator_>,
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_inline_constexpr void replace_copy_if(
+__simd_inline_constexpr void replace_copy_if(
     _ExecutionPolicy_&&,
     _SourceForwardIterator_                             _First,
     _SourceForwardIterator_                             _Last,

@@ -10,7 +10,7 @@ template <
 	class _InputIterator_,
 	class _SizeType_,
 	class _UnaryFunction_>
-_Simd_inline_constexpr _UnaryFunction_ for_each_n(
+__simd_inline_constexpr _UnaryFunction_ for_each_n(
 	_InputIterator_	_First,
 	_SizeType_		_Count,
 	_UnaryFunction_	_Function) noexcept(

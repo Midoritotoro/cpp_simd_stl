@@ -110,7 +110,7 @@ constexpr _FirstForwardIterator_ swap_ranges(
 	using _ValueType_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
 
 	if constexpr (is_trivially_swappable_v<_ValueType_>) {
-		const auto difference = IteratorsDifference(first1Unwrapped, last1Unwrapped);
+		const auto difference = __iterators_difference(first1Unwrapped, last1Unwrapped);
 
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
@@ -118,13 +118,13 @@ constexpr _FirstForwardIterator_ swap_ranges(
 			_SwapRangesVectorized<_ValueType_>(
 				std::to_address(first1Unwrapped), std::to_address(first2Unwrapped), difference);
 
-		_SeekPossiblyWrappedIterator(first2, first2 + difference);
+		__seek_possibly_wrapped_iterator(first2, first2 + difference);
 	}
 	else {
 		for (; first1Unwrapped != last1; ++first1Unwrapped, ++first2Unwrapped)
 			swap(*first1Unwrapped, *first2Unwrapped);
 
-		_SeekPossiblyWrappedIterator(first2, first2Unwrapped);
+		__seek_possibly_wrapped_iterator(first2, first2Unwrapped);
 	}
 
 	return first2;

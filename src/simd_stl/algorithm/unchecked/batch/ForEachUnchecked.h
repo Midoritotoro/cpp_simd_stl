@@ -11,15 +11,15 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedInputIterator_,
 	class _UnaryFunction_>
-_Simd_inline_constexpr void _ForEachUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_UnaryFunction_				_Function) noexcept(
+__simd_inline_constexpr void __for_each_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_UnaryFunction_				__function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
 			type_traits::IteratorValueType<_UnwrappedInputIterator_>>)
 {
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		_Function(*_FirstUnwrapped);
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		__function(*__first_unwrapped);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

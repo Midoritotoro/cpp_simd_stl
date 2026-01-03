@@ -12,32 +12,32 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _UnwrappedBidirectionalFirstIterator_,
     class _UnwrappedBidirectionalSecondIterator_>
-_Simd_inline_constexpr _UnwrappedBidirectionalSecondIterator_ _MoveBackwardUnchecked(
-    _UnwrappedBidirectionalFirstIterator_    _FirstUnwrapped,
-    _UnwrappedBidirectionalFirstIterator_    _LastUnwrapped,
-    _UnwrappedBidirectionalSecondIterator_   _DestinationLastUnwrapped) noexcept
+__simd_inline_constexpr _UnwrappedBidirectionalSecondIterator_ __move_backward_unchecked(
+    _UnwrappedBidirectionalFirstIterator_    __first_unwrapped,
+    _UnwrappedBidirectionalFirstIterator_    __last_unwrapped,
+    _UnwrappedBidirectionalSecondIterator_   __destination_last_unwrapped) noexcept
 {
-    const auto _Difference = IteratorsDifference(_FirstUnwrapped, _LastUnwrapped);
+    const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
 
     if constexpr (type_traits::IteratorCopyCategory<_UnwrappedBidirectionalFirstIterator_, _UnwrappedBidirectionalSecondIterator_>::BitcopyAssignable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
         {
-            auto _FirstAddress = std::to_address(_FirstUnwrapped);
-            const auto _Size = ByteLength(_FirstAddress, std::to_address(_LastUnwrapped));
+            auto __first_address    = std::to_address(__first_unwrapped);
+            const auto __size       = __byte_length(__first_address, std::to_address(__last_unwrapped));
 
-            _MemmoveVectorized(const_cast<char*>(reinterpret_cast<const volatile char*>(
-                std::to_address(_DestinationLastUnwrapped))) - _Size, _FirstAddress, _Size);
+            __memmove_vectorized(const_cast<char*>(reinterpret_cast<const volatile char*>(
+                std::to_address(__destination_last_unwrapped))) - __size, __first_address, __size);
 
-            return (_DestinationLastUnwrapped - _Difference);
+            return (__destination_last_unwrapped - __difference);
         }
     }
 
-    while (_FirstUnwrapped != _LastUnwrapped)
-        *(--_DestinationLastUnwrapped) = std::move(*(--_LastUnwrapped));
+    while (__first_unwrapped != __last_unwrapped)
+        *(--__destination_last_unwrapped) = std::move(*(--__last_unwrapped));
 
-    return _DestinationLastUnwrapped;
+    return __destination_last_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

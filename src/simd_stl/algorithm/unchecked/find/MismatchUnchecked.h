@@ -16,7 +16,7 @@ template <
 	class _FirstUnwrappedIterator_,
 	class _SecondUnwrappedIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
+__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
 	_FirstUnwrappedIterator_		_First1Unwrapped,
 	_FirstUnwrappedIterator_		_Last1Unwrapped,
 	_SecondUnwrappedIterator_		_First2Unwrapped,
@@ -35,7 +35,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwr
 		{
 			const auto _Position = _MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
 				std::to_address(_First1Unwrapped), std::to_address(_First2Unwrapped), 
-				IteratorsDifference(_First1Unwrapped, _Last1Unwrapped));
+				__iterators_difference(_First1Unwrapped, _Last1Unwrapped));
 
 			_First1Unwrapped += _Position;
 			_First2Unwrapped += _Position;
@@ -56,7 +56,7 @@ template <
 	class _FirstUnwrappedIterator_,
 	class _SecondUnwrappedIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
+__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
 	_FirstUnwrappedIterator_	_First1Unwrapped,
 	_FirstUnwrappedIterator_	_Last1Unwrapped,
 	_SecondUnwrappedIterator_	_First2Unwrapped,
@@ -76,7 +76,7 @@ _Simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwr
 		{
 			const auto _Position = _MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
 				std::to_address(_First1Unwrapped), std::to_address(_First2Unwrapped), (std::min)(
-					IteratorsDifference(_First1Unwrapped, _Last1Unwrapped), IteratorsDifference(_First2Unwrapped, _Last2Unwrapped)));
+					__iterators_difference(_First1Unwrapped, _Last1Unwrapped), __iterators_difference(_First2Unwrapped, _Last2Unwrapped)));
 				
 			_First1Unwrapped += _Position;
 			_First2Unwrapped += _Position;

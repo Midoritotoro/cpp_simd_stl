@@ -23,7 +23,7 @@ struct _SwapRangesVectorizedInternal {
 
 		if (alignedBytes != 0) {
 			void* stopAt = first;
-			AdvanceBytes(stopAt, alignedBytes);
+			__advance_bytes(stopAt, alignedBytes);
 
 			do {
 				const auto loadedFirst = _SimdType_::loadUnaligned(first);
@@ -32,8 +32,8 @@ struct _SwapRangesVectorizedInternal {
 				loadedFirst.storeUnaligned(second);
 				loadedSecond.storeUnaligned(first);
 
-				AdvanceBytes(first, sizeof(_SimdType_));
-				AdvanceBytes(second, sizeof(_SimdType_));
+				__advance_bytes(first, sizeof(_SimdType_));
+				__advance_bytes(second, sizeof(_SimdType_));
 			} while (first != stopAt);
 		}
 

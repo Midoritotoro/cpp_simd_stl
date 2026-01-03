@@ -10,20 +10,20 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedInputIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr type_traits::IteratorDifferenceType<_UnwrappedInputIterator_> _CountIfUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_Predicate_ 				_Predicate) noexcept(
+__simd_nodiscard_inline_constexpr type_traits::IteratorDifferenceType<_UnwrappedInputIterator_> __count_if_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_Predicate_ 				__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 		_Predicate_, type_traits::IteratorValueType<_UnwrappedInputIterator_>>)
 {
-	auto _Count = type_traits::IteratorDifferenceType<_UnwrappedInputIterator_>(0);
+	auto __count = type_traits::IteratorDifferenceType<_UnwrappedInputIterator_>(0);
 
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (_Predicate(*_FirstUnwrapped))
-			++_Count;
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		if (__predicate(*__first_unwrapped))
+			++__count;
 
-	return _Count;
+	return __count;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

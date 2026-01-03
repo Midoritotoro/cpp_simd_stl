@@ -12,21 +12,21 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _Iterator_,
 	class _Type_>
-_Simd_nodiscard_inline_constexpr _Iterator_ find_last(
+__simd_nodiscard_inline_constexpr _Iterator_ find_last(
 	_Iterator_		_First,
 	_Iterator_		_Last,
 	const _Type_&	_Value) noexcept
 {
 	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(_First, _FindLastUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
+	__seek_possibly_wrapped_iterator(_First, _FindLastUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value));
 	return _First;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
+__simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 	_InputIterator_	_First, 
 	_InputIterator_	_Last, 
 	_Predicate_		_Predicate) noexcept(
@@ -35,7 +35,7 @@ _Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 {
 	__verifyRange(_First, _Last);
 
-	_SeekPossiblyWrappedIterator(_First, _FindLastIfNotUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
+	__seek_possibly_wrapped_iterator(_First, _FindLastIfNotUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
 		type_traits::passFunction(_Predicate)));
 
 	return _First;
@@ -44,7 +44,7 @@ _Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 template <
 	class _InputIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
+__simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
 	_InputIterator_	_First, 
 	_InputIterator_	_Last,
 	_Predicate_		_Predicate) noexcept(
@@ -53,7 +53,7 @@ _Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
 {
 	__verifyRange(_First, _Last);
 	
-	_SeekPossiblyWrappedIterator(_First, _FindLastIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
+	__seek_possibly_wrapped_iterator(_First, _FindLastIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
 		type_traits::passFunction(_Predicate)));
 
 	return _First;
@@ -64,7 +64,7 @@ template <
 	class _Iterator_,
 	class _Type_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr _Iterator_ find_last(
+__simd_nodiscard_inline_constexpr _Iterator_ find_last(
 	_ExecutionPolicy_&&,
 	_Iterator_		_First,
 	_Iterator_		_Last,
@@ -78,7 +78,7 @@ template <
 	class _InputIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
+__simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 	_ExecutionPolicy_&&,
 	_InputIterator_	_First, 
 	_InputIterator_	_Last, 
@@ -94,7 +94,7 @@ template <
 	class _InputIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
+__simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
 	_ExecutionPolicy_&&,
 	_InputIterator_	_First, 
 	_InputIterator_	_Last,

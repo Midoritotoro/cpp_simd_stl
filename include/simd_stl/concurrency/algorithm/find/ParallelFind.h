@@ -209,7 +209,7 @@ simd_stl_nodiscard _Iterator_ find(
 	auto firstUnwrapped			= _UnwrapIterator(first);
 	const auto lastUnwrapped	= _UnwrapIterator(last);
 	
-	_SeekPossiblyWrappedIterator(first, _ParallelFind(std::forward<_ExecutionPolicy_>(policy),
+	__seek_possibly_wrapped_iterator(first, _ParallelFind(std::forward<_ExecutionPolicy_>(policy),
 		firstUnwrapped, lastUnwrapped, &_FindUnchecked<decltype(firstUnwrapped)>, value));
 
 	return first;

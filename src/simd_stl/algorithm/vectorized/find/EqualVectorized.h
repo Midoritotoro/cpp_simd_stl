@@ -51,7 +51,7 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Eq
  
     if (_AlignedSize != 0) {
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         do {
             const auto _LoadedFirst = _SimdType_::loadUnaligned(_First);
@@ -62,8 +62,8 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Eq
             if (_Mask.allOf() == false)
                 return false;
 
-            AdvanceBytes(_First, sizeof(_SimdType_));
-            AdvanceBytes(_Second, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_Second, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
 
@@ -79,7 +79,7 @@ simd_stl_declare_const_function simd_stl_always_inline bool simd_stl_stdcall _Eq
         const auto _LoadedSecond = _SimdType_::maskLoadUnaligned(_Second, _TailMask);
             
         const auto _Compared = _LoadedFirst.nativeEqual(_LoadedSecond) & _TailMask;
-        const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_,
+        const auto _Mask = numeric::simd_mask<_SimdGeneration_,
             _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
                 typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
 

@@ -9,14 +9,14 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _BidirectionalFirstIterator_,
     class _BidirectionalSecondIterator_>
-_Simd_inline_constexpr _BidirectionalSecondIterator_ move_backward(
+__simd_inline_constexpr _BidirectionalSecondIterator_ move_backward(
     _BidirectionalFirstIterator_    _First,
     _BidirectionalFirstIterator_    _Last,
     _BidirectionalSecondIterator_   _DestinationLast) noexcept
 {
     __verifyRange(_First, _Last);
 
-    _SeekPossiblyWrappedIterator(_DestinationLast, _MoveBackwardUnchecked(_UnwrapIterator(_First),
+    __seek_possibly_wrapped_iterator(_DestinationLast, _MoveBackwardUnchecked(_UnwrapIterator(_First),
         _UnwrapIterator(_Last), _UnwrapUnverifiedIterator(_DestinationLast)));
 
     return _DestinationLast;

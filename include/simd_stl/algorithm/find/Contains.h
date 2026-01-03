@@ -9,13 +9,13 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _Iterator_,
 	class _Type_>
-_Simd_nodiscard_inline_constexpr bool contains(
-	_Iterator_		_First,
+__simd_nodiscard_inline_constexpr bool contains(
+	_Iterator_		__first,
 	_Iterator_		_Last,
 	const _Type_&	_Value) noexcept
 {
-	__verifyRange(_First, _Last);
-	return _ContainsUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), _Value);
+	__verifyRange(__first, _Last);
+	return _ContainsUnchecked(_UnwrapIterator(__first), _UnwrapIterator(_Last), _Value);
 }
 
 template <
@@ -23,13 +23,13 @@ template <
 	class _Iterator_,
 	class _Type_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr bool contains(
+__simd_nodiscard_inline_constexpr bool contains(
 	_ExecutionPolicy_&&,
-	_Iterator_		_First,
+	_Iterator_		__first,
 	_Iterator_		_Last,
 	const _Type_&	_Value) noexcept
 {
-	return simd_stl::algorithm::contains(_First, _Last, _Value);
+	return simd_stl::algorithm::contains(__first, _Last, _Value);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

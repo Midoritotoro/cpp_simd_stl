@@ -1159,7 +1159,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
             {
                 _MemsetScalar(_Destination, '\0', _Bytes);
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1170,7 +1170,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _Broadcasted, _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1181,7 +1181,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
                     _MemsetImplementation<__m128i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1192,7 +1192,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
                     _MemsetImplementation<__m128i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1203,7 +1203,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
                     _MemsetImplementation<__m128i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else
@@ -1214,7 +1214,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::S
                     _MemsetImplementation<__m128i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
         }
@@ -1246,7 +1246,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             {
                 _MemsetScalar(_Destination, '\0', _Bytes);
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1257,7 +1257,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1268,7 +1268,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1279,7 +1279,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1290,7 +1290,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else if (_Bytes < 512)
@@ -1301,7 +1301,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
             else
@@ -1312,7 +1312,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 511;
             }
         }
@@ -1344,7 +1344,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             {
                 _MemsetScalar(_Destination, '\0', _Bytes);
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1355,7 +1355,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1366,7 +1366,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1377,7 +1377,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1388,7 +1388,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else if (_Bytes < 512)
@@ -1399,7 +1399,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
             else if (_Bytes < 1024)
@@ -1410,7 +1410,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 511;
             }
             else if (_Bytes < 2048)
@@ -1421,7 +1421,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, _Broadcasted, _Bytes >> 10);
 
                 _Offset = _Bytes & -1024;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 1023;
             }
             else if (_Bytes < 4096)
@@ -1432,7 +1432,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, _Broadcasted, _Bytes >> 11);
 
                 _Offset = _Bytes & -2048;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 2047;
             }
             else
@@ -1443,7 +1443,7 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
                     _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, _Broadcasted, _Bytes >> 12);
 
                 _Offset = _Bytes & -4096;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 4095;
             }
         }
@@ -1487,7 +1487,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
             {
                 _MemsetScalar(_Destination, _Value, _Bytes / sizeof(_Type_));
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1498,7 +1498,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, _Broadcasted, _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1509,7 +1509,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
                     _MemsetImplementation<__m128i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1520,7 +1520,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
                     _MemsetImplementation<__m128i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1531,7 +1531,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
                     _MemsetImplementation<__m128i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else
@@ -1542,7 +1542,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
                     _MemsetImplementation<__m128i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
         }
@@ -1576,7 +1576,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             {
                 _MemsetScalar(_Destination, _Value, _Bytes / sizeof(_Type_));
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1587,7 +1587,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1598,7 +1598,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m256i>::_Memset<32>(_Destination, _Broadcasted, _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1609,7 +1609,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m256i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1620,7 +1620,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m256i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else if (_Bytes < 512)
@@ -1631,7 +1631,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m256i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
             else
@@ -1642,7 +1642,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
                     _MemsetImplementation<__m256i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 511;
             }
         }
@@ -1676,7 +1676,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             {
                 _MemsetScalar(_Destination, _Value, _Bytes / sizeof(_Type_));
                 _Offset = _Bytes;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes = 0;
             }
             else if (_Bytes < 32)
@@ -1687,7 +1687,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 15;
             }
             else if (_Bytes < 64)
@@ -1698,7 +1698,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 31;
             }
             else if (_Bytes < 128)
@@ -1709,7 +1709,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<64>(_Destination, _Broadcasted, _Bytes >> 6);
 
                 _Offset = _Bytes & -64;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 63;
             }
             else if (_Bytes < 256)
@@ -1720,7 +1720,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<128>(_Destination, _Broadcasted, _Bytes >> 7);
 
                 _Offset = _Bytes & -128;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 127;
             }
             else if (_Bytes < 512)
@@ -1731,7 +1731,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<256>(_Destination, _Broadcasted, _Bytes >> 8);
 
                 _Offset = _Bytes & -256;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 255;
             }
             else if (_Bytes < 1024)
@@ -1742,7 +1742,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<512>(_Destination, _Broadcasted, _Bytes >> 9);
 
                 _Offset = _Bytes & -512;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 511;
             }
             else if (_Bytes < 2048)
@@ -1753,7 +1753,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<1024>(_Destination, _Broadcasted, _Bytes >> 10);
 
                 _Offset = _Bytes & -1024;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 1023;
             }
             else if (_Bytes < 4096)
@@ -1764,7 +1764,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<2048>(_Destination, _Broadcasted, _Bytes >> 11);
 
                 _Offset = _Bytes & -2048;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 2047;
             }
             else
@@ -1775,7 +1775,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
                     _MemsetImplementation<__m512i>::_Memset<4096>(_Destination, _Broadcasted, _Bytes >> 12);
 
                 _Offset = _Bytes & -4096;
-                AdvanceBytes(_Destination, _Offset);
+                __advance_bytes(_Destination, _Offset);
                 _Bytes &= 4095;
             }
         }
@@ -1821,7 +1821,7 @@ simd_stl_always_inline void* _MemsetVectorizedInternal(
         sizetype _BytesToAlign = sizeof(_SimdType_) - _DestinationAligned;
 
         void* _DestinationOffset = _Destination;
-        AdvanceBytes(_DestinationOffset, _BytesToAlign);
+        __advance_bytes(_DestinationOffset, _BytesToAlign);
 
         if (_Value == 0)
         {

@@ -13,7 +13,7 @@ template <
 	class _UnwrappedInputIterator_,
 	class _UnwrappedOutputIterator_,
 	class _UnaryPredicate_>
-_Simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _RemoveCopyIfUnchecked(
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _RemoveCopyIfUnchecked(
 	_UnwrappedInputIterator_	_FirstUnwrapped,
 	_UnwrappedInputIterator_	_LastUnwrapped,
 	_UnwrappedOutputIterator_	_DestinationUnwrapped,

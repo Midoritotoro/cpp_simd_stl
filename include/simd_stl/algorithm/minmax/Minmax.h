@@ -7,7 +7,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-_Simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
+__simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
 	const _Type_& _Left,
 	const _Type_& _Right) noexcept
 {
@@ -17,7 +17,7 @@ _Simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
 template <
 	class _Type_,
 	class _Predicate_>
-_Simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
+__simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
 	const _Type_&	_Left,
 	const _Type_&	_Right,
 	_Predicate_		_Predicate) noexcept
@@ -26,7 +26,7 @@ _Simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
 }
 
 template <class _InputIterator_>
-_Simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
+__simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last) noexcept
 {
@@ -37,7 +37,7 @@ _Simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
 template <
 	class _InputIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
+__simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
 	_InputIterator_ _First,
 	_InputIterator_ _Last,
 	_Predicate_		_Predicate) noexcept

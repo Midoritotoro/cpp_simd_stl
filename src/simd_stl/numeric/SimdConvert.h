@@ -137,10 +137,10 @@ class _SimdConvertImplementation<arch::CpuFeature::AVX512F, zmm512>
     using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
 
     template <
-        int32 _First_,
+        int32 __first_,
         int32 _Second_>
     static constexpr int32 _Max() noexcept {
-        return (_First_ > _Second_) ? _First_ : _Second_;
+        return (__first_ > _Second_) ? __first_ : _Second_;
     }
 public:
     template <

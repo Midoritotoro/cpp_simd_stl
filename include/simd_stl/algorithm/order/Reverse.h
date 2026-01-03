@@ -9,7 +9,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _BidirectionalIterator_>
-_Simd_inline_constexpr void reverse(
+__simd_inline_constexpr void reverse(
     _BidirectionalIterator_ first,
     _BidirectionalIterator_ last) noexcept
 {
@@ -41,7 +41,7 @@ template <
     class _ExecutionPolicy_,
     class _BidirectionalIterator_,
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_inline_constexpr void reverse(
+__simd_inline_constexpr void reverse(
     _ExecutionPolicy_&&,
     _BidirectionalIterator_ first,
     _BidirectionalIterator_ last) noexcept

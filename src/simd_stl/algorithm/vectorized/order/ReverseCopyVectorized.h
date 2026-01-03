@@ -30,19 +30,19 @@ void simd_stl_stdcall _ReverseCopyVectorized(
     using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    const auto _AlignedSize = ByteLength(_First, _Last) & (~((sizeof(_SimdType_)) - 1));
+    const auto _AlignedSize = __byte_length(_First, _Last) & (~((sizeof(_SimdType_)) - 1));
 
     if (_AlignedSize != 0) {
         const void* _StopAt = _Last;
-        RewindBytes(_StopAt, _AlignedSize);
+        __rewind_bytes(_StopAt, _AlignedSize);
 
         do {
             auto _Loaded = _SimdType_::loadUnaligned(static_cast<const char*>(_Last) - sizeof(_SimdType_));
             _Loaded.reverse();
             _Loaded.storeUnaligned(_Destination);
 
-            AdvanceBytes(_Destination, sizeof(_SimdType_));
-            RewindBytes(_Last, sizeof(_SimdType_));
+            __advance_bytes(_Destination, sizeof(_SimdType_));
+            __rewind_bytes(_Last, sizeof(_SimdType_));
         } while (_Last != _StopAt);
     }
 

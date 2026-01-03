@@ -21,13 +21,7 @@ template <typename _Type_>
 using simd128_sse42			= simd<arch::CpuFeature::SSE42, _Type_, xmm128>;
 
 template <typename _Type_>
-using simd128_avx			= simd<arch::CpuFeature::AVX, _Type_, xmm128>;
-
-template <typename _Type_>
-using simd128_avx2			= simd<arch::CpuFeature::AVX2, _Type_, xmm128>;
-
-template <typename _Type_>
-using simd128_avx512bwvl	= simd<arch::CpuFeature::AVX512VLBW, _Type_, xmm128>;
+using simd128_avx512vlbw	= simd<arch::CpuFeature::AVX512VLBW, _Type_, xmm128>;
 
 template <typename _Type_>
 using simd128_avx512vlf		= simd<arch::CpuFeature::AVX512VLF, _Type_, xmm128>;

@@ -24,7 +24,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	__verifyRange(_First1, _Last1);
 	__verifyRange(_First2, _Last2);
 	
-	_SeekPossiblyWrappedIterator(_First1, _FindEndUnchecked(_UnwrapIterator(_First1),
+	__seek_possibly_wrapped_iterator(_First1, _FindEndUnchecked(_UnwrapIterator(_First1),
 		_UnwrapIterator(_Last1), _UnwrapIterator(_First2), _UnwrapIterator(_Last2),
 		type_traits::passFunction(_Predicate)));
 }

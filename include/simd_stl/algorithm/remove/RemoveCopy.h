@@ -12,7 +12,7 @@ template <
 	class _InputIterator_,
 	class _OutputIterator_,
 	class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
-_Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
+__simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
 	_InputIterator_										_First,
 	_InputIterator_										_Last,
 	_OutputIterator_									_Destination,
@@ -20,7 +20,7 @@ _Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
 {
 	__verifyRange(first, last);
 	
-	_SeekPossiblyWrappedIterator(_Destination, _RemoveCopyUnchecked(_UnwrapIterator(_First),
+	__seek_possibly_wrapped_iterator(_Destination, _RemoveCopyUnchecked(_UnwrapIterator(_First),
 		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), _Value));
 
 	return _Destination;
@@ -30,7 +30,7 @@ template <
 	class _InputIterator_,
 	class _OutputIterator_,
 	class _UnaryPredicate_>
-_Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy_if(
+__simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy_if(
 	_InputIterator_		_First,
 	_InputIterator_		_Last,
 	_OutputIterator_	_Destination,
@@ -38,7 +38,7 @@ _Simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy_if(
 {
 	__verifyRange(_First, _Last);
 	
-	_SeekPossiblyWrappedIterator(_Destination, _RemoveCopyIfUnchecked(_UnwrapIterator(_First),
+	__seek_possibly_wrapped_iterator(_Destination, _RemoveCopyIfUnchecked(_UnwrapIterator(_First),
 		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate)));
 
 	return _Destination;
@@ -50,7 +50,7 @@ template <
 	class _OutputIterator_,
 	class _Type_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline _OutputIterator_ remove_copy(
+__simd_nodiscard_inline _OutputIterator_ remove_copy(
 	_ExecutionPolicy_&&,
 	_InputIterator_		first,
 	_InputIterator_		last,
@@ -66,7 +66,7 @@ template <
 	class _OutputIterator_,
 	class _UnaryPredicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline _OutputIterator_ remove_copy_if(
+__simd_nodiscard_inline _OutputIterator_ remove_copy_if(
 	_ExecutionPolicy_&&,
 	_InputIterator_		first,
 	_InputIterator_		last,

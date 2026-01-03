@@ -14,7 +14,7 @@ template <
     class _UnwrappedInputIterator_,
     class _UnwrappedOutputIterator_,
     class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-_Simd_inline_constexpr void _ReplaceCopyUnchecked(
+__simd_inline_constexpr void _ReplaceCopyUnchecked(
     _UnwrappedInputIterator_                            _FirstUnwrapped,
     _UnwrappedInputIterator_                            _LastUnwrapped,
     _UnwrappedOutputIterator_                           _DestinationUnwrapped,

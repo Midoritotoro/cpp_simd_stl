@@ -51,7 +51,7 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
             _Zeros.broadcastZeros();
 
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         do {
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
@@ -62,12 +62,12 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
                 _Count += _CountVector.reduce();
             }
             else {
-                _Count += numeric::basic_simd_mask<_SimdGeneration_, _Type_>(
+                _Count += numeric::simd_mask<_SimdGeneration_, _Type_>(
                     numeric::_SimdToNativeMask<_SimdGeneration_, typename _SimdType_::policy_type,
                     std::remove_cv_t<decltype(_Compared)>>(_Compared)).countSet();
             }
 
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
 
@@ -79,7 +79,7 @@ simd_stl_declare_const_function simd_stl_always_inline sizetype simd_stl_stdcall
             const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
             const auto _Compared = _Comparand.nativeEqual(_Loaded) & _TailMask;
-            const auto _Mask = numeric::basic_simd_mask<_SimdGeneration_, _Type_>(
+            const auto _Mask = numeric::simd_mask<_SimdGeneration_, _Type_>(
                 numeric::_SimdToNativeMask<_SimdGeneration_, typename _SimdType_::policy_type,
                 std::remove_cv_t<decltype(_Compared)>>(_Compared));
 

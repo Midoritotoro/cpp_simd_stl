@@ -216,16 +216,18 @@ bool ProcessorFeatures::isSupported() noexcept {
         return _processorFeaturesInternal._avx512f;
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512BW))
         return _processorFeaturesInternal._avx512bw;
-    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512CD))
-        return _processorFeaturesInternal._avx512cd;
-    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512ER))
-        return _processorFeaturesInternal._avx512er;
-    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512PF))
-        return _processorFeaturesInternal._avx512pf;
-    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VL))
-        return _processorFeaturesInternal._avx512vl;
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512DQ))
         return _processorFeaturesInternal._avx512dq;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512BWDQ))
+        return _processorFeaturesInternal._avx512dq + _processorFeaturesInternal._avx512bw;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VLF))
+        return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512f;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VLBW))
+        return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512bw;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VLDQ))
+        return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512dq;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VLBWDQ))
+        return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512dq && _processorFeaturesInternal._avx512bw;
 }
 
 //int ProcessorFeatures::L1CacheSize() noexcept {

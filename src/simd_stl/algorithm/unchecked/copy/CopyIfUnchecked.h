@@ -13,19 +13,19 @@ template <
     class _InputIterator_,
     class _OutputIterator_,
     class _Predicate_>
-_Simd_inline_constexpr _OutputIterator_ _CopyIfUnchecked(
-    _InputIterator_     _FirstUnwrapped,
-    _InputIterator_     _LastUnwrapped,
-    _OutputIterator_    _DestinationUnwrapped,
-    _Predicate_         _Predicate) noexcept(
+__simd_inline_constexpr _OutputIterator_ __copy_if_unchecked(
+    _InputIterator_     __first_unwrapped,
+    _InputIterator_     __last_unwrapped,
+    _OutputIterator_    __destination_unwrapped,
+    _Predicate_         __predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
             _Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
 {
-    for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-        if (_Predicate(*_FirstUnwrapped))
-            *_DestinationUnwrapped++ = *_FirstUnwrapped;
+    for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+        if (__predicate(*__first_unwrapped))
+            *__destination_unwrapped++ = *__first_unwrapped;
 
-    return _DestinationUnwrapped;
+    return __destination_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

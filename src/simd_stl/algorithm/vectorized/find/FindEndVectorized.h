@@ -97,7 +97,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
     const void* firstRangeEnd           = static_cast<const char*>(firstPointer) + (firstRangeByteLength);
     const void* firstRangeAlignedLimit  = firstRangeEnd;
 
-    RewindBytes(firstRangeAlignedLimit, alignedFirstRangeByteLength);
+    __rewind_bytes(firstRangeAlignedLimit, alignedFirstRangeByteLength);
 
     if (alignedFirstRangeByteLength != 0) {
         do {
@@ -120,7 +120,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
                 mask.clearLeftMostSetBit();
             }
 
-            RewindBytes(firstRangeEnd, _SimdType_::width());
+            __rewind_bytes(firstRangeEnd, _SimdType_::width());
         } while (firstRangeAlignedLimit != firstRangeEnd);
     }
 

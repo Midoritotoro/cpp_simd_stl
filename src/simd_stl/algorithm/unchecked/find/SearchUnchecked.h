@@ -15,7 +15,7 @@ template <
 	class _FirstUnwrappedForwardIterator_,
 	class _SecondUnwrappedForwardIterator_,
 	class _Predicate_> 
-_Simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ _SearchUnchecked(
+__simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ _SearchUnchecked(
 	_FirstUnwrappedForwardIterator_		_First1Unwrapped,
 	_FirstUnwrappedForwardIterator_		_Last1Unwrapped,
 	_SecondUnwrappedForwardIterator_	_First2Unwrapped,
@@ -35,8 +35,8 @@ _Simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ _SearchUnchecke
 		const auto _First1Address	= std::to_address(_First1Unwrapped);
 		const auto _First2Address	= std::to_address(_First2Unwrapped);
 
-		auto _FirstRangeLength			= IteratorsDifference(_First1Unwrapped, _Last1Unwrapped);
-		const auto _SecondRangeLength	= IteratorsDifference(_First2Unwrapped, _Last2Unwrapped);
+		auto _FirstRangeLength			= __iterators_difference(_First1Unwrapped, _Last1Unwrapped);
+		const auto _SecondRangeLength	= __iterators_difference(_First2Unwrapped, _Last2Unwrapped);
 
 		if (_FirstRangeLength < _SecondRangeLength)
 			return _Last1Unwrapped;
@@ -66,7 +66,7 @@ _Simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ _SearchUnchecke
 	}
 
 
-	const auto _LastPossible = _Last1Unwrapped - IteratorsDifference(_First2Unwrapped, _Last2Unwrapped);
+	const auto _LastPossible = _Last1Unwrapped - __iterators_difference(_First2Unwrapped, _Last2Unwrapped);
 	auto _Mirst1Unwrapped = _First1Unwrapped;
 
 	for (;; ++_First1Unwrapped) {

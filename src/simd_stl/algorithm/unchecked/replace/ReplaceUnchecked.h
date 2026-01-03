@@ -12,7 +12,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _UnwrappedForwardIterator_,
     class _Type_ = type_traits::IteratorValueType<_UnwrappedForwardIterator_>>
-_Simd_inline_constexpr void _ReplaceUnchecked(
+__simd_inline_constexpr void _ReplaceUnchecked(
     _UnwrappedForwardIterator_                          _FirstUnwrapped,
     _UnwrappedForwardIterator_                          _LastUnwrapped,
     const typename std::type_identity<_Type_>::type&    _OldValue,

@@ -131,7 +131,7 @@ std::basic_ostream<_Char_, _Traits_>& operator<<(
 	_Char_* end = std::end(buffer);
 	*--end = static_cast<_Char_>('\0');
 
-	end = algorithm::UnsignedIntegralToBuffer(end, id._id);
+	end = algorithm::__unsigned_integral_to_buffer(end, id._id);
 	return stream << end;
 }
 

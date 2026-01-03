@@ -13,7 +13,7 @@ template <
     class _UnwrappedForwardIterator_,
     class _UnaryPredicate_,
     class _Type_ = type_traits::IteratorValueType<_UnwrappedForwardIterator_>>
-_Simd_inline_constexpr void _ReplaceIfUnchecked(
+__simd_inline_constexpr void _ReplaceIfUnchecked(
     _UnwrappedForwardIterator_                          _FirstUnwrapped,
     _UnwrappedForwardIterator_                          _LastUnwrapped,
     _UnaryPredicate_                                    _Predicate,

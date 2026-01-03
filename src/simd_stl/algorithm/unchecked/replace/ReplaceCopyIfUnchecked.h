@@ -15,7 +15,7 @@ template <
     class _UnwrappedOutputIterator_,
     class _UnaryPredicate_,
     class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-_Simd_inline_constexpr simd_stl_always_inline void _ReplaceCopyIfUnchecked(
+__simd_inline_constexpr simd_stl_always_inline void _ReplaceCopyIfUnchecked(
     _UnwrappedInputIterator_                            _FirstUnwrapped,
     _UnwrappedInputIterator_                            _LastUnwrapped,
     _UnwrappedOutputIterator_                           _DestinationUnwrapped,

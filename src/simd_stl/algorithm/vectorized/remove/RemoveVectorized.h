@@ -47,7 +47,7 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
     using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    const auto _AlignedSize  = ByteLength(_First, _Last) & (~(sizeof(_SimdType_) - 1));
+    const auto _AlignedSize  = __byte_length(_First, _Last) & (~(sizeof(_SimdType_) - 1));
 
     void* _Current = _First;
 
@@ -55,14 +55,14 @@ simd_stl_always_inline const void* _RemoveVectorizedInternal(
         const auto _Comparand = _SimdType_(_Value);
 
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         do {
             const auto _Loaded = _SimdType_::loadUnaligned(_Current);
             const auto _Mask = _Comparand.maskEqual(_Loaded);
 
             _First = _Loaded.compressStoreUnaligned(_First, _Mask.unwrap());
-            AdvanceBytes(_Current, sizeof(_SimdType_));
+            __advance_bytes(_Current, sizeof(_SimdType_));
         } while (_Current != _StopAt);
     }
 

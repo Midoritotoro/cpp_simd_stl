@@ -16,7 +16,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _ForwardIterator_,
     class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
-_Simd_inline_constexpr _ForwardIterator_ fill(
+__simd_inline_constexpr _ForwardIterator_ fill(
     _ForwardIterator_                                   first,
     _ForwardIterator_                                   last,
     const typename std::type_identity<_Type_>::type&    value) noexcept
@@ -27,7 +27,7 @@ _Simd_inline_constexpr _ForwardIterator_ fill(
     const auto lastUnwrapped    = _UnwrapIterator(last);
 
     if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>) {
-        const auto difference = IteratorsDifference(firstUnwrapped, lastUnwrapped);
+        const auto difference = __iterators_difference(firstUnwrapped, lastUnwrapped);
         _MemsetVectorized<_Type_>(std::to_address(firstUnwrapped), value, difference * sizeof(_Type_));
     }
     else

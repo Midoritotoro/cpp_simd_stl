@@ -98,10 +98,10 @@ struct _Expand_operator_equal_tuple<std::optional<_Type_>>:
 {};
 
 template <
-	typename _FirstType_,
+	typename __firstType_,
 	typename _SecondType_>
-struct _Expand_operator_equal_tuple<std::pair<_FirstType_, _SecondType_>>:
-	_Expand_operator_equal_recursive<_FirstType_, _SecondType_>
+struct _Expand_operator_equal_tuple<std::pair<__firstType_, _SecondType_>>:
+	_Expand_operator_equal_recursive<__firstType_, _SecondType_>
 {};
 
 template <typename ... _Type_>
@@ -172,10 +172,10 @@ struct _Expand_operator_less_than_tuple<std::optional<_Type_>>:
 {};
 
 template <
-	typename _FirstType_,
+	typename __firstType_,
 	typename _SecondType_>
-struct _Expand_operator_less_than_tuple<std::pair<_FirstType_, _SecondType_>>:
-	_Expand_operator_less_than_recursive<_FirstType_, _SecondType_>
+struct _Expand_operator_less_than_tuple<std::pair<__firstType_, _SecondType_>>:
+	_Expand_operator_less_than_recursive<__firstType_, _SecondType_>
 {};
 
 template <typename ... _Type_>

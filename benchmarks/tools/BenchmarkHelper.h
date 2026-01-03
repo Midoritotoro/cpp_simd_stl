@@ -427,12 +427,12 @@ public:
                 const auto secondBenchmarkPrettyName = secondBenchmarkFullName.substr(0, secondBenchmarkFullName.find('/'));
 
                 if (realTimeDifference > 1.0f)
-                    ColorPrintf(out, COLOR_BLUE, "%s faster than %s by a %f%s\n", firstBenchmarkPrettyName.c_str(),
-                        secondBenchmarkPrettyName.c_str(), std::abs(realTimeDifference * 100 - 100), "%");
+                    ColorPrintf(out, COLOR_BLUE, "%s(%f) faster than %s(%f) by a %f%\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
+                        secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
 
                 else if (realTimeDifference < 1.0f)
-                    ColorPrintf(out, COLOR_RED, "%s slower than %s by a %f%s\n", firstBenchmarkPrettyName.c_str(),
-                        secondBenchmarkPrettyName.c_str(), std::abs(realTimeDifference * 100 - 100), "%");
+                    ColorPrintf(out, COLOR_RED, "%s(%f) slower than %s(%f) by a %f%\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
+                        secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
 
                 else
                     ColorPrintf(out, COLOR_WHITE, "Benchmarks are equal\n");

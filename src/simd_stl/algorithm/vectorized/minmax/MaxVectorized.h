@@ -36,7 +36,7 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInte
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
 
-    const auto _Size        = ByteLength(_First, _Last);
+    const auto _Size        = __byte_length(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 
     auto _MaximumValues = _SimdType_();
@@ -44,16 +44,16 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInte
 
     if (_AlignedSize != 0) {
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         _MaximumValues = _SimdType_::loadUnaligned(_First);
-        AdvanceBytes(_First, sizeof(_SimdType_));
+        __advance_bytes(_First, sizeof(_SimdType_));
 
         while (_First != _StopAt) {
             const auto _Loaded = _SimdType_::loadUnaligned(_First);
             _MaximumValues = _MaximumValues.verticalMax(_Loaded);
 
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
         };
     }
 

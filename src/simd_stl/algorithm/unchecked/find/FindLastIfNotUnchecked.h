@@ -11,23 +11,23 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _InputUnwrappedIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr _InputUnwrappedIterator_ _FindLastIfNotUnchecked(
-	_InputUnwrappedIterator_	_FirstUnwrapped,
-	_InputUnwrappedIterator_	_LastUnwrapped,
-	_Predicate_					_Predicate) noexcept(
+__simd_nodiscard_inline_constexpr _InputUnwrappedIterator_ __find_last_if_not_unchecked(
+	_InputUnwrappedIterator_	__first_unwrapped,
+	_InputUnwrappedIterator_	__last_unwrapped,
+	_Predicate_					__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::IteratorValueType<_InputUnwrappedIterator_>>)
 {
-	const auto _Last = _LastUnwrapped;
+	const auto __last = __last_unwrapped;
 
-	while (_LastUnwrapped != _FirstUnwrapped) {
-		--_LastUnwrapped;
+	while (__last_unwrapped != __first_unwrapped) {
+		--__last_unwrapped;
 
-		if (_Predicate(*_LastUnwrapped) == false)
-			return _LastUnwrapped;
+		if (__predicate(*__last_unwrapped) == false)
+			return __last_unwrapped;
 	}
 
-	return _Last;
+	return __last;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

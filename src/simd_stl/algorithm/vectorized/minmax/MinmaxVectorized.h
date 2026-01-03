@@ -35,7 +35,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_
     constexpr auto _Is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
         _Simd_::template is_native_mask_load_supported_v<>;
 
-    const auto _Size = ByteLength(_First, _Last);
+    const auto _Size = __byte_length(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_Simd_) - 1));
 
     auto _MaximumValues = _Simd_();
@@ -48,10 +48,10 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_
 
     if (_HasAlignedPart) {
         const void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize);
+        __advance_bytes(_StopAt, _AlignedSize);
 
         _MaximumValues = _Simd_::loadUnaligned(_First);
-        AdvanceBytes(_First, sizeof(_Simd_));
+        __advance_bytes(_First, sizeof(_Simd_));
 
         while (_First != _StopAt) {
             const auto _Loaded = _Simd_::loadUnaligned(_First);
@@ -59,7 +59,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_
             _MaximumValues = _MaximumValues.verticalMax(_Loaded);
             _MinimumValues = _MinimumValues.verticalMin(_Loaded);
 
-            AdvanceBytes(_First, sizeof(_Simd_));
+            __advance_bytes(_First, sizeof(_Simd_));
         }
     }
 

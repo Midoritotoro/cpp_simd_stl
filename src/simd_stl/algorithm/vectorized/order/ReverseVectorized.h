@@ -31,14 +31,14 @@ simd_stl_declare_const_function simd_stl_always_inline void _ReverseVectorizedIn
     using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    const auto _AlignedSize  = ByteLength(_First, _Last) & (~((sizeof(_SimdType_) << 1) - 1));
+    const auto _AlignedSize  = __byte_length(_First, _Last) & (~((sizeof(_SimdType_) << 1) - 1));
 
     if (_AlignedSize != 0) {
         void* _StopAt = _First;
-        AdvanceBytes(_StopAt, _AlignedSize >> 1);
+        __advance_bytes(_StopAt, _AlignedSize >> 1);
 
         do {
-            RewindBytes(_Last, sizeof(_SimdType_));
+            __rewind_bytes(_Last, sizeof(_SimdType_));
 
             auto _LoadedBegin  = _SimdType_::loadUnaligned(_First);
             auto _LoadedEnd    = _SimdType_::loadUnaligned(_Last);
@@ -49,7 +49,7 @@ simd_stl_declare_const_function simd_stl_always_inline void _ReverseVectorizedIn
             _LoadedBegin.storeUnaligned(_Last);
             _LoadedEnd.storeUnaligned(_First);
 
-            AdvanceBytes(_First, sizeof(_SimdType_));
+            __advance_bytes(_First, sizeof(_SimdType_));
         } while (_First != _StopAt);
     }
 

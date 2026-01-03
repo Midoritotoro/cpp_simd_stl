@@ -11,41 +11,41 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_>
-_Simd_nodiscard_inline_constexpr _UnwrappedIterator_ _FindLastUnchecked(
-	_UnwrappedIterator_	_FirstUnwrapped,
-	_UnwrappedIterator_	_LastUnwrapped,
-	const _Type_&		_Value) noexcept
+	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
+__simd_nodiscard_inline_constexpr _UnwrappedIterator_ __find_last_unchecked(
+	_UnwrappedIterator_									__first_unwrapped,
+	_UnwrappedIterator_									__last_unwrapped,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
 	using _DifferenceType = type_traits::IteratorDifferenceType<_UnwrappedIterator_>;
-	const auto _CachedLast = _LastUnwrapped;
+	const auto __cached_last = __last_unwrapped;
 
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
 		{
-			if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(_Value) == false)
-				return _LastUnwrapped;
+			if (math::couldCompareEqualToValueType<_UnwrappedIterator_>(__value) == false)
+				return __last_unwrapped;
 
-			const auto _FirstAddress = std::to_address(_FirstUnwrapped);
-			const auto _Position = _FindLastVectorized(_FirstAddress, std::to_address(_LastUnwrapped), _Value);
+			const auto __first_address = std::to_address(__first_unwrapped);
+			const auto __position = __find_last_vectorized(__first_address, std::to_address(__last_unwrapped), __value);
 
 			if constexpr (std::is_pointer_v<_UnwrappedIterator_>)
-				return _Position;
+				return __position;
 			else
-				return _FirstUnwrapped + static_cast<_DifferenceType>(_Position - _FirstAddress);
+				return __first_unwrapped + static_cast<_DifferenceType>(__position - __first_address);
 		}
 	}
 
-	while (_LastUnwrapped != _FirstUnwrapped) {
-		--_LastUnwrapped;
+	while (__last_unwrapped != __first_unwrapped) {
+		--__last_unwrapped;
 
-		if (*_LastUnwrapped == _Value)
-			return _LastUnwrapped;
+		if (*__last_unwrapped == __value)
+			return __last_unwrapped;
 	}
 
-	return _CachedLast;
+	return __cached_last;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

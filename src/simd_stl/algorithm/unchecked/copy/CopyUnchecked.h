@@ -14,31 +14,31 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _InputUnwrappedIterator_,
     class _OutputUnwrappedIterator_>
-_Simd_inline_constexpr _OutputUnwrappedIterator_ _CopyUnchecked(
-    _InputUnwrappedIterator_     _FirstUnwrapped,
-    _InputUnwrappedIterator_     _LastUnwrapped,
-    _OutputUnwrappedIterator_    _DestinationUnwrapped) noexcept
+__simd_inline_constexpr _OutputUnwrappedIterator_ __copy_unchecked(
+    _InputUnwrappedIterator_     __first_unwrapped,
+    _InputUnwrappedIterator_     __last_unwrapped,
+    _OutputUnwrappedIterator_    __destination_unwrapped) noexcept
 {
-    const auto _Difference = IteratorsDifference(_FirstUnwrapped, _LastUnwrapped);
+    const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
 
     if constexpr (type_traits::IteratorCopyCategory<_InputUnwrappedIterator_, _OutputUnwrappedIterator_>::BitcopyAssignable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
         {
-            auto _FirstAddress = std::to_address(_FirstUnwrapped);
+            auto __first_address = std::to_address(__first_unwrapped);
  
-            _MemcpyVectorized(std::to_address(_DestinationUnwrapped), _FirstAddress, 
-                ByteLength(_FirstAddress, std::to_address(_LastUnwrapped)));
+            __memcpy_vectorized(std::to_address(__destination_unwrapped), __first_address,
+                __byte_length(__first_address, std::to_address(__last_unwrapped)));
 
-            return (_DestinationUnwrapped + _Difference);
+            return (__destination_unwrapped + __difference);
         }
     }
 
-    for (; _FirstUnwrapped != _LastUnwrapped; ++_DestinationUnwrapped, ++_FirstUnwrapped)
-        *_DestinationUnwrapped = *_FirstUnwrapped;
+    for (; __first_unwrapped != __last_unwrapped; ++__destination_unwrapped, ++__first_unwrapped)
+        *__destination_unwrapped = *__first_unwrapped;
 
-    return _DestinationUnwrapped;
+    return __destination_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

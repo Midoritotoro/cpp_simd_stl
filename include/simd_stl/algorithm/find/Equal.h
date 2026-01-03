@@ -10,7 +10,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -29,7 +29,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Predicate_>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -50,7 +50,7 @@ _Simd_nodiscard_inline_constexpr bool equal(
 template <
 	class _FirstIterator_,
 	class _SecondIterator_>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2) noexcept(
@@ -65,7 +65,7 @@ _Simd_nodiscard_inline_constexpr bool equal(
 template <
 	class _FirstIterator_,
 	class _SecondIterator_>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
 	_SecondIterator_	_First2,
@@ -84,7 +84,7 @@ template <
 	class _SecondIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -104,7 +104,7 @@ template <
 	class _SecondIterator_,
 	class _Predicate_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -124,7 +124,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr bool equal(
+__simd_nodiscard_inline_constexpr bool equal(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,
@@ -143,7 +143,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
-_Simd_nodiscard_inline_constexpr  bool equal(
+__simd_nodiscard_inline_constexpr  bool equal(
 	_ExecutionPolicy_&&,
 	_FirstIterator_		_First1,
 	_FirstIterator_		_Last1,

@@ -50,7 +50,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* _MaxElementVe
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
 
-    const auto _Size        = ByteLength(_First, _Last);
+    const auto _Size        = __byte_length(_First, _Last);
     const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
 }
 

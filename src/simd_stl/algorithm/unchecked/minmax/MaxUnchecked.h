@@ -11,7 +11,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedInputIterator_,
 	class _BinaryPredicate_>
-_Simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
+__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
 	_UnwrappedInputIterator_	_FirstUnwrapped,
 	_UnwrappedInputIterator_	_LastUnwrapped,
 	_BinaryPredicate_			_Predicate) noexcept
@@ -27,7 +27,7 @@ _Simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputI
 }
 
 template <class _UnwrappedInputIterator_>
-_Simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
+__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
 	_UnwrappedInputIterator_ _FirstUnwrapped,
 	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
 {

@@ -33,10 +33,10 @@ template <
     constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
     if constexpr (_Bits == 2) {
-        const auto _First = (_Mask >> 1) & 1;
+        const auto __first = (_Mask >> 1) & 1;
         const auto _Second = _Mask & 1;
 
-        const auto _Broadcasted = _mm_set_epi32(_First, _First, _Second, _Second);
+        const auto _Broadcasted = _mm_set_epi32(__first, __first, _Second, _Second);
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(_Broadcasted, _mm_set1_epi32(1)));
     }
     else if constexpr (_Bits == 4) {
@@ -68,10 +68,10 @@ template <
     constexpr auto _Bits = sizeof(_VectorType_) / sizeof(_DesiredType_);
 
     if constexpr (_Bits == 2) {
-        const auto _First = (_Mask >> 1) & 1;
+        const auto __first = (_Mask >> 1) & 1;
         const auto _Second = _Mask & 1;
 
-        const auto _Broadcasted = _mm_set_epi32(_First, _First, _Second, _Second);
+        const auto _Broadcasted = _mm_set_epi32(__first, __first, _Second, _Second);
         return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(_Broadcasted, _mm_set1_epi32(1)));
     }
     else if constexpr (_Bits == 4) {
