@@ -2,7 +2,9 @@
 
 #include <src/simd_stl/numeric/IntrinBitcast.h>
 #include <src/simd_stl/numeric/SimdConvert.h>
+
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
+#include <src/simd_stl/numeric/SimdComparison.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -11,203 +13,203 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ _Vector) noexcept;
+simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ __vector) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_>
-class _SimdCompareImplementation;
+class __simd_compare_implementation;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     class               _DesiredType_,
-    class               _CompareType_,
+    __simd_comparison   _CompareType_,
     class               _VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdCompare(
-    _VectorType_ _Left,
-    _VectorType_ _Right) noexcept;
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     class               _DesiredType_,
-    class               _CompareType_,
+    __simd_comparison   _CompareType_,
     class               _VectorType_>
 simd_stl_nodiscard simd_stl_always_inline type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_> _SimdMaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    _DesiredType_, _RegisterPolicy_> __simd_mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
 #pragma region Sse2-Sse4.2 Simd compare
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
-    using _RegisterPolicy               = xmm128;
+class __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128> {
+    static constexpr auto __generation  = arch::CpuFeature::SSE2;
+    using __register_policy             = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
-        class   _DesiredType_,
-        class   _CompareType_,
-        class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+        class               _DesiredType_,
+        __simd_comparison   _CompareType_,
+        class               _VectorType_>
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
-        typename _DesiredType_,
-        class    _CompareType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+        typename            _DesiredType_,
+        __simd_comparison   _CompareType_,
+        typename            _VectorType_>
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
-        typename _DesiredType_,
-        class    _CompareType_,
-        typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+        typename            _DesiredType_,
+        __simd_comparison   _CompareType_,
+        typename            _VectorType_>
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::SSE3, xmm128> :
-    public _SimdCompareImplementation<arch::CpuFeature::SSE2, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::SSE3, xmm128> :
+    public __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::SSSE3, xmm128> :
-    public _SimdCompareImplementation<arch::CpuFeature::SSE3, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::SSSE3, xmm128> :
+    public __simd_compare_implementation<arch::CpuFeature::SSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSSE3;
-    using _RegisterPolicy               = xmm128;
+    static constexpr auto __generation   = arch::CpuFeature::SSSE3;
+    using __register_policy               = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
-        class   _DesiredType_,
-        class   _CompareType_,
-        class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+        class               _DesiredType_,
+        __simd_comparison   _CompareType_,
+        class               _VectorType_>
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::SSE41, xmm128> :
-    public _SimdCompareImplementation<arch::CpuFeature::SSSE3, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::SSE41, xmm128> :
+    public __simd_compare_implementation<arch::CpuFeature::SSSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE41;
-    using _RegisterPolicy               = xmm128;
+    static constexpr auto __generation   = arch::CpuFeature::SSE41;
+    using __register_policy               = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
-        class   _DesiredType_,
-        class   _CompareType_,
+        class               _DesiredType_,
+        __simd_comparison   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::SSE42, xmm128>:
-    public _SimdCompareImplementation<arch::CpuFeature::SSE41, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>:
+    public __simd_compare_implementation<arch::CpuFeature::SSE41, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE42;
-    using _RegisterPolicy               = xmm128;
+    static constexpr auto __generation   = arch::CpuFeature::SSE42;
+    using __register_policy               = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 #pragma endregion
@@ -215,453 +217,452 @@ public:
 #pragma region Avx Simd compare
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX, ymm256> {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
-    using _RegisterPolicy               = ymm256;
+class __simd_compare_implementation<arch::CpuFeature::AVX, ymm256> {
+    static constexpr auto __generation   = arch::CpuFeature::AVX;
+    using __register_policy               = ymm256;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX2, ymm256>:
-    public _SimdCompareImplementation<arch::CpuFeature::AVX, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>:
+    public __simd_compare_implementation<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
-    using _RegisterPolicy               = ymm256;
+    static constexpr auto __generation   = arch::CpuFeature::AVX2;
+    using __register_policy               = ymm256;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _CompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
-
 
 #pragma endregion
 
 #pragma region Avx512 Simd compare
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm512> {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512F;
-    using _RegisterPolicy = zmm512;
+class __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512> {
+    static constexpr auto __generation = arch::CpuFeature::AVX512F;
+    using __register_policy = zmm512;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 
     template <
         class _DesiredType_,
         class _CompareType_,
         class _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BlockwiseCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __blockwise_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zmm512>:
-    public _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm512> 
+class __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>:
+    public __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512> 
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX512BW;
-    using _RegisterPolicy               = zmm512;
+    static constexpr auto __generation   = arch::CpuFeature::AVX512BW;
+    using __register_policy               = zmm512;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Compare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
-    public _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_compare_implementation<arch::CpuFeature::AVX512DQ, zmm512> :
+    public __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, ymm256> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX2, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>
 {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512VLF;
-    using _RegisterPolicy = ymm256;
+    static constexpr auto __generation = arch::CpuFeature::AVX512VLF;
+    using __register_policy = ymm256;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, ymm256> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>
 {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBW;
-    using _RegisterPolicy = ymm256;
+    static constexpr auto __generation = arch::CpuFeature::AVX512VLBW;
+    using __register_policy = ymm256;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256>
 {};
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, xmm128> :
-	public _SimdCompareImplementation<arch::CpuFeature::SSE42, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128> :
+	public __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>
 {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512VLF;
-    using _RegisterPolicy = xmm128;
+    static constexpr auto __generation = arch::CpuFeature::AVX512VLF;
+    using __register_policy = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, xmm128> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>
 {
-    static constexpr auto _Generation = arch::CpuFeature::AVX512VLBW;
-    using _RegisterPolicy = xmm128;
+    static constexpr auto __generation = arch::CpuFeature::AVX512VLBW;
+    using __register_policy = xmm128;
 
     template <class _DesiredType_>
-    using _Simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         class   _DesiredType_,
         class   _CompareType_,
         class   _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareEqual(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_equal(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         class    _CompareType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _NativeCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline auto __native_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareLess(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_less(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _Simd_mask_type<_DesiredType_> _MaskCompareGreater(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline __simd_mask_type<_DesiredType_> __mask_compare_greater(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 };
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLDQ, xmm128> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLDQ, xmm128> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>
 {};
 
 template <>
-class _SimdCompareImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
-	public _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_compare_implementation<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128>
 {};
 
 #pragma endregion 
@@ -672,13 +673,13 @@ template <
     class               _DesiredType_,
     class               _CompareType_,
     class               _VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdCompare(
-    _VectorType_ _Left,
-    _VectorType_ _Right) noexcept
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
-        ::template _Compare<_DesiredType_, _CompareType_>(_Left, _Right);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_compare_implementation<_SimdGeneration_, _RegisterPolicy_>
+        ::template _Compare<_DesiredType_, _CompareType_>(__left, __right);
 }
 
 template <
@@ -688,13 +689,13 @@ template <
     class               _CompareType_,
     class               _VectorType_>
 simd_stl_nodiscard simd_stl_always_inline type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-    _DesiredType_, _RegisterPolicy_> _SimdMaskCompare(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept
+    _DesiredType_, _RegisterPolicy_> __simd_mask_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>::template
-        _MaskCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_compare_implementation<_SimdGeneration_, _RegisterPolicy_>::template
+        _MaskCompare<_DesiredType_, _CompareType_>(__left, __right);
 }
 
 template <
@@ -703,13 +704,13 @@ template <
     class               _DesiredType_,
     class               _CompareType_,
     class               _VectorType_>
-simd_stl_nodiscard simd_stl_always_inline auto _SimdNativeCompare(
-    _VectorType_ _Left,
-    _VectorType_ _Right) noexcept
+simd_stl_nodiscard simd_stl_always_inline auto __simd_native_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdCompareImplementation<_SimdGeneration_, _RegisterPolicy_>
-        ::template _NativeCompare<_DesiredType_, _CompareType_>(_Left, _Right);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_compare_implementation<_SimdGeneration_, _RegisterPolicy_>
+        ::template _NativeCompare<_DesiredType_, _CompareType_>(__left, __right);
 }
 
 template <
@@ -717,7 +718,7 @@ template <
     typename    _DesiredType_,
     class       _CompareType_>
 using _Native_compare_return_type = _Native_compare_return_type_helper<_BasicSimd_,
-    type_traits::invoke_result_type<decltype(_SimdNativeCompare<_BasicSimd_::_Generation,
+    type_traits::invoke_result_type<decltype(_SimdNativeCompare<_BasicSimd_::__generation,
         typename _BasicSimd_::policy_type, _DesiredType_, _CompareType_, typename _BasicSimd_::vector_type>),
     typename _BasicSimd_::vector_type, typename _BasicSimd_::vector_type>, _DesiredType_>;
 

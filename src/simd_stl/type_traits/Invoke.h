@@ -173,8 +173,8 @@ template <
     class _RemovedQualifiers_>
 struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, false, true> {
     using type = std::conditional_t<
-        std::is_same_v<typename _Member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>> ||
-        std::is_base_of_v<typename _Member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>>,
+        std::is_same_v<typename __member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>> ||
+        std::is_base_of_v<typename __member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>>,
             __invoker<__invoker_strategy::PointerToMemberDataWithObject>,
             std::conditional_t<
                 is_specialization_v<std::remove_cvref_t<_Object_>, std::reference_wrapper>, 
@@ -193,151 +193,150 @@ struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, false, false>
 template <
     class _Callable_,
     class _Object_>
-using _Invoker_type = typename _SelectInvoker<_Callable_, _Object_>::type;
+using __invoker_type = typename __select_invoker<_Callable_, _Object_>::type;
 
 template <
     class _From_, 
     class _To_, 
     class = void>
-struct _Invoke_convertible:
+struct __invoke_convertible:
     std::false_type 
 {};
 
 template <
     class _From_,
     class _To_>
-struct _Invoke_convertible<_From_, _To_, std::void_t<decltype(_FakeCopyInit<_To_>(_ReturnsExactly<_From_>()))>>: 
+struct __invoke_convertible<_From_, _To_, std::void_t<decltype(__fake_copy_init<_To_>(__returns_exactly<_From_>()))>>:
     std::true_type
 {};
 
 template <
     class _From_,
     class _To_>
-struct _Invoke_nothrow_convertible: 
-    std::bool_constant<noexcept(_FakeCopyInit<_To_>(_ReturnsExactly<_From_>()))>
+struct __invoke_nothrow_convertible: 
+    std::bool_constant<noexcept(__fake_copy_init<_To_>(__returns_exactly<_From_>()))>
 {};
 
 template <
     class   _Result_,
     bool    _NoThrow_>
-struct _Invoke_common_traits {
+struct __invoke_common_traits {
     using type                  = _Result_;
-    using _Is_invocable         = std::true_type;
-    using _Is_nothrow_invocable = std::bool_constant<_NoThrow_>;
+    using __is_invocable         = std::true_type;
+    using __is_nothrow_invocable = std::bool_constant<_NoThrow_>;
 
     template <class _Rx>
-    using _Is_invocable_r = std::bool_constant<std::disjunction_v<std::is_void<_Rx>, _Invoke_convertible<type, _Rx>>>;
+    using __is_invocable_r = std::bool_constant<std::disjunction_v<std::is_void<_Rx>, __invoke_convertible<type, _Rx>>>;
 
     template <class _Rx>
-    using _Is_nothrow_invocable_r = std::bool_constant<std::conjunction_v<_Is_nothrow_invocable,
-        std::disjunction<std::is_void<_Rx>,
-            std::conjunction<_Invoke_convertible<type, _Rx>, _Invoke_nothrow_convertible<type, _Rx>>>>>;
+    using __is_nothrow_invocable_r = std::bool_constant<std::conjunction_v<__is_nothrow_invocable,
+        std::disjunction<std::is_void<_Rx>, std::conjunction<__invoke_convertible<type, _Rx>, __invoke_nothrow_convertible<type, _Rx>>>>>;
 };
 
 template <
     class _Void_, 
     class _Callable_>
-struct _Invoke_traits_zero {
-    using _Is_invocable         = std::false_type;
-    using _Is_nothrow_invocable = std::false_type;
+struct __invoke_traits_zero {
+    using __is_invocable         = std::false_type;
+    using __is_nothrow_invocable = std::false_type;
 
     template <class _Rx>
-    using _Is_invocable_r = std::false_type;
+    using __is_invocable_r = std::false_type;
 
     template <class _Rx>
-    using _Is_nothrow_invocable_r = std::false_type;
+    using __is_nothrow_invocable_r = std::false_type;
 };
 
 template <class _Callable_>
-using _Decltype_invoke_zero = decltype(std::declval<_Callable_>()());
+using __decltype_invoke_zero = decltype(std::declval<_Callable_>()());
 
 template <class _Callable_>
-struct _Invoke_traits_zero<std::void_t<_Decltype_invoke_zero<_Callable_>>, _Callable_>: 
-    _Invoke_common_traits<_Decltype_invoke_zero<_Callable_>, noexcept(std::declval<_Callable_>()())>
+struct __invoke_traits_zero<std::void_t<__decltype_invoke_zero<_Callable_>>, _Callable_>:
+    _Invoke_common_traits<__decltype_invoke_zero<_Callable_>, noexcept(std::declval<_Callable_>()())>
 {};
 
 template <
     class       _Void_, 
     class...    _Args_>
-struct _Invoke_traits_nonzero {
-    using _Is_invocable         = std::false_type;
-    using _Is_nothrow_invocable = std::false_type;
+struct __invoke_traits_nonzero {
+    using __is_invocable         = std::false_type;
+    using __is_nothrow_invocable = std::false_type;
 
     template <class _Rx>
-    using _Is_invocable_r = std::false_type;
+    using __is_invocable_r = std::false_type;
 
     template <class _Rx>
-    using _Is_nothrow_invocable_r = std::false_type;
+    using __is_nothrow_invocable_r = std::false_type;
 };
 
 template <
     class       _Callable_, 
     class       _FirstType_, 
     class...    _Args_>
-using _Decltype_invoke_nonzero = decltype(_Invoker_type<_Callable_, _FirstType_>::call(
+using __decltype_invoke_nonzero = decltype(__invoker_type<_Callable_, _FirstType_>::__call(
     std::declval<_Callable_>(), std::declval<_FirstType_>(), std::declval<_Args_>()...));
 
 template <
     class       _Callable_, 
     class       _FirstType_, 
     class...    _Args_>
-struct _Invoke_traits_nonzero<std::void_t<_Decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>>, _Callable_, _FirstType_, _Args_...>:
-    _Invoke_common_traits<_Decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>, noexcept(_Invoker_type<_Callable_, _FirstType_>::call(
+struct __invoke_traits_nonzero<std::void_t<__decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>>, _Callable_, _FirstType_, _Args_...>:
+    __invoke_common_traits<__decltype_invoke_nonzero<_Callable_, _FirstType_, _Args_...>, noexcept(__invoker_type<_Callable_, _FirstType_>::__call(
             std::declval<_Callable_>(), std::declval<_FirstType_>(), std::declval<_Args_>()...))>
 {};
 
 template <
     class       _Callable_,
     class...    _Args_>
-using _Select_invoke_traits = std::conditional_t<sizeof...(_Args_) == 0, _Invoke_traits_zero<void, _Callable_>,
-    _Invoke_traits_nonzero<void, _Callable_, _Args_...>>;
+using __select_invoke_traits = std::conditional_t<sizeof...(_Args_) == 0, __invoke_traits_zero<void, _Callable_>,
+    __invoke_traits_nonzero<void, _Callable_, _Args_...>>;
 
 template <
     class       _Callable_,
     class ...   _Args_>
-constexpr inline bool is_invocable_v = _Select_invoke_traits<_Callable_, _Args_...>::_Is_invocable::value;
+constexpr inline bool is_invocable_v = __select_invoke_traits<_Callable_, _Args_...>::__is_invocable::value;
 
 template <
     class       _Callable_,
     class...    _Args_>
-inline constexpr bool is_nothrow_invocable_v = _Select_invoke_traits<_Callable_, _Args_...>::_Is_nothrow_invocable::value;
+inline constexpr bool is_nothrow_invocable_v = __select_invoke_traits<_Callable_, _Args_...>::__is_nothrow_invocable::value;
 
 template <
     class       _Callable_,
     class...    _Args_>
-inline constexpr bool is_invocable_r = _Select_invoke_traits<_Callable_, _Args_...>::_Is_invocable_r::value;
+inline constexpr bool is_invocable_r = __select_invoke_traits<_Callable_, _Args_...>::__is_invocable_r::value;
 
 template <
     class       _Callable_,
     class...    _Args_>
-inline constexpr bool is_nothrow_invocable_r = _Select_invoke_traits<_Callable_, _Args_...>::_Is_nothrow_invocable_r::value;
+inline constexpr bool is_nothrow_invocable_r = __select_invoke_traits<_Callable_, _Args_...>::__is_nothrow_invocable_r::value;
 
 template <
     class       _Callable_,
     class...    _Args_>
-using invoke_result_type = typename _Select_invoke_traits<_Callable_, _Args_...>::type;
+using invoke_result_type = typename __select_invoke_traits<_Callable_, _Args_...>::type;
 
 template <class _Callable_>
-constexpr auto invoke(_Callable_&& _Callable) noexcept(noexcept(static_cast<_Callable_&&>(_Callable)()))
-    -> decltype(static_cast<_Callable_&&>(_Callable)())
+constexpr auto invoke(_Callable_&& __callable) noexcept(noexcept(static_cast<_Callable_&&>(__callable)()))
+    -> decltype(static_cast<_Callable_&&>(__callable)())
 {
     static_assert(is_invocable_v<_Callable_>, "invoke argument is not callable");
-    return static_cast<_Callable_&&>(_Callable)();
+    return static_cast<_Callable_&&>(__callable)();
 }
 
-#define __INVOKER_CALL _Invoker_type<_Callable_, _FirstArgument_>::call( \
-    static_cast<_Callable_&&>(_Callable), \
-    static_cast<_FirstArgument_&&>(_FirstArgument), \
-    static_cast<_Args_&&>(_Args)...) 
+#define __INVOKER_CALL __invoker_type<_Callable_, _FirstArgument_>::__call( \
+    static_cast<_Callable_&&>(__callable), \
+    static_cast<_FirstArgument_&&>(__first_argument), \
+    static_cast<_Args_&&>(__args)...) 
 
 template <
     class       _Callable_,
     class       _FirstArgument_, 
     class...    _Args_>
 constexpr auto invoke(
-    _Callable_&&        _Callable,
-    _FirstArgument_&&   _FirstArgument,
-    _Args_&&...         _Args)
+    _Callable_&&        __callable,
+    _FirstArgument_&&   __first_argument,
+    _Args_&&...         __args)
         noexcept(noexcept(__INVOKER_CALL)) -> decltype(__INVOKER_CALL)
 {
     static_assert(is_invocable_v<_Callable_, _FirstArgument_, _Args_...>, "invoke argument is not callable");

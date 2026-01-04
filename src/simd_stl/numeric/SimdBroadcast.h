@@ -11,40 +11,40 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
 	arch::CpuFeature	_SimdGeneration,
 	class				_RegisterPolicy_>
-class _SimdBroadcastImplementation;
+class __simd_broadcast_implementation;
 
 #pragma region Sse2-Sse4.2 Simd broadcast
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::SSE2, numeric::xmm128> {
+class __simd_broadcast_implementation<arch::CpuFeature::SSE2, numeric::xmm128> {
 public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _Broadcast(_DesiredType_ _Value) noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::SSE3, xmm128>:
-	public _SimdBroadcastImplementation<arch::CpuFeature::SSE2, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::SSE3, xmm128>:
+	public __simd_broadcast_implementation<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::SSSE3, xmm128>:
-	public _SimdBroadcastImplementation<arch::CpuFeature::SSE3, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::SSSE3, xmm128>:
+	public __simd_broadcast_implementation<arch::CpuFeature::SSE3, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::SSE41, xmm128>:
-	public _SimdBroadcastImplementation<arch::CpuFeature::SSSE3, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::SSE41, xmm128>:
+	public __simd_broadcast_implementation<arch::CpuFeature::SSSE3, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::SSE42, xmm128>:
-	public _SimdBroadcastImplementation<arch::CpuFeature::SSE41, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::SSE42, xmm128>:
+	public __simd_broadcast_implementation<arch::CpuFeature::SSE41, xmm128>
 {};
 
 #pragma endregion
@@ -52,26 +52,26 @@ class _SimdBroadcastImplementation<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx-Avx2 Simd broadcast
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX, numeric::ymm256> {
+class __simd_broadcast_implementation<arch::CpuFeature::AVX, numeric::ymm256> {
 public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _Broadcast(_DesiredType_ _Value) noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX2, ymm256>:
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX, ymm256>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX2, ymm256>:
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX, ymm256>
 {
 public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _Broadcast(_DesiredType_ _Value) noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 };
 
 #pragma endregion
@@ -79,66 +79,66 @@ public:
 #pragma region Avx512 Simd broadcast
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512F, numeric::zmm512> {
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512F, numeric::zmm512> {
 public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _Broadcast(_DesiredType_ _Value) noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ _BroadcastZeros() noexcept;
+	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512BW, zmm512> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512F, zmm512>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512BW, zmm512> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512F, zmm512>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512DQ, zmm512> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512DQ, zmm512> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, ymm256> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX2, ymm256>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX2, ymm256>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, ymm256> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLDQ, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, ymm256>
 {};
 
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, xmm128> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::SSE42, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::SSE42, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, xmm128> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLDQ, xmm128> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLDQ, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, xmm128>
 {};
 
 template <>
-class _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
-	public _SimdBroadcastImplementation<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, xmm128>
 {};
 
 #pragma endregion
@@ -148,19 +148,18 @@ template <
 	class				_RegisterPolicy_,
 	class				_VectorType_,
 	class				_DesiredType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdBroadcast(_DesiredType_ _Value) noexcept {
-	_VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-	return _SimdBroadcastImplementation<_SimdGeneration_, _RegisterPolicy_>
-		::template _Broadcast<_DesiredType_, _VectorType_>(_Value);
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_broadcast(_DesiredType_ __value) noexcept {
+	__verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+	return __simd_broadcast_implementation<_SimdGeneration_, _RegisterPolicy_>::template __broadcast<_DesiredType_, _VectorType_>(__value);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	class				_RegisterPolicy_,
 	class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ _SimdBroadcastZeros() noexcept {
-	_VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-	return _SimdBroadcastImplementation<_SimdGeneration_, _RegisterPolicy_>::template _BroadcastZeros<_VectorType_>();
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_broadcast_zeros() noexcept {
+	__verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+	return __simd_broadcast_implementation<_SimdGeneration_, _RegisterPolicy_>::template __broadcast_zeros<_VectorType_>();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

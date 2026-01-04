@@ -12,8 +12,8 @@ template <
     class _ToVector_,
     class _FromVector_,
     std::enable_if_t<
-        _Is_intrin_type_v<std::remove_cvref_t<_FromVector_>> &&
-        _Is_intrin_type_v<std::remove_cvref_t<_ToVector_>>, int> = 0>
+        __is_intrin_type_v<std::remove_cvref_t<_FromVector_>> &&
+        __is_intrin_type_v<std::remove_cvref_t<_ToVector_>>, int> = 0>
 simd_stl_nodiscard simd_stl_always_inline _ToVector_ __intrin_bitcast(_FromVector_ __from) noexcept {
     using _RawFrom_ = std::remove_cvref_t<_FromVector_>;
     using _RawTo_   = std::remove_cvref_t<_ToVector_>;

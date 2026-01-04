@@ -140,12 +140,12 @@ public:
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>
+    public simd_arithmetic<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>
+    public simd_arithmetic<arch::CpuFeature::SSE3, xmm128>
 {
     static constexpr auto _Generation   = arch::CpuFeature::SSSE3;
     using _RegisterPolicy               = numeric::xmm128;
@@ -176,7 +176,7 @@ template <
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>
+    public simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>
 {
     static constexpr auto __generation  = arch::CpuFeature::SSE41;
     using __register_policy             = numeric::xmm128;
@@ -227,7 +227,7 @@ class __simd_arithmetic<arch::CpuFeature::AVX, ymm256> {};
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>:
-    public __simd_arithmetic<arch::CpuFeature::AVX, ymm256> 
+    public __simd_arithmetic<arch::CpuFeature::AVX, ymm256>
 {
     static constexpr auto __generation  = arch::CpuFeature::AVX2;
     using __register_policy             = numeric::ymm256;
@@ -632,7 +632,7 @@ static simd_stl_always_inline _VectorType_ __simd_shift_right_elements(
     _VectorType_    __vector,
     uint32          __bit_shift) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_right_elements<_DesiredType_>(__vector, __bit_shift);
 }
 
@@ -645,7 +645,7 @@ static simd_stl_always_inline _VectorType_ __simd_shift_left_elements(
     _VectorType_    __vector,
     uint32          __bit_shift) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_left_elements<_DesiredType_>(__vector, __bit_shift);
 }
 
@@ -657,7 +657,7 @@ simd_stl_always_inline _VectorType_ __simd_shift_right_vector(
     _VectorType_    __vector,
     uint32          __byte_shift) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_right_vector(__vector, __byte_shift);
 }
 
@@ -669,7 +669,7 @@ simd_stl_always_inline _VectorType_ __simd_shift_left_vector(
     _VectorType_    __vector,
     uint32          __byte_shift) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_left_vector(__vector, __byte_shift);
 }
 
@@ -679,7 +679,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_negate(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __negate<_DesiredType_>(__vector);
 }
 
@@ -692,7 +692,7 @@ simd_stl_always_inline _VectorType_ __simd_add(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Add<_DesiredType_>(__left, __right);
 }
 
@@ -705,7 +705,7 @@ simd_stl_always_inline _VectorType_ __simd_substract(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Substract<_DesiredType_>(__left, __right);
 }
 
@@ -718,7 +718,7 @@ simd_stl_always_inline _VectorType_ __simd_multiply(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Multiply<_DesiredType_>(__left, __right);
 }
 
@@ -731,7 +731,7 @@ simd_stl_always_inline _VectorType_ __simd_divide(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Divide<_DesiredType_>(__left, __right);
 }
 
@@ -740,7 +740,7 @@ template <
     class               _RegisterPolicy_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_not(__vector);
 }
 
@@ -752,7 +752,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_xor(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_xor(__left, __right);
 }
 
@@ -764,7 +764,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_and(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_and(__left, __right);
 }
 
@@ -776,7 +776,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_or(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_or(__left, __right);
 }
 
@@ -786,7 +786,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline auto __simd_reduce(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __reduce<_DesiredType_>(__vector);
 }
 
@@ -799,7 +799,7 @@ simd_stl_always_inline _VectorType_ __simd_vertical_min(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __vertical_min<_DesiredType_>(__left, __right);
 }
 
@@ -809,7 +809,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_horizontal_max(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __horizontal_max<_DesiredType_>(__vector);
 }
 
@@ -819,7 +819,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_horizontal_min(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __horizontal_min<_DesiredType_>(__vector);
 }
 
@@ -832,7 +832,7 @@ simd_stl_always_inline _VectorType_ __simd_vertical_max(
     _VectorType_ __left, 
     _VectorType_ __right) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __vertical_max<_DesiredType_>(__left, __right);
 }
 
@@ -842,7 +842,7 @@ template <
     typename            _DesiredType_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_abs(_VectorType_ __vector) noexcept {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __abs<_DesiredType_>(__vector);
 }
 
@@ -856,7 +856,7 @@ simd_stl_always_inline _DesiredType_ __simd_horizontal_fold(
     _VectorType_            __vector, 
     _ReduceBinaryFunction_  __reduce) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __horizontal_fold<_DesiredType_>(__vector, type_traits::__pass_function(__reduce));
 }
 

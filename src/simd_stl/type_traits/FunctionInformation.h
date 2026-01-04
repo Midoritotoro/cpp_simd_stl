@@ -185,9 +185,9 @@ struct __member_object_pointer_class_type<_FirstType_ _SecondType_::*> {
 };
 
 template <class ... _Types_>
-using function_class_type = typename _FunctionInformation<_Types_...>::class_type;
+using function_class_type = typename __function_information<_Types_...>::class_type;
 
 template <class ... _Types_>
-constexpr inline bool is_member_function_pointer_v = _FunctionInformation<_Types_...>::is_member_function_pointer::value;
+constexpr inline bool is_member_function_pointer_v = __function_information<_Types_...>::is_member_function_pointer::value;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

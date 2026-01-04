@@ -43,7 +43,7 @@ struct __detector<
 template <
 	template <typename...> class	_Op_,
 	typename...						_Args_>
-using is_detected = typename _Detector<
+using is_detected = typename __detector<
 	__nonesuch, void,
 	_Op_, _Args_...>::value_t;
 

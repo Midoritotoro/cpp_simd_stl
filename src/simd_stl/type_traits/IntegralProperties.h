@@ -41,7 +41,7 @@ struct __is_character<char8_t>:
 
 template <class _Type_>
 struct __is_character_or_bool: 
-	_Is_character<_Type_>::type
+	__is_character<_Type_>::type
 {};
 
 template <>

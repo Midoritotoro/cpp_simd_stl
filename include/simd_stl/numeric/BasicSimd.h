@@ -24,6 +24,8 @@ struct unaligned_policy {
     static constexpr bool __alignment    = false;
 };
 
+using simd_comparison = __simd_comparison;
+
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
@@ -61,11 +63,11 @@ public:
 
     simd() noexcept;
 
-    simd(const value_type _Value) noexcept;
+    simd(const value_type __value) noexcept;
 
     template <
         typename _VectorType_,
-        std::enable_if_t<_Is_intrin_type_v<_VectorType_> || _Is_valid_basic_simd_v<_VectorType_>, int> = 0>
+        std::enable_if_t<__is_intrin_type_v<_VectorType_> || __is_valid_basic_simd_v<_VectorType_>, int> = 0>
     simd(_VectorType_ _Other) noexcept;
 
     //template <class _Range_>
@@ -101,7 +103,7 @@ public:
 
     template <
         typename    _DesiredType_       = value_type,
-        class       _MaskType_          = _Mask_type<_DesiredType_>,
+        class       _MaskType_          = __mask_type<_DesiredType_>,
         class       _AlignmentPolicy_   = unaligned_policy>
     static simd_stl_always_inline simd mask_load(
         const void*         _Address,
@@ -110,10 +112,10 @@ public:
 
     template <
         typename    _DesiredType_       = value_type,
-        class       _MaskType_          = _Mask_type<_DesiredType_>,
+        class       _MaskType_          = __mask_type<_DesiredType_>,
         class       _VectorType_        = simd,
         class       _AlignmentPolicy_   = unaligned_policy,
-        std::enable_if_t<_Is_intrin_type_v<_VectorType_> || _Is_valid_basic_simd_v<_VectorType_>, int> = 0>
+        std::enable_if_t<__is_intrin_type_v<_VectorType_> || __is_valid_basic_simd_v<_VectorType_>, int> = 0>
     static simd_stl_always_inline simd mask_load(
         const void*         _Address,
         const _MaskType_&   _Mask,
@@ -122,7 +124,7 @@ public:
 
     template <
         typename    _DesiredType_       = value_type,
-        class       _MaskType_          = _Mask_type<_DesiredType_>,
+        class       _MaskType_          = __mask_type<_DesiredType_>,
         class       _AlignmentPolicy_   = unaligned_policy>
     simd_stl_always_inline void mask_store(
         void*               _Address,
@@ -134,7 +136,7 @@ public:
 
     template <
         typename    _DesiredType_       = value_type,
-        class       _MaskType_          = _Mask_type<_DesiredType_>,
+        class       _MaskType_          = __mask_type<_DesiredType_>,
         class       _AlignmentPolicy_   = unaligned_policy>
     simd_stl_always_inline _DesiredType_* compress_store(
         void*               _Address,
@@ -182,19 +184,19 @@ public:
     simd_stl_always_inline friend bool operator!= <>(const simd& _Left, const simd& _Right) noexcept;
 
     template <
-        class       _Predicate_,
-        typename    _DesiredType_ = value_type>
-    simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> mask_compare(const simd& _Right, _Predicate_&&) const noexcept;
+        simd_comparison _Comparison_,
+        typename        _DesiredType_ = value_type>
+    simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> mask_compare(const simd& _Right) const noexcept;
     
     template <
-        class       _Predicate_,
-        typename    _DesiredType_ = value_type>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vector_compare(const simd& _Right, _Predicate_&&) const noexcept;
+        simd_comparison _Comparison_,
+        typename        _DesiredType_ = value_type>
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vector_compare(const simd& _Right) const noexcept;
 
     template <
-        class       _Predicate_,
-        typename    _DesiredType_ = value_type> 
-    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, _Predicate_> native_compare(const simd& _Right, _Predicate_&&) const noexcept;
+        simd_comparison _Comparison_,
+        typename        _DesiredType_ = value_type> 
+    simd_stl_always_inline _Native_compare_return_type<simd, _DesiredType_, _Predicate_> native_compare(const simd& _Right) const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_mask() const noexcept;

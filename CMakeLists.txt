@@ -153,6 +153,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdElementAccess.inl
     src/simd_stl/numeric/SimdElementWise.inl
     src/simd_stl/numeric/SimdMemoryAccess.inl
+    src/simd_stl/numeric/SimdComparison.h
 
     src/simd_stl/numeric/SimdOperations.h
     src/simd_stl/numeric/ZmmThreshold.h
