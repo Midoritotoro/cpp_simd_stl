@@ -9,7 +9,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-	class				_RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
+	class				_RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
 class simd_mask {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);

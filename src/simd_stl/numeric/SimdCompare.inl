@@ -29,19 +29,19 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         return _CompareEqual<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
         return _CompareLess<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
         return _CompareGreater<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
 }
 
 template <
@@ -149,7 +149,7 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
         const auto _Substracted = _mm_subs_epu16(__intrin_bitcast<__m128i>(_Right), __intrin_bitcast<__m128i>(_Left));
-        return _SimdBitNot<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
+        return __simd_bit_not<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
             _mm_cmpeq_epi16(_Substracted, _mm_setzero_si128())));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
@@ -158,7 +158,7 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
         const auto _Substracted = _mm_subs_epu8(__intrin_bitcast<__m128i>(_Right), __intrin_bitcast<__m128i>(_Left));
-        return _SimdBitNot<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
+        return __simd_bit_not<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
             _mm_cmpeq_epi8(_Substracted, _mm_setzero_si128())));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
@@ -218,19 +218,19 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         return _CompareEqual<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
         return _CompareLess<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
         return _CompareGreater<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
 }
 
 template <
@@ -302,19 +302,19 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         return _CompareEqual<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
         return _CompareLess<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
         return _CompareGreater<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
 }
 
 template <
@@ -506,19 +506,19 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         return _CompareEqual<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::not_equal_to<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareEqual<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less<>>)
         return _CompareLess<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::less_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareGreater<_DesiredType_>(_Left, _Right));
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater<>>)
         return _CompareGreater<_DesiredType_>(_Left, _Right);
 
     else if constexpr (std::is_same_v<_CompareType_, type_traits::greater_equal<>>)
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
+        return __simd_bit_not<_Generation, _RegisterPolicy>(_CompareLess<_DesiredType_>(_Left, _Right));
 }
 
 template <

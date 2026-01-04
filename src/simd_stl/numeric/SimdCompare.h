@@ -11,7 +11,7 @@ template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ _SimdBitNot(_VectorType_ _Vector) noexcept;
+simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ _Vector) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,

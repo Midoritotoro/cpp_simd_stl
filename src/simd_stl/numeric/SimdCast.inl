@@ -16,11 +16,11 @@ template <
     class _VectorType_>
 struct _Rebind_vector_element_t<_RebindType_, _VectorType_, false, true> {
     using type = std::conditional_t<_Is_intrin_type_v<_RebindType_> || _Is_valid_basic_simd_v<_RebindType_>, _RebindType_,
-        std::conditional_t<sizeof(_VectorType_) == _ZmmWidth,
+        std::conditional_t<sizeof(_VectorType_) == __zmm_width,
         type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX512F, _RebindType_>,
-        std::conditional_t<sizeof(_VectorType_) == _YmmWidth,
+        std::conditional_t<sizeof(_VectorType_) == __ymm_width,
         type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _RebindType_>,
-        std::conditional_t<sizeof(_VectorType_) == _XmmWidth,
+        std::conditional_t<sizeof(_VectorType_) == __xmm_width,
         type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _RebindType_>, void>>>>;
 };
 
@@ -55,7 +55,7 @@ template <
     class               _RebindType_,
     class               _VectorType_>
 struct _Rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_, true, false> {
-    using type = simd<_ToSimdGeneration_, _RebindType_, _DefaultRegisterPolicy<_ToSimdGeneration_>>;
+    using type = simd<_ToSimdGeneration_, _RebindType_, __default_register_policy<_ToSimdGeneration_>>;
 };
 
 template <

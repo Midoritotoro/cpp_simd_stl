@@ -30,7 +30,7 @@ constexpr inline bool __is_vector_type_supported_v<bool> = false;
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _VectorElementType_,
-    class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
 struct __deduce_simd_vector_type__ {
 private:
     using _Type_ = std::decay_t<_VectorElementType_>;
@@ -76,7 +76,7 @@ public:
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _VectorElementType_,
-    class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_vector_type =
     typename __deduce_simd_vector_type__<_SimdGeneration_, _VectorElementType_, _RegisterPolicy_>::type;
 
@@ -96,13 +96,13 @@ using __deduce_simd_mask_type_helper = std::conditional_t<size <= 8, uint8,
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-    class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-    class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
 
 template <arch::CpuFeature _SimdGeneration_> 

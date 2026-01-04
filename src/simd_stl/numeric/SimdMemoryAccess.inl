@@ -381,7 +381,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::SSE2, 
             __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(_Vector), 8)),
             __intrin_bitcast<__m128>(_Vector)));
 
-        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (_XmmWidth - (_Where - _Start))) - 1u), _Vector);
+        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (__xmm_width - (_Where - _Start))) - 1u), _Vector);
     }
 
     return _Where;
@@ -421,7 +421,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::SSE2, 
             __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(_Vector), 8)),
             __intrin_bitcast<__m128>(_Vector)));
 
-        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (_XmmWidth - (_Where - _Start))) - 1u), _Vector);
+        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (__xmm_width - (_Where - _Start))) - 1u), _Vector);
     }
 
     return _Where;
@@ -536,7 +536,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::SSSE3,
             __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(_Vector), 8)),
             __intrin_bitcast<__m128>(_Vector)));
 
-        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (_XmmWidth - (_Where - _Start))) - 1u), _Vector);
+        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (__xmm_width - (_Where - _Start))) - 1u), _Vector);
     }
 
     return _Where;
@@ -576,7 +576,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::SSSE3,
             __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(_Vector), 8)),
             __intrin_bitcast<__m128>(_Vector)));
 
-        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (_XmmWidth - (_Where - _Start))) - 1u), _Vector);
+        _MaskStoreUnaligned<_DesiredType_>(_Start, ~((1u << (__xmm_width - (_Where - _Start))) - 1u), _Vector);
     }
 
     return _Where;

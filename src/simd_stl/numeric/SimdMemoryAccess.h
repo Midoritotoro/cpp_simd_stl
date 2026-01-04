@@ -1853,7 +1853,7 @@ simd_stl_nodiscard simd_stl_always_inline void _SimdNonTemporalStore(
 
 template <arch::CpuFeature _SimdGeneration_>
 simd_stl_nodiscard simd_stl_always_inline void _SimdStreamingFence() noexcept {
-    _SimdMemoryAccess<_SimdGeneration_, _DefaultRegisterPolicy<_SimdGeneration_>>::_StreamingFence();
+    _SimdMemoryAccess<_SimdGeneration_, __default_register_policy<_SimdGeneration_>>::_StreamingFence();
 }
 
 template <
