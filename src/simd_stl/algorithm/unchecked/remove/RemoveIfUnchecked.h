@@ -11,28 +11,28 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedIterator_,
 	class _UnaryPredicate_>
-__simd_nodiscard_inline_constexpr _UnwrappedIterator_ _RemoveIfUnchecked(
-	_UnwrappedIterator_			_FirstUnwrapped,
-	_UnwrappedIterator_			_LastUnwrapped,
-	_UnaryPredicate_			_Predicate) noexcept(
+__simd_nodiscard_inline_constexpr _UnwrappedIterator_ __remove_if_unchecked(
+	_UnwrappedIterator_			__first_unwrapped,
+	_UnwrappedIterator_			__last_unwrapped,
+	_UnaryPredicate_			__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-			type_traits::IteratorValueType<_UnwrappedIterator_>>)
+			type_traits::iterator_value_type<_UnwrappedIterator_>>)
 {
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (_Predicate(*_FirstUnwrapped))
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		if (__predicate(*__first_unwrapped))
 			break;
 
-	if (_FirstUnwrapped == _LastUnwrapped)
-		return _LastUnwrapped;
+	if (__first_unwrapped == __last_unwrapped)
+		return __last_unwrapped;
 
-	for (auto _Current = _FirstUnwrapped; ++_Current != _LastUnwrapped;) {
-		const auto _CurrentValue = std::move(*_Current);
+	for (auto __current = __first_unwrapped; ++__current != __last_unwrapped;) {
+		const auto __current_value = std::move(*__current);
 
-		if (_Predicate(_CurrentValue) == false)
-			*_FirstUnwrapped++ = std::move(_CurrentValue);
+		if (__predicate(__current_value) == false)
+			*__first_unwrapped++ = std::move(__current_value);
 	}
 
-	return _FirstUnwrapped;
+	return __first_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

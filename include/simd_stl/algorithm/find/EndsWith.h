@@ -25,12 +25,12 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_Predicate_				predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
-	using _Value_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
+	using _Value_ = type_traits::iterator_value_type<_FirstForwardIterator_>;
 
 	using _FirstForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstForwardIterator_>;
 	using _SecondForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondForwardIterator_>;
@@ -119,8 +119,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_SecondForwardIterator_ last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -142,8 +142,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_Predicate_				predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -163,8 +163,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 	_SecondForwardIterator_ last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {

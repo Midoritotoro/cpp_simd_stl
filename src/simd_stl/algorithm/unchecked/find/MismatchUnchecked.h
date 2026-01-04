@@ -16,56 +16,56 @@ template <
 	class _FirstUnwrappedIterator_,
 	class _SecondUnwrappedIterator_,
 	class _Predicate_>
-__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
-	_FirstUnwrappedIterator_		_First1Unwrapped,
-	_FirstUnwrappedIterator_		_Last1Unwrapped,
-	_SecondUnwrappedIterator_		_First2Unwrapped,
-	_Predicate_						_Predicate) noexcept(
+__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> __mismatch_unchecked(
+	_FirstUnwrappedIterator_		__first1_unwrapped,
+	_FirstUnwrappedIterator_		__last1_unwrapped,
+	_SecondUnwrappedIterator_		__first2_unwrapped,
+	_Predicate_						__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedIterator_>>)
 {
-	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+	if constexpr (type_traits::__is_vectorized_search_algorithm_safe_v<
 		_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
 	{
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			const auto _Position = _MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
-				std::to_address(_First1Unwrapped), std::to_address(_First2Unwrapped), 
-				__iterators_difference(_First1Unwrapped, _Last1Unwrapped));
+			const auto __position = __mismatch_vectorized<type_traits::iterator_value_type<_FirstUnwrappedIterator_>>(
+				std::to_address(__first1_unwrapped), std::to_address(__first2_unwrapped),
+				__iterators_difference(__first1_unwrapped, __last1_unwrapped));
 
-			_First1Unwrapped += _Position;
-			_First2Unwrapped += _Position;
+			__first1_unwrapped += _Position;
+			__first2_unwrapped += _Position;
 
-			return { _First1Unwrapped, _First2Unwrapped };
+			return { __first1_unwrapped, __first2_unwrapped };
 		}
 	}
 
-	while (_First1Unwrapped != _Last1Unwrapped && _Predicate(*_First1Unwrapped, *_First2Unwrapped)) {
-		++_First1Unwrapped;
-		++_First2Unwrapped;
+	while (__first1_unwrapped != __last1_unwrapped && __predicate(*__first1_unwrapped, *__first2_unwrapped)) {
+		++__first1_unwrapped;
+		++__first2_unwrapped;
 	}
 
-	return { _First1Unwrapped, _First2Unwrapped };
+	return { __first1_unwrapped, __first2_unwrapped };
 }
 
 template <
 	class _FirstUnwrappedIterator_,
 	class _SecondUnwrappedIterator_,
 	class _Predicate_>
-__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> _MismatchUnchecked(
-	_FirstUnwrappedIterator_	_First1Unwrapped,
-	_FirstUnwrappedIterator_	_Last1Unwrapped,
-	_SecondUnwrappedIterator_	_First2Unwrapped,
-	_SecondUnwrappedIterator_	_Last2Unwrapped,
-	_Predicate_					_Predicate) noexcept(
+__simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnwrappedIterator_> __mismatch_unchecked(
+	_FirstUnwrappedIterator_	__first1_unwrapped,
+	_FirstUnwrappedIterator_	__last1_unwrapped,
+	_SecondUnwrappedIterator_	__first2_unwrapped,
+	_SecondUnwrappedIterator_	__last2_unwrapped,
+	_Predicate_					__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedIterator_>>)
 {
 	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
 		_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
@@ -74,23 +74,26 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnw
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			const auto _Position = _MismatchVectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
-				std::to_address(_First1Unwrapped), std::to_address(_First2Unwrapped), (std::min)(
-					__iterators_difference(_First1Unwrapped, _Last1Unwrapped), __iterators_difference(_First2Unwrapped, _Last2Unwrapped)));
-				
-			_First1Unwrapped += _Position;
-			_First2Unwrapped += _Position;
+			const auto __size = (std::min)(
+				__iterators_difference(__first1_unwrapped, __last1_unwrapped), 
+				__iterators_difference(__first2_unwrapped, __last2_unwrapped));
 
-			return { _First1Unwrapped, _First2Unwrapped };
+			const auto __position = __mismatch_vectorized<type_traits::iterator_value_type<_FirstUnwrappedIterator_>>(
+				std::to_address(__first1_unwrapped), std::to_address(__first2_unwrapped), __size);
+				
+			__first1_unwrapped += __position;
+			__first2_unwrapped += __position;
+
+			return { __first1_unwrapped, __first2_unwrapped };
 		}
 	}
 
-	while (_First1Unwrapped != _Last1Unwrapped && _Predicate(*_First1Unwrapped, *_First2Unwrapped)) {
-		++_First1Unwrapped;
-		++_First2Unwrapped;
+	while (__first1_unwrapped != __last1_unwrapped && __predicate(*__first1_unwrapped, *__first2_unwrapped)) {
+		++__first1_unwrapped;
+		++__first2_unwrapped;
 	}
 
-	return { _First1Unwrapped, _First2Unwrapped };
+	return { __first1_unwrapped, __first2_unwrapped };
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

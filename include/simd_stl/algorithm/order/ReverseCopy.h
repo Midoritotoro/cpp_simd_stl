@@ -19,7 +19,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_
     using _FirstBidirectionalUnwrappedIterator_     = unwrapped_iterator_type<_FirstBidirectionalIterator_>;
     using _SecondBidirectionalUnwrappedIterator_    = unwrapped_iterator_type<_SecondBidirectionalIterator_>;
 
-    using _FirstBidirectionalIteratorValueType_     = type_traits::IteratorValueType<_FirstBidirectionalUnwrappedIterator_>;
+    using _FirstBidirectionalIteratorValueType_     = type_traits::iterator_value_type<_FirstBidirectionalUnwrappedIterator_>;
 
     __verifyRange(first, last);
     memory::_CheckIntersection(first, last, destination);

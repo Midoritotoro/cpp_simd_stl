@@ -22,28 +22,30 @@ __simd_nodiscard_inline_constexpr bool __equal_unchecked(
 	_Predicate_					__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, 
-			type_traits::IteratorValueType<_FirstUnwrappedIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedIterator_>>)
 {
-	if constexpr (
-		type_traits::is_iterator_random_ranges_v<_FirstUnwrappedIterator_> &&
-		type_traits::is_iterator_random_ranges_v<_SecondUnwrappedIterator_>)
-	{
+	using _DifferenceType = type_traits::iterator_difference_type<_FirstUnwrappedIterator_>;
+
+	constexpr auto __is_random = type_traits::is_iterator_random_ranges_v<_FirstUnwrappedIterator_> &&
+		type_traits::is_iterator_random_ranges_v<_SecondUnwrappedIterator_>;
+
+	if constexpr (__is_random) {
 		const auto __size = __iterators_difference(__first1_unwrapped, __last1_unwrapped);
 
-		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+		if constexpr (type_traits::__is_vectorized_search_algorithm_safe_v<
 			_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
 		{
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 			{
-				return __equal_vectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
+				return __equal_vectorized<type_traits::iterator_value_type<_FirstUnwrappedIterator_>>(
 					std::to_address(__first1_unwrapped), std::to_address(__first2_unwrapped), __size);
 			}
 		}
 		else {
-			for (auto __current = sizetype(0); __current < __size; ++__current)
+			for (auto __current = _DifferenceType(0); __current < __size; ++__current)
 				if (__predicate(*__first1_unwrapped++, *__first2_unwrapped++) == false)
 					return false;
 
@@ -70,30 +72,33 @@ __simd_nodiscard_inline_constexpr bool __equal_unchecked(
 	_Predicate_					__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedIterator_>,
-			type_traits::IteratorValueType<_FirstUnwrappedIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedIterator_>,
+			type_traits::iterator_value_type<_FirstUnwrappedIterator_>>)
 {
-	if constexpr (type_traits::is_iterator_random_ranges_v<_FirstUnwrappedIterator_> &&
-		type_traits::is_iterator_random_ranges_v<_SecondUnwrappedIterator_>)
-	{
+	using _DifferenceType = type_traits::iterator_difference_type<_FirstUnwrappedIterator_>;
+
+	constexpr auto __is_random = type_traits::is_iterator_random_ranges_v<_FirstUnwrappedIterator_> &&
+		type_traits::is_iterator_random_ranges_v<_SecondUnwrappedIterator_>;
+
+	if constexpr (__is_random) {
 		const auto __size = __iterators_difference(__first1_unwrapped, __last1_Unwrapped);
 
 		if (__size != __iterators_difference(__first2_Unwrapped, __last2_Unwrapped))
 			return false;
 
-		if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+		if constexpr (type_traits::__is_vectorized_search_algorithm_safe_v<
 			_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
 		{
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 			{
-				return __equal_vectorized<type_traits::IteratorValueType<_FirstUnwrappedIterator_>>(
+				return __equal_vectorized<type_traits::iterator_value_type<_FirstUnwrappedIterator_>>(
 					std::to_address(__first1_unwrapped), std::to_address(__first2_Unwrapped), __size);
 			}
 		}
 		else {
-			for (auto __current = sizetype(0); __current < __size; ++__current)
+			for (auto __current = _DifferenceType(0); __current < __size; ++__current)
 				if (__predicate(*__first1_unwrapped++, *__first2_Unwrapped++) == false)
 					return false;
 

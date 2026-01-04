@@ -17,8 +17,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_Predicate_			_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	__verifyRange(_First1, _Last1);
 
@@ -43,8 +43,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_Predicate_			_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	__verifyRange(_First1, _Last1);
 	__verifyRange(_First2, _Last2);
@@ -67,8 +67,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_SecondIterator_	_First2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2, type_traits::equal_to<>{});
 }
@@ -83,8 +83,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_SecondIterator_	_Last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2, _Last2, type_traits::equal_to<>{});
 }
@@ -103,8 +103,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_Predicate_			_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2, type_traits::passFunction(_Predicate));
 }
@@ -124,8 +124,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_Predicate_			_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2, _Last2, type_traits::passFunction(_Predicate));
 }
@@ -142,8 +142,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_SecondIterator_	_First2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2);
 }
@@ -161,8 +161,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	_SecondIterator_	_Last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstIterator_>,
-			type_traits::IteratorValueType<_SecondIterator_>>)
+			type_traits::iterator_value_type<_FirstIterator_>,
+			type_traits::iterator_value_type<_SecondIterator_>>)
 {
 	return simd_stl::algorithm::mismatch(_First1, _Last1, _First2, _Last2);
 }

@@ -71,11 +71,11 @@ template <
             && !is_iterator_volatile_v<_DestinationIterator_>>
 struct IteratorMoveCategory : 
     TrivialCategory<
-        IteratorValueType<_SourceIterator_>, 
-        IteratorValueType<_DestinationIterator_>,
+        iterator_value_type<_SourceIterator_>, 
+        iterator_value_type<_DestinationIterator_>,
 std::remove_reference_t<
-    IteratorReferenceType<_SourceIterator_>>&&,
-    IteratorReferenceType<_DestinationIterator_>
+    iterator_reference_type<_SourceIterator_>>&&,
+    iterator_reference_type<_DestinationIterator_>
 > 
 {};
 
@@ -97,10 +97,10 @@ template <
         && !is_iterator_volatile_v<_DestinationIterator_>>
 struct IteratorCopyCategory :
     TrivialCategory <
-        IteratorValueType<_SourceIterator_>,
-        IteratorValueType<_DestinationIterator_>,
-        IteratorReferenceType<_SourceIterator_>,
-        IteratorReferenceType<_DestinationIterator_>
+        iterator_value_type<_SourceIterator_>,
+        iterator_value_type<_DestinationIterator_>,
+        iterator_reference_type<_SourceIterator_>,
+        iterator_reference_type<_DestinationIterator_>
     > 
 {};
 

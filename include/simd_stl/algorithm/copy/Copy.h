@@ -32,7 +32,7 @@ __simd_inline_constexpr _OutputIterator_ copy_if(
     _OutputIterator_    _Destination,
     _Predicate_         _Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
     __verifyRange(__first, _Last);
 
@@ -69,7 +69,7 @@ _OutputIterator_ copy_if(
     _OutputIterator_    _Destination,
     _Predicate_         _Predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
-            _Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+            _Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
     return simd_stl::algorithm::copy_if(__first, _Last, _Destination, type_traits::passFunction(_Predicate));
 }

@@ -15,7 +15,7 @@ __simd_inline_constexpr _UnaryFunction_ for_each_n(
 	_SizeType_		_Count,
 	_UnaryFunction_	_Function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
-			type_traits::IteratorValueType<_InputIterator_>>)
+			type_traits::iterator_value_type<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
 
@@ -36,7 +36,7 @@ simd_stl_always_inline void for_each_n(
 	_SizeType_		_Count,
 	_UnaryFunction_	_Function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
-			type_traits::IteratorValueType<_InputIterator_>>)
+			type_traits::iterator_value_type<_InputIterator_>>)
 {
 	return simd_stl::algorithm::for_each_n(_First, _Count, type_traits::passFunction(_Function));
 }

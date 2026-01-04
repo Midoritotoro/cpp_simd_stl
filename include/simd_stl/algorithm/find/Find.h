@@ -11,7 +11,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _Iterator_,
-	class _Type_ = type_traits::IteratorValueType<_Iterator_>>
+	class _Type_ = type_traits::iterator_value_type<_Iterator_>>
 __simd_nodiscard_inline_constexpr _Iterator_ find(
 	_Iterator_											_First,
 	_Iterator_											_Last,
@@ -33,7 +33,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_if_not(
 	_InputIterator_	_Last, 
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
 
@@ -51,7 +51,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_if(
 	_InputIterator_	_Last, 
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
 
@@ -64,7 +64,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_if(
 template <
 	class _ExecutionPolicy_,
 	class _Iterator_,
-	class _Type_ = type_traits::IteratorValueType<_Iterator_>,
+	class _Type_ = type_traits::iterator_value_type<_Iterator_>,
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard _Iterator_ find(
 	_ExecutionPolicy_&&,

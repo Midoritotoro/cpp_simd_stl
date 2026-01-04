@@ -1080,7 +1080,7 @@ simd_stl_always_inline _DesiredType_* _SimdMemoryAccess<arch::CpuFeature::AVX, n
     using _MaskType = _Simd_mask_type<_DesiredType_>;
     using _HalfType = IntegerForSize<_Max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
 
-    constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+    constexpr auto _Maximum = math::__maximum_integral_limit<_HalfType>();
     constexpr auto _Shift = (sizeof(_MaskType) << 2);
 
     _Where = _CompressStoreLowerHalf<_DesiredType_>(_Where, _Mask & _Maximum, _Vector);

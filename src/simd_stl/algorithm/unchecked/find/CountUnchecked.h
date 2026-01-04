@@ -11,26 +11,28 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
+	class _Type_ = type_traits::iterator_value_type<_UnwrappedIterator_>>
 __simd_nodiscard_inline_constexpr sizetype __count_unchecked(
 	_UnwrappedIterator_									__first_unwrapped,
 	_UnwrappedIterator_									__last_unwrapped,
 	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
+	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedInputIterator_>;
+
 	if constexpr (type_traits::is_iterator_random_ranges_v<_UnwrappedIterator_>) {
 		const auto __size = __byte_length(__first_unwrapped, __last_unwrapped);
 
-		if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
+		if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 			if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 			{
-				return _CountVectorized(std::to_address(__first_unwrapped), __size, __value);
+				return __count_vectorized(std::to_address(__first_unwrapped), __size, __value);
 			}
 		}
 	}
 
-    auto __count = sizetype(0);
+    auto __count = _DifferenceType(0);
 
 	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
 		if (*__first_unwrapped == __value)

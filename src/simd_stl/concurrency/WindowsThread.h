@@ -16,56 +16,56 @@
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-struct _ThreadType {
+struct __thread_type {
     void* handle = nullptr;
     dword_t id = 0;
 };
 
-enum class _ThreadResult: uint8 {
-    _Error,
-    _Success
+enum class __thread_result: uint8 {
+    Error,
+    Success
 };
 
-enum _ThreadCreationFlags : dword_t {
-    _RunAfterCreation = 0,
-    _SuspendAfterCreation = CREATE_SUSPENDED
+enum __thread_creation_flags : dword_t {
+    __run_after_creation        = 0,
+    __suspend_after_creation    = CREATE_SUSPENDED
 };
 
-simd_stl_nodiscard dword_t _CurrentThreadId() noexcept {
+simd_stl_nodiscard dword_t __current_thread_id() noexcept {
 	return GetCurrentThreadId();
 }
 
-simd_stl_nodiscard dword_t _ThreadId(void* handle) noexcept {
-	return GetThreadId(handle);
+simd_stl_nodiscard dword_t __thread_id(void* __handle) noexcept {
+	return GetThreadId(__handle);
 }
 
-simd_stl_nodiscard void* _CurrentThread() noexcept {
+simd_stl_nodiscard void* __current_thread() noexcept {
 	return GetCurrentThread();
 }
 
-_ThreadResult _WaitForThread(void* handle) noexcept {
-    if (WaitForSingleObjectEx(handle, INFINITE, FALSE) == WAIT_FAILED)
-        return _ThreadResult::_Error;
+__thread_result __wair_for_thread(void* __handle) noexcept {
+    if (WaitForSingleObjectEx(__handle, INFINITE, FALSE) == WAIT_FAILED)
+        return __thread_result::Error;
 
-    return _ThreadResult::_Success;
+    return __thread_result::Success;
 }
 
-int _ThreadPriority(void* handle) noexcept {
-    return GetThreadPriority(handle);
+int __thread_priority(void* __handle) noexcept {
+    return GetThreadPriority(__handle);
 }
 
-void _CurrentThreadSleep(dword_t milliseconds) noexcept {
-	Sleep(milliseconds);
+void __current_thread_sleep(dword_t __milliseconds) noexcept {
+	Sleep(__milliseconds);
 }
 
 template <
     class           _Tuple_,
     sizetype ...    _Indices_>
-uint32 simd_stl_stdcall _ThreadTaskInvoke(void* raw) noexcept {
-    const std::unique_ptr<_Tuple_> args(static_cast<_Tuple_*>(raw));
+uint32 simd_stl_stdcall __thread_task_invoke(void* __raw) noexcept {
+    const std::unique_ptr<_Tuple_> __args(static_cast<_Tuple_*>(__raw));
 
-    _Tuple_& tuple = *args.get();
-    type_traits::invoke(std::move(std::get<_Indices_>(tuple))...);
+    _Tuple_& __tuple = *__args.get();
+    type_traits::invoke(std::move(std::get<_Indices_>(__tuple))...);
 
     return 0;
 }
@@ -73,103 +73,103 @@ uint32 simd_stl_stdcall _ThreadTaskInvoke(void* raw) noexcept {
 template <
     class       _Tuple_,
     size_t...   _Indices_>
-static constexpr auto _GetThreadTaskInvoker(std::index_sequence<_Indices_...>) noexcept {
-    return &_ThreadTaskInvoke<_Tuple_, _Indices_...>;
+static constexpr auto __get_thread_task_invoker(std::index_sequence<_Indices_...>) noexcept {
+    return &__thread_task_invoke<_Tuple_, _Indices_...>;
 }
 
 template <
     class       _Task_,
     class...    _Args_>
-_ThreadType simd_stl_stdcall _CreateThread(
-    _ThreadCreationFlags    creation,
-    dword_t                 stackSize,
-    _Task_&&                task,
-    _Args_&& ...            args) noexcept
+__thread_type simd_stl_stdcall __create_thread(
+    __thread_creation_flags     __creation,
+    dword_t                     __stack_size,
+    _Task_&&                    __task,
+    _Args_&& ...                __args) noexcept
 {
-    _ThreadType result;
-    using _Tuple_ = std::tuple<std::decay_t<_Task_>, std::decay_t<_Args_>...>;
+    __thread_type __result;
+    using _Tuple = std::tuple<std::decay_t<_Task_>, std::decay_t<_Args_>...>;
 
-    auto decayCopied = std::make_unique<_Tuple_>(std::forward<_Task_>(task),  std::forward<_Args_>(args)...);
-    constexpr auto invoker = _GetThreadTaskInvoker<_Tuple_>(std::make_index_sequence<1 + sizeof...(_Args_)>{});
+    auto __decay_copied         = std::make_unique<_Tuple>(std::forward<_Task_>(__task),  std::forward<_Args_>(__args)...);
+    constexpr auto __invoker    = __get_thread_task_invoker<_Tuple>(std::make_index_sequence<1 + sizeof...(_Args_)>{});
 
-    auto threadId = dword_t(0);
+    auto __thread_id = dword_t(0);
 
 #if defined(simd_stl_cpp_msvc) && !defined(_DLL)
     // -MT || -MTd 
 
-    result.handle = reinterpret_cast<HANDLE>(
+    __result.handle = reinterpret_cast<HANDLE>(
         _beginthreadex(
-            nullptr, stackSize, invoker, decayCopied.get(), creation,
-            reinterpret_cast<uint32*>(&threadId)
+            nullptr, __stack_size, __invoker, __decay_copied.get(), __creation,
+            reinterpret_cast<uint32*>(&__thread_id)
         )
     );
 #else
     // -MD || -MDd
 
-    result.handle = CreateThread(
-        nullptr, stackSize, reinterpret_cast<LPTHREAD_START_ROUTINE>(invoker),
-        reinterpret_cast<LPVOID>(decayCopied.get()),
-        creation, reinterpret_cast<LPDWORD>(&threadId));
+    __result.handle = CreateThread(
+        nullptr, __stack_size, reinterpret_cast<LPTHREAD_START_ROUTINE>(__invoker),
+        reinterpret_cast<LPVOID>(__decay_copied.get()),
+        __creation, reinterpret_cast<LPDWORD>(&__thread_id));
 
 #endif // defined(simd_stl_cpp_msvc) && !defined(_DLL)
 
-    if (simd_stl_likely(result.handle != nullptr)) {
-        result.id = threadId;
-        simd_stl_unused(decayCopied.release());
+    if (simd_stl_likely(__result.handle != nullptr)) {
+        __result.id = __thread_id;
+        simd_stl_unused(__decay_copied.release());
     }
     else {
-        result.id = 0;
+        __result.id = 0;
     }
 
-    return result;
+    return __result;
 }
 
-bool _ResumeSuspendedThread(void* handle) noexcept {
-    return ResumeThread(handle) != -1;
+bool __resume_suspended_thread(void* __handle) noexcept {
+    return ResumeThread(__handle) != -1;
 }
 
-dword_t _ThreadExitCode(void* handle) {
-    dword_t exitCode = 0;
-    GetExitCodeThread(handle, &exitCode);
+dword_t __thread_exit_code(void* __handle) {
+    dword_t __exit_code = 0;
+    GetExitCodeThread(__handle, &__exit_code);
 
-    return exitCode;
+    return __exit_code;
 }
 
-void simd_stl_stdcall _DetachThread(void* handle) noexcept {
-    CloseHandle(handle);
+void simd_stl_stdcall __detach_thread(void* __handle) noexcept {
+    CloseHandle(__handle);
 }   
 
-dword_t simd_stl_stdcall _TerminateThread(void* handle) noexcept {
-    return TerminateThread(handle, _ThreadExitCode(handle));
+dword_t simd_stl_stdcall __terminate_thread(void* __handle) noexcept {
+    return TerminateThread(__handle, __thread_exit_code(__handle));
 }
 
-void simd_stl_stdcall _SetThreadPriority(
-    void*   handle,
-    int     priority) noexcept 
+void simd_stl_stdcall __set_thread_priority(
+    void*   __handle,
+    int     __priority) noexcept 
 {
-    if (!SetThreadPriority(handle, priority))
+    if (!SetThreadPriority(__handle, __priority))
         printf("simd_stl::concurrency::_SetThreadPriority: Failed to set thread priority.");
 }
 
 template <
     class _TickCountType_, 
     class _Period_>
-simd_stl_always_inline auto _ToAbsoluteTime(const std::chrono::duration<_TickCountType_, _Period_>& relativeTime) noexcept {
-    constexpr auto zero = std::chrono::duration<_TickCountType_, _Period_>::zero();
-    const auto now      = std::chrono::steady_clock::now();
+simd_stl_always_inline auto __to_absolute_time(const std::chrono::duration<_TickCountType_, _Period_>& __relative_time) noexcept {
+    constexpr auto __zero = std::chrono::duration<_TickCountType_, _Period_>::zero();
+    const auto __now      = std::chrono::steady_clock::now();
 
-    decltype(now + relativeTime) absoluteTime = now; 
+    decltype(__now + __relative_time) __absoluteTime = __now; 
 
-    if (relativeTime > zero) {
-        constexpr auto _Forever = (decltype(absoluteTime)::max)();
+    if (__relativeTime > __zero) {
+        constexpr auto __forever = (decltype(__absolute_time)::max)();
 
-        if (absoluteTime < _Forever - relativeTime)
-            absoluteTime += relativeTime;
+        if (__absoluteTime < __forever - __relative_time)
+            __absoluteTime += __relative_time;
         else
-            absoluteTime = _Forever;
+            __absoluteTime = __forever;
     }
 
-    return absoluteTime;
+    return __absoluteTime;
 }
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END

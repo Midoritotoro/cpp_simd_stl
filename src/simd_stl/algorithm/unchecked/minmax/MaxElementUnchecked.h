@@ -6,76 +6,74 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _UnwrappedInputIterator_>
-__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
-	_UnwrappedInputIterator_ _FirstUnwrapped,
-	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
+__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ __max_element_unchecked(
+	_UnwrappedInputIterator_ __first_unwrapped,
+	_UnwrappedInputIterator_ __last_unwrapped) noexcept
 {
-	using _ValueType = type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+	using _ValueType = type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>)
-	{
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{ 
-			const auto _FirstAdress = std::to_address(_FirstUnwrapped);
-			const auto _Position = _MaxElementVectorized<_ValueType>(_FirstAdress, std::to_address(_LastUnwrapped));
+			const auto __first_address	= std::to_address(__first_unwrapped);
+			const auto __position		= __max_element_vectorized<_ValueType>(__first_address, std::to_address(__last_unwrapped));
 
 			if constexpr (std::is_pointer_v<_UnwrappedInputIterator_>)
-				return _Position;
+				return __position;
 			else
-				return _FirstUnwrapped + (_Position - _FirstAdress);
+				return __first_unwrapped + (__position - __first_address);
 		}
 	}
 
-	if (_FirstUnwrapped == _LastUnwrapped)
-		return _LastUnwrapped;
+	if (__first_unwrapped == __last_unwrapped)
+		return __last_unwrapped;
 
-	auto _Max = _FirstUnwrapped;
+	auto __max = __first_unwrapped;
 
-	for (; ++_FirstUnwrapped != _LastUnwrapped; )
-		if (*_FirstUnwrapped > *_Max)
-			_Max = _FirstUnwrapped;
+	for (; ++__first_unwrapped != __last_unwrapped; )
+		if (*__first_unwrapped > *__max)
+			__max = __first_unwrapped;
 
-	return _Max;
+	return __max;
 }
 
 template <
 	class _UnwrappedInputIterator_,
 	class _Predicate_>
-__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ _MaxElementUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_Predicate_					_Predicate) noexcept
+__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ __max_element_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_Predicate_					__predicate) noexcept
 {
-	using _ValueType = type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+	using _ValueType = type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>)
-	{
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{ 
-			const auto _FirstAdress = std::to_address(_FirstUnwrapped);
-			const auto _Position = _MaxElementVectorized<_ValueType>(_FirstAdress, std::to_address(_LastUnwrapped));
+			const auto __first_address	= std::to_address(__first_unwrapped);
+			const auto __position		= __max_element_vectorized<_ValueType>(__first_address, std::to_address(__last_unwrapped));
 
 			if constexpr (std::is_pointer_v<_UnwrappedInputIterator_>)
-				return _Position;
+				return __position;
 			else
-				return _FirstUnwrapped + (_Position - _FirstAdress);
+				return __first_unwrapped + (__position - __first_address);
 		}
 	}
 
-	if (_FirstUnwrapped == _LastUnwrapped)
-		return _LastUnwrapped;
+	if (__first_unwrapped == __last_unwrapped)
+		return __last_unwrapped;
 
-	auto _Max = _FirstUnwrapped;
+	auto __maximum = __first_unwrapped;
 
-	for (; ++_FirstUnwrapped != _LastUnwrapped; )
-		if (_Predicate(_Max, _FirstUnwrapped))
-			_Max = _FirstUnwrapped;
+	for (; ++__first_unwrapped != __last_unwrapped; )
+		if (__predicate(__maximum, __first_unwrapped))
+			__maximum = __first_unwrapped;
 
-	return _Max;
+	return __maximum;
 }
 
 

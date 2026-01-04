@@ -2011,7 +2011,7 @@ simd_stl_always_inline void* _MemcpyVectorizedInternal<arch::CpuFeature::None>(
     return destination;
 }
 
-void* _MemcpyVectorized(
+void* __memcpy_vectorized(
     void*       destination,
     const void* source,
     sizetype    bytes) noexcept

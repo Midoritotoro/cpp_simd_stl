@@ -17,18 +17,18 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function bool simd_stl_stdcall _ContainsScalar(
+simd_stl_declare_const_function bool simd_stl_stdcall __contains_scalar(
     const void* __first,
-    const void* _Last,
-    _Type_      _Value) noexcept
+    const void* __last,
+    _Type_      __value) noexcept
 {
-    auto _Current = static_cast<const _Type_*>(__first);
+    auto __current = static_cast<const _Type_*>(__first);
 
-    while (_Current != _Last) {
-        if (*_Current == _Value)
+    while (__current != __last) {
+        if (*__current == __value)
             return true;
 
-        ++_Current;
+        ++__current;
     }
 
     return false;
@@ -37,10 +37,10 @@ simd_stl_declare_const_function bool simd_stl_stdcall _ContainsScalar(
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _Type_>
-simd_stl_declare_const_function bool simd_stl_stdcall _ContainsVectorizedInternal(
+simd_stl_declare_const_function bool simd_stl_stdcall __contains_vectorized_internal(
     const void* __first,
-    const void* _Last,
-    _Type_      _Value) noexcept
+    const void* __last,
+    _Type_      __value) noexcept
 {
     using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
     numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;

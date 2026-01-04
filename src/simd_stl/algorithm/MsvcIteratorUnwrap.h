@@ -12,15 +12,15 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Iterator_>
-simd_stl_nodiscard constexpr decltype(auto) _UnwrapIterator(_Iterator_&& iterator) 
+simd_stl_nodiscard constexpr decltype(auto) __unwrap_iterator(_Iterator_&& __iterator) 
     noexcept(type_traits::is_iterator_unwrappable_v<_Iterator_> == false || type_traits::is_nothrow_unwrappable_v<_Iterator_>)
 {
     if constexpr (std::is_pointer_v<std::decay_t<_Iterator_>>)
-        return iterator + 0;
+        return __iterator + 0;
     else if constexpr (type_traits::is_iterator_unwrappable_v<_Iterator_>)
-        return std::move(iterator)._Unwrapped();
+        return std::move(__iterator)._Unwrapped();
     else
-        return std::move(iterator);
+        return std::move(__iterator);
 }
 
 template <class _Iterator_>
@@ -59,13 +59,13 @@ simd_stl_nodiscard constexpr decltype(auto) _UnwrapIteratorOffset(
         type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_> &&
         type_traits::is_nonbool_integral_v<_DifferenceType_>) 
     {
-        using _IteratorDifferenceType_      = type_traits::IteratorDifferenceType<std::remove_cvref_t<_Iterator_>>;
+        using _IteratorDifferenceType_      = type_traits::iterator_difference_type<std::remove_cvref_t<_Iterator_>>;
         using _CommonDifferenceType_        = std::common_type_t<_DifferenceType_, _IteratorDifferenceType_>;
 
         const auto commonOffset = static_cast<_CommonDifferenceType_>(offset);
 
-        constexpr auto maximum = math::MaximumIntegralLimit<_IteratorDifferenceType_>();
-        constexpr auto minimum = math::MinimumIntegralLimit<_IteratorDifferenceType_>();
+        constexpr auto maximum = math::__maximum_integral_limit<_IteratorDifferenceType_>();
+        constexpr auto minimum = math::__minimum_integral_limit<_IteratorDifferenceType_>();
 
         DebugAssert(commonOffset <= static_cast<_CommonDifferenceType_>(maximum)
             && (std::is_unsigned_v<_DifferenceType_> || static_cast<_CommonDifferenceType_>(minimum) <= commonOffset),
@@ -107,7 +107,7 @@ simd_stl_nodiscard constexpr decltype(auto) _UnwrapIteratorBytesOffset(
         (type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_> == false ||
             type_traits::is_iterator_unwrappable_for_offset_v<_Iterator_>))
 {
-    using _ValueType_ = type_traits::IteratorValueType<unwrapped_iterator_type<_Iterator_>>;
+    using _ValueType_ = type_traits::iterator_value_type<unwrapped_iterator_type<_Iterator_>>;
 
     if constexpr (std::is_pointer_v<std::decay_t<_Iterator_>>)
         return iterator + 0;

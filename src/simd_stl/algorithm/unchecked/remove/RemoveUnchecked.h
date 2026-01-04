@@ -6,50 +6,49 @@
 #include <src/simd_stl/algorithm/vectorized/remove/RemoveVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
+#include <src/simd_stl/numeric/IsComparable.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedInputIterator_,
-	class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _UnwrappedInputIterator_ _RemoveUnchecked(
-	_UnwrappedInputIterator_							_FirstUnwrapped,
-	_UnwrappedInputIterator_							_LastUnwrapped,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept
+	class _Type_ = type_traits::iterator_value_type<_UnwrappedInputIterator_>>
+__simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ __remove_unchecked(
+	_UnwrappedInputIterator_							__first_unwrapped,
+	_UnwrappedInputIterator_							__last_unwrapped,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	using _DifferenceType = type_traits::IteratorDifferenceType<_UnwrappedInputIterator_>;
+	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedInputIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _Type_>) {
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (math::couldCompareEqualToValueType<_UnwrappedInputIterator_>(_Value) == false)
-				return _LastUnwrapped;
+			if (numeric::__is_comparable<_UnwrappedInputIterator_>(__value) == false)
+				return __last_unwrapped;
 
-			const auto _FirstAddress = std::to_address(_FirstUnwrapped);
-			const auto _Position = _RemoveVectorized<
-				type_traits::IteratorValueType<_UnwrappedInputIterator_>>(_FirstAddress, std::to_address(_LastUnwrapped), _Value);
+			const auto __first_address = std::to_address(__first_unwrapped);
+			const auto __position = __remove_vectorized<type_traits::iterator_value_type<_UnwrappedInputIterator_>>(
+				__first_address, std::to_address(__last_unwrapped), __value);
 
 			if constexpr (std::is_pointer_v<_UnwrappedInputIterator_>)
-				return _Position;
+				return __position;
 			else
-				return _FirstUnwrapped + static_cast<_DifferenceType>(_Position - _FirstAddress);
+				return __first_unwrapped + (__position - __first_address);
 		}
 	}
 
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (*_FirstUnwrapped == _Value)
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		if (*__first_unwrapped == __value)
 			break;
 
-	for (auto _Current = _FirstUnwrapped; ++_Current != _LastUnwrapped;) {
-		const auto _CurrentValue = std::move(*_Current);
+	for (auto __current = __first_unwrapped; ++__current != __last_unwrapped;)
+		if (*__current != __value)
+			*__first_unwrapped++ = *__current;
 
-		if (_CurrentValue != _Value)
-			*_FirstUnwrapped++ = std::move(_CurrentValue);
-	}
-
-	return _FirstUnwrapped;
+	return __first_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

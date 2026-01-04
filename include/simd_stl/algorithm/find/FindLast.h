@@ -31,7 +31,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 	_InputIterator_	_Last, 
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
 
@@ -49,7 +49,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
 	_InputIterator_	_Last,
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	__verifyRange(_First, _Last);
 	
@@ -84,7 +84,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_last_if_not(
 	_InputIterator_	_Last, 
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	return simd_stl::algorithm::find_last_if_not(_First, _Last, type_traits::passFunction(_Predicate));
 }
@@ -100,7 +100,7 @@ __simd_nodiscard_inline_constexpr _InputIterator_ find_last_if(
 	_InputIterator_	_Last,
 	_Predicate_		_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
 	return simd_stl::algorithm::find_last_if(_First, _Last, type_traits::passFunction(_Predicate));
 }

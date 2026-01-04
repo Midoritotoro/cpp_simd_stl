@@ -24,8 +24,8 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	_Predicate_						predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -49,7 +49,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 
 		if (length == 1) {
 			const auto value = *first2Unwrapped;
-			using _ValueType_ = type_traits::IteratorValueType<_SecondForwardUnwrappedIterator_>;
+			using _ValueType_ = type_traits::iterator_value_type<_SecondForwardUnwrappedIterator_>;
 
 			if (math::couldCompareEqualToValueType<_FirstForwardUnwrappedIterator_>(value) == false)
 				return last1;
@@ -65,7 +65,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 			if constexpr (std::is_pointer_v<_FirstForwardIterator_>)
 				return reinterpret_cast<_ValueType_*>(position);
 			else
-				return first1 + static_cast<type_traits::IteratorDifferenceType<_FirstForwardIterator_>>(
+				return first1 + static_cast<type_traits::iterator_difference_type<_FirstForwardIterator_>>(
 					reinterpret_cast<const _ValueType_*>(position) - first1Address);
 		}
 	}
@@ -112,8 +112,8 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	_SecondForwardIterator_	last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -136,8 +136,8 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	_Predicate_				predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -157,8 +157,8 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 	_SecondForwardIterator_	last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {

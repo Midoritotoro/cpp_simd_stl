@@ -16,13 +16,13 @@ constexpr bool is_fill_memset_safe_v = std::conjunction_v<
     is_character_or_byte_or_bool_v<
         unwrap_enum_t<
             std::remove_reference_t<
-                IteratorReferenceType<_ForwardIterator_>>>>,
+                iterator_reference_type<_ForwardIterator_>>>>,
     std::negation<
         std::is_volatile<
             std::remove_reference_t<
-                IteratorReferenceType<_ForwardIterator_>>>>,
+                iterator_reference_type<_ForwardIterator_>>>>,
     std::is_assignable<
-        IteratorReferenceType<_ForwardIterator_>,
+        iterator_reference_type<_ForwardIterator_>,
     const _Type_ &>>;
 
 template <
@@ -38,15 +38,15 @@ constexpr bool is_fill_zero_memset_safe_v =
     std::conjunction_v<
         std::is_scalar<_Type_>, 
         std::is_scalar<
-            IteratorValueType<_ForwardIterator_>>,
+            iterator_value_type<_ForwardIterator_>>,
         std::negation<
             std::is_member_pointer<
-                IteratorValueType<_ForwardIterator_>>>,
+                iterator_value_type<_ForwardIterator_>>>,
         std::negation<
             std::is_volatile<
                 std::remove_reference_t<
-                    IteratorReferenceType<_ForwardIterator_>>>>,
-        std::is_assignable<IteratorReferenceType<_ForwardIterator_>,
+                    iterator_reference_type<_ForwardIterator_>>>>,
+        std::is_assignable<iterator_reference_type<_ForwardIterator_>,
     const _Type_&>>;
 
 template <

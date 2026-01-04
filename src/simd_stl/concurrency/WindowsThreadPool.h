@@ -12,25 +12,25 @@
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-using _ThreadPoolWork	= TP_WORK;
+using __thread_pool_work = TP_WORK;
 
-class WindowsThreadPool {
+class __windows_thread_pool {
 public:
 	template <class _Task_> 
-	static _ThreadPoolWork* createWork(_Task_& task) noexcept {
-		return CreateThreadpoolWork(&_Task_::threadPoolCallback, reinterpret_cast<PVOID>(&task), nullptr);
+	static __thread_pool_work* __create_work(_Task_& __task) noexcept {
+		return CreateThreadpoolWork(&_Task_::thread_pool_callback, reinterpret_cast<void*>(&__task), nullptr);
 	}
 
-	static void closeWork(_ThreadPoolWork* work) noexcept {
-		CloseThreadpoolWork(work);
+	static void __close_work(__thread_pool_work* __work) noexcept {
+		CloseThreadpoolWork(__work);
 	}
 
-	static void submit(_ThreadPoolWork* work) noexcept {
-		SubmitThreadpoolWork(work);
+	static void __submit(__thread_pool_work* __work) noexcept {
+		SubmitThreadpoolWork(__work);
 	}
 
-	static void waitFor(_ThreadPoolWork* work) noexcept {
-		WaitForThreadpoolWorkCallbacks(work, true);
+	static void __wait_for(__thread_pool_work* __work) noexcept {
+		WaitForThreadpoolWorkCallbacks(__work, true);
 	}
 };
 

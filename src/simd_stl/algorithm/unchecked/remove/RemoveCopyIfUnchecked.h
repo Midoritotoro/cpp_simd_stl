@@ -13,17 +13,17 @@ template <
 	class _UnwrappedInputIterator_,
 	class _UnwrappedOutputIterator_,
 	class _UnaryPredicate_>
-__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _RemoveCopyIfUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_UnwrappedOutputIterator_	_DestinationUnwrapped,
-	_UnaryPredicate_			_Predicate) noexcept
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ __remove_copy_if_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_UnwrappedOutputIterator_	__destination_unwrapped,
+	_UnaryPredicate_			__predicate) noexcept
 {
-	for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped)
-		if (_Predicate(*_FirstUnwrapped) == false)
-			*_DestinationUnwrapped++ = std::move(*_FirstUnwrapped);
+	for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+		if (__predicate(*__first_unwrapped) == false)
+			*__destination_unwrapped++ = std::move(*__first_unwrapped);
 
-	return _DestinationUnwrapped;
+	return __destination_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

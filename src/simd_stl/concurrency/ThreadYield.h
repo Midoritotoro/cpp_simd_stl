@@ -6,7 +6,7 @@
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
-simd_stl_always_inline void _Yield() noexcept {
+simd_stl_always_inline void __yield() noexcept {
 #if __has_builtin(__yield)
         __yield();
 

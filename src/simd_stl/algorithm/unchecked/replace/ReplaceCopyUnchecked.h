@@ -13,28 +13,30 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
     class _UnwrappedInputIterator_,
     class _UnwrappedOutputIterator_,
-    class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-__simd_inline_constexpr void _ReplaceCopyUnchecked(
-    _UnwrappedInputIterator_                            _FirstUnwrapped,
-    _UnwrappedInputIterator_                            _LastUnwrapped,
-    _UnwrappedOutputIterator_                           _DestinationUnwrapped,
-    const typename std::type_identity<_Type_>::type&    _OldValue,
-    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept
+    class _Type_ = type_traits::iterator_value_type<_UnwrappedInputIterator_>>
+__simd_inline_constexpr void __replace_copy_unchecked(
+    _UnwrappedInputIterator_                            __first_unwrapped,
+    _UnwrappedInputIterator_                            __last_unwrapped,
+    _UnwrappedOutputIterator_                           __destination_unwrapped,
+    const typename std::type_identity<_Type_>::type&    __old_value,
+    const typename std::type_identity<_Type_>::type&    __new_value) noexcept
 {
-    if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _Type_>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _Type_>) 
-    {
+    constexpr auto __is_vectorizable = type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _Type_> &&
+        type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _Type_>;
+
+    if constexpr (__is_vectorizable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
         {
-            return _ReplaceCopyVectorized(std::to_address(_FirstUnwrapped), 
-                std::to_address(_LastUnwrapped), std::to_address(_DestinationUnwrapped), _OldValue, _NewValue);
+            return __replace_copy_vectorized(std::to_address(__first_unwrapped),
+                std::to_address(__last_unwrapped), std::to_address(__destination_unwrapped), 
+                __old_value, __new_value);
         }
     }
 
-    for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped, ++_DestinationUnwrapped)
-        *_DestinationUnwrapped = (*_FirstUnwrapped == _OldValue) ? _NewValue : *_FirstUnwrapped;
+    for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped, ++__destination_unwrapped)
+        *__destination_unwrapped = (*__first_unwrapped == __old_value) ? __new_value : *__first_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

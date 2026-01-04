@@ -11,38 +11,38 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedInputIterator_,
 	class _BinaryPredicate_>
-__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_BinaryPredicate_			_Predicate) noexcept
+__simd_nodiscard_inline_constexpr type_traits::iterator_value_type<_UnwrappedInputIterator_> __max_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_BinaryPredicate_			__predicate) noexcept
 {
-	using _ValueType	= type_traits::IteratorValueType<_UnwrappedInputIterator_>;
-	auto _Maximum		= *_FirstUnwrapped;
+	using _ValueType	= type_traits::iterator_value_type<_UnwrappedInputIterator_>;
+	auto __maximum		= *__first_unwrapped;
 
-	while (++_FirstUnwrapped != _LastUnwrapped)
-		if (_Predicate(*_FirstUnwrapped, _Maximum))
-			_Maximum = *_FirstUnwrapped;
+	while (++__first_unwrapped != __last_unwrapped)
+		if (__predicate(*__first_unwrapped, __maximum))
+			__maximum = *__first_unwrapped;
 
-	return _Maximum;
+	return __maximum;
 }
 
 template <class _UnwrappedInputIterator_>
-__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MaxUnchecked(
-	_UnwrappedInputIterator_ _FirstUnwrapped,
-	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
+__simd_nodiscard_inline_constexpr type_traits::iterator_value_type<_UnwrappedInputIterator_> __max_unchecked(
+	_UnwrappedInputIterator_ __first_unwrapped,
+	_UnwrappedInputIterator_ __last_unwrapped) noexcept
 {
-	using _ValueType = type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+	using _ValueType = type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
-#endif //simd_stl_has_cxx20
+#endif // simd_stl_has_cxx20
 		{
-			return _MaxVectorized<_ValueType>(std::to_address(_FirstUnwrapped), std::to_address(_LastUnwrapped));
+			return __max_vectorized<_ValueType>(std::to_address(__first_unwrapped), std::to_address(__last_unwrapped));
 		}
 	}
 
-	return _MaxUnchecked(_FirstUnwrapped, _LastUnwrapped, type_traits::greater<>{});
+	return __max_unchecked(__first_unwrapped, __last_unwrapped, type_traits::greater<>{});
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

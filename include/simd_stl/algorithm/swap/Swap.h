@@ -107,7 +107,7 @@ constexpr _FirstForwardIterator_ swap_ranges(
 
 	const auto first2Unwrapped	= _UnwrapIterator(first2);
 
-	using _ValueType_ = type_traits::IteratorValueType<_FirstForwardIterator_>;
+	using _ValueType_ = type_traits::iterator_value_type<_FirstForwardIterator_>;
 
 	if constexpr (is_trivially_swappable_v<_ValueType_>) {
 		const auto difference = __iterators_difference(first1Unwrapped, last1Unwrapped);

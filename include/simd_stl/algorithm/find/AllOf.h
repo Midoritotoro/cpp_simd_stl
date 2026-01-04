@@ -12,7 +12,7 @@ __simd_nodiscard_inline_constexpr bool all_of(
     _InputIterator_ _Last,
     _Predicate_     _Predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
-		    _Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+		    _Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
     return (simd_stl::algorithm::find_if_not(__first, _Last, type_traits::passFunction(_Predicate)) == _Last);
 }
@@ -28,7 +28,7 @@ simd_stl_nodiscard bool all_of(
     _InputIterator_ _Last,
     _Predicate_     _Predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
-        _Predicate_, type_traits::IteratorValueType<_InputIterator_>>)
+        _Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 
 {
     return simd_stl::algorithm::all_of(__first, _Last, type_traits::passFunction(_Predicate));

@@ -10,7 +10,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _InputIterator_,
-	class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
+	class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _InputIterator_ remove(
 	_InputIterator_										_First,
 	_InputIterator_										_Last,
@@ -32,7 +32,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 	_Iterator_			_Last,
 	_UnaryPredicate_	_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-			type_traits::IteratorValueType<_Iterator_>>)
+			type_traits::iterator_value_type<_Iterator_>>)
 {
 	__verifyRange(_First, _Last);
 
@@ -67,7 +67,7 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _Iterator_ re
 	_Iterator_			last,
 	_UnaryPredicate_	predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryPredicate_,
-			type_traits::IteratorValueType<_Iterator_>>)
+			type_traits::iterator_value_type<_Iterator_>>)
 {
 	return simd_stl::algorithm::remove_if(first, last, type_traits::passFunction(predicate));
 }

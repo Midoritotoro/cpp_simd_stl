@@ -11,7 +11,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _InputIterator_,
 	class _OutputIterator_,
-	class _Type_ = type_traits::IteratorValueType<_InputIterator_>>
+	class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
 __simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
 	_InputIterator_										_First,
 	_InputIterator_										_Last,

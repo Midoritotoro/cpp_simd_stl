@@ -1861,7 +1861,7 @@ simd_stl_always_inline void* _MemsetVectorizedInternal(
 }
 
 template <typename _Type_>
-void* simd_stl_stdcall _MemsetVectorized(
+void* simd_stl_stdcall __memset_vectorized(
     void*       _Destination,
     _Type_      _Value,
     sizetype    _Bytes) noexcept

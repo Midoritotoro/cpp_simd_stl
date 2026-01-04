@@ -7,14 +7,14 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 template <
     class _FirstType_,
     class _SecondType_>
-struct VectorAlgorithmInFindIsSafeObjectPointers: 
+struct __is_safe_find_with_object_pointers: 
     std::false_type
 {};
 
 template <
     class _FirstType_,
     class _SecondType_>
-struct VectorAlgorithmInFindIsSafeObjectPointers<_FirstType_*, _SecondType_*>:
+struct __is_safe_find_with_object_pointers<_FirstType_*, _SecondType_*>:
     std::conjunction<
         std::disjunction<
             std::is_object<_FirstType_>, 
@@ -34,7 +34,7 @@ struct VectorAlgorithmInFindIsSafeObjectPointers<_FirstType_*, _SecondType_*>:
 template <
     class _Type_,
     class _Element_>
-constexpr bool is_vectorized_algorithm_element_safe_v = std::disjunction_v<
+constexpr bool __is_vectorized_algorithm_element_safe_v = std::disjunction_v<
 #ifdef __cpp_lib_byte
     std::conjunction<
         std::is_same<_Type_, std::byte>,
@@ -52,14 +52,14 @@ constexpr bool is_vectorized_algorithm_element_safe_v = std::disjunction_v<
     std::conjunction<
         std::is_same<_Type_, std::nullptr_t>,
         std::is_pointer<_Element_>>,
-    VectorAlgorithmInFindIsSafeObjectPointers<_Type_, _Element_>>;
+    __is_safe_find_with_object_pointers<_Type_, _Element_>>;
 
 template <
     class _Iterator_,
     class _Type_>
-constexpr bool is_vectorized_find_algorithm_safe_v =
+constexpr bool __is_vectorized_find_algorithm_safe_v =
     is_iterator_contiguous_v<_Iterator_>    && 
     !is_iterator_volatile_v<_Iterator_>     &&
-    is_vectorized_algorithm_element_safe_v<_Type_, IteratorValueType<_Iterator_>>;
+    __is_vectorized_algorithm_element_safe_v<_Type_, iterator_value_type<_Iterator_>>;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

@@ -17,7 +17,7 @@ __simd_inline_constexpr void __for_each_n_unchecked(
 	_SizeType_					__count,
 	_UnaryFunction_				__function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
-			type_traits::IteratorValueType<_UnwrappedInputIterator_>>)
+			type_traits::iterator_value_type<_UnwrappedInputIterator_>>)
 {
 	for (auto __index = 0; __index < __count; ++__index, ++__first_unwrapped)
 		__function(*__first_unwrapped);

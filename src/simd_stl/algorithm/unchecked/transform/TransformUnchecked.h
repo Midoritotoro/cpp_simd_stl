@@ -13,39 +13,38 @@ template <
     class _UnwrappedInputIterator_,
     class _UnwrappedOutputIterator_,
     class _UnaryPredicate_>
-__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
-    _UnwrappedInputIterator_    _FirstUnwrapped,
-    _UnwrappedInputIterator_    _LastUnwrapped,
-    _UnwrappedOutputIterator_   _DestinationUnwrapped,
-    _UnaryPredicate_            _Predicate) noexcept
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ __transform_unchecked(
+    _UnwrappedInputIterator_    __first_unwrapped,
+    _UnwrappedInputIterator_    __last_unwrapped,
+    _UnwrappedOutputIterator_   __destination_unwrapped,
+    _UnaryPredicate_            __predicate) noexcept
 {
-    using _IteratorValueType = type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+    using _ValueType = type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-    constexpr auto _Is_vectorizable = type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _IteratorValueType>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _IteratorValueType>;
+    constexpr auto __is_vectorizable = type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>
+        && type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _ValueType>;
 
-    if constexpr (_Is_vectorizable) {
+    if constexpr (__is_vectorizable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
         {
-            auto _DestinationAddress = std::to_address(_DestinationUnwrapped);
+            auto __destination_address = std::to_address(__destination_unwrapped);
 
-            const auto _DestinationLast = _TransformVectorized<_IteratorValueType>(std::to_address(_FirstUnwrapped),
-                std::to_address(_LastUnwrapped), _DestinationAddress,
-                type_traits::passFunction(_Predicate));
+            const auto __destination_last = __transform_vectorized<_ValueType>(std::to_address(__first_unwrapped),
+                std::to_address(__last_unwrapped), __destination_address, type_traits::__pass_function(__predicate));
             
             if constexpr (std::is_pointer_v<_UnwrappedOutputIterator_>)
-                return _DestinationLast;
+                return __destination_last;
             else
-                return _DestinationUnwrapped + (_DestinationLast - _DestinationAddress);
+                return __destination_unwrapped + (__destination_last - __destination_address);
         }
     }
 
-    for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped, ++_DestinationUnwrapped)
-        *_DestinationUnwrapped = _Predicate(*_FirstUnwrapped);
+    for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped, ++__destination_unwrapped)
+        *__destination_unwrapped = __predicate(*__first_unwrapped);
 
-    return _DestinationUnwrapped;
+    return __destination_unwrapped;
 }
 
 template <
@@ -53,41 +52,41 @@ template <
     class _UnwrappedSecondInputIterator_,
     class _UnwrappedOutputIterator_,
     class _BinaryPredicate_>
-__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ _TransformUnchecked(
-    _UnwrappedFirstInputIterator_   _First1Unwrapped,
-    _UnwrappedFirstInputIterator_   _Last1Unwrapped,
-    _UnwrappedSecondInputIterator_  _First2Unwrapped,
-    _UnwrappedOutputIterator_       _DestinationUnwrapped,
-    _BinaryPredicate_               _Predicate) noexcept
+__simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ __transform_unchecked(
+    _UnwrappedFirstInputIterator_   __first1_unwrapped,
+    _UnwrappedFirstInputIterator_   __last1_unwrapped,
+    _UnwrappedSecondInputIterator_  __first2_unwrapped,
+    _UnwrappedOutputIterator_       __destination_unwrapped,
+    _BinaryPredicate_               __predicate) noexcept
 {
-    using _IteratorValueType = type_traits::IteratorValueType<_UnwrappedFirstInputIterator_>;
+    using _ValueType = type_traits::iterator_value_type<_UnwrappedFirstInputIterator_>;
 
-    constexpr auto _Is_vectorizable = type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedFirstInputIterator_, _IteratorValueType>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _IteratorValueType>
-        && type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedSecondInputIterator_, _IteratorValueType>;
+    constexpr auto __is_vectorizable = type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedFirstInputIterator_, _ValueType>
+        && type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _ValueType>
+        && type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedSecondInputIterator_, _ValueType>;
 
-    if constexpr (_Is_vectorizable) {
+    if constexpr (__is_vectorizable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
         {
-            auto _DestinationAddress = std::to_address(_DestinationUnwrapped);
+            auto __destination_address = std::to_address(__destination_unwrapped);
 
-            const auto _DestinationLast = _TransformVectorized<_IteratorValueType>(std::to_address(_First1Unwrapped),
-                std::to_address(_Last1Unwrapped), std::to_address(_First2Unwrapped), _DestinationAddress,
-                type_traits::passFunction(_Predicate));
+            const auto __destination_last = __transform_vectorized<_ValueType>(std::to_address(__first1_unwrapped),
+                std::to_address(__last1_unwrapped), std::to_address(__first2_unwrapped),
+                __destination_address, type_traits::__pass_function(__predicate));
             
             if constexpr (std::is_pointer_v<_UnwrappedOutputIterator_>)
-                return _DestinationLast;
+                return __destination_last;
             else
-                return _DestinationUnwrapped + (_DestinationLast - _DestinationAddress);
+                return __destination_unwrapped + (__destination_last - __destination_address);
         }
     }
 
-    for (; _First1Unwrapped != _Last1Unwrapped; ++_First1Unwrapped, ++_First2Unwrapped, ++_DestinationUnwrapped)
-        *_DestinationUnwrapped = _Predicate(*_First1Unwrapped, *_First2Unwrapped);
+    for (; __first1_unwrapped != __last1_unwrapped; ++__first1_unwrapped, ++__first2_unwrapped, ++__destination_unwrapped)
+        *__destination_unwrapped = __predicate(*__first1_unwrapped, *__first2_unwrapped);
 
-    return _DestinationUnwrapped;
+    return __destination_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

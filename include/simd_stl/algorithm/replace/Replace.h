@@ -12,7 +12,7 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
     class _ForwardIterator_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
+    class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace(
     _ForwardIterator_                                   _First,
     _ForwardIterator_                                   _Last,
@@ -26,7 +26,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void replace(
 template <
     class _ForwardIterator_,
     class _UnaryPredicate_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>>
+    class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
     _ForwardIterator_                                   _First,
     _ForwardIterator_                                   _Last,
@@ -43,7 +43,7 @@ simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
 template <
     class _ExecutionPolicy_,
     class _ForwardIterator_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>,
+    class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>,
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace(
     _ExecutionPolicy_&&,
@@ -59,7 +59,7 @@ template <
     class _ExecutionPolicy_,
     class _ForwardIterator_,
     class _UnaryPredicate_,
-    class _Type_ = type_traits::IteratorValueType<_ForwardIterator_>,
+    class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>,
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_constexpr_cxx20 simd_stl_always_inline void replace_if(
     _ExecutionPolicy_&&,

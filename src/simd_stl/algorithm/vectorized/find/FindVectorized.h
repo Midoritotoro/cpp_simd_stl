@@ -77,7 +77,7 @@ simd_stl_declare_const_function simd_stl_always_inline const void* __find_vector
 }
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_* simd_stl_stdcall _FindVectorized(
+simd_stl_declare_const_function _Type_* simd_stl_stdcall __find_vectorized(
     const void* __first,
     const void* __last,
     _Type_      __value) noexcept

@@ -16,9 +16,9 @@ __simd_nodiscard_inline_constexpr _InputUnwrappedIterator_ __find_last_if_not_un
 	_InputUnwrappedIterator_	__last_unwrapped,
 	_Predicate_					__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
-			_Predicate_, type_traits::IteratorValueType<_InputUnwrappedIterator_>>)
+			_Predicate_, type_traits::iterator_value_type<_InputUnwrappedIterator_>>)
 {
-	const auto __last = __last_unwrapped;
+	const auto __cached_last = __last_unwrapped;
 
 	while (__last_unwrapped != __first_unwrapped) {
 		--__last_unwrapped;
@@ -27,7 +27,7 @@ __simd_nodiscard_inline_constexpr _InputUnwrappedIterator_ __find_last_if_not_un
 			return __last_unwrapped;
 	}
 
-	return __last;
+	return __cached_last;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

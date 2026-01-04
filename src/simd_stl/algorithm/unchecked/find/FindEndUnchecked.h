@@ -24,8 +24,8 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedBidirectionalIterator_ __find_e
 	_Predicate_								__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedBidirectionalIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedBidirectionalIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedBidirectionalIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedBidirectionalIterator_>>)
 {
 	for (auto __candidate_unwrapped = __last1_unwrapped;; --__candidate_unwrapped) {
 		auto __next1_unwrapped = __candidate_unwrapped;
@@ -61,10 +61,10 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedRandomAccessIterator_ __find_en
 	_Predicate_								__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedRandomAccessIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedRandomAccessIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedRandomAccessIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedRandomAccessIterator_>>)
 {
-	using _ValueType = type_traits::IteratorValueType<_FirstUnwrappedRandomAccessIterator_>;
+	using _ValueType = type_traits::iterator_value_type<_FirstUnwrappedRandomAccessIterator_>;
 
 	const auto __first_range_size	= __iterators_difference(__first1_unwrapped, __last1_unwrapped);
 	const auto __second_range_size	= __iterators_difference(__first2_unwrapped, __last2_unwrapped);
@@ -78,13 +78,13 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedRandomAccessIterator_ __find_en
 		const auto __first1_address = std::to_address(__first1_unwrapped);
 		const auto __first2_address = std::to_address(__first2_unwrapped);
 
-		const auto _Position = __find_end_vectorized<_ValueType>(
+		const auto __position = __find_end_vectorized<_ValueType>(
 			__first1_address, __first_range_size, __first2_address, __second_range_size);
 
 		if constexpr (std::is_pointer_v<_FirstUnwrappedRandomAccessIterator_>)
-			__seek_possibly_wrapped_iterator(__first1_unwrapped, reinterpret_cast<const _ValueType*>(_Position));
+			__seek_possibly_wrapped_iterator(__first1_unwrapped, reinterpret_cast<const _ValueType*>(__position));
 		else
-			__seek_possibly_wrapped_iterator(__first1_unwrapped, __first1_unwrapped + (reinterpret_cast<const _ValueType*>(_Position) - __first1_address));
+			__seek_possibly_wrapped_iterator(__first1_unwrapped, __first1_unwrapped + (reinterpret_cast<const _ValueType*>(__position) - __first1_address));
 
 		return __first1_unwrapped;
 	}
@@ -106,8 +106,8 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ __find_end_unc
 	_Predicate_							__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedForwardIterator_>,
-			type_traits::IteratorValueType<_SecondUnwrappedForwardIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedForwardIterator_>,
+			type_traits::iterator_value_type<_SecondUnwrappedForwardIterator_>>)
 {
 	auto __result_unwrapped = __last1_unwrapped;
 
@@ -151,8 +151,8 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ __find_end_unc
 	_Predicate_							__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstUnwrappedForwardIterator_>,
-			type_traits::IteratorValueType<_FirstUnwrappedForwardIterator_>>)
+			type_traits::iterator_value_type<_FirstUnwrappedForwardIterator_>,
+			type_traits::iterator_value_type<_FirstUnwrappedForwardIterator_>>)
 {
 	constexpr auto __is_random_access = type_traits::is_iterator_random_ranges_v<_FirstUnwrappedForwardIterator_> &&
 		type_traits::is_iterator_random_ranges_v<_SecondUnwrappedForwardIterator_>;

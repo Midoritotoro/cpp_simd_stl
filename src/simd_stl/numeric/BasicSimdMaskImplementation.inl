@@ -8,7 +8,7 @@ template <
 	class				_RegisterPolicy_>
 constexpr bool BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::allOf(mask_type _Mask) noexcept {
 	if constexpr (_UsedBits == (sizeof(mask_type) << 3))
-		return (_Mask == math::MaximumIntegralLimit<mask_type>());
+		return (_Mask == math::__maximum_integral_limit<mask_type>());
 	else
 		return _Mask == ((mask_type(1) << _UsedBits) - 1);
 }

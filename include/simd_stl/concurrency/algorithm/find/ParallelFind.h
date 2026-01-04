@@ -62,7 +62,7 @@ void _Run_chunked_parallel_work(_Work& _Operation) {
 template <
 	class _UncheckedIterator_,
 	class _FindFunction_,
-	class _Type_ = type_traits::IteratorValueType<_UncheckedIterator_>>
+	class _Type_ = type_traits::iterator_value_type<_UncheckedIterator_>>
 class _ParallelFindChunked {
 	_VerifyUnchecked(_UncheckedIterator_);
 

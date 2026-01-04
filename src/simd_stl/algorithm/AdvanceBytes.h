@@ -66,11 +66,11 @@ simd_stl_always_inline sizetype __byte_length(
 }
 
 template <class _ContiguousIterator_>
-constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> __iterators_difference(
+constexpr inline type_traits::iterator_difference_type<_ContiguousIterator_> __iterators_difference(
     const _ContiguousIterator_& ___first,
     const _ContiguousIterator_& __last) noexcept
 {
-    using _DifferenceType_ = type_traits::IteratorDifferenceType<_ContiguousIterator_>;
+    using _DifferenceType_ = type_traits::iterator_difference_type<_ContiguousIterator_>;
 
     if constexpr (std::is_pointer_v<_ContiguousIterator_> || type_traits::is_iterator_random_ranges_v<_ContiguousIterator_>)
         return static_cast<_DifferenceType_>(__last - ___first);
@@ -78,7 +78,7 @@ constexpr inline type_traits::IteratorDifferenceType<_ContiguousIterator_> __ite
     const auto ___first_address  = std::to_address(___first);
     const auto __second_address = std::to_address(__last);
 
-    using _IteratorValueType_ = type_traits::IteratorValueType<_ContiguousIterator_>;
+    using _IteratorValueType_ = type_traits::iterator_value_type<_ContiguousIterator_>;
 
     const auto ___first_iterator_address = const_cast<const _IteratorValueType_*>(
         reinterpret_cast<const volatile _IteratorValueType_*>(___first_address));
@@ -95,23 +95,23 @@ constexpr inline bool __is_nothrow_distance_v = type_traits::is_iterator_random_
 
 template <
     class _InputIterator_,
-    class _DifferenceType_ = type_traits::IteratorDifferenceType<_InputIterator_>>
-simd_stl_nodiscard simd_stl_always_inline constexpr type_traits::IteratorDifferenceType<_InputIterator_> distance(
-    _InputIterator_ ___first,
+    class _DifferenceType_ = type_traits::iterator_difference_type<_InputIterator_>>
+simd_stl_nodiscard simd_stl_always_inline constexpr type_traits::iterator_difference_type<_InputIterator_> distance(
+    _InputIterator_ __first,
     _InputIterator_ __last) noexcept(__is_nothrow_distance_v<_InputIterator_>)
 {
     if constexpr (type_traits::is_iterator_random_ranges_v<_InputIterator_>) {
-        return static_cast<_DifferenceType_>(__last - ___first);
+        return static_cast<_DifferenceType_>(__last - __first);
     }
     else {
-        __verifyRange(___first, __last);
+        __verifyRange(__first, __last);
 
-        auto ___first_unwrapped        = _UnwrapIterator(___first);
+        auto __first_unwrapped        = _UnwrapIterator(__first);
         const auto __last_unwrapped   = _UnwrapIterator(__last);
 
         auto __distance = _DifferenceType_(0);
 
-        for (; ___first_unwrapped != __last_unwrapped; ++___first_unwrapped)
+        for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
             ++__distance;
 
         return __distance;

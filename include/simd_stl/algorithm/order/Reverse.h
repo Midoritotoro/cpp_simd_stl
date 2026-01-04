@@ -22,13 +22,13 @@ __simd_inline_constexpr void reverse(
 
     if constexpr (
         type_traits::is_iterator_contiguous_v<_BidirectionalUnwrappedIterator_> &&
-        type_traits::__is_vector_type_supported_v<type_traits::IteratorValueType<_BidirectionalUnwrappedIterator_>>) 
+        type_traits::__is_vector_type_supported_v<type_traits::iterator_value_type<_BidirectionalUnwrappedIterator_>>) 
     {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif
         {
-            return _ReverseVectorized<type_traits::IteratorValueType<_BidirectionalUnwrappedIterator_>>(
+            return _ReverseVectorized<type_traits::iterator_value_type<_BidirectionalUnwrappedIterator_>>(
                 std::to_address(firstUnwrapped), std::to_address(lastUnwrapped));
         }
     }

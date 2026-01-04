@@ -11,124 +11,94 @@
 #include <iostream>
 
 
+__SIMD_STL_NAMESPACE_BEGIN
+
+
 simd_stl_disable_warning_msvc(6011);
 
-struct staticlocale {
-	staticlocale() {
+struct __static_locale {
+	__static_locale() noexcept {
 		setlocale(LC_ALL, "");
 	}
 };
 
-static staticlocale lc;
+static const __static_locale __lc;
 
-static inline void fail(
-	const char* message,
-	const char* file,
-	int			line)
+inline void __fail(
+	const char* __message,
+	const char* __file,
+	int			__line) noexcept
 {
-	printf("Error: %s in File \"%s\", Line: %d\n", message, file, line);
+	printf("Error: %s in File \"%s\", Line: %d\n", __message, __file, __line);
 
-	// Crash due to access violation and create crash report.
-	 
-	volatile auto nullptr_value = (int*)nullptr;
-	*nullptr_value = 0;
+	volatile auto __nullptr_value = (int*)nullptr;
+	*__nullptr_value = 0;
 	
 	std::abort();
 	std::terminate();
 }
 
-static const char* extract_basename(
-	const char* path,
-	size_t size)
+const char* __extract_basename(
+	const char* __path,
+	size_t		__size) noexcept
 {
-	while (size != 0 && path[size - 1] != '/' && path[size - 1] != '\\')
-		--size;
+	while (__size != 0 && __path[__size - 1] != '/' && __path[__size - 1] != '\\')
+		--__size;
 
-	return path + size;
+	return __path + __size;
 }
 
-#define ReturnOnFailure(message, file, line, retval) \
+#define __return_on_failure(__message, __file, __line, __return_value) \
 	do { \
-		printf("Error: %s in File \"%s\", Line: %d\n", message, file, line); \
-		return retval; \
+		printf("Error: %s in File \"%s\", Line: %d\n", __message, __file, __line); \
+		return __return_value; \
 	} \
 		while (0)
 	
 
-#define AssertValidationCondition(condition, message, file, line)\
-	((simd_stl_unlikely(!((condition))))\
-		? fail(message, file, line)\
+#define __assert_validation_condition(__condition, __message, __file, __line)\
+	((simd_stl_unlikely(!((__condition))))\
+		? simd_stl::__fail(__message, __file, __line)\
 		: void(0))
 
-#define AssertValidationConditionWithRet(condition, message, file, line, retval)\
-	if ((simd_stl_unlikely(!(condition)))) \
-		ReturnOnFailure(message, file, line, retval)
+#define __assert_validation_condition_with_ret(__condition, __message, __file, __line, __return_value)\
+	if ((simd_stl_unlikely(!(__condition)))) \
+		__return_on_failure(__message, __file, __line, __return_value)
 
-#define SOURCE_FILE_BASENAME (extract_basename(\
+#define __source_file_basename (simd_stl::__extract_basename(\
 	__FILE__,\
 	sizeof(__FILE__)))
 
-#define AssertLog(condition, message) (AssertValidationCondition(\
-	condition,\
-	message,\
-	SOURCE_FILE_BASENAME,\
+#define simd_stl_assert_log(__condition, __message) (__assert_validation_condition(\
+	__condition,\
+	__message,\
+	__source_file_basename,\
 	__LINE__))
 
-// Возвращает return_value в случае ошибки вместо вызова std::abort
-#define AssertReturn(condition, message, return_value) AssertValidationConditionWithRet(\
-	condition,\
-	message,\
-	SOURCE_FILE_BASENAME,\
+#define simd_stl_assert_return(__condition, __message, __return_value) __assert_validation_condition_with_ret(\
+	__condition,\
+	__message,\
+	__source_file_basename,\
 	__LINE__, \
-	return_value)
+	__return_value)
 
-
-#define Assert(condition) AssertLog((condition), "\"" #condition "\"")
-#define AssertUnreachable() Assert(false)
-
-
-#define StaticAssert(cond) static_assert(bool(cond), stringify(cond))
-#define StaticAssertLog(cond, mes) static_assert(bool(cond), mes)
-
-#ifdef Expects
-#undef Expects
-#endif // Expects
-#define Expects(condition) (AssertValidationCondition(\
-	condition,\
-	"\"" #condition "\"",\
-	SOURCE_FILE_BASENAME,\
-	__LINE__))
-
-#ifdef Ensures
-#undef Ensures
-#endif // Ensures
-#define Ensures(condition) (AssertValidationCondition(\
-	condition,\
-	"\"" #condition "\"",\
-	SOURCE_FILE_BASENAME,\
-	__LINE__))
-
-#ifdef Unexpected
-#undef Unexpected
-#endif // Unexpected
-#define Unexpected(message) (fail(\
-	"Unexpected: " message,\
-	SOURCE_FILE_BASENAME,\
-	__LINE__))
+#define simd_stl_assert(__condition) simd_stl_assert_log((__condition), "\"" #__condition "\"")
+#define simd_stl_assert_unreachable() simd_stl_assert(false)
 
 #if !defined(NDEBUG)
 
-#define DebugAssertReturn	AssertReturn
-#define DebugAssert			Assert
+#define simd_stl_debug_assert_return	simd_stl_assert_return
+#define simd_stl_debug_assert			simd_stl_assert
 
-#define DebugAssertLog		AssertLog
-#define AssertIsDebug(...)
+#define simd_stl_debug_assert_log		simd_stl_assert_log
 
 #else 
 
-#define DebugAssertReturn(condition, message, return_value)
-#define DebugAssert(condition)
+#define simd_stl_debug_assert_return(__condition, __message, __return_value)
+#define simd_stl_debug_assert(__condition)
 
-#define DebugAssertLog(condition, message)
+#define simd_stl_debug_assert_log(__condition, __message)
 
 #endif // !defined(NDEBUG)
+
+__SIMD_STL_NAMESPACE_END

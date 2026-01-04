@@ -18,8 +18,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_Predicate_				_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>>)
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
 	__verifyRange(_First1, _Last1);
 	__verifyRange(_First2, _Last2);
@@ -40,8 +40,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_SecondForwardIterator_ _Last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -63,8 +63,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_Predicate_				_Predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>
 		>
 	)
 {
@@ -84,8 +84,8 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 _FirstForward
 	_SecondForwardIterator_ _Last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
-			type_traits::IteratorValueType<_FirstForwardIterator_>,
-			type_traits::IteratorValueType<_SecondForwardIterator_>>)
+			type_traits::iterator_value_type<_FirstForwardIterator_>,
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
 	return simd_stl::algorithm::find_end(_First1, _Last1, _First2, _Last2);
 }

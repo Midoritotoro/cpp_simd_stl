@@ -290,7 +290,7 @@ template <
     else {
         using _HalfType = IntegerForSize<_Max<(sizeof(_MaskType) >> 1), 1>()>::Unsigned;
 
-        constexpr auto _Maximum = math::MaximumIntegralLimit<_HalfType>();
+        constexpr auto _Maximum = math::__maximum_integral_limit<_HalfType>();
         constexpr auto _Shift = (sizeof(_MaskType) << 2);
 
         const auto _Low = _SimdToVector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>(_Mask & _Maximum);

@@ -13,15 +13,15 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <
 	class _UnwrappedIterator_,
-	class _Type_ = type_traits::IteratorValueType<_UnwrappedIterator_>>
+	class _Type_ = type_traits::iterator_value_type<_UnwrappedIterator_>>
 __simd_nodiscard_inline_constexpr _UnwrappedIterator_ __find_unchecked(
 	_UnwrappedIterator_									__first_unwrapped,
 	_UnwrappedIterator_									__last_unwrapped,
 	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	using _DifferenceType = type_traits::IteratorDifferenceType<_UnwrappedIterator_>;
+	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
@@ -32,7 +32,7 @@ __simd_nodiscard_inline_constexpr _UnwrappedIterator_ __find_unchecked(
 			if constexpr (std::is_pointer_v<_UnwrappedIterator_>)
 				return __position;
 			else
-				return __first_unwrapped + static_cast<_DifferenceType>(__position - __first_address);
+				return __first_unwrapped + (__position - __first_address);
 		}
 	}
 

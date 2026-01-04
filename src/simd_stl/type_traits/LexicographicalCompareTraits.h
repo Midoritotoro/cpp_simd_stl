@@ -129,8 +129,8 @@ using _Lexicographical_compare_memcmp_classify =
 		is_iterator_contiguous_v<_FirstIterator_> && is_iterator_contiguous_v<_SecondIterator_>
 		&& !is_iterator_volatile_v<_FirstIterator_> && !is_iterator_volatile_v<_SecondIterator_>,
         typename _Lexicographical_compare_memcmp_classify_pred<
-			IteratorValueType<_FirstIterator_>,
-			IteratorValueType<_SecondIterator_>, _Function_>::function_t, void
+			iterator_value_type<_FirstIterator_>,
+			iterator_value_type<_SecondIterator_>, _Function_>::function_t, void
 		>;
 
 
@@ -229,7 +229,7 @@ using _Lexicographical_compare_three_way_memcmp_classify = std::conditional_t<
     is_iterator_contiguous_v<_FirstIterator_>	&& is_iterator_contiguous_v<_SecondIterator_> && 
 	!is_iterator_volatile_v<_FirstIterator_>	&& !is_iterator_volatile_v<_SecondIterator_>,
     typename _Lexicographical_compare_three_way_memcmp_classify_comp<
-		IteratorValueType<_FirstIterator_>, IteratorValueType<_SecondIterator_>, _CompareFunction_>::compare_t,
+		iterator_value_type<_FirstIterator_>, iterator_value_type<_SecondIterator_>, _CompareFunction_>::compare_t,
     void
 >;
 

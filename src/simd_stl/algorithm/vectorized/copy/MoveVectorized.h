@@ -3374,7 +3374,7 @@ simd_stl_always_inline void* _MemmoveVectorizedInternal<arch::CpuFeature::None>(
     return destination;
 }
 
-void* _MemmoveVectorized(
+void* __memmove_vectorized(
     void*       destination,
     const void* source,
     sizetype    bytes) noexcept

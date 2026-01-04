@@ -14,17 +14,17 @@ template <
     class _UnwrappedInputIterator_,
     class _UnwrappedOutputIterator_,
     class _UnaryPredicate_,
-    class _Type_ = type_traits::IteratorValueType<_UnwrappedInputIterator_>>
-__simd_inline_constexpr simd_stl_always_inline void _ReplaceCopyIfUnchecked(
-    _UnwrappedInputIterator_                            _FirstUnwrapped,
-    _UnwrappedInputIterator_                            _LastUnwrapped,
-    _UnwrappedOutputIterator_                           _DestinationUnwrapped,
-    _UnaryPredicate_                                    _Predicate,
-    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept(
+    class _Type_ = type_traits::iterator_value_type<_UnwrappedInputIterator_>>
+__simd_inline_constexpr simd_stl_always_inline void __replace_copy_if_unchecked(
+    _UnwrappedInputIterator_                            __first_unwrapped,
+    _UnwrappedInputIterator_                            __last_unwrapped,
+    _UnwrappedOutputIterator_                           __destination_unwrapped,
+    _UnaryPredicate_                                    __predicate,
+    const typename std::type_identity<_Type_>::type&    __new_value) noexcept(
         type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
 {
-    for (; _FirstUnwrapped != _LastUnwrapped; ++_FirstUnwrapped, ++_DestinationUnwrapped)
-        *_DestinationUnwrapped = _Predicate(*_FirstUnwrapped) ? _NewValue : *_FirstUnwrapped;
+    for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped, ++__destination_unwrapped)
+        *__destination_unwrapped = __predicate(*__first_unwrapped) ? __new_value : *__first_unwrapped;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

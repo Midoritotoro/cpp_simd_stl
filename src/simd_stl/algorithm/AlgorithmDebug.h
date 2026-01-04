@@ -11,38 +11,38 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_constexpr_cxx20 void _VerifyRange(
-	const _Type_* const __firstPointer,
-	const _Type_* const _LastPointer) noexcept
+simd_stl_constexpr_cxx20 void __verify_range__(
+	const _Type_* const __first,
+	const _Type_* const __last) noexcept
 {
-	DebugAssertLog(__firstPointer <= _LastPointer, "transposed pointer range");
+	DebugAssertLog(__first <= __last, "transposed pointer range");
 }
 
 template <
 	class _Iterator_,
 	class _Sentinel_>
-simd_stl_constexpr_cxx20 void _VerifyRange(
-	const _Iterator_& __firstIterator,
-	const _Sentinel_& _LastIterator) noexcept
+simd_stl_constexpr_cxx20 void __verify_range__(
+	const _Iterator_& __first,
+	const _Sentinel_& __last) noexcept
 {
 #if !defined(NDEBUG)
 	if constexpr (std::is_pointer_v<_Iterator_> && std::is_pointer_v<_Sentinel_>) {
-		DebugAssertLog(__firstIterator <= _LastIterator, "transposed pointer range");
+		DebugAssertLog(__first <= __last, "transposed pointer range");
 		return;
 	}
 	else if constexpr (type_traits::is_range_verifiable_v<_Iterator_, _Sentinel_>) {
-		_VerifyRange(
-			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__firstIterator))),
-			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(_LastIterator))));
+		__verify_range__(
+			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__first))),
+			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__last))));
 	}
 #endif
 }
 
 #if !defined(__verifyRange)
 #  if !defined(NDEBUG)
-#    define __verifyRange(__first, _Last)  _VerifyRange(__first, _Last) 
+#    define __verify_range(__first, __last)  __verify_range__(__first, __last) 
 #  else
-#    define __verifyRange(__first, _Last) 
+#    define __verify_range(__first, __last) 
 #  endif // !defined(NDEBUG)
 #endif // !defined(__verifyRange)
 

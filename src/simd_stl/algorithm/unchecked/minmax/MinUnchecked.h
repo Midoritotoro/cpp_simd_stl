@@ -11,39 +11,39 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 template <
 	class _UnwrappedInputIterator_,
 	class _BinaryPredicate_>
-__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MinUnchecked(
-	_UnwrappedInputIterator_	_FirstUnwrapped,
-	_UnwrappedInputIterator_	_LastUnwrapped,
-	_BinaryPredicate_			_Predicate) noexcept
+__simd_nodiscard_inline_constexpr type_traits::iterator_value_type<_UnwrappedInputIterator_> __min_unchecked(
+	_UnwrappedInputIterator_	__first_unwrapped,
+	_UnwrappedInputIterator_	__last_unwrapped,
+	_BinaryPredicate_			__predicate) noexcept
 {
-	using _ValueType	= type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+	using _ValueType	= type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-	auto _Minimum = *_FirstUnwrapped;
+	auto __minimum = *__first_unwrapped;
 
-	while (++_FirstUnwrapped != _LastUnwrapped)
-		if (_Predicate(*_FirstUnwrapped, _Minimum))
-			_Minimum = *_FirstUnwrapped;
+	while (++__first_unwrapped != __last_unwrapped)
+		if (__predicate(*__first_unwrapped, __minimum))
+			__minimum = *__first_unwrapped;
 
-	return _Minimum;
+	return __minimum;
 }
 
 template <class _UnwrappedInputIterator_>
-__simd_nodiscard_inline_constexpr type_traits::IteratorValueType<_UnwrappedInputIterator_> _MinUnchecked(
-	_UnwrappedInputIterator_ _FirstUnwrapped,
-	_UnwrappedInputIterator_ _LastUnwrapped) noexcept
+__simd_nodiscard_inline_constexpr type_traits::iterator_value_type<_UnwrappedInputIterator_> __min_unchecked(
+	_UnwrappedInputIterator_ __first_unwrapped,
+	_UnwrappedInputIterator_ __last_unwrapped) noexcept
 {
-	using _ValueType	= type_traits::IteratorValueType<_UnwrappedInputIterator_>;
+	using _ValueType	= type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
 	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
-#endif //simd_stl_has_cxx20
+#endif // simd_stl_has_cxx20
 		{
-			return _MinVectorized<_ValueType>(std::to_address(_FirstUnwrapped), std::to_address(_LastUnwrapped));
+			return __min_vectorized<_ValueType>(std::to_address(__first_unwrapped), std::to_address(__last_unwrapped));
 		}
 	}
 
-	return _MinUnchecked(_FirstUnwrapped, _LastUnwrapped, type_traits::less<>{});
+	return __min_unchecked(__first_unwrapped, __last_unwrapped, type_traits::less<>{});
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
