@@ -8,10 +8,10 @@
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
-struct _Nonesuch {
-	~_Nonesuch() = delete;
-	_Nonesuch(const _Nonesuch&) = delete;
-	void operator=(const _Nonesuch&) = delete;
+struct __nonesuch {
+	~__nonesuch() = delete;
+	__nonesuch(const __nonesuch&) = delete;
+	void operator=(const __nonesuch&) = delete;
 };
 
 template <
@@ -19,7 +19,7 @@ template <
 	typename						_Void_,
 	template <typename...> class	_Op_,
 	typename...						_Args_>
-struct _Detector 
+struct __detector 
 {
 	using value_t = std::false_type;
 	using type = _Type_;
@@ -29,7 +29,7 @@ template <
 	typename						_Type_,
 	template <typename...> class	_Op_,
 	typename...						_Args_>
-struct _Detector<
+struct __detector<
 	_Type_,
 	std::void_t<_Op_<_Args_...>>,
 	_Op_,
@@ -44,7 +44,7 @@ template <
 	template <typename...> class	_Op_,
 	typename...						_Args_>
 using is_detected = typename _Detector<
-	_Nonesuch, void,
+	__nonesuch, void,
 	_Op_, _Args_...>::value_t;
 
 template <
@@ -52,50 +52,49 @@ template <
 	typename...						_Args_>
 constexpr inline bool is_detected_v = is_detected<_Op_, _Args_...>::value;
 
-namespace _detail {
-	simd_stl_warning_push
 
-	simd_stl_disable_warning_gcc("-Wold-style-cast");
-	simd_stl_disable_warning_clang("-Wold-style-cast");
+simd_stl_warning_push
 
-	template <
-		typename From,
-		typename To>
-	using is_virtual_base_conversion_test = decltype((To*)std::declval<From*>());
+simd_stl_disable_warning_gcc("-Wold-style-cast");
+simd_stl_disable_warning_clang("-Wold-style-cast");
 
-	simd_stl_warning_push
+template <
+	typename From,
+	typename To>
+using __is_virtual_base_conversion_test = decltype((To*)std::declval<From*>());
 
-	template <
-		typename Base,
-		typename Derived,
-		typename = void>
-	struct is_virtual_base_of:
-		std::false_type
-	{};
+simd_stl_warning_push
 
-	template <
-		typename Base,
-		typename Derived>
-	struct is_virtual_base_of<
-		Base, Derived,
-		std::enable_if_t<
-			std::conjunction_v<
-				std::is_base_of<Base, Derived>,
-				is_detected<is_virtual_base_conversion_test, Derived, Base>,
-			std::negation<
-				is_detected<is_virtual_base_conversion_test, Base, Derived>
-				>
-			>
-		>	
-	>: 
-		std::true_type
-	{};
-}
+template <
+	typename Base,
+	typename Derived,
+	typename = void>
+struct __is_virtual_base_of:
+	std::false_type
+{};
 
 template <
 	typename Base,
 	typename Derived>
-using is_virtual_base_of = _detail::is_virtual_base_of<
+struct __is_virtual_base_of <
+	Base, Derived,
+	std::enable_if_t<
+		std::conjunction_v<
+			std::is_base_of<Base, Derived>,
+			is_detected<__is_virtual_base_conversion_test, Derived, Base>,
+		std::negation<
+			is_detected<__is_virtual_base_conversion_test, Base, Derived>
+			>
+		>
+	>	
+>: 
+	std::true_type
+{};
+
+template <
+	typename Base,
+	typename Derived>
+using is_virtual_base_of = __is_virtual_base_of<
 	std::remove_cv_t<Base>,
 	std::remove_cv_t<Derived>>;
 

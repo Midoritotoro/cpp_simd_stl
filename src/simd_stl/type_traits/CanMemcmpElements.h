@@ -46,8 +46,8 @@ template <
 	class _SecondElement_, 
 	class _ThirdElement_>
 constexpr bool __can_memcmp_elements_with_pred_v<_FirstElement_, _SecondElement_, std::equal_to<_ThirdElement_>> =
-	IteratorCopyCategory<_FirstElement_*, _ThirdElement_*>::BitcopyConstructible &&
-	IteratorCopyCategory<_SecondElement_*, _ThirdElement_*>::BitcopyConstructible && 
+	__copy_iterator_category<_FirstElement_*, _ThirdElement_*>::BitcopyConstructible &&
+	__copy_iterator_category<_SecondElement_*, _ThirdElement_*>::BitcopyConstructible && 
 	__can_memcmp_elements_v<std::remove_cv_t<_ThirdElement_>, std::remove_cv_t<_ThirdElement_>
 >;
 

@@ -14,44 +14,44 @@ class simd_mask {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
-	using implementation = BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+	using __implementation = __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 public:
-	using mask_type = typename implementation::mask_type;
-	using size_type = typename implementation::size_type;
+	using mask_type = typename __implementation::mask_type;
+	using size_type = typename __implementation::size_type;
 
 	simd_mask() noexcept;
-	simd_mask(const mask_type mask) noexcept;
+	simd_mask(const mask_type __mask) noexcept;
 	
-	constexpr simd_stl_always_inline bool allOf() const noexcept;
-	constexpr simd_stl_always_inline bool anyOf() const noexcept;
-	constexpr simd_stl_always_inline bool noneOf() const noexcept;
+	constexpr simd_stl_always_inline bool all_of() const noexcept;
+	constexpr simd_stl_always_inline bool any_of() const noexcept;
+	constexpr simd_stl_always_inline bool none_of() const noexcept;
 
-	constexpr simd_stl_always_inline size_type countSet() const noexcept;
-	constexpr simd_stl_always_inline size_type countTrailingZeroBits() const noexcept;
-	constexpr simd_stl_always_inline size_type countLeadingZeroBits() const noexcept;
-	constexpr simd_stl_always_inline size_type countTrailingOneBits() const noexcept;
-	constexpr simd_stl_always_inline size_type countLeadingOneBits() const noexcept;
-	constexpr simd_stl_always_inline void clearLeftMostSetBit() noexcept;
+	constexpr simd_stl_always_inline size_type count_set() const noexcept;
+	constexpr simd_stl_always_inline size_type count_trailing_zero_bits() const noexcept;
+	constexpr simd_stl_always_inline size_type count_leading_zero_bits() const noexcept;
+	constexpr simd_stl_always_inline size_type count_trailing_one_bits() const noexcept;
+	constexpr simd_stl_always_inline size_type count_leading_one_bits() const noexcept;
+	constexpr simd_stl_always_inline void clear_left_most_set_bit() noexcept;
 
 	constexpr simd_stl_always_inline mask_type unwrap() const noexcept;
 
-	constexpr simd_stl_always_inline bool operator==(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline bool operator!=(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline bool operator<(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline bool operator<=(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline bool operator>(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline bool operator>=(const simd_mask& other) const noexcept;
+	constexpr simd_stl_always_inline bool operator==(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator!=(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator<(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator<=(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator>(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator>=(const simd_mask& __other) const noexcept;
 
-	constexpr simd_stl_always_inline simd_mask operator&(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline simd_mask operator|(const simd_mask& other) const noexcept;
-	constexpr simd_stl_always_inline simd_mask operator^(const simd_mask& other) const noexcept;
+	constexpr simd_stl_always_inline simd_mask operator&(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline simd_mask operator|(const simd_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline simd_mask operator^(const simd_mask& __other) const noexcept;
 
-	constexpr simd_stl_always_inline bool operator[](int32 _Index) const noexcept;
+	constexpr simd_stl_always_inline bool operator[](int32 __index) const noexcept;
 
-	constexpr simd_stl_always_inline simd_mask& operator&=(const simd_mask& other) noexcept;
-	constexpr simd_stl_always_inline simd_mask& operator|=(const simd_mask& other) noexcept;
-	constexpr simd_stl_always_inline simd_mask& operator=(mask_type other) noexcept;
-	constexpr simd_stl_always_inline simd_mask& operator^=(const simd_mask& other) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator&=(const simd_mask& __other) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator|=(const simd_mask& __other) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator=(mask_type __other) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator^=(const simd_mask& __other) noexcept;
 
 	constexpr simd_stl_always_inline simd_mask operator~() const noexcept;
 

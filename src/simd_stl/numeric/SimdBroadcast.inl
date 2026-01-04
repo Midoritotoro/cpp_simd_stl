@@ -11,22 +11,22 @@ __simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::SSE2, numeric::xmm128>::_Broadcast(_DesiredType_ _Value) noexcept
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_epi64x(memory::pointerToIntegral(_Value)));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_epi64x(memory::pointerToIntegral(_Value)));
 
 	else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_epi32(memory::pointerToIntegral(_Value)));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_epi32(memory::pointerToIntegral(_Value)));
 
 	else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_epi16(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_epi16(_Value));
 
 	else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_epi8(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_epi8(_Value));
 
 	else if constexpr (_Is_ps_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_ps(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_ps(_Value));
 
 	else if constexpr (_Is_pd_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm_set1_pd(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm_set1_pd(_Value));
 }
 
 template <class _VectorType_>
@@ -54,22 +54,22 @@ __simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 	arch::CpuFeature::AVX, numeric::ymm256>::_Broadcast(_DesiredType_ _Value) noexcept 
 {
 	if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi64x(memory::pointerToIntegral(_Value)));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi64x(memory::pointerToIntegral(_Value)));
 
 	else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi32(memory::pointerToIntegral(_Value)));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi32(memory::pointerToIntegral(_Value)));
 
 	else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi16(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi16(_Value));
 
 	else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi8(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi8(_Value));
 
 	else if constexpr (_Is_ps_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_ps(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_ps(_Value));
 
 	else if constexpr (_Is_pd_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_pd(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_pd(_Value));
 }
 
 template <class _VectorType_>
@@ -97,23 +97,23 @@ __simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 #if !defined(simd_stl_os_win64)
 		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi64x(memory::pointerToIntegral(_Value)));
 #else
-		return _IntrinBitcast<_VectorType_>(_mm256_broadcastq_epi64(_mm_cvtsi64_si128(memory::pointerToIntegral(_Value))));
+		return __intrin_bitcast<_VectorType_>(_mm256_broadcastq_epi64(_mm_cvtsi64_si128(memory::pointerToIntegral(_Value))));
 #endif // !defined(simd_stl_os_win64)
 
 	else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_broadcastd_epi32(_mm_cvtsi32_si128(memory::pointerToIntegral(_Value))));
+		return __intrin_bitcast<_VectorType_>(_mm256_broadcastd_epi32(_mm_cvtsi32_si128(memory::pointerToIntegral(_Value))));
 
 	else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi16(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi16(_Value));
 
 	else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_epi8(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_epi8(_Value));
 
 	else if constexpr (_Is_ps_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_ps(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_ps(_Value));
 
 	else if constexpr (_Is_pd_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm256_set1_pd(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm256_set1_pd(_Value));
 }
 
 #pragma endregion
@@ -130,23 +130,23 @@ __simd_nodiscard_inline _VectorType_ _SimdBroadcastImplementation<
 #if !defined(simd_stl_os_win64)
 		return _IntrinBitcast<_VectorType_>(_mm512_set1_epi64(memory::pointerToIntegral(_Value)));
 #else
-		return _IntrinBitcast<_VectorType_>(_mm512_broadcastq_epi64(_mm_cvtsi64_si128(memory::pointerToIntegral(_Value))));
+		return __intrin_bitcast<_VectorType_>(_mm512_broadcastq_epi64(_mm_cvtsi64_si128(memory::pointerToIntegral(_Value))));
 #endif
 
 	else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm512_broadcastd_epi32(_mm_cvtsi32_si128(memory::pointerToIntegral(_Value))));
+		return __intrin_bitcast<_VectorType_>(_mm512_broadcastd_epi32(_mm_cvtsi32_si128(memory::pointerToIntegral(_Value))));
 
 	else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm512_set1_epi16(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm512_set1_epi16(_Value));
 
 	else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm512_set1_epi8(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm512_set1_epi8(_Value));
 
 	else if constexpr (_Is_ps_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm512_set1_ps(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm512_set1_ps(_Value));
 
 	else if constexpr (_Is_pd_v<_DesiredType_>)
-		return _IntrinBitcast<_VectorType_>(_mm512_set1_pd(_Value));
+		return __intrin_bitcast<_VectorType_>(_mm512_set1_pd(_Value));
 }
 
 template <class _VectorType_>

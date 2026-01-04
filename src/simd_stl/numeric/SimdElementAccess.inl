@@ -27,36 +27,36 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::SSE2, xmm128>::
         auto _VectorValue = _SimdLoadLowerHalf<_Generation, _RegisterPolicy, __m128i>(&_Convert._Vector);
 #endif
         _Vector = (_Position == 0)
-            ? _IntrinBitcast<_VectorType_>(_mm_unpackhi_epi64(
-                _mm_unpacklo_epi64(_VectorValue, _VectorValue), _IntrinBitcast<__m128i>(_Vector)))
-            : _IntrinBitcast<_VectorType_>(_mm_unpacklo_epi64(
-                _IntrinBitcast<__m128i>(_Vector), _VectorValue));
+            ? __intrin_bitcast<_VectorType_>(_mm_unpackhi_epi64(
+                _mm_unpacklo_epi64(_VectorValue, _VectorValue), __intrin_bitcast<__m128i>(_Vector)))
+            : __intrin_bitcast<_VectorType_>(_mm_unpacklo_epi64(
+                __intrin_bitcast<__m128i>(_Vector), _VectorValue));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 0));
             break;
         case 1:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 1));
             break;
         case 2:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 2));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 2));
             break;
         case 3:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 3));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 3));
             break;
         case 4:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 4));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 4));
             break;
         case 5:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 5));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 5));
             break;
         case 6:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 6));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 6));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 7));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 7));
             break;
         }
     }
@@ -64,8 +64,8 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::SSE2, xmm128>::
         const auto _Broadcasted = _mm_set_sd(_Value);
 
         _Vector = (_Position == 0)
-            ? _mm_shuffle_pd(_Broadcasted, _IntrinBitcast<__m128d>(_Vector), 2)
-            : _mm_shuffle_pd(_IntrinBitcast<__m128d>(_Vector), _Broadcasted, 0);
+            ? _mm_shuffle_pd(_Broadcasted, __intrin_bitcast<__m128d>(_Vector), 2)
+            : _mm_shuffle_pd(__intrin_bitcast<__m128d>(_Vector), _Broadcasted, 0);
     }
     else {
         const auto _Mask = _MakeSimdInsertMask<_VectorType_, _DesiredType_>();
@@ -88,7 +88,7 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::SSE2, 
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
         if (_Where == 0) {
 #if defined(simd_stl_processor_x86_64)
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_Vector)));
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si64(__intrin_bitcast<__m128i>(_Vector)));
 #else
             const auto _HighDword = _mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector));
             const auto _LowDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0x55));
@@ -98,7 +98,7 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::SSE2, 
         }
 
 #if defined(simd_stl_processor_x86_64)
-        const auto _Shuffled = _mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE);
+        const auto _Shuffled = _mm_shuffle_epi32(__intrin_bitcast<__m128i>(_Vector), 0xEE);
         return static_cast<_DesiredType_>(_mm_cvtsi128_si64(_Shuffled));
 #else
         const auto _HighDword = _mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE));
@@ -110,36 +110,36 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::SSE2, 
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_Vector)));
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(__intrin_bitcast<__m128i>(_Vector)));
 
         case 1:
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0x55)));
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(__intrin_bitcast<__m128i>(_Vector), 0x55)));
 
         case 2:
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xEE)));
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(__intrin_bitcast<__m128i>(_Vector), 0xEE)));
 
         default:
-            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(_IntrinBitcast<__m128i>(_Vector), 0xFF)));
+            return static_cast<_DesiredType_>(_mm_cvtsi128_si32(_mm_shuffle_epi32(__intrin_bitcast<__m128i>(_Vector), 0xFF)));
         }
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 0));
         case 1:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 1));
         case 2:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 2));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 2));
         case 3:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 3));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 3));
         case 4:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 4));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 4));
         case 5:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 5));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 5));
         case 6:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 6));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 6));
         default:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 7));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 7));
         }
     }
     else {
@@ -165,10 +165,10 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::SSE41, xmm128>:
 
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi64(_IntrinBitcast<__m128i>(_Vector), _QwordValue, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi64(__intrin_bitcast<__m128i>(_Vector), _QwordValue, 0));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi64(_IntrinBitcast<__m128i>(_Vector), _QwordValue, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi64(__intrin_bitcast<__m128i>(_Vector), _QwordValue, 1));
             break;
         }
     }
@@ -177,44 +177,44 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::SSE41, xmm128>:
 
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi32(_IntrinBitcast<__m128i>(_Vector), _DwordValue, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi32(__intrin_bitcast<__m128i>(_Vector), _DwordValue, 0));
             break;
         case 1:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi32(_IntrinBitcast<__m128i>(_Vector), _DwordValue, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi32(__intrin_bitcast<__m128i>(_Vector), _DwordValue, 1));
             break;
         case 2:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi32(_IntrinBitcast<__m128i>(_Vector), _DwordValue, 2));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi32(__intrin_bitcast<__m128i>(_Vector), _DwordValue, 2));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi32(_IntrinBitcast<__m128i>(_Vector), _DwordValue, 3));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi32(__intrin_bitcast<__m128i>(_Vector), _DwordValue, 3));
             break;
         }
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 0));
             break;
         case 1:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 1));
             break;
         case 2:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 2));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 2));
             break;
         case 3:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 3));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 3));
             break;
         case 4:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 4));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 4));
             break;
         case 5:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 5));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 5));
             break;
         case 6:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 6));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 6));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm_insert_epi16(_IntrinBitcast<__m128i>(_Vector), _Value, 7));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(_Vector), _Value, 7));
             break;
         }
     }
@@ -233,41 +233,41 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::SSE41,
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm_extract_epi64(__intrin_bitcast<__m128i>(_Vector), 0));
         default:
-            return static_cast<_DesiredType_>(_mm_extract_epi64(_IntrinBitcast<__m128i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm_extract_epi64(__intrin_bitcast<__m128i>(_Vector), 1));
         }
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm_extract_epi32(__intrin_bitcast<__m128i>(_Vector), 0));
         case 1:
-            return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm_extract_epi32(__intrin_bitcast<__m128i>(_Vector), 1));
         case 2:
-            return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 2));
+            return static_cast<_DesiredType_>(_mm_extract_epi32(__intrin_bitcast<__m128i>(_Vector), 2));
         default:
-            return static_cast<_DesiredType_>(_mm_extract_epi32(_IntrinBitcast<__m128i>(_Vector), 3));
+            return static_cast<_DesiredType_>(_mm_extract_epi32(__intrin_bitcast<__m128i>(_Vector), 3));
         }
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 0));
         case 1:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 1));
         case 2:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 2));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 2));
         case 3:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 3));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 3));
         case 4:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 4));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 4));
         case 5:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 5));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 5));
         case 6:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 6));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 6));
         default:
-            return static_cast<_DesiredType_>(_mm_extract_epi16(_IntrinBitcast<__m128i>(_Vector), 7));
+            return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(_Vector), 7));
         }
     }
     else {
@@ -293,16 +293,16 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::AVX, ymm256>::_
 
         switch (_Position) {
         case 0:
-            _Vector = _mm256_blend_pd(_IntrinBitcast<__m256d>(_Vector), _Broadcasted, 1);
+            _Vector = _mm256_blend_pd(__intrin_bitcast<__m256d>(_Vector), _Broadcasted, 1);
             break;
         case 1:
-            _Vector = _mm256_blend_pd(_IntrinBitcast<__m256d>(_Vector), _Broadcasted, 2);
+            _Vector = _mm256_blend_pd(__intrin_bitcast<__m256d>(_Vector), _Broadcasted, 2);
             break;
         case 2:
-            _Vector = _mm256_blend_pd(_IntrinBitcast<__m256d>(_Vector), _Broadcasted, 4);
+            _Vector = _mm256_blend_pd(__intrin_bitcast<__m256d>(_Vector), _Broadcasted, 4);
             break;
         default:
-            _Vector = _mm256_blend_pd(_IntrinBitcast<__m256d>(_Vector), _Broadcasted, 8);
+            _Vector = _mm256_blend_pd(__intrin_bitcast<__m256d>(_Vector), _Broadcasted, 8);
             break;
         }
     }
@@ -311,28 +311,28 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::AVX, ymm256>::_
 
         switch (_Position) {
         case 0:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 1);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 1);
             break;
         case 1:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 2);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 2);
             break;
         case 2:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 4);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 4);
             break;
         case 3:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 8);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 8);
             break;
         case 4:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 0x10);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 0x10);
             break;
         case 5:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 0x20);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 0x20);
             break;
         case 6:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 0x40);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 0x40);
             break;
         default:
-            _Vector = _mm256_blend_ps(_IntrinBitcast<__m256>(_Vector), _Broadcasted, 0x80);
+            _Vector = _mm256_blend_ps(__intrin_bitcast<__m256>(_Vector), _Broadcasted, 0x80);
             break;
         }
     }
@@ -341,16 +341,16 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::AVX, ymm256>::_
 
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi64(_IntrinBitcast<__m256i>(_Vector), _QwordValue, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(_Vector), _QwordValue, 0));
             break;
         case 1:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi64(_IntrinBitcast<__m256i>(_Vector), _QwordValue, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(_Vector), _QwordValue, 1));
             break;
         case 2:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi64(_IntrinBitcast<__m256i>(_Vector), _QwordValue, 2));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(_Vector), _QwordValue, 2));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi64(_IntrinBitcast<__m256i>(_Vector), _QwordValue, 3));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(_Vector), _QwordValue, 3));
             break;
         }
     }
@@ -359,28 +359,28 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::AVX, ymm256>::_
 
         switch (_Position) {
         case 0:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 0));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 0));
             break;
         case 1:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 1));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 1));
             break;
         case 2:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 2));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 2));
             break;
         case 3:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 3));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 3));
             break;
         case 4:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 4));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 4));
             break;
         case 5:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 5));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 5));
             break;
         case 6:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 6));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 6));
             break;
         default:
-            _Vector = _IntrinBitcast<_VectorType_>(_mm256_insert_epi32(_IntrinBitcast<__m256i>(_Vector), _DwordValue, 7));
+            _Vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(_Vector), _DwordValue, 7));
             break;
         }
     }
@@ -405,33 +405,33 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::AVX, y
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm256_extract_epi64(__intrin_bitcast<__m256i>(_Vector), 0));
         case 1:
-            return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm256_extract_epi64(__intrin_bitcast<__m256i>(_Vector), 1));
         case 2:
-            return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 2));
+            return static_cast<_DesiredType_>(_mm256_extract_epi64(__intrin_bitcast<__m256i>(_Vector), 2));
         case 3:
-            return static_cast<_DesiredType_>(_mm256_extract_epi64(_IntrinBitcast<__m256i>(_Vector), 3));
+            return static_cast<_DesiredType_>(_mm256_extract_epi64(__intrin_bitcast<__m256i>(_Vector), 3));
         }
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
         switch (_Where) {
         case 0:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 0));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 0));
         case 1:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 1));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 1));
         case 2:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 2));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 2));
         case 3:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 3));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 3));
         case 4:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 4));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 4));
         case 5:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 5));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 5));
         case 6:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 6));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 6));
         case 7:
-            return static_cast<_DesiredType_>(_mm256_extract_epi32(_IntrinBitcast<__m256i>(_Vector), 7));
+            return static_cast<_DesiredType_>(_mm256_extract_epi32(__intrin_bitcast<__m256i>(_Vector), 7));
         }
     }
     else {
@@ -457,20 +457,20 @@ simd_stl_always_inline void _SimdElementAccess<arch::CpuFeature::AVX512F, zmm512
     const _DesiredType_ _Value) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-        _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_set1_epi64(
-            _IntrinBitcast<__m512i>(_Vector), static_cast<uint8>(1u << _Position), memory::pointerToIntegral(_Value)));
+        _Vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi64(
+            __intrin_bitcast<__m512i>(_Vector), static_cast<uint8>(1u << _Position), memory::pointerToIntegral(_Value)));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-        _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_set1_epi32(
-            _IntrinBitcast<__m512i>(_Vector), static_cast<uint16>(1u << _Position), memory::pointerToIntegral(_Value)));
+        _Vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi32(
+            __intrin_bitcast<__m512i>(_Vector), static_cast<uint16>(1u << _Position), memory::pointerToIntegral(_Value)));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_broadcastss_ps(
-            _IntrinBitcast<__m512>(_Vector), static_cast<uint16>(1u << _Position), _mm_set_ss(_Value)));
+        _Vector = __intrin_bitcast<_VectorType_>(_mm512_mask_broadcastss_ps(
+            __intrin_bitcast<__m512>(_Vector), static_cast<uint16>(1u << _Position), _mm_set_ss(_Value)));
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        _Vector = _IntrinBitcast<_VectorType_>(_mm512_mask_broadcastsd_pd(
-            _IntrinBitcast<__m512d>(_Vector), static_cast<uint8>(1u << _Position), _mm_set_sd(_Value)));
+        _Vector = __intrin_bitcast<_VectorType_>(_mm512_mask_broadcastsd_pd(
+            __intrin_bitcast<__m512d>(_Vector), static_cast<uint8>(1u << _Position), _mm_set_sd(_Value)));
     }
     else {
         const auto _Mask = _MakeSimdInsertMask<_VectorType_, _DesiredType_>();
@@ -491,18 +491,18 @@ simd_stl_always_inline _DesiredType_ _SimdElementAccess<arch::CpuFeature::AVX512
     const uint8     _Where) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm512_cvtsd_f64(_mm512_maskz_compress_pd(static_cast<uint8>(1u << _Where), _IntrinBitcast<__m512d>(_Vector)));
+        return _mm512_cvtsd_f64(_mm512_maskz_compress_pd(static_cast<uint8>(1u << _Where), __intrin_bitcast<__m512d>(_Vector)));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm512_cvtss_f32(_mm512_maskz_compress_ps(static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512>(_Vector)));
+        return _mm512_cvtss_f32(_mm512_maskz_compress_ps(static_cast<uint16>(1u << _Where), __intrin_bitcast<__m512>(_Vector)));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-        return _mm_cvtsi128_si32(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi32(
-            static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
+        return _mm_cvtsi128_si32(__intrin_bitcast<__m128i>(_mm512_maskz_compress_epi32(
+            static_cast<uint16>(1u << _Where), __intrin_bitcast<__m512i>(_Vector))));
     }
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-        return _mm_cvtsi128_si64(_IntrinBitcast<__m128i>(_mm512_maskz_compress_epi64(
-            static_cast<uint16>(1u << _Where), _IntrinBitcast<__m512i>(_Vector))));
+        return _mm_cvtsi128_si64(__intrin_bitcast<__m128i>(_mm512_maskz_compress_epi64(
+            static_cast<uint16>(1u << _Where), __intrin_bitcast<__m512i>(_Vector))));
     }
     else {
         constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);

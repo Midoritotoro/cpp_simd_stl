@@ -3,13 +3,14 @@
 #include <simd_stl/Types.h>
 #include <src/simd_stl/type_traits/FunctionPass.h>
 
+#include <src/simd_stl/type_traits/OperatorWrappers.h>
+
+
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
 template <class _Type_>
-_Type_ _ReturnsExactly() noexcept;
+_Type_ __returns_exactly() noexcept;
 
-template <class _Type_>
-simd_stl_nodiscard _Type_ _FakeCopyInit(_Type_) noexcept;
 
 #define __EMPTY_ARGUMENT 
 
@@ -137,13 +138,13 @@ simd_stl_nodiscard _Type_ _FakeCopyInit(_Type_) noexcept;
 #endif // defined(__cpp_noexcept_function_type)
 
 template <class _Type_>
-struct _FunctionInformation {
+struct __function_information {
     using is_member_function_pointer = std::false_type;
 };
 
 #define _IS_MEMBER_FUNCTION_POINTER(call_opt, cv_opt, ref_opt, noexcept_opt)                            \
     template <class _Return_, class _FirstArgument_, class... _Args_>                                   \
-    struct _FunctionInformation<_Return_ (call_opt _FirstArgument_::*)(_Args_...) cv_opt ref_opt noexcept_opt> { \
+    struct __function_information<_Return_ (call_opt _FirstArgument_::*)(_Args_...) cv_opt ref_opt noexcept_opt> { \
         using is_member_function_pointer = std::true_type;            \
         using return_type = _Return_;                 \
         using class_type = _FirstArgument_;                \
@@ -154,7 +155,7 @@ _MEMBER_CALL_CV(_IS_MEMBER_FUNCTION_POINTER)
 
 #define __IS_MEMFUNPTR_ELLIPSIS(cv_ref_noexcept_opt) \
     template <class _Return_, class _FirstArgument_, class... _Args_> \
-    struct _FunctionInformation<_Return_ (_FirstArgument_::*)(_Args_..., ...) cv_ref_noexcept_opt> { \
+    struct __function_information<_Return_ (_FirstArgument_::*)(_Args_..., ...) cv_ref_noexcept_opt> { \
         using is_member_function_pointer = std::true_type; \
         using return_type = _Return_; \
         using class_type = _FirstArgument_; \
@@ -174,12 +175,12 @@ template <
 constexpr bool is_specialization_v<_Template_<_Types_...>, _Template_> = true;
 
 template <class>
-struct _Member_object_pointer_class_type {};
+struct __member_object_pointer_class_type {};
 
 template <
     class _FirstType_,
     class _SecondType_>
-struct _Member_object_pointer_class_type<_FirstType_ _SecondType_::*> {
+struct __member_object_pointer_class_type<_FirstType_ _SecondType_::*> {
     using type = _SecondType_;
 };
 

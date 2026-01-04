@@ -7,75 +7,75 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
     sizetype _VerticalSize_,
     sizetype _HorizontalSize_>
-struct _ShuffleTables {
-    uint8 _Shuffle[_VerticalSize_][_HorizontalSize_];
-    uint8 _Size[_VerticalSize_];
+struct __shuffle_tables {
+    uint8 shuffle[_VerticalSize_][_HorizontalSize_];
+    uint8 size[_VerticalSize_];
 };
 
 template <
     sizetype _VerticalSize_,
     sizetype _HorizontalSize_>
-constexpr auto _MakeShuffleTables(
-    const uint32 _Multiplier,
-    const uint32 _ElementGroupStride) noexcept
+constexpr auto __make_shuffle_tables(
+    const uint32 __multiplier,
+    const uint32 __element_group_stride) noexcept
 {
-    _ShuffleTables<_VerticalSize_, _HorizontalSize_> _Result;
+    __shuffle_tables<_VerticalSize_, _HorizontalSize_> __result;
 
-    for (uint32 _VerticalIndex = 0; _VerticalIndex != _VerticalSize_; ++_VerticalIndex) {
-        uint32 _ActiveGroupCount = 0;
+    for (auto __vertical_index = uint32(0); __vertical_index != _VerticalSize_; ++__vertical_index) {
+        auto __active_group_count = uint32(0);
 
-        for (uint32 _HorizontalIndex = 0; _HorizontalIndex != _HorizontalSize_ / _ElementGroupStride; ++_HorizontalIndex) {
-            if ((_VerticalIndex & (1 << _HorizontalIndex)) == 0) {
-                for (uint32 _ElementOffset = 0; _ElementOffset != _ElementGroupStride; ++_ElementOffset)
-                    _Result._Shuffle[_VerticalIndex][_ActiveGroupCount * _ElementGroupStride + _ElementOffset] =
-                    static_cast<uint8>(_HorizontalIndex * _ElementGroupStride + _ElementOffset);
+        for (auto __horizontal_index = uint32(0); __horizontal_index != _HorizontalSize_ / __element_group_stride; ++__horizontal_index) {
+            if ((__vertical_index & (1 << __horizontal_index)) == 0) {
+                for (auto __element_offset = uint32(0); __element_offset != __element_group_stride; ++__element_offset)
+                    __result.shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
+                    static_cast<uint8>(__horizontal_index * __element_group_stride + __element_offset);
 
-                ++_ActiveGroupCount;
+                ++__active_group_count;
             }
         }
 
-        _Result._Size[_VerticalIndex] = static_cast<uint8>(_ActiveGroupCount * _Multiplier);
+        __result.size[__vertical_index] = static_cast<uint8>(__active_group_count * __multiplier);
 
-        for (; _ActiveGroupCount != _HorizontalSize_ / _ElementGroupStride; ++_ActiveGroupCount)
-            for (uint32 _ElementOffset = 0; _ElementOffset != _ElementGroupStride; ++_ElementOffset)
-                _Result._Shuffle[_VerticalIndex][_ActiveGroupCount * _ElementGroupStride + _ElementOffset] =
-                static_cast<uint8>(_ActiveGroupCount * _ElementGroupStride + _ElementOffset);
+        for (; __active_group_count != _HorizontalSize_ / __element_group_stride; ++__active_group_count)
+            for (uint32 __element_offset = 0; __element_offset != __element_group_stride; ++__element_offset)
+                __result.shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
+                static_cast<uint8>(__active_group_count * __element_group_stride + __element_offset);
     }
 
-    return _Result;
+    return __result;
 }
 
 
-constexpr auto _Tables8BitSse   = _MakeShuffleTables<256, 8>(1, 1);
-constexpr auto _Tables16BitSse  = _MakeShuffleTables<256, 16>(2, 2);
-constexpr auto _Tables32BitSse  = _MakeShuffleTables<16, 16>(4, 4);
-constexpr auto _Tables64BitSse  = _MakeShuffleTables<4, 16>(8, 8);
+constexpr auto __tables_8bit_sse    = __make_shuffle_tables<256, 8>(1, 1);
+constexpr auto __tables_16bit_sse   = __make_shuffle_tables<256, 16>(2, 2);
+constexpr auto __tables_32bit_sse   = __make_shuffle_tables<16, 16>(4, 4);
+constexpr auto __tables_64bit_sse   = __make_shuffle_tables<4, 16>(8, 8);
 
-constexpr auto _Tables32BitAvx = _MakeShuffleTables<256, 8>(4, 1);
-constexpr auto _Tables64BitAvx = _MakeShuffleTables<16, 8>(8, 2);
+constexpr auto __tables_32bit_avx   = __make_shuffle_tables<256, 8>(4, 1);
+constexpr auto __tables_64bit_avx   = __make_shuffle_tables<16, 8>(8, 2);
 
 template <
     class _VectorType_,
     class _DesiredType_>
-struct _SimdInsertMask {
-    _DesiredType_   _Array[(sizeof(_VectorType_) / sizeof(_DesiredType_))];
-    int32           _Offset = 0;
+struct __insert_mask {
+    _DesiredType_   array[(sizeof(_VectorType_) / sizeof(_DesiredType_))];
+    int32           offset = 0;
 };
 
 template <
     class _VectorType_,
     class _DesiredType_>
 constexpr auto _MakeSimdInsertMask() noexcept { 
-    constexpr auto _Length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-    _SimdInsertMask<_VectorType_, _DesiredType_> _InsertMask;
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    __insert_mask<_VectorType_, _DesiredType_> __mask;
 
-    for (auto _Index = 0; _Index < _Length; ++_Index)
-        _InsertMask._Array[_Index] = 0;
+    for (auto __index = 0; __index < __length; ++__index)
+        __mask.array[__index] = 0;
 
-    _InsertMask._Offset = _Length >> 1;
-    _InsertMask._Array[(_InsertMask._Offset + 1)] = -1;
+    __mask.offset                       = __length >> 1;
+    __mask.array[(__mask.offset + 1)]   = -1;
 
-    return _InsertMask;
+    return __mask;
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

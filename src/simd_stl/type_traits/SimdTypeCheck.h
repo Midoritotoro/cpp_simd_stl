@@ -33,42 +33,42 @@ template <
     class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
 struct __deduce_simd_vector_type__ {
 private:
-    using T = std::decay_t<_VectorElementType_>;
+    using _Type_ = std::decay_t<_VectorElementType_>;
 
-    static constexpr bool is_fp64 = type_traits::is_any_of_v<T, double, long double> || (std::is_same_v<T, std::nullptr_t> && sizeof(std::nullptr_t) == 8);
-    static constexpr bool is_fp32 = std::is_same_v<T, float>;
-    static constexpr bool is_int  = type_traits::is_nonbool_integral_v<T> || (std::is_same_v<T, std::nullptr_t> && sizeof(std::nullptr_t) == 4);
-    static constexpr bool is_ptr  = __is_pointer_decay_v<_VectorElementType_>;
-    static constexpr bool use_i   = is_int || is_ptr;
+    static constexpr bool __is_fp64 = is_any_of_v<_Type_, double, long double> || (std::is_same_v<_Type_, std::nullptr_t> && sizeof(std::nullptr_t) == 8);
+    static constexpr bool __is_fp32 = std::is_same_v<_Type_, float>;
+    static constexpr bool __is_int  = is_nonbool_integral_v<_Type_> || (std::is_same_v<_Type_, std::nullptr_t> && sizeof(std::nullptr_t) == 4);
+    static constexpr bool __is_ptr  = __is_pointer_decay_v<_VectorElementType_>;
+    static constexpr bool __use_i   = is_int || is_ptr;
 
 public:
     using type =
         std::conditional_t<
             std::is_same_v<_RegisterPolicy_, numeric::zmm512>,
                 std::conditional_t<
-                    is_fp64, __m512d,
+                    __is_fp64, __m512d,
                     std::conditional_t<
-                        is_fp32, __m512,
+                        __is_fp32, __m512,
                         std::conditional_t<
-                            use_i,   __m512i,
+                            __use_i,   __m512i,
                                      void>>>,
         std::conditional_t<
             std::is_same_v<_RegisterPolicy_, numeric::ymm256>,
                 std::conditional_t<
-                    is_fp64, __m256d,
+                    __is_fp64, __m256d,
                     std::conditional_t<
-                        is_fp32, __m256,
+                        __is_fp32, __m256,
                         std::conditional_t<
-                            use_i,   __m256i,
+                            __use_i,   __m256i,
                                      void>>>,
         std::conditional_t<
             std::is_same_v<_RegisterPolicy_, numeric::xmm128>,
                 std::conditional_t<
-                    is_fp64, __m128d,
+                    __is_fp64, __m128d,
                     std::conditional_t<
-                        is_fp32, __m128,
+                        __is_fp32, __m128,
                         std::conditional_t<
-                            use_i,   __m128i,
+                            __use_i,   __m128i,
                                      void>>>,
         void>>>;
 };
@@ -105,56 +105,14 @@ template <
     class               _RegisterPolicy_ = numeric::_DefaultRegisterPolicy<_SimdGeneration_>>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
 
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_load_supported_v = std::conjunction_v<
-    !arch::__is_xmm_v<_SimdGeneration_>,
-    arch::__is_ymm_v<_SimdGeneration_>,
-    arch::__is_zmm_v<_SimdGeneration_>
->;
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_native_mask_store_supported_v = is_native_mask_load_supported_v<_SimdGeneration_>;
-
 template <arch::CpuFeature _SimdGeneration_> 
-constexpr bool is_streaming_load_supported_v = 
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE41) ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::SSE42)) || 
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2)) || 
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
-
-template <arch::CpuFeature _SimdGeneration_>
-constexpr bool is_streaming_store_supported_v =
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::SSE2)       &&
-        static_cast<int8>(_SimdGeneration_) <= static_cast<int8>(arch::CpuFeature::SSE42))  ||
-    (static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX)        ||
-        static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2))   ||
-    (static_cast<int8>(_SimdGeneration_) >= static_cast<int8>(arch::CpuFeature::AVX512F));
-
-template <arch::CpuFeature _SimdGeneration_> 
-constexpr bool is_streaming_supported_v = 
-    is_streaming_load_supported_v<_SimdGeneration_> &&
-    is_streaming_store_supported_v<_SimdGeneration_>;
-
-template <arch::CpuFeature _SimdGeneration_> 
-constexpr bool is_zeroupper_required_v =
+constexpr bool __is_zeroupper_required_v =
     static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
     static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX);
 
 template <
     arch::CpuFeature _SimdGenerationFirst_,
     arch::CpuFeature _SimdGenerationSecond_>
-constexpr bool is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
-
-template <
-    class _BasicSimdFrom_,
-    class _BasicSimdTo_>
-using deduce_superior_basic_simd_type = std::conditional_t<
-        is_simd_feature_superior_v<
-            _BasicSimdFrom_::_Generation,
-            _BasicSimdTo_::_Generation>,
-        _BasicSimdFrom_,
-        _BasicSimdTo_
-    >;
+constexpr bool __is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

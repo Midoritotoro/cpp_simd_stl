@@ -14,9 +14,9 @@ template <
     class _Destination_,
     class _SourceReference_,
     class _DestinationReference_>
-struct TrivialCategory {
-    using UnwrappedSource       = unwrap_enum_t<_Source_>;
-    using UnwrappedDestination  = unwrap_enum_t<_Destination_>;
+struct __trivial_iterator_category {
+    using UnwrappedSource       = unwrap_enum_type<_Source_>;
+    using UnwrappedDestination  = unwrap_enum_type<_Destination_>;
 
     static constexpr bool SameSizeAndCompatible =
         sizeof(_Source_) == sizeof(_Destination_)
@@ -43,7 +43,7 @@ template <
     class _Destination_, 
     class _SourceReference_,
     class _DestinationReference_>
-struct TrivialCategory<
+struct __trivial_iterator_category<
     _Source_*, _Destination_*,
     _SourceReference_, _DestinationReference_>
 {
@@ -56,7 +56,7 @@ struct TrivialCategory<
         && std::is_trivially_assignable_v<_DestinationReference_, _SourceReference_>;
 };
 
-struct FalseTrivialCategory {
+struct __false_trivial_iterator_category {
     static constexpr bool BitcopyConstructible = false;
     static constexpr bool BitcopyAssignable = false;
 };
@@ -69,8 +69,8 @@ template <
             && is_iterator_contiguous_v<_DestinationIterator_>
             && !is_iterator_volatile_v<_SourceIterator_>
             && !is_iterator_volatile_v<_DestinationIterator_>>
-struct IteratorMoveCategory : 
-    TrivialCategory<
+struct __move_iterator_category : 
+    __trivial_iterator_category<
         iterator_value_type<_SourceIterator_>, 
         iterator_value_type<_DestinationIterator_>,
 std::remove_reference_t<
@@ -82,9 +82,9 @@ std::remove_reference_t<
 template <
     class _SourceIterator_,
     class _DestinationIterator_>
-struct IteratorMoveCategory<
+struct __move_iterator_category<
     std::move_iterator<_SourceIterator_>, _DestinationIterator_, false> : 
-        IteratorMoveCategory<_SourceIterator_, _DestinationIterator_> {
+        __move_iterator_category<_SourceIterator_, _DestinationIterator_> {
 };
 
 template <
@@ -95,8 +95,8 @@ template <
             && is_iterator_contiguous_v<_DestinationIterator_>
             && !is_iterator_volatile_v<_SourceIterator_>
         && !is_iterator_volatile_v<_DestinationIterator_>>
-struct IteratorCopyCategory :
-    TrivialCategory <
+struct __copy_iterator_category :
+    __trivial_iterator_category <
         iterator_value_type<_SourceIterator_>,
         iterator_value_type<_DestinationIterator_>,
         iterator_reference_type<_SourceIterator_>,
@@ -107,24 +107,24 @@ struct IteratorCopyCategory :
 template <
     class _SourceIterator_,
     class _DestinationIterator_>
-struct IteratorCopyCategory<
+struct __copy_iterator_category<
     _SourceIterator_, _DestinationIterator_, false>: 
-        FalseTrivialCategory
+        __false_trivial_iterator_category
 {};
 
 template <
     class _SourceIterator_,
     class _DestinationIterator_>
-struct IteratorCopyCategory<
+struct __copy_iterator_category<
     std::move_iterator<_SourceIterator_>, _DestinationIterator_, false>: 
-        IteratorMoveCategory<_SourceIterator_, _DestinationIterator_>
+        __move_iterator_category<_SourceIterator_, _DestinationIterator_>
 {};
 
 template <
     class _InputIterator_,
     class _Sentinel_,
     class _OutIterator_>
-using SentinelCopyCategory = std::conditional_t<
+using __copy_sentinel_category = std::conditional_t<
 #if base_has_cxx20
     std::is_same_v<
         _Sentinel_, _InputIterator_>
@@ -133,8 +133,8 @@ using SentinelCopyCategory = std::conditional_t<
 #else
     std::is_same_v<_Sentinel_, _InputIterator_>,
 #endif
-    IteratorCopyCategory<
+    __copy_iterator_category<
         _InputIterator_, _OutIterator_>,
-    FalseTrivialCategory>;
+    __false_trivial_iterator_category>;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

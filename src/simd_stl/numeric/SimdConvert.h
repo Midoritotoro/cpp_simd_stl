@@ -358,7 +358,7 @@ simd_stl_always_inline _VectorType_ _SimdToVector(_MaskType_ _Mask) noexcept {
     _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_)
 
     if constexpr (_Is_intrin_type_v<_MaskType_>)
-        return _IntrinBitcast<_VectorType_>(_Mask);
+        return __intrin_bitcast<_VectorType_>(_Mask);
     else
         return _SimdConvertImplementation<_SimdGeneration_, _RegisterPolicy_>::template _ToVector<_VectorType_, _DesiredType_>(_Mask);
 }

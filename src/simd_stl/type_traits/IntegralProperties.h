@@ -11,53 +11,53 @@ template <class _Type_>
 constexpr inline bool is_nonbool_integral_v = std::is_integral_v<_Type_> && !std::is_same_v<std::remove_cv_t<_Type_>, bool>;
 
 template <class _Type_>
-struct _Is_character:
+struct __is_character:
 	std::false_type
 {};
 
 template <>
-struct _Is_character<char>:
+struct __is_character<char>:
 	std::true_type
 {};
 
 template <>
-struct _Is_character<signed char>:
+struct __is_character<signed char>:
 	std::true_type
 {};
 
 template <>
-struct _Is_character<unsigned char>:
+struct __is_character<unsigned char>:
 	std::true_type
 {};
 
-#ifdef __cpp_char8_t
+#if defined(__cpp_char8_t)
 
 template <>
-struct _Is_character<char8_t>:
+struct __is_character<char8_t>:
 	std::true_type
 {};
 
-#endif
+#endif // defined(__cpp_char8_t)
 
 template <class _Type_>
-struct _Is_character_or_bool: 
+struct __is_character_or_bool: 
 	_Is_character<_Type_>::type
 {};
 
 template <>
-struct _Is_character_or_bool<bool>:
+struct __is_character_or_bool<bool>:
 	std::true_type
 {};
 
 template <class _Type_>
-struct _Is_character_or_byte_or_bool:
-	_Is_character_or_bool<_Type_>::type
+struct __is_character_or_byte_or_bool:
+	__is_character_or_bool<_Type_>::type
 {};
 
-#ifdef __cpp_lib_byte
+#if defined(__cpp_lib_byte)
 
 template <>
-struct _Is_character_or_byte_or_bool<std::byte>:
+struct __is_character_or_byte_or_bool<std::byte>:
 	std::true_type
 {};
 

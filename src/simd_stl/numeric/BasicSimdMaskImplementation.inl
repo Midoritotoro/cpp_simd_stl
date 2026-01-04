@@ -6,51 +6,51 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr bool BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::allOf(mask_type _Mask) noexcept {
-	if constexpr (_UsedBits == (sizeof(mask_type) << 3))
-		return (_Mask == math::__maximum_integral_limit<mask_type>());
+constexpr bool __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::all_of(mask_type __mask) noexcept {
+	if constexpr (__used_bits == (sizeof(mask_type) << 3))
+		return (__mask == math::__maximum_integral_limit<mask_type>());
 	else
-		return _Mask == ((mask_type(1) << _UsedBits) - 1);
+		return __mask == ((mask_type(1) << __used_bits) - 1);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr bool BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::anyOf(mask_type _Mask) noexcept {
-	return (_Mask != 0);
+constexpr bool __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::any_of(mask_type __mask) noexcept {
+	return (__mask != 0);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr bool BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::noneOf(mask_type _Mask) noexcept {
-	return (_Mask == 0);
+constexpr bool __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::none_of(mask_type __mask) noexcept {
+	return (__mask == 0);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr uint8 BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::countSet(mask_type _Mask) noexcept {
-	return math::PopulationCount(_Mask);
+constexpr uint8 __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_set(mask_type __mask) noexcept {
+	return math::population_count(__mask);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr uint8 BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::countTrailingZeroBits(mask_type _Mask) noexcept {
-	return math::CountTrailingZeroBits(_Mask);
+constexpr uint8 __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_trailing_zero_bits(mask_type __mask) noexcept {
+	return math::count_trailing_zero_bits(__mask);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr uint8 BasicSimdMaskImplementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::countLeadingZeroBits(mask_type _Mask) noexcept {
-	return math::CountLeadingZeroBits(_Mask);
+constexpr uint8 __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_leading_zero_bits(mask_type __mask) noexcept {
+	return math::count_leading_zero_bits(__mask);
 }
 
 

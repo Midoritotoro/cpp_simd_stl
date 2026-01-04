@@ -10,11 +10,11 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 	using std::is_constant_evaluated;
 #else
 	constexpr bool is_constant_evaluated() noexcept {
-	#if __has_builtin(__builtin_is_constant_evaluated)
+#if __has_builtin(__builtin_is_constant_evaluated)
 		return __builtin_is_constant_evaluated();
-	#else
+#else
 		return false;
-	#endif
+#endif // __has_builtin(__builtin_is_constant_evaluated)
 	}
 #endif // defined(__cpp_lib_is_constant_evaluated)
 

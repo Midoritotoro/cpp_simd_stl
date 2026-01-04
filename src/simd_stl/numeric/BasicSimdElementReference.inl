@@ -6,14 +6,14 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::BasicSimdElementReference(
-    parent_type*    _Parent,
-    uint32          _Index
+    parent_type*    __parent,
+    uint32          __index
 ) noexcept:
-    _parent(_Parent),
-    _index(_Index)
+    _parent(__parent),
+    _index(__index)
 {
-    DebugAssert(_Parent != nullptr);
-    DebugAssert(_Index >= 0 && _Index < parent_type::template size<value_type>());
+    simd_stl_debug_assert(__parent != nullptr);
+    simd_stl_debug_assert(__index >= 0 && __index < parent_type::template size<value_type>());
 }
 
 template <
@@ -41,17 +41,17 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline void BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::set(value_type value) noexcept {
-    _parent->insert<value_type>(_index, value);
+simd_stl_always_inline void BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::set(value_type __value) noexcept {
+    _parent->insert<value_type>(_index, __value);
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator=(const value_type other) noexcept 
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator=(const value_type __other) noexcept 
 {
-    set(other);
+    set(__other);
     return *this;
 }
 
@@ -81,9 +81,9 @@ template <
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
     BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator++(int) noexcept 
 {
-    auto self = *this;
+    auto __self = *this;
     set(get() + 1);
-    return self;
+    return __self;
 }
 
 template <
@@ -92,9 +92,9 @@ template <
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
     BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator--(int) noexcept 
 {
-    auto self = *this;
+    auto __self = *this;
     set(get() - 1);
-    return self;
+    return __self;
 }
 
 template <
@@ -126,63 +126,63 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator==(const value_type other) const noexcept
+    ::operator==(const value_type __other) const noexcept
 {
-    return get() == other;
+    return get() == __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator!=(const value_type other) const noexcept
+    ::operator!=(const value_type __other) const noexcept
 {
-    return get() != other;
+    return get() != __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator>(const value_type other) const noexcept
+    ::operator>(const value_type __other) const noexcept
 {
-    return get() > other;
+    return get() > __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator<(const value_type other) const noexcept
+    ::operator<(const value_type __other) const noexcept
 {
-    return get() < other;
+    return get() < __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator<=(const value_type other) const noexcept
+    ::operator<=(const value_type __other) const noexcept
 {
-    return get() <= other;
+    return get() <= __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    ::operator>=(const value_type other) const noexcept
+    ::operator>=(const value_type __other) const noexcept
 {
-    return get() >= other;
+    return get() >= __other;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator+=(const value_type other) noexcept 
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator+=(const value_type __other) noexcept
 {
-    set(get() + other);
+    set(get() + __other);
     return *this;
 }
 
@@ -190,9 +190,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator-=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator-=(const value_type __other) noexcept
 {
-    set(get() - other);
+    set(get() - __other);
     return *this;
 }
 
@@ -200,9 +200,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator*=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator*=(const value_type __other) noexcept
 {
-    set(get() * other);
+    set(get() * __other);
     return *this;
 }
 
@@ -210,9 +210,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator/=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator/=(const value_type __other) noexcept
 {
-    set(get() / other);
+    set(get() / __other);
     return *this;
 }
 
@@ -220,9 +220,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator%=(const value_type other) noexcept 
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator%=(const value_type __other) noexcept
 {
-    set(get() % other);
+    set(get() % __other);
     return *this;
 }
 
@@ -230,9 +230,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator&=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator&=(const value_type __other) noexcept
 {
-    set(get() & other);
+    set(get() & __other);
     return *this;
 }
 
@@ -240,9 +240,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator^=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator^=(const value_type __other) noexcept
 {
-    set(get() ^ other);
+    set(get() ^ __other);
     return *this;
 }
 
@@ -250,9 +250,9 @@ template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
 simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator|=(const value_type other) noexcept
+    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator|=(const value_type __other) noexcept
 {
-    set(get() | other);
+    set(get() | __other);
     return *this;
 }
 

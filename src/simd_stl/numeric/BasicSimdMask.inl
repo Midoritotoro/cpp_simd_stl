@@ -13,7 +13,7 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_type mask) noexcept :
+simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_type __mask) noexcept :
 	_mask(mask)
 {}
 
@@ -21,44 +21,24 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::allOf() const noexcept {
-	return implementation::allOf(_mask);
+constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::all_of() const noexcept {
+	return __implementation::all_of(_mask);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::anyOf() const noexcept {
-	return implementation::anyOf(_mask);
+constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::any_of() const noexcept {
+	return __implementation::any_of(_mask);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr  bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::noneOf() const noexcept {
-	return implementation::noneOf(_mask);
-}
-
-template <
-	arch::CpuFeature	_SimdGeneration_,
-	typename			_Element_,
-	class				_RegisterPolicy_>
-constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type
-	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::countSet() const noexcept
-{
-	return implementation::countSet(_mask);
-}
-
-template <
-	arch::CpuFeature	_SimdGeneration_,
-	typename			_Element_,
-	class				_RegisterPolicy_>
-constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type 
-	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::countTrailingZeroBits() const noexcept
-{
-	return implementation::countTrailingZeroBits(_mask);
+constexpr  bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::none_of() const noexcept {
+	return __implementation::none_of(_mask);
 }
 
 template <
@@ -66,9 +46,9 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type
-	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::countLeadingZeroBits() const noexcept 
+	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_set() const noexcept
 {
-	return implementation::countLeadingZeroBits(_mask);
+	return __implementation::count_set(_mask);
 }
 
 template <
@@ -76,9 +56,19 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type 
-	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::countTrailingOneBits() const noexcept
+	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_trailing_zero_bits() const noexcept
 {
-	return implementation::countTrailingZeroBits(~_mask);
+	return __implementation::count_trailing_zero_bits(_mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type
+	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_leading_zero_bits() const noexcept 
+{
+	return __implementation::count_leading_zero_bits(_mask);
 }
 
 template <
@@ -86,16 +76,26 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type 
-	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::countLeadingOneBits() const noexcept 
+	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_trailing_one_bits() const noexcept
 {
-	return implementation::countLeadingZeroBits(~_mask);
+	return __implementation::count_trailing_zero_bits(~_mask);
 }
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr void simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::clearLeftMostSetBit() noexcept {
+constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::size_type 
+	simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_leading_one_bits() const noexcept 
+{
+	return __implementation::count_leading_zero_bits(~_mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr void simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::clear_left_most_set_bit() noexcept {
 	_mask = _mask & (_mask - 1);
 }
 

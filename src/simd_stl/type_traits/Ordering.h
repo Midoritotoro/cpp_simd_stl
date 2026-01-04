@@ -14,41 +14,41 @@
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
 template <class _Type_>
-concept _Boolean_testable_impl = std::convertible_to<_Type_, bool>;
+concept __boolean_testable = std::convertible_to<_Type_, bool>;
 
 template <class _Type_>
-concept boolean_testable = _Boolean_testable_impl<_Type_> && requires(_Type_ && __t) {
-    { !static_cast<_Type_&&>(__t) } -> _Boolean_testable_impl;
+concept boolean_testable = __boolean_testable<_Type_> && requires(_Type_ && __t) {
+    { !static_cast<_Type_&&>(__t) } -> __boolean_testable;
 };
 
 template <
     class _FirstType_,
     class _SecondType_>
 concept can_strong_order = requires(
-    _FirstType_ & left,
-    _SecondType_ & right)
+    _FirstType_ & __left,
+    _SecondType_& __right)
 {
-    std::strong_order(left, right);
+    std::strong_order(__left, __right);
 };
 
 template <
     class _FirstType_,
     class _SecondType_>
 concept can_weak_order = requires(
-    _FirstType_ & left,
-    _SecondType_ & right)
+    _FirstType_&    __left,
+    _SecondType_&   __right)
 {
-    std::weak_order(left, right);
+    std::weak_order(__left, __right);
 };
 
 template <
     class _FirstType_,
     class _SecondType_>
 concept can_partial_order = requires(
-    _FirstType_ & left,
-    _SecondType_ & right)
+    _FirstType_&    __left,
+    _SecondType_&   __right)
 {
-    std::partial_order(left, right);
+    std::partial_order(__left, __right);
 };
 
 
@@ -57,21 +57,21 @@ struct synthetic_three_way {
         class _FirstType_,
         class _SecondType_>
     simd_stl_nodiscard static constexpr auto operator()(
-        const _FirstType_& left,
-        const _SecondType_& right)
-        requires requires {
-            { left < right } -> boolean_testable;
-            { right < left } -> boolean_testable;
-    }
+        const _FirstType_& __left,
+        const _SecondType_& __right)
+            requires requires {
+                { __left < __right } -> boolean_testable;
+                { __right < __left } -> boolean_testable;
+        }
     {
         if constexpr (std::three_way_comparable_with<_FirstType_, _SecondType_>) {
-            return left <=> right;
+            return __left <=> __right;
         }
         else {
-            if (left < right)
+            if (__left < __right)
                 return std::weak_ordering::less;
 
-            else if (right < left)
+            else if (__right < __left)
                 return std::weak_ordering::greater;
 
             else

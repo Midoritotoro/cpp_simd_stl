@@ -23,7 +23,7 @@ __simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ __remove_copy_unchec
 {
 	constexpr auto __is_vectorizable = type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _Type_> &&
 		type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedOutputIterator_, _Type_> &&
-		type_traits::IteratorCopyCategory<_UnwrappedInputIterator_, _UnwrappedOutputIterator_>::BitcopyAssignable;
+		type_traits::__copy_iterator_category<_UnwrappedInputIterator_, _UnwrappedOutputIterator_>::BitcopyAssignable;
 
 	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedOutputIterator_>;
 

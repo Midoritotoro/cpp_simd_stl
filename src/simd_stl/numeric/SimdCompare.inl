@@ -63,32 +63,32 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-        const auto _EqualMask = _mm_cmpeq_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        const auto _EqualMask = _mm_cmpeq_epi32(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
         const auto _RotatedMask = _mm_shuffle_epi32(_EqualMask, 0xB1);
         const auto _CombinedMask = _mm_and_si128(_EqualMask, _RotatedMask);
 
-        return _IntrinBitcast<_VectorType_>(_CombinedMask);
+        return __intrin_bitcast<_VectorType_>(_CombinedMask);
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi16(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi16(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi8(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi8(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_ps_v<_DesiredType_> || _Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_ps(
-            _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_ps(
+            __intrin_bitcast<__m128>(_Left), __intrin_bitcast<__m128>(_Right)));
     }
     else if constexpr (_Is_pd_v<_DesiredType_> || _Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_pd(
-            _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_pd(
+            __intrin_bitcast<__m128d>(_Left), __intrin_bitcast<__m128d>(_Right)));
     }
 }
 
@@ -100,8 +100,8 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        const auto _LeftToInteger = _IntrinBitcast<__m128i>(_Left);
-        const auto _RightToInteger = _IntrinBitcast<__m128i>(_Right);
+        const auto _LeftToInteger = __intrin_bitcast<__m128i>(_Left);
+        const auto _RightToInteger = __intrin_bitcast<__m128i>(_Right);
 
         const auto _Difference64 = _mm_sub_epi64(_LeftToInteger, _RightToInteger);
 
@@ -114,60 +114,60 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
         const auto _SignBits32 = _mm_srai_epi32(_CombinedMask, 31);
         const auto _SignBits64 = _mm_shuffle_epi32(_SignBits32, 0xF5);
 
-        return _IntrinBitcast<_VectorType_>(_SignBits64);
+        return __intrin_bitcast<_VectorType_>(_SignBits64);
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
         const auto _32BitSign       = _mm_set1_epi32(0x80000000);
 
-        const auto _Signed32BitLeft     = _mm_xor_si128(_IntrinBitcast<__m128i>(_Left), _32BitSign);
-        const auto _Signed32BitRight    = _mm_xor_si128(_IntrinBitcast<__m128i>(_Right), _32BitSign);
+        const auto _Signed32BitLeft     = _mm_xor_si128(__intrin_bitcast<__m128i>(_Left), _32BitSign);
+        const auto _Signed32BitRight    = _mm_xor_si128(__intrin_bitcast<__m128i>(_Right), _32BitSign);
         
-        const auto _Equal   = _mm_cmpeq_epi32(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        const auto _Equal   = _mm_cmpeq_epi32(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
         const auto _Bigger  = _mm_cmplt_epi32(_Signed32BitLeft, _Signed32BitRight);
 
         const auto _ShuffledBigger  = _mm_shuffle_epi32(_Bigger, 0xA0);
         const auto _EqualBigger     = _mm_and_si128(_Equal, _ShuffledBigger);
 
         const auto _Result = _mm_shuffle_epi32(_mm_or_si128(_Bigger, _EqualBigger), 0xF5);
-        return _IntrinBitcast<_VectorType_>(_Result);
+        return __intrin_bitcast<_VectorType_>(_Result);
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi32(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi32(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
         const auto _Sign        = _mm_set1_epi32(0x80000000);
 
-        const auto _SignedLeft  = _mm_xor_si128(_IntrinBitcast<__m128i>(_Left), _Sign);
-        const auto _SignedRight = _mm_xor_si128(_IntrinBitcast<__m128i>(_Right), _Sign);
+        const auto _SignedLeft  = _mm_xor_si128(__intrin_bitcast<__m128i>(_Left), _Sign);
+        const auto _SignedRight = _mm_xor_si128(__intrin_bitcast<__m128i>(_Right), _Sign);
         
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi32(_SignedLeft, _SignedRight));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi32(_SignedLeft, _SignedRight));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi16(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi16(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        const auto _Substracted = _mm_subs_epu16(_IntrinBitcast<__m128i>(_Right), _IntrinBitcast<__m128i>(_Left));
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_IntrinBitcast<_VectorType_>(
+        const auto _Substracted = _mm_subs_epu16(__intrin_bitcast<__m128i>(_Right), __intrin_bitcast<__m128i>(_Left));
+        return _SimdBitNot<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
             _mm_cmpeq_epi16(_Substracted, _mm_setzero_si128())));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_epi8(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi8(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        const auto _Substracted = _mm_subs_epu8(_IntrinBitcast<__m128i>(_Right), _IntrinBitcast<__m128i>(_Left));
-        return _SimdBitNot<_Generation, _RegisterPolicy>(_IntrinBitcast<_VectorType_>(
+        const auto _Substracted = _mm_subs_epu8(__intrin_bitcast<__m128i>(_Right), __intrin_bitcast<__m128i>(_Left));
+        return _SimdBitNot<_Generation, _RegisterPolicy>(__intrin_bitcast<_VectorType_>(
             _mm_cmpeq_epi8(_Substracted, _mm_setzero_si128())));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_ps(
-            _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_ps(
+            __intrin_bitcast<__m128>(_Left), __intrin_bitcast<__m128>(_Right)));
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmplt_pd(
-            _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmplt_pd(
+            __intrin_bitcast<__m128d>(_Left), __intrin_bitcast<__m128d>(_Right)));
     }
 }
 
@@ -252,28 +252,28 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi64(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi64(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi32(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi16(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi16(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_epi8(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi8(
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_ps(
-            _IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_ps(
+            __intrin_bitcast<__m128>(_Left), __intrin_bitcast<__m128>(_Right)));
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm_cmpeq_pd(
-            _IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_pd(
+            __intrin_bitcast<__m128d>(_Left), __intrin_bitcast<__m128d>(_Right)));
     }
 }
 
@@ -336,16 +336,16 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(
-            _mm_cmpgt_epi64(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(
+            _mm_cmpgt_epi64(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right)));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
         const auto _Sign64Bit   = _mm_set1_epi64x(0x8000000000000000);
 
-        const auto _LeftSigned  = _mm_xor_si128(_IntrinBitcast<__m128i>(_Left), _Sign64Bit);
-        const auto _RightSigned = _mm_xor_si128(_IntrinBitcast<__m128i>(_Right), _Sign64Bit);
+        const auto _LeftSigned  = _mm_xor_si128(__intrin_bitcast<__m128i>(_Left), _Sign64Bit);
+        const auto _RightSigned = _mm_xor_si128(__intrin_bitcast<__m128i>(_Right), _Sign64Bit);
 
-        return _IntrinBitcast<_VectorType_>(_mm_cmpgt_epi64(_LeftSigned, _RightSigned));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi64(_LeftSigned, _RightSigned));
     }
     else {
         return _SimdCompare<arch::CpuFeature::SSE2, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
@@ -425,22 +425,22 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(
-            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _CMP_EQ_OQ));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_pd(
+            __intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _CMP_EQ_OQ));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(
-            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _CMP_EQ_OQ));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_ps(
+            __intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _CMP_EQ_OQ));
     }
     else {
         const auto _Low = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, type_traits::equal_to<>>(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
         const auto _High = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, type_traits::equal_to<>>(
-            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1),
-            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Right), 1));
+            _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Left), 1),
+            _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Right), 1));
 
-        return _IntrinBitcast<_VectorType_>(_mm256_insertf128_si256(_IntrinBitcast<__m256i>(_Low), _High, 1));
+        return __intrin_bitcast<_VectorType_>(_mm256_insertf128_si256(__intrin_bitcast<__m256i>(_Low), _High, 1));
     }
 }
 
@@ -462,22 +462,22 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(
-            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _MM_CMPINT_GT));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_pd(
+            __intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _MM_CMPINT_GT));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(
-            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _MM_CMPINT_GT));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_ps(
+            __intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _MM_CMPINT_GT));
     }
     else {
         const auto _Low = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, type_traits::greater<>>(
-            _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+            __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
         const auto _High = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, type_traits::greater<>>(
-            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1),
-            _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Right), 1));
+            _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Left), 1),
+            _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Right), 1));
 
-        return _IntrinBitcast<_VectorType_>(_mm256_insertf128_si256(_IntrinBitcast<__m256i>(_Low), _High, 1));
+        return __intrin_bitcast<_VectorType_>(_mm256_insertf128_si256(__intrin_bitcast<__m256i>(_Low), _High, 1));
     }
 }
 
@@ -540,28 +540,28 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(
-            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _CMP_EQ_OQ));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_pd(
+            __intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _CMP_EQ_OQ));
 
     else if constexpr (_Is_ps_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(
-            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _CMP_EQ_OQ));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_ps(
+            __intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _CMP_EQ_OQ));
 
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi64(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpeq_epi64(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
 
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi32(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpeq_epi32(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
 
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi16(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpeq_epi16(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
 
     else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpeq_epi8(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpeq_epi8(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
 }
 
 template <
@@ -582,60 +582,60 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_pd(
-            _IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _MM_CMPINT_GT));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_pd(
+            __intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _MM_CMPINT_GT));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmp_ps(
-            _IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _MM_CMPINT_GT));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmp_ps(
+            __intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _MM_CMPINT_GT));
     }
     else if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi64(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi64(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
         const auto _Sign64Bit = _mm256_set1_epi64x(0x8000000000000000);
 
-        const auto _LeftSigned  = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Left), _Sign64Bit);
-        const auto _RightSigned = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Right), _Sign64Bit);
+        const auto _LeftSigned  = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Left), _Sign64Bit);
+        const auto _RightSigned = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Right), _Sign64Bit);
 
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi64(_LeftSigned, _RightSigned));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi64(_LeftSigned, _RightSigned));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi32(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi32(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
         const auto _Sign64Bit = _mm256_set1_epi32(0x80000000);
 
-        const auto _LeftSigned  = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Left), _Sign64Bit);
-        const auto _RightSigned = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Right), _Sign64Bit);
+        const auto _LeftSigned  = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Left), _Sign64Bit);
+        const auto _RightSigned = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Right), _Sign64Bit);
 
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi32(_LeftSigned, _RightSigned));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi32(_LeftSigned, _RightSigned));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi16(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi16(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
         const auto _Sign64Bit = _mm256_set1_epi16(0x8000);
 
-        const auto _LeftSigned  = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Left), _Sign64Bit);
-        const auto _RightSigned = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Right), _Sign64Bit);
+        const auto _LeftSigned  = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Left), _Sign64Bit);
+        const auto _RightSigned = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Right), _Sign64Bit);
 
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi16(_LeftSigned, _RightSigned));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi16(_LeftSigned, _RightSigned));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi8(
-            _IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right)));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi8(
+            __intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right)));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
         const auto _Sign64Bit   = _mm256_set1_epi8(0x80);
 
-        const auto _LeftSigned  = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Left), _Sign64Bit);
-        const auto _RightSigned = _mm256_xor_si256(_IntrinBitcast<__m256i>(_Right), _Sign64Bit);
+        const auto _LeftSigned  = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Left), _Sign64Bit);
+        const auto _RightSigned = _mm256_xor_si256(__intrin_bitcast<__m256i>(_Right), _Sign64Bit);
 
-        return _IntrinBitcast<_VectorType_>(_mm256_cmpgt_epi8(_LeftSigned, _RightSigned));
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi8(_LeftSigned, _RightSigned));
     }
 }
 
@@ -653,23 +653,23 @@ simd_stl_always_inline _VectorType_ _SimdCompareImplementation<arch::CpuFeature:
     _VectorType_ _Right) noexcept
 {
     const auto _ComparedLow128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-        _IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        __intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
     const auto _Compared2Low128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-        _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Left), 1), _mm256_extractf128_si256(_IntrinBitcast<__m256i>(_Right), 1));
+        _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Left), 1), _mm256_extractf128_si256(__intrin_bitcast<__m256i>(_Right), 1));
 
     const auto _ComparedHigh128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-        _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 2), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Right), 2));
+        _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(_Left), 2), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(_Right), 2));
 
     const auto _Compared2High128 = _SimdCompare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
-        _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Left), 3), _mm512_extracti32x4_epi32(_IntrinBitcast<__m512i>(_Right), 3));
+        _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(_Left), 3), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(_Right), 3));
 
-    auto _Result = _IntrinBitcast<__m512i>(_ComparedLow128);
+    auto _Result = __intrin_bitcast<__m512i>(_ComparedLow128);
 
     _Result = _mm512_inserti32x4(_Result, _Compared2Low128, 1);
     _Result = _mm512_inserti32x4(_Result, _ComparedHigh128, 2);
 
-    return _IntrinBitcast<_VectorType_>(_mm512_inserti32x4(_Result, _Compared2High128, 3));
+    return __intrin_bitcast<_VectorType_>(_mm512_inserti32x4(_Result, _Compared2High128, 3));
 }
 
 template <
@@ -741,16 +741,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm512_cmpeq_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
+        return _mm512_cmpeq_pd_mask(__intrin_bitcast<__m512d>(_Left), __intrin_bitcast<__m512d>(_Right));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm512_cmpeq_ps_mask(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right));
+        return _mm512_cmpeq_ps_mask(__intrin_bitcast<__m512>(_Left), __intrin_bitcast<__m512>(_Right));
     }
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>) {
-        return _mm512_cmpeq_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>) {
-        return _mm512_cmpeq_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else {
         return _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -767,22 +767,22 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512F, zmm
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _mm512_cmplt_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmplt_epi64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _mm512_cmplt_epu64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmplt_epu64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _mm512_cmplt_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmplt_epi32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
-        return _mm512_cmplt_epu32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmplt_epu32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm512_cmplt_ps_mask(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right));
+        return _mm512_cmplt_ps_mask(__intrin_bitcast<__m512>(_Left), __intrin_bitcast<__m512>(_Right));
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
+        return _mm512_cmplt_pd_mask(__intrin_bitcast<__m512d>(_Left), __intrin_bitcast<__m512d>(_Right));
     }
     else {
         return _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -850,22 +850,22 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zm
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>)
-        return _mm512_cmpeq_pd_mask(_IntrinBitcast<__m512d>(_Left), _IntrinBitcast<__m512d>(_Right));
+        return _mm512_cmpeq_pd_mask(__intrin_bitcast<__m512d>(_Left), __intrin_bitcast<__m512d>(_Right));
 
     else if constexpr (_Is_ps_v<_DesiredType_>)
-        return _mm512_cmpeq_ps_mask(_IntrinBitcast<__m512>(_Left), _IntrinBitcast<__m512>(_Right));
+        return _mm512_cmpeq_ps_mask(__intrin_bitcast<__m512>(_Left), __intrin_bitcast<__m512>(_Right));
 
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-        return _mm512_cmpeq_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
 
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-        return _mm512_cmpeq_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
 
     else if constexpr (_Is_epi16_v<_DesiredType_> || _Is_epu16_v<_DesiredType_>)
-        return _mm512_cmpeq_epi16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi16_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
 
     else if constexpr (_Is_epi8_v<_DesiredType_> || _Is_epu8_v<_DesiredType_>)
-        return _mm512_cmpeq_epi8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpeq_epi8_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
 }
 
 template <
@@ -899,34 +899,34 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512BW, zm
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _mm512_cmpgt_epi64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epi64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _mm512_cmpgt_epu64_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epu64_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _mm512_cmpgt_epi32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epi32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
-        return _mm512_cmpgt_epu32_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epu32_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _mm512_cmpgt_epi16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epi16_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        return _mm512_cmpgt_epu16_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epu16_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _mm512_cmpgt_epi8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epi8_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        return _mm512_cmpgt_epu8_mask(_IntrinBitcast<__m512i>(_Left), _IntrinBitcast<__m512i>(_Right));
+        return _mm512_cmpgt_epu8_mask(__intrin_bitcast<__m512i>(_Left), __intrin_bitcast<__m512i>(_Right));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm512_cmplt_ps_mask(_IntrinBitcast<__m512>(_Right), _IntrinBitcast<__m512>(_Left));
+        return _mm512_cmplt_ps_mask(__intrin_bitcast<__m512>(_Right), __intrin_bitcast<__m512>(_Left));
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm512_cmplt_pd_mask(_IntrinBitcast<__m512d>(_Right), _IntrinBitcast<__m512d>(_Left));
+        return _mm512_cmplt_pd_mask(__intrin_bitcast<__m512d>(_Right), __intrin_bitcast<__m512d>(_Left));
     }
 }
 
@@ -967,16 +967,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, y
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>)
-        return _mm256_cmp_pd_mask(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _CMP_EQ_OQ);
+        return _mm256_cmp_pd_mask(__intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _CMP_EQ_OQ);
 
     else if constexpr (_Is_ps_v<_DesiredType_>)
-        return _mm256_cmp_ps_mask(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _CMP_EQ_OQ);
+        return _mm256_cmp_ps_mask(__intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _CMP_EQ_OQ);
 
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-        return _mm256_cmpeq_epi64_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epi64_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
 
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-        return _mm256_cmpeq_epi32_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epi32_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
 
     else
         return _SimdMaskCompare<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_, type_traits::equal_to<>>(_Left, _Right);
@@ -1016,22 +1016,22 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, y
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _mm256_cmpgt_epi64_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epi64_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _mm256_cmpgt_epu64_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epu64_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _mm256_cmpgt_epi32_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epi32_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
-        return _mm256_cmpgt_epu32_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epu32_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm256_cmp_ps_mask(_IntrinBitcast<__m256>(_Left), _IntrinBitcast<__m256>(_Right), _CMP_GT_OQ);
+        return _mm256_cmp_ps_mask(__intrin_bitcast<__m256>(_Left), __intrin_bitcast<__m256>(_Right), _CMP_GT_OQ);
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm256_cmp_pd_mask(_IntrinBitcast<__m256d>(_Left), _IntrinBitcast<__m256d>(_Right), _CMP_GT_OQ);
+        return _mm256_cmp_pd_mask(__intrin_bitcast<__m256d>(_Left), __intrin_bitcast<__m256d>(_Right), _CMP_GT_OQ);
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::AVX2, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
@@ -1075,16 +1075,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, 
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _mm256_cmpeq_epi16_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epi16_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        return _mm256_cmpeq_epu16_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epu16_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _mm256_cmpeq_epi8_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epi8_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        return _mm256_cmpeq_epu8_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpeq_epu8_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::AVX512VLF, _RegisterPolicy, _DesiredType_, type_traits::equal_to<>>(_Left, _Right);
@@ -1122,16 +1122,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, 
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _mm256_cmpgt_epi16_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epi16_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        return _mm256_cmpgt_epu16_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epu16_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _mm256_cmpgt_epi8_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epi8_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        return _mm256_cmpgt_epu8_mask(_IntrinBitcast<__m256i>(_Left), _IntrinBitcast<__m256i>(_Right));
+        return _mm256_cmpgt_epu8_mask(__intrin_bitcast<__m256i>(_Left), __intrin_bitcast<__m256i>(_Right));
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::AVX512VLF, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
@@ -1175,16 +1175,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, x
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_pd_v<_DesiredType_>)
-        return _mm_cmp_pd_mask(_IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right), _CMP_EQ_OQ);
+        return _mm_cmp_pd_mask(__intrin_bitcast<__m128d>(_Left), __intrin_bitcast<__m128d>(_Right), _CMP_EQ_OQ);
 
     else if constexpr (_Is_ps_v<_DesiredType_>)
-        return _mm_cmp_ps_mask(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right), _CMP_EQ_OQ);
+        return _mm_cmp_ps_mask(__intrin_bitcast<__m128>(_Left), __intrin_bitcast<__m128>(_Right), _CMP_EQ_OQ);
 
     else if constexpr (_Is_epi64_v<_DesiredType_> || _Is_epu64_v<_DesiredType_>)
-        return _mm_cmpeq_epi64_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epi64_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
     else if constexpr (_Is_epi32_v<_DesiredType_> || _Is_epu32_v<_DesiredType_>)
-        return _mm_cmpeq_epi32_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epi32_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
 
     else
         return _SimdMaskCompare<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_, type_traits::equal_to<>>(_Left, _Right);
@@ -1224,22 +1224,22 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLF, x
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi64_v<_DesiredType_>) {
-        return _mm_cmpgt_epi64_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epi64_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu64_v<_DesiredType_>) {
-        return _mm_cmpgt_epu64_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epu64_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epi32_v<_DesiredType_>) {
-        return _mm_cmpgt_epi32_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epi32_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu32_v<_DesiredType_>) {
-        return _mm_cmpgt_epu32_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epu32_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_ps_v<_DesiredType_>) {
-        return _mm_cmp_ps_mask(_IntrinBitcast<__m128>(_Left), _IntrinBitcast<__m128>(_Right), _CMP_GT_OQ);
+        return _mm_cmp_ps_mask(__intrin_bitcast<__m128>(_Left), __intrin_bitcast<__m128>(_Right), _CMP_GT_OQ);
     }
     else if constexpr (_Is_pd_v<_DesiredType_>) {
-        return _mm_cmp_pd_mask(_IntrinBitcast<__m128d>(_Left), _IntrinBitcast<__m128d>(_Right), _CMP_GT_OQ);
+        return _mm_cmp_pd_mask(__intrin_bitcast<__m128d>(_Left), __intrin_bitcast<__m128d>(_Right), _CMP_GT_OQ);
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::SSE42, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);
@@ -1283,16 +1283,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, 
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _mm_cmpeq_epi16_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epi16_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        return _mm_cmpeq_epu16_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epu16_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _mm_cmpeq_epi8_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epi8_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        return _mm_cmpeq_epu8_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpeq_epu8_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::AVX512VLF, _RegisterPolicy, _DesiredType_, type_traits::equal_to<>>(_Left, _Right);
@@ -1330,16 +1330,16 @@ simd_stl_always_inline _SimdCompareImplementation<arch::CpuFeature::AVX512VLBW, 
         _VectorType_ _Right) noexcept
 {
     if constexpr (_Is_epi16_v<_DesiredType_>) {
-        return _mm_cmpgt_epi16_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epi16_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu16_v<_DesiredType_>) {
-        return _mm_cmpgt_epu16_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epu16_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epi8_v<_DesiredType_>) {
-        return _mm_cmpgt_epi8_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epi8_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else if constexpr (_Is_epu8_v<_DesiredType_>) {
-        return _mm_cmpgt_epu8_mask(_IntrinBitcast<__m128i>(_Left), _IntrinBitcast<__m128i>(_Right));
+        return _mm_cmpgt_epu8_mask(__intrin_bitcast<__m128i>(_Left), __intrin_bitcast<__m128i>(_Right));
     }
     else {
         return _SimdMaskCompare<arch::CpuFeature::AVX512VLF, _RegisterPolicy, _DesiredType_, type_traits::greater<>>(_Left, _Right);

@@ -17,130 +17,125 @@ class _SimdArithmetic;
 
 template <>
 class _SimdArithmetic<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
-    using _RegisterPolicy               = numeric::xmm128;
+    static constexpr auto __generation  = arch::CpuFeature::SSE2;
+    using __register_policy             = numeric::xmm128;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_right_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_left_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_right_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_left_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __negate(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Add(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __add(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Substract(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __substract(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Multiply(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __multiply(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Divide(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __divide(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitNot(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_not(_VectorType_ __vector) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitXor(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_xor(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitAnd(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_and(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitOr(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_or(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMin(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_min(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_,
         typename _ReduceBinaryFunction_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
-        _VectorType_            _Vector,
-        _ReduceBinaryFunction_  _Reduce) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_fold(
+        _VectorType_            __vector,
+        _ReduceBinaryFunction_  __reduce) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_min(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMax(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_max(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_max(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __abs(_VectorType_ __vector) noexcept;
 };
 
 template <>
@@ -158,25 +153,25 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
 
-    template <
+template <
         typename _DesiredType_,
         typename _VectorType_,
         typename _ReduceBinaryFunction_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
-        _VectorType_            _Vector,
-        _ReduceBinaryFunction_  _Reduce) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_fold(
+        _VectorType_            __vector,
+        _ReduceBinaryFunction_  __reduce) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_min(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_max(_VectorType_ __vector) noexcept;
 };
 
 template <>
@@ -189,33 +184,33 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Multiply(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __multiply(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_min(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_min(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMin(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_max(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMax(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_max(_VectorType_ __vector) noexcept;
 };
 
 template <>
@@ -234,130 +229,125 @@ template <>
 class _SimdArithmetic<arch::CpuFeature::AVX2, ymm256>:
     public _SimdArithmetic<arch::CpuFeature::AVX, ymm256> 
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
-    using _RegisterPolicy               = numeric::ymm256;
+    static constexpr auto __generation  = arch::CpuFeature::AVX2;
+    using __register_policy             = numeric::ymm256;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_right_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_left_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_right_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
+    static simd_stl_always_inline _VectorType_ __shift_left_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __negate(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Add(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __add(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Substract(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __substract(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Multiply(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __multiply(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Divide(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __divide(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitNot(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_not(_VectorType_ __vector) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitXor(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_xor(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitAnd(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_and(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitOr(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __bit_or(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMin(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMax(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_min(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_,
         typename _ReduceBinaryFunction_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
-        _VectorType_            _Vector,
-        _ReduceBinaryFunction_  _Reduce) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_fold(
+        _VectorType_            __vector,
+        _ReduceBinaryFunction_  __reduce) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_min(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_max(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _DesiredType_ __horizontal_max(_VectorType_ __vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __abs(_VectorType_ __vector) noexcept;
 };
 
 #pragma endregion
@@ -369,131 +359,122 @@ class _SimdArithmetic<arch::CpuFeature::AVX512F, zmm512> {
     static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
     using _RegisterPolicy               = zmm512;
 public:
+        template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __shift_right_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __shift_left_vector(
+        _VectorType_    __vector,
+        uint32          __byte_shift) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __shift_right_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __shift_left_elements(
+        _VectorType_    __vector,
+        uint32          __bit_shift) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __negate(_VectorType_ __vector) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __add(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __substract(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __multiply(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __divide(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __bit_not(_VectorType_ __vector) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __bit_xor(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __bit_and(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __bit_or(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline _VectorType_ __vertical_min(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_,
         typename _ReduceBinaryFunction_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalFold(
-        _VectorType_            _Vector,
-        _ReduceBinaryFunction_  _Reduce) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_fold(
+        _VectorType_            __vector,
+        _ReduceBinaryFunction_  __reduce) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMin(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_min(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMin(_VectorType_ _Vector) noexcept;
+    static simd_stl_always_inline _VectorType_ __vertical_max(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _VerticalMax(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _DesiredType_ __horizontal_max(_VectorType_ __vector) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _HorizontalMax(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Abs(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _AdjustToUnsigned(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline auto _Reduce(_VectorType_ _Vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftVector(
-        _VectorType_    _Vector,
-        uint32          _ByteShift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftRightElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _ShiftLeftElements(
-        _VectorType_    _Vector,
-        uint32          _BitShift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Add(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Substract(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Multiply(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Divide(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _Negate(_VectorType_ _Vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitNot(_VectorType_ _Vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitXor(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitAnd(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ _BitOr(
-        _VectorType_ _Left,
-        _VectorType_ _Right) noexcept;
+    static simd_stl_always_inline _VectorType_ __abs(_VectorType_ __vector) noexcept;
 };
 
 template <>

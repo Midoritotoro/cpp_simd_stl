@@ -19,7 +19,7 @@ __simd_inline_constexpr _UnwrappedBidirectionalSecondIterator_ __move_backward_u
 {
     const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
 
-    if constexpr (type_traits::IteratorCopyCategory<_UnwrappedBidirectionalFirstIterator_, _UnwrappedBidirectionalSecondIterator_>::BitcopyAssignable) {
+    if constexpr (type_traits::__copy_iterator_category<_UnwrappedBidirectionalFirstIterator_, _UnwrappedBidirectionalSecondIterator_>::BitcopyAssignable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20

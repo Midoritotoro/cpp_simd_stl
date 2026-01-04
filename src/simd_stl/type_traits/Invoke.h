@@ -8,139 +8,139 @@
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
-enum class _InvokerStrategy : uint8 {
-    _FunctorCallable,                               // invoke(_FunctorObject, _Args...);
+enum class __invoker_strategy : uint8 {
+    FunctorCallable,                               // invoke(_FunctorObject, _Args...);
 
-    _PointerToMemberFunctionWithObject,             // invoke(&_ObjectType::_MemberFunction, _Object, _Args...);
-    _PointerToMemberFunctionWithReferenceWrapper,   // invoke(&_ObjectType::_MemberFunction, std::ref(_Object), _Args...);
-    _PointerToMemberFunctionWithPointer,            // invoke(&_ObjectType::_MemberFunction, _ObjectPointer, _Args...);
+    PointerToMemberFunctionWithObject,             // invoke(&_ObjectType::_MemberFunction, _Object, _Args...);
+    PointerToMemberFunctionWithReferenceWrapper,   // invoke(&_ObjectType::_MemberFunction, std::ref(_Object), _Args...);
+    PointerToMemberFunctionWithPointer,            // invoke(&_ObjectType::_MemberFunction, _ObjectPointer, _Args...);
 
-    _PointerToMemberDataWithObject,                 // invoke(&_ObjectType::_MemberData, _Object, _Args...);
-    _PointerToMemberDataWithReferenceWrapper,       // invoke(&_ObjectType::_MemberData, std::ref(_Object), _Args...);
-    _PointerToMemberDataWithPointer                 // invoke(&_ObjectType::_MemberData, _ObjectPointer, _Args...);
+    PointerToMemberDataWithObject,                 // invoke(&_ObjectType::_MemberData, _Object, _Args...);
+    PointerToMemberDataWithReferenceWrapper,       // invoke(&_ObjectType::_MemberData, std::ref(_Object), _Args...);
+    PointerToMemberDataWithPointer                 // invoke(&_ObjectType::_MemberData, _ObjectPointer, _Args...);
 };
 
-template <_InvokerStrategy _Strategy_>
-struct _Invoker;
+template <__invoker_strategy _Strategy_>
+struct __invoker;
 
 template <>
-struct _Invoker<_InvokerStrategy::_FunctorCallable> {
-    static constexpr auto _Strategy = _InvokerStrategy::_FunctorCallable;
+struct __invoker<__invoker_strategy::FunctorCallable> {
+    static constexpr auto __strategy = __invoker_strategy::FunctorCallable;
 
     template <
         class       _Callable_,
         class...    _Args_>
-    inline static constexpr auto call(
-        _Callable_&&        object, 
-        _Args_&&...         args)
-            noexcept(noexcept(static_cast<_Callable_&&>(object)(static_cast<_Args_&&>(args)...)))
-                -> decltype(static_cast<_Callable_&&>(object)(static_cast<_Args_&&>(args)...))
+    inline static constexpr auto __call(
+        _Callable_&&        __object, 
+        _Args_&&...         __args)
+            noexcept(noexcept(static_cast<_Callable_&&>(__object)(static_cast<_Args_&&>(__args)...)))
+                -> decltype(static_cast<_Callable_&&>(__object)(static_cast<_Args_&&>(__args)...))
     {
-        return static_cast<_Callable_&&>(object)(static_cast<_Args_&&>(args)...);
+        return static_cast<_Callable_&&>(__object)(static_cast<_Args_&&>(__args)...);
     }
 };
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithObject> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberFunctionWithObject;
+struct __invoker<__invoker_strategy::PointerToMemberFunctionWithObject> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberFunctionWithObject;
 
     template <
         class       _MemberFunction_, 
         class       _Object_, 
         class...    _Args_>
-    inline static constexpr auto call(
-        _MemberFunction_    memberFunction, 
-        _Object_&&          object, 
-        _Args_&&...         args)
-            noexcept(noexcept((static_cast<_Object_&&>(object).*memberFunction)(static_cast<_Args_&&>(args)...)))
-                -> decltype((static_cast<_Object_&&>(object).*memberFunction)(static_cast<_Args_&&>(args)...))
+    inline static constexpr auto __call(
+        _MemberFunction_    __member_function, 
+        _Object_&&          __object, 
+        _Args_&&...         __args)
+            noexcept(noexcept((static_cast<_Object_&&>(__object).*__member_function)(static_cast<_Args_&&>(__args)...)))
+                -> decltype((static_cast<_Object_&&>(__object).*__member_function)(static_cast<_Args_&&>(__args)...))
     {
-        return (static_cast<_Object_&&>(object).*memberFunction)(static_cast<_Args_&&>(args)...);
+        return (static_cast<_Object_&&>(__object).*__member_function)(static_cast<_Args_&&>(__args)...);
     }
 };
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithReferenceWrapper> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberFunctionWithReferenceWrapper;
+struct __invoker<__invoker_strategy::PointerToMemberFunctionWithReferenceWrapper> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberFunctionWithReferenceWrapper;
 
     template <
         class       _MemberFunction_,
         class       _ReferenceWrapper_,
         class...    _Args_>
-    inline static constexpr auto call(
-        _MemberFunction_    memberFunction,
-        _ReferenceWrapper_  referenceWrapper,
-        _Args_&&...         args)
-            noexcept(noexcept((referenceWrapper.get().*memberFunction)(static_cast<_Args_&&>(args)...)))
-                -> decltype((referenceWrapper.get().*memberFunction)(static_cast<_Args_&&>(args)...))
+    inline static constexpr auto __call(
+        _MemberFunction_    __member_function,
+        _ReferenceWrapper_  __reference_wrapper,
+        _Args_&&...         __args)
+            noexcept(noexcept((__reference_wrapper.get().*__member_function)(static_cast<_Args_&&>(__args)...)))
+                -> decltype((__reference_wrapper.get().*__member_function)(static_cast<_Args_&&>(__args)...))
     {
-        return (referenceWrapper.get().*memberFunction)(static_cast<_Args_&&>(args)...);
+        return (__reference_wrapper.get().*__member_function)(static_cast<_Args_&&>(__args)...);
     }
 };
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithPointer> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberFunctionWithPointer;
+struct __invoker<__invoker_strategy::PointerToMemberFunctionWithPointer> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberFunctionWithPointer;
 
     template <
         class       _MemberFunction_,
         class       _Pointer_,
         class...    _Args_>
-    inline static constexpr auto call(
-        _MemberFunction_    memberFunction,
-        _Pointer_&&         pointerToObject,
-        _Args_&&...         args)
-            noexcept(noexcept(((*static_cast<_Pointer_&&>(pointerToObject)).*memberFunction)(static_cast<_Args_&&>(args)...)))
-                -> decltype(((*static_cast<_Pointer_&&>(pointerToObject)).*memberFunction)(static_cast<_Args_&&>(args)...))
+    inline static constexpr auto __call(
+        _MemberFunction_    __member_function,
+        _Pointer_&&         __pointer_to_object,
+        _Args_&&...         __args)
+            noexcept(noexcept(((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_function)(static_cast<_Args_&&>(__args)...)))
+                -> decltype(((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_function)(static_cast<_Args_&&>(__args)...))
     {
-        return ((*static_cast<_Pointer_&&>(pointerToObject)).*memberFunction)(static_cast<_Args_&&>(args)...);
+        return ((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_function)(static_cast<_Args_&&>(__args)...);
     }
 };
 
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberDataWithObject> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberDataWithObject;
+struct __invoker<__invoker_strategy::PointerToMemberDataWithObject> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberDataWithObject;
 
     template <
         class _MemberData_, 
         class _Object_>
-    inline static constexpr auto call(
-        _MemberData_    memberData,
-        _Object_&&      object) noexcept -> decltype(static_cast<_Object_&&>(object).*memberData)
+    inline static constexpr auto __call(
+        _MemberData_    __member_data,
+        _Object_&&      __object) noexcept -> decltype(static_cast<_Object_&&>(__object).*__member_data)
     {
-        return static_cast<_Object_&&>(object).*memberData;
+        return static_cast<_Object_&&>(__object).*__member_data;
     }
 };
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberDataWithReferenceWrapper> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberDataWithReferenceWrapper;
+struct __invoker<__invoker_strategy::PointerToMemberDataWithReferenceWrapper> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberDataWithReferenceWrapper;
 
     template <
         class _MemberData_,
         class _ReferenceWrapper_>
-    inline static constexpr auto call(
-        _MemberData_        memberData,
-        _ReferenceWrapper_  referenceWrapper) noexcept -> decltype(referenceWrapper.get().*memberData)
+    inline static constexpr auto __call(
+        _MemberData_        __member_data,
+        _ReferenceWrapper_  __reference_wrapper) noexcept -> decltype(__reference_wrapper.get().*__member_data)
     {
-        return referenceWrapper.get().*memberData;
+        return __reference_wrapper.get().*__member_data;
     }
 };
 
 template <>
-struct _Invoker<_InvokerStrategy::_PointerToMemberDataWithPointer> {
-    static constexpr auto _Strategy = _InvokerStrategy::_PointerToMemberDataWithPointer;
+struct __invoker<__invoker_strategy::PointerToMemberDataWithPointer> {
+    static constexpr auto __strategy = __invoker_strategy::PointerToMemberDataWithPointer;
 
     template <
         class _MemberData_,
         class _Pointer_>
-    inline static constexpr auto call(
-        _MemberData_    memberData,
-        _Pointer_&&     pointerToObject) noexcept(noexcept((*static_cast<_Pointer_&&>(pointerToObject)).*memberData))
-            -> decltype((*static_cast<_Pointer_&&>(pointerToObject)).*memberData)
+    inline static constexpr auto __call(
+        _MemberData_    __member_data,
+        _Pointer_&&     __pointer_to_object) noexcept(noexcept((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data))
+            -> decltype((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data)
     {
-        return (*static_cast<_Pointer_&&>(pointerToObject)).*memberData;
+        return (*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data;
     }
 };
 
@@ -150,44 +150,44 @@ template <
     class _RemovedQualifiers_       = std::remove_cvref_t<_Callable_>,
     bool _IsMemberFunctionPointer_  = std::is_member_function_pointer_v<_RemovedQualifiers_>,
     bool _IsMemberFunctionData_     = std::is_member_object_pointer_v<_RemovedQualifiers_>>
-struct _SelectInvoker;
+struct __select_invoker;
 
 template <
     class _Callable_,
     class _Object_, 
     class _RemovedQualifiers_>
-struct _SelectInvoker<_Callable_, _Object_, _RemovedQualifiers_, true, false> {
+struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, true, false> {
     using type = std::conditional_t<
         std::is_same_v<typename function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>> ||
         std::is_base_of_v<typename function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>>,
-            _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithObject>,
+            __invoker<__invoker_strategy::PointerToMemberFunctionWithObject>,
             std::conditional_t<
                 is_specialization_v<std::remove_cvref_t<_Object_>, std::reference_wrapper>,
-                    _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithReferenceWrapper>,
-                    _Invoker<_InvokerStrategy::_PointerToMemberFunctionWithPointer>>>;
+                    __invoker<__invoker_strategy::PointerToMemberFunctionWithReferenceWrapper>,
+                    __invoker<__invoker_strategy::PointerToMemberFunctionWithPointer>>>;
 };
 
 template <
     class _Callable_, 
     class _Object_, 
     class _RemovedQualifiers_>
-struct _SelectInvoker<_Callable_, _Object_, _RemovedQualifiers_, false, true> {
+struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, false, true> {
     using type = std::conditional_t<
         std::is_same_v<typename _Member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>> ||
         std::is_base_of_v<typename _Member_object_pointer_class_type<_RemovedQualifiers_>::type, std::remove_cvref_t<_Object_>>,
-            _Invoker<_InvokerStrategy::_PointerToMemberDataWithObject>,
+            __invoker<__invoker_strategy::PointerToMemberDataWithObject>,
             std::conditional_t<
                 is_specialization_v<std::remove_cvref_t<_Object_>, std::reference_wrapper>, 
-                    _Invoker<_InvokerStrategy::_PointerToMemberDataWithReferenceWrapper>,
-                    _Invoker<_InvokerStrategy::_PointerToMemberDataWithPointer>>>;
+                    __invoker<__invoker_strategy::PointerToMemberDataWithReferenceWrapper>,
+                    __invoker<__invoker_strategy::PointerToMemberDataWithPointer>>>;
 };
 
 template <
     class _Callable_,
     class _Object_,
     class _RemovedQualifiers_>
-struct _SelectInvoker<_Callable_, _Object_, _RemovedQualifiers_, false, false> {
-    using type = _Invoker<_InvokerStrategy::_FunctorCallable>;
+struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, false, false> {
+    using type = __invoker<__invoker_strategy::FunctorCallable>;
 };
 
 template <

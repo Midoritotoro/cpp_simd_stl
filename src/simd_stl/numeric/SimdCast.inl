@@ -92,7 +92,7 @@ template <
         type_traits::__is_vector_type_supported_v<_ToType_>) &&
     (_Is_valid_basic_simd_v<_FromType_> || _Is_intrin_type_v<_FromType_>), int>>
 simd_stl_nodiscard simd_stl_always_inline _Rebind_vector_element_type<_ToType_, _FromType_> simd_cast(_FromType_ _From) noexcept {
-    return _IntrinBitcast<_Unwrapped_vector_type<_Rebind_vector_element_type<_ToType_, _FromType_>>>(_SimdUnwrap(_From));
+    return __intrin_bitcast<_Unwrapped_vector_type<_Rebind_vector_element_type<_ToType_, _FromType_>>>(_SimdUnwrap(_From));
 }
 
 template <
@@ -103,7 +103,7 @@ template <
 simd_stl_nodiscard simd_stl_always_inline _Rebind_vector_generation_type<_ToSimdGeneration_,
     _Vector_element_type<_FromVector_>, _FromVector_> simd_cast(_FromVector_ _From) noexcept
 {
-    return _IntrinBitcast<_Unwrapped_vector_type<_Rebind_vector_generation_type<_ToSimdGeneration_,
+    return __intrin_bitcast<_Unwrapped_vector_type<_Rebind_vector_generation_type<_ToSimdGeneration_,
         _Vector_element_type<_FromVector_>, _FromVector_>>>(_SimdUnwrap(_From));
 }
 
@@ -116,7 +116,7 @@ template <
 simd_stl_nodiscard simd_stl_always_inline _Rebind_vector_generation_type<_ToSimdGeneration_,
     _ToElementType_, _FromVector_> simd_cast(_FromVector_ _From) noexcept
 {
-    return _IntrinBitcast<_Unwrapped_vector_type<_Rebind_vector_generation_type<_ToSimdGeneration_,
+    return __intrin_bitcast<_Unwrapped_vector_type<_Rebind_vector_generation_type<_ToSimdGeneration_,
         _ToElementType_, _FromVector_>>>(_SimdUnwrap(_From));
 }
 

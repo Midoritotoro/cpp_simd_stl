@@ -21,7 +21,7 @@ __simd_inline_constexpr _OutputUnwrappedIterator_ __copy_unchecked(
 {
     const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
 
-    if constexpr (type_traits::IteratorCopyCategory<_InputUnwrappedIterator_, _OutputUnwrappedIterator_>::BitcopyAssignable) {
+    if constexpr (type_traits::__copy_iterator_category<_InputUnwrappedIterator_, _OutputUnwrappedIterator_>::BitcopyAssignable) {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
