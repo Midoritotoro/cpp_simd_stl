@@ -41,7 +41,7 @@ public:
             sh = 30;
         }
         else if (d1 > 1) {
-            sh = math::CountLeadingZeroBits(uint32(d1 - 1));
+            sh = math::count_leading_zero_bits(uint32(d1 - 1));
             m = int32((int64(1) << (32 + sh)) / d1 - ((int64(1) << 32) - 1));
         }
         else {
@@ -107,7 +107,7 @@ public:
             m = 1; sh1 = 1; sh2 = 0;
             break;
         default:
-            L = math::CountTrailingZeroBits(d - 1) + 1;
+            L = math::count_trailing_zero_bits(d - 1) + 1;
             L2 = uint32(L < 32 ? 1 << L : 0);
         
             m = 1 + uint32((uint64_t(L2 - d) << 32) / d);
@@ -162,7 +162,7 @@ public:
             sh = 14;
         }
         else if (d1 > 1) {
-            sh = (int32)math::CountTrailingZeroBits(uint32(d1 - 1));
+            sh = (int32)math::count_trailing_zero_bits(uint32(d1 - 1));
             m = ((int32(1) << (16 + sh)) / d1 - ((int32(1) << 16) - 1));
         }
         else {
@@ -229,7 +229,7 @@ public:
             break;
 
         default:
-            L = (uint16)math::CountTrailingZeroBits(d - 1u) + 1u;
+            L = (uint16)math::count_trailing_zero_bits(d - 1u) + 1u;
             L2 = uint16(1 << L);
 
             m = 1u + uint16((uint32(L2 - d) << 16) / d);

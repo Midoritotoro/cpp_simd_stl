@@ -121,7 +121,7 @@ template <
 simd_stl_always_inline _Element_
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator[](const size_type __index) const noexcept 
 {
-    return _SimdExtract<_SimdGeneration_, _RegisterPolicy_, _Element_>(_vector, __index);
+    return __simd_extract<_SimdGeneration_, _RegisterPolicy_, _Element_>(_vector, __index);
 }
 
 template <
@@ -369,7 +369,7 @@ simd_stl_always_inline _DesiredType_
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(size_type __index) const noexcept
 {
     DebugAssert(_Index >= 0 && _Index < size<_DesiredType_>(), "simd_stl::numeric::basic_simd: Index out of range");
-    return _SimdExtract<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __index);
+    return __simd_extract<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __index);
 }
 
 template <
@@ -393,7 +393,7 @@ simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
     const size_type                                         __address,
     const typename std::type_identity<_DesiredType_>::type  __value) noexcept
 {
-    return _SimdInsert<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __address, __value);
+    return __simd_insert<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __address, __value);
 }
 
 template <
@@ -599,7 +599,7 @@ template <typename _DesiredType_>
 simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_mask() const noexcept
 {
-    return _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+    return __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <
@@ -701,10 +701,10 @@ _DesiredType_* simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress_sto
 {
     if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
         return _SimdCompressStoreAligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_SimdUnwrapMask(__mask)), _vector);
+            reinterpret_cast<_DesiredType_*>(__address), __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_SimdUnwrapMask(__mask)), _vector);
     else 
         return _SimdCompressStoreUnaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), _SimdToMask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_SimdUnwrapMask(__mask)), _vector);
+            reinterpret_cast<_DesiredType_*>(__address), __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_SimdUnwrapMask(__mask)), _vector);
 }
 
 template <

@@ -64,13 +64,13 @@ struct __is_character_or_byte_or_bool<std::byte>:
 #endif // defined(__cpp_lib_byte)
 
 template <class _Type_>
-constexpr inline bool is_character_v = _Is_character<_Type_>::value;
+constexpr inline bool is_character_v = __is_character<_Type_>::value;
 
 template <class _Type_>
-constexpr inline bool is_character_or_bool_v = _Is_character_or_bool<_Type_>::value;
+constexpr inline bool is_character_or_bool_v = __is_character_or_bool<_Type_>::value;
 
 template <class _Type_>
-constexpr inline bool is_character_or_byte_or_bool_v = _Is_character_or_byte_or_bool<_Type_>::value;
+constexpr inline bool is_character_or_byte_or_bool_v = __is_character_or_byte_or_bool<_Type_>::value;
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END
 

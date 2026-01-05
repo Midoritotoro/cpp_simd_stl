@@ -872,12 +872,12 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX, numeric::ym
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
         _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256d>(_Vector));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256>(_Vector));
     }
     else {
@@ -896,12 +896,12 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX, numeric::ym
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
         _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256d>(_Vector));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256>(_Vector));
     }
     else {
@@ -968,12 +968,12 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX, num
     if constexpr (sizeof(_DesiredType_) == 8) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_pd(
             reinterpret_cast<const double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_ps(
             reinterpret_cast<const float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -992,12 +992,12 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX, num
     if constexpr (sizeof(_DesiredType_) == 8) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_pd(
             reinterpret_cast<const double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_ps(
             reinterpret_cast<const float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -1110,12 +1110,12 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX2, nu
     if constexpr (sizeof(_DesiredType_) == 8) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_epi64(
             reinterpret_cast<const long long*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         return __intrin_bitcast<_VectorType_>(_mm256_maskload_epi32(
             reinterpret_cast<const int*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask)));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -1188,7 +1188,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX2, nu
     _VectorType_                            _AdditionalSource) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Address, 
-        _SimdToVector<_Generation, _RegisterPolicy, _VectorType_, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_vector<_Generation, _RegisterPolicy, _VectorType_, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 template <
@@ -1257,12 +1257,12 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX2, numeric::y
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
         _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256d>(_Vector));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256>(_Vector));
     }
     else {
@@ -1281,12 +1281,12 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX2, numeric::y
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
         _mm256_maskstore_pd(reinterpret_cast<double*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256d>(_Vector));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         _mm256_maskstore_ps(reinterpret_cast<float*>(_Where),
-            _SimdToVector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
+            __simd_to_vector<_Generation, _RegisterPolicy, __m256i, _DesiredType_>(_Mask),
             __intrin_bitcast<__m256>(_Vector));
     }
     else {
@@ -1588,7 +1588,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512F, numeric
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -1602,7 +1602,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512F, numeric
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -1655,7 +1655,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512F,
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -1676,7 +1676,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512F,
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -1736,7 +1736,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512F,
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadUnaligned<_VectorType_>(_Where),
@@ -1756,7 +1756,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512F,
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadAligned<_VectorType_>(_Where),
@@ -1873,7 +1873,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512BW, numeri
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -1887,7 +1887,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512BW, numeri
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -1940,7 +1940,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512BW
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -1953,7 +1953,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512BW
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -2007,7 +2007,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512BW
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 template <
@@ -2021,7 +2021,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512BW
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 template <typename _Type_>
@@ -2078,7 +2078,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, numer
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2092,7 +2092,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, numer
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2145,7 +2145,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -2166,7 +2166,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -2226,7 +2226,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadUnaligned<_VectorType_>(_Where),
@@ -2246,7 +2246,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadAligned<_VectorType_>(_Where),
@@ -2363,7 +2363,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, nume
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2377,7 +2377,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, nume
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2430,7 +2430,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -2443,7 +2443,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -2497,7 +2497,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 template <
@@ -2511,7 +2511,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 
@@ -2569,7 +2569,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, numer
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2583,7 +2583,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLF, numer
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2636,7 +2636,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -2657,7 +2657,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) == 8 || sizeof(_DesiredType_) == 4) {
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
     }
     else {
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
@@ -2717,7 +2717,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadUnaligned<_VectorType_>(_Where),
@@ -2737,7 +2737,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-            _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+            __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
     else
         return _SimdBlend<_Generation, _RegisterPolicy, _DesiredType_>(
             _LoadAligned<_VectorType_>(_Where),
@@ -2853,7 +2853,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, nume
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2867,7 +2867,7 @@ simd_stl_always_inline void _SimdMemoryAccess<arch::CpuFeature::AVX512VLBW, nume
     const _MaskVectorType_  _Mask,
     const _VectorType_      _Vector) noexcept
 {
-    return _MaskStoreUnaligned<_DesiredType_>(_Where, _SimdToMask<
+    return _MaskStoreUnaligned<_DesiredType_>(_Where, __simd_to_mask<
         _Generation, _RegisterPolicy, _DesiredType_>(_Mask), _Vector);
 }
 
@@ -2920,7 +2920,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -2933,7 +2933,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     const _MaskVectorType_  _Mask) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Where,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask));
 }
 
 template <
@@ -2987,7 +2987,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadUnaligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 template <
@@ -3001,7 +3001,7 @@ simd_stl_always_inline _VectorType_ _SimdMemoryAccess<arch::CpuFeature::AVX512VL
     _VectorType_            _AdditionalSource) noexcept
 {
     return _MaskLoadAligned<_VectorType_, _DesiredType_>(_Address,
-        _SimdToMask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
+        __simd_to_mask<_Generation, _RegisterPolicy, _DesiredType_>(_Mask), _AdditionalSource);
 }
 
 #pragma endregion

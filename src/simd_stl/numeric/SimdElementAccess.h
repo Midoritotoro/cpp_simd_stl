@@ -9,86 +9,86 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
     arch::CpuFeature    _SimdGeneration_, 
     class               _RegisterPolicy_>
-class _SimdElementAccess;
+class __simd_element_access;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline void _SimdInsert(
-    _VectorType_&       _Vector,
-    const uint8         _Position,
-    const _DesiredType_ _Value) noexcept;
+simd_stl_always_inline void __simd_insert(
+    _VectorType_&       __vector,
+    const uint8         __position,
+    const _DesiredType_ __value) noexcept;
 
 template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdExtract(
-    _VectorType_    _Vector,
-    const uint8     _Where) noexcept;
+simd_stl_always_inline _DesiredType_ __simd_extract(
+    _VectorType_    __vector,
+    const uint8     __where) noexcept;
 
 #pragma region Sse2-Sse4.2 Simd element access
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
-    using _RegisterPolicy               = xmm128;
+class __simd_element_access<arch::CpuFeature::SSE2, xmm128> {
+    static constexpr auto __generation   = arch::CpuFeature::SSE2;
+    using __register_policy = xmm128;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void _Insert(
-        _VectorType_&       _Vector,
-        const uint8         _Position,
-        const _DesiredType_ _Value) noexcept;
+    static simd_stl_always_inline void __insert(
+        _VectorType_&       __vector,
+        const uint8         __position,
+        const _DesiredType_ __value) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Extract(
-        _VectorType_    _Vector,
-        const uint8     _Where) noexcept;
+    static simd_stl_always_inline _DesiredType_ __extract(
+        _VectorType_    __vector,
+        const uint8     __where) noexcept;
 };
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::SSE3, xmm128>:
-    public _SimdElementAccess<arch::CpuFeature::SSE2, xmm128>
+class __simd_element_access<arch::CpuFeature::SSE3, xmm128>:
+    public __simd_element_access<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::SSSE3, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::SSE3, xmm128>
+class __simd_element_access<arch::CpuFeature::SSSE3, xmm128> :
+    public __simd_element_access<arch::CpuFeature::SSE3, xmm128>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::SSE41, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::SSSE3, xmm128>
+class __simd_element_access<arch::CpuFeature::SSE41, xmm128> :
+    public __simd_element_access<arch::CpuFeature::SSSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
-    using _RegisterPolicy               = xmm128;
+    static constexpr auto __generation   = arch::CpuFeature::SSE41;
+    using __register_policy = xmm128;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void _Insert(
-        _VectorType_&       _Vector,
-        const uint8         _Position,
-        const _DesiredType_ _Value) noexcept;
+    static simd_stl_always_inline void __insert(
+        _VectorType_&       __vector,
+        const uint8         __position,
+        const _DesiredType_ __value) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Extract(
-        _VectorType_    _Vector,
-        const uint8     _Where) noexcept;
+    static simd_stl_always_inline _DesiredType_ __extract(
+        _VectorType_    __vector,
+        const uint8     __where) noexcept;
 };
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::SSE42, xmm128>:
-    public _SimdElementAccess<arch::CpuFeature::SSE41, xmm128>
+class __simd_element_access<arch::CpuFeature::SSE42, xmm128>:
+    public __simd_element_access<arch::CpuFeature::SSE41, xmm128>
 {};
 
 #pragma endregion
@@ -96,30 +96,30 @@ class _SimdElementAccess<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx-Avx2 Simd element access 
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
-    using _RegisterPolicy               = numeric::ymm256;
+    static constexpr auto __generation   = arch::CpuFeature::AVX;
+    using __register_policy = numeric::ymm256;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void _Insert(
-        _VectorType_&       _Vector,
-        const uint8         _Position,
-        const _DesiredType_ _Value) noexcept;
+    static simd_stl_always_inline void __insert(
+        _VectorType_&       __vector,
+        const uint8         __position,
+        const _DesiredType_ __value) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Extract(
-        _VectorType_    _Vector,
-        const uint8     _Where) noexcept;
+    static simd_stl_always_inline _DesiredType_ __extract(
+        _VectorType_    __vector,
+        const uint8     __where) noexcept;
 };
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX2, ymm256>:
-    public _SimdElementAccess<arch::CpuFeature::AVX, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX2, ymm256>:
+    public __simd_element_access<arch::CpuFeature::AVX, ymm256>
 {};
 
 #pragma endregion
@@ -127,75 +127,75 @@ class _SimdElementAccess<arch::CpuFeature::AVX2, ymm256>:
 #pragma region Avx512 Simd element access
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512F, zmm512>
+class __simd_element_access<arch::CpuFeature::AVX512F, zmm512>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
-    using _RegisterPolicy               = zmm512;
+    static constexpr auto __generation   = arch::CpuFeature::AVX512F;
+    using __register_policy               = zmm512;
 public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline void _Insert(
-        _VectorType_&       _Vector,
-        const uint8         _Position,
-        const _DesiredType_ _Value) noexcept;
+    static simd_stl_always_inline void __insert(
+        _VectorType_&       __vector,
+        const uint8         __position,
+        const _DesiredType_ __value) noexcept;
 
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_ _Extract(
-        _VectorType_    _Vector,
-        const uint8     _Where) noexcept;
+    static simd_stl_always_inline _DesiredType_ __extract(
+        _VectorType_    __vector,
+        const uint8     __where) noexcept;
 };
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512BW, zmm512>:
-    public _SimdElementAccess<arch::CpuFeature::AVX512F, zmm512>
+class __simd_element_access<arch::CpuFeature::AVX512BW, zmm512>:
+    public __simd_element_access<arch::CpuFeature::AVX512F, zmm512>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512DQ, zmm512> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_element_access<arch::CpuFeature::AVX512DQ, zmm512> :
+    public __simd_element_access<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLF, ymm256> :
-    public _SimdElementAccess<arch::CpuFeature::AVX2, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX512VLF, ymm256> :
+    public __simd_element_access<arch::CpuFeature::AVX2, ymm256>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLBW, ymm256> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX512VLBW, ymm256> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLDQ, ymm256> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX512VLDQ, ymm256> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLF, ymm256>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLBW, ymm256>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLF, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::SSE42, xmm128>
+class __simd_element_access<arch::CpuFeature::AVX512VLF, xmm128> :
+    public __simd_element_access<arch::CpuFeature::SSE42, xmm128>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLBW, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_element_access<arch::CpuFeature::AVX512VLBW, xmm128> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLF, xmm128>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLDQ, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_element_access<arch::CpuFeature::AVX512VLDQ, xmm128> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLF, xmm128>
 {};
 
 template <>
-class _SimdElementAccess<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
-    public _SimdElementAccess<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_element_access<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
+    public __simd_element_access<arch::CpuFeature::AVX512VLBW, xmm128>
 {};
 
 #pragma endregion 
@@ -206,13 +206,13 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline void _SimdInsert(
-    _VectorType_&       _Vector,
-    const uint8         _Position,
-    const _DesiredType_ _Value) noexcept
+simd_stl_always_inline void __simd_insert(
+    _VectorType_&       __vector,
+    const uint8         __position,
+    const _DesiredType_ __value) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>::template _Insert(_Vector, _Position, _Value);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __insert(__vector, __position, _Value);
 }
 
 template <
@@ -220,12 +220,12 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-simd_stl_always_inline _DesiredType_ _SimdExtract(
-    _VectorType_    _Vector,
-    const uint8     _Where) noexcept
+simd_stl_always_inline _DesiredType_ __simd_extract(
+    _VectorType_    __vector,
+    const uint8     __where) noexcept
 {
-    _VerifyRegisterPolicy(_SimdGeneration_, _RegisterPolicy_);
-    return _SimdElementAccess<_SimdGeneration_, _RegisterPolicy_>::template _Extract<_DesiredType_>(_Vector, _Where);
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __extract<_DesiredType_>(__vector, __where);
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
