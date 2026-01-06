@@ -8,8 +8,8 @@ template <
     sizetype _VerticalSize_,
     sizetype _HorizontalSize_>
 struct __shuffle_tables {
-    uint8 shuffle[_VerticalSize_][_HorizontalSize_];
-    uint8 size[_VerticalSize_];
+    uint8 __shuffle[_VerticalSize_][_HorizontalSize_];
+    uint8 __size[_VerticalSize_];
 };
 
 template <
@@ -19,7 +19,7 @@ constexpr auto __make_shuffle_tables(
     const uint32 __multiplier,
     const uint32 __element_group_stride) noexcept
 {
-    __shuffle_tables<_VerticalSize_, _HorizontalSize_> __result;
+    auto __result = __shuffle_tables<_VerticalSize_, _HorizontalSize_>();
 
     for (auto __vertical_index = uint32(0); __vertical_index != _VerticalSize_; ++__vertical_index) {
         auto __active_group_count = uint32(0);
@@ -27,18 +27,18 @@ constexpr auto __make_shuffle_tables(
         for (auto __horizontal_index = uint32(0); __horizontal_index != _HorizontalSize_ / __element_group_stride; ++__horizontal_index) {
             if ((__vertical_index & (1 << __horizontal_index)) == 0) {
                 for (auto __element_offset = uint32(0); __element_offset != __element_group_stride; ++__element_offset)
-                    __result.shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
+                    __result.__shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
                     static_cast<uint8>(__horizontal_index * __element_group_stride + __element_offset);
 
                 ++__active_group_count;
             }
         }
 
-        __result.size[__vertical_index] = static_cast<uint8>(__active_group_count * __multiplier);
+        __result.__size[__vertical_index] = static_cast<uint8>(__active_group_count * __multiplier);
 
         for (; __active_group_count != _HorizontalSize_ / __element_group_stride; ++__active_group_count)
             for (uint32 __element_offset = 0; __element_offset != __element_group_stride; ++__element_offset)
-                __result.shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
+                __result.__shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
                 static_cast<uint8>(__active_group_count * __element_group_stride + __element_offset);
     }
 
@@ -58,8 +58,8 @@ template <
     class _VectorType_,
     class _DesiredType_>
 struct __insert_mask {
-    _DesiredType_   array[(sizeof(_VectorType_) / sizeof(_DesiredType_))];
-    int32           offset = 0;
+    _DesiredType_   __array[(sizeof(_VectorType_) / sizeof(_DesiredType_))];
+    int32           __offset = 0;
 };
 
 template <
@@ -67,13 +67,13 @@ template <
     class _DesiredType_>
 constexpr auto _MakeSimdInsertMask() noexcept { 
     constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-    __insert_mask<_VectorType_, _DesiredType_> __mask;
+    auto __mask = __insert_mask<_VectorType_, _DesiredType_>();
 
     for (auto __index = 0; __index < __length; ++__index)
-        __mask.array[__index] = 0;
+        __mask.__array[__index] = 0;
 
-    __mask.offset                       = __length >> 1;
-    __mask.array[(__mask.offset + 1)]   = -1;
+    __mask.__offset                         = __length >> 1;
+    __mask.__array[(__mask.__offset + 1)]   = -1;
 
     return __mask;
 }
