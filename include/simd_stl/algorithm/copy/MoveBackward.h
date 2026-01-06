@@ -10,16 +10,16 @@ template <
     class _BidirectionalFirstIterator_,
     class _BidirectionalSecondIterator_>
 __simd_inline_constexpr _BidirectionalSecondIterator_ move_backward(
-    _BidirectionalFirstIterator_    _First,
-    _BidirectionalFirstIterator_    _Last,
-    _BidirectionalSecondIterator_   _DestinationLast) noexcept
+    _BidirectionalFirstIterator_    __first,
+    _BidirectionalFirstIterator_    __last,
+    _BidirectionalSecondIterator_   __destination_last) noexcept
 {
-    __verifyRange(_First, _Last);
+    __verify_range(__first, __last);
 
-    __seek_possibly_wrapped_iterator(_DestinationLast, _MoveBackwardUnchecked(_UnwrapIterator(_First),
-        _UnwrapIterator(_Last), _UnwrapUnverifiedIterator(_DestinationLast)));
+    __seek_possibly_wrapped_iterator(__destination_last, __move_backward_unchecked(__unwrap_iterator(__first),
+        __unwrap_iterator(__last), __unwrap_unverified_iterator(__destination_last)));
 
-    return _DestinationLast;
+    return __destination_last;
 }
 
 template <
@@ -29,11 +29,11 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _BidirectionalSecondIterator_ move_backward(
     _ExecutionPolicy_&&,
-    _BidirectionalFirstIterator_    _First,
-    _BidirectionalFirstIterator_    _Last,
-    _BidirectionalSecondIterator_   _DestinationLast) noexcept
+    _BidirectionalFirstIterator_    __first,
+    _BidirectionalFirstIterator_    __last,
+    _BidirectionalSecondIterator_   __destination_last) noexcept
 {
-    return simd_stl::algorithm::move_backward(_First, _Last, _DestinationLast);
+    return simd_stl::algorithm::move_backward(__first, __last, __destination_last);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

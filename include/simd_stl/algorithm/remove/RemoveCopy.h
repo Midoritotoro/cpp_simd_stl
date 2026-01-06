@@ -13,17 +13,17 @@ template <
 	class _OutputIterator_,
 	class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
 __simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy(
-	_InputIterator_										_First,
-	_InputIterator_										_Last,
-	_OutputIterator_									_Destination,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept
+	_InputIterator_										__first,
+	_InputIterator_										__last,
+	_OutputIterator_									__destination,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	__verifyRange(first, last);
+	__verify_range(__first, __last);
 	
-	__seek_possibly_wrapped_iterator(_Destination, _RemoveCopyUnchecked(_UnwrapIterator(_First),
-		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), _Value));
+	__seek_possibly_wrapped_iterator(__destination, __remove_copy_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), __unwrap_iterator(__destination), __value));
 
-	return _Destination;
+	return __destination;
 }
 
 template <
@@ -31,17 +31,17 @@ template <
 	class _OutputIterator_,
 	class _UnaryPredicate_>
 __simd_nodiscard_inline_constexpr _OutputIterator_ remove_copy_if(
-	_InputIterator_		_First,
-	_InputIterator_		_Last,
-	_OutputIterator_	_Destination,
-	_UnaryPredicate_	_Predicate) noexcept
+	_InputIterator_		__first,
+	_InputIterator_		__last,
+	_OutputIterator_	__destination,
+	_UnaryPredicate_	__predicate) noexcept
 {
-	__verifyRange(_First, _Last);
+	__verify_range(__first, __last);
 	
-	__seek_possibly_wrapped_iterator(_Destination, _RemoveCopyIfUnchecked(_UnwrapIterator(_First),
-		_UnwrapIterator(_Last), _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate)));
+	__seek_possibly_wrapped_iterator(__destination, __remove_copy_if_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), __unwrap_iterator(__destination), type_traits::__pass_function(__predicate)));
 
-	return _Destination;
+	return __destination;
 }
 
 template <
@@ -52,12 +52,12 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_nodiscard_inline _OutputIterator_ remove_copy(
 	_ExecutionPolicy_&&,
-	_InputIterator_		first,
-	_InputIterator_		last,
-	_OutputIterator_	destination,
-	const _Type_&		value) noexcept
+	_InputIterator_		__first,
+	_InputIterator_		__last,
+	_OutputIterator_	__destination,
+	const _Type_&		__value) noexcept
 {
-	return simd_stl::algorithm::remove_copy(first, last, destination, value);
+	return simd_stl::algorithm::remove_copy(__first, __last, __destination, __value);
 }
 
 template <
@@ -68,12 +68,12 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_nodiscard_inline _OutputIterator_ remove_copy_if(
 	_ExecutionPolicy_&&,
-	_InputIterator_		first,
-	_InputIterator_		last,
-	_OutputIterator_	destination,
-	_UnaryPredicate_	predicate) noexcept
+	_InputIterator_		__first,
+	_InputIterator_		__last,
+	_OutputIterator_	__destination,
+	_UnaryPredicate_	__predicate) noexcept
 {
-	return simd_stl::algorithm::remove_copy_if(first, last, destination, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::remove_copy_if(__first, __last, __destination, type_traits::__pass_function(__predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

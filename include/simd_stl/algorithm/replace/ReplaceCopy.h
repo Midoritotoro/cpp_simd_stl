@@ -15,15 +15,15 @@ template <
     class _OutputIterator_,
     class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
 __simd_inline_constexpr void replace_copy(
-        _InputIterator_                                     _First,
-        _InputIterator_                                     _Last,
-        _OutputIterator_                                    _Destination,
-        const typename std::type_identity<_Type_>::type&    _OldValue,
-        const typename std::type_identity<_Type_>::type&    _NewValue) noexcept
+        _InputIterator_                                     __first,
+        _InputIterator_                                     __last,
+        _OutputIterator_                                    __destination,
+        const typename std::type_identity<_Type_>::type&    __old_value,
+        const typename std::type_identity<_Type_>::type&    __new_value) noexcept
 {
-    __verifyRange(_First, _Last);
-    _ReplaceCopyUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
-        _UnwrapIterator(_Destination), _OldValue, _NewValue);
+    __verify_range(__first, __last);
+    __replace_copy_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last),
+        __unwrap_iterator(__destination), __old_value, __new_value);
 }
 
 template <
@@ -32,16 +32,16 @@ template <
     class _UnaryPredicate_,
     class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
 __simd_inline_constexpr simd_stl_always_inline void replace_copy_if(
-    _InputIterator_                                     _First,
-    _InputIterator_                                     _Last,
-    _OutputIterator_                                    _Destination,
-    _UnaryPredicate_                                    _Predicate,
-    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept(
+    _InputIterator_                                     __first,
+    _InputIterator_                                     __last,
+    _OutputIterator_                                    __destination,
+    _UnaryPredicate_                                    __predicate,
+    const typename std::type_identity<_Type_>::type&    __new_value) noexcept(
         type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
 {
-    __verifyRange(_First, _Last);
-    _ReplaceIfUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
-        _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate), _NewValue);
+    __verify_range(__first, __last);
+    __replace_copy_if_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last),
+        __unwrap_iterator(__destination), type_traits::__pass_function(__predicate), __new_value);
 }
 
 
@@ -53,13 +53,13 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_inline_constexpr void replace_copy(
     _ExecutionPolicy_&&,
-    _SourceForwardIterator_                             _First,
-    _SourceForwardIterator_                             _Last,
-    _DestinationForwardIterator_                        _Destination,
-    const typename std::type_identity<_Type_>::type&    _OldValue,
-    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept
+    _SourceForwardIterator_                             __first,
+    _SourceForwardIterator_                             __last,
+    _DestinationForwardIterator_                        __destination,
+    const typename std::type_identity<_Type_>::type&    __old_value,
+    const typename std::type_identity<_Type_>::type&    __new_value) noexcept
 {
-    return simd_stl::algorithm::replace_copy(_First, _Last, _Destination, _OldValue, _NewValue);
+    return simd_stl::algorithm::replace_copy(__first, __last, __destination, __old_value, __new_value);
 }
 
 template <
@@ -71,14 +71,14 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_inline_constexpr void replace_copy_if(
     _ExecutionPolicy_&&,
-    _SourceForwardIterator_                             _First,
-    _SourceForwardIterator_                             _Last,
-    _DestinationForwardIterator_                        _Destination,    
-    _UnaryPredicate_                                    _Predicate,
-    const typename std::type_identity<_Type_>::type&    _NewValue) noexcept(
+    _SourceForwardIterator_                             __first,
+    _SourceForwardIterator_                             __last,
+    _DestinationForwardIterator_                        __destination,
+    _UnaryPredicate_                                    __predicate,
+    const typename std::type_identity<_Type_>::type&    __new_value) noexcept(
         type_traits::is_nothrow_invocable_v<_UnaryPredicate_, _Type_>)
 {
-    return simd_stl::algorithm::replace_copy_if(_First, _Last, _Destination, type_traits::passFunction(_Predicate), _NewValue);
+    return simd_stl::algorithm::replace_copy_if(__first, __last, __destination, type_traits::__pass_function(__predicate), __new_value);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

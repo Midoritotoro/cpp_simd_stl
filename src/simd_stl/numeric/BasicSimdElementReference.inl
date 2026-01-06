@@ -5,7 +5,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::BasicSimdElementReference(
+simd_element_reference<_BasicSimd_, _ImposedElementType_>::simd_element_reference(
     parent_type*    __parent,
     uint32          __index
 ) noexcept:
@@ -19,21 +19,21 @@ BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::BasicSimdElementRe
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::~BasicSimdElementReference() noexcept
+simd_element_reference<_BasicSimd_, _ImposedElementType_>::~simd_element_reference() noexcept
 {}
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline uint32 BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::index() const noexcept {
+simd_stl_always_inline uint32 simd_element_reference<_BasicSimd_, _ImposedElementType_>::index() const noexcept {
     return _index;
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::value_type
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::get() const noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>::value_type
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::get() const noexcept 
 {
     return _parent->extract<value_type>(_index);
 }
@@ -41,15 +41,15 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline void BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::set(value_type __value) noexcept {
+simd_stl_always_inline void simd_element_reference<_BasicSimd_, _ImposedElementType_>::set(value_type __value) noexcept {
     _parent->insert<value_type>(_index, __value);
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator=(const value_type __other) noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator=(const value_type __other) noexcept 
 {
     set(__other);
     return *this;
@@ -58,8 +58,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator++() noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator++() noexcept 
 {
     set(get() + 1);
     return *this;
@@ -68,8 +68,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator--() noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator--() noexcept
 {
     set(get() - 1);
     return *this;
@@ -78,8 +78,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator++(int) noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator++(int) noexcept 
 {
     auto __self = *this;
     set(get() + 1);
@@ -89,8 +89,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator--(int) noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator--(int) noexcept 
 {
     auto __self = *this;
     set(get() - 1);
@@ -100,8 +100,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::value_type
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator-() noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>::value_type
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator-() noexcept
 {
     return -get();
 }
@@ -109,8 +109,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::value_type
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator+() noexcept 
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>::value_type
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator+() noexcept 
 {
     return get();
 }
@@ -118,14 +118,14 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator value_type() const noexcept {
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator value_type() const noexcept {
     return get();
 }
 
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator==(const value_type __other) const noexcept
 {
     return get() == __other;
@@ -134,7 +134,7 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator!=(const value_type __other) const noexcept
 {
     return get() != __other;
@@ -143,7 +143,7 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator>(const value_type __other) const noexcept
 {
     return get() > __other;
@@ -152,7 +152,7 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator<(const value_type __other) const noexcept
 {
     return get() < __other;
@@ -161,7 +161,7 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator<=(const value_type __other) const noexcept
 {
     return get() <= __other;
@@ -170,7 +170,7 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>
+simd_stl_always_inline bool simd_element_reference<_BasicSimd_, _ImposedElementType_>
     ::operator>=(const value_type __other) const noexcept
 {
     return get() >= __other;
@@ -179,8 +179,8 @@ simd_stl_always_inline bool BasicSimdElementReference<_BasicSimd_, _ImposedEleme
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator+=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator+=(const value_type __other) noexcept
 {
     set(get() + __other);
     return *this;
@@ -189,8 +189,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator-=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator-=(const value_type __other) noexcept
 {
     set(get() - __other);
     return *this;
@@ -199,8 +199,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator*=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>&
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator*=(const value_type __other) noexcept
 {
     set(get() * __other);
     return *this;
@@ -209,8 +209,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator/=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator/=(const value_type __other) noexcept
 {
     set(get() / __other);
     return *this;
@@ -219,8 +219,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator%=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator%=(const value_type __other) noexcept
 {
     set(get() % __other);
     return *this;
@@ -229,8 +229,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>& 
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator&=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>& 
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator&=(const value_type __other) noexcept
 {
     set(get() & __other);
     return *this;
@@ -239,8 +239,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator^=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>&
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator^=(const value_type __other) noexcept
 {
     set(get() ^ __other);
     return *this;
@@ -249,8 +249,8 @@ simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementTyp
 template <
     typename _BasicSimd_,
     typename _ImposedElementType_>
-simd_stl_always_inline BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>&
-    BasicSimdElementReference<_BasicSimd_, _ImposedElementType_>::operator|=(const value_type __other) noexcept
+simd_stl_always_inline simd_element_reference<_BasicSimd_, _ImposedElementType_>&
+    simd_element_reference<_BasicSimd_, _ImposedElementType_>::operator|=(const value_type __other) noexcept
 {
     set(get() | __other);
     return *this;

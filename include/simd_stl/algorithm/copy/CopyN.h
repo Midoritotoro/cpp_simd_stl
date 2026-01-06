@@ -11,10 +11,10 @@ template <
     class _OutputIterator_>
 __simd_inline_constexpr _OutputIterator_ copy_n(
     _InputIterator_     __first,
-    _SizeType_          _ElementsCount,
-    _OutputIterator_    _Destination) noexcept
+    _SizeType_          __elements_count,
+    _OutputIterator_    __destination) noexcept
 {
-    return simd_stl::algorithm::copy(__first, __first + _ElementsCount, _Destination);
+    return simd_stl::algorithm::copy(__first, __first + __elements_count, __destination);
 }
 
 template <
@@ -25,11 +25,11 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _OutputIterator_ copy_n(
     _ExecutionPolicy_&&,
-    _InputIterator_     first,
-    _SizeType_          elementsCount,
-    _OutputIterator_    destination) noexcept
+    _InputIterator_     __first,
+    _SizeType_          __elements_count,
+    _OutputIterator_    __destination) noexcept
 {
-    return simd_stl::algorithm::copy_n(first, elementsCount, destination);
+    return simd_stl::algorithm::copy_n(first, __elements_count, __destination);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

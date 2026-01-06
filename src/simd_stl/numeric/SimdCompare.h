@@ -667,8 +667,8 @@ template <
     class               _BasicSimd_, 
     typename            _DesiredType_,
     __simd_comparison   _CompareType_>
-using _Native_compare_return_type = _Native_compare_return_type_helper<_BasicSimd_,
-    type_traits::invoke_result_type<decltype(_SimdNativeCompare<_BasicSimd_::__generation,
+using __native_compare_return_type = __native_compare_return_type_helper<_BasicSimd_,
+    type_traits::invoke_result_type<decltype(__simd_native_compare<_BasicSimd_::__generation,
         typename _BasicSimd_::policy_type, _DesiredType_, _CompareType_, typename _BasicSimd_::vector_type>),
     typename _BasicSimd_::vector_type, typename _BasicSimd_::vector_type>, _DesiredType_>;
 

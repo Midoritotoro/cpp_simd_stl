@@ -13,107 +13,107 @@ public:
 	handle() noexcept;
 	~handle() noexcept;
 
-	handle(native_handle_type handle) noexcept;
+	handle(native_handle_type __handle) noexcept;
 
-	simd_stl_always_inline handle& operator=(const handle& other) noexcept;
-	simd_stl_always_inline handle& operator=(const native_handle_type other) noexcept;
+	simd_stl_always_inline handle& operator=(const handle& __other) noexcept;
+	simd_stl_always_inline handle& operator=(const native_handle_type __other) noexcept;
 
 	handle(
-		native_handle_type	handle,
-		bool				autoDelete,
-		deleter_type		deleter) noexcept;
+		native_handle_type	__handle,
+		bool				__auto_delete,
+		deleter_type		__deleter) noexcept;
 
-	simd_stl_always_inline void setDeleter(deleter_type deleter) noexcept;
+	simd_stl_always_inline void set_deleter(deleter_type __deleter) noexcept;
 	simd_stl_nodiscard simd_stl_always_inline deleter_type deleter() const noexcept;
 
-	simd_stl_always_inline void setAutoDelete(bool autoDelete) noexcept;
-	simd_stl_nodiscard simd_stl_always_inline bool autoDelete() const noexcept;
+	simd_stl_always_inline void set_auto_delete(bool __autoDelete) noexcept;
+	simd_stl_nodiscard simd_stl_always_inline bool auto_delete() const noexcept;
 
-	simd_stl_always_inline void setNativeHandle(
-		native_handle_type	handle, 
-		bool				deletePrevious = true) noexcept;
-	simd_stl_nodiscard simd_stl_always_inline native_handle_type nativeHandle() noexcept;
+	simd_stl_always_inline void set_native_handle(
+		native_handle_type	__handle,
+		bool				__deletePrevious = true) noexcept;
+	simd_stl_nodiscard simd_stl_always_inline native_handle_type native_handle() noexcept;
 
 	simd_stl_always_inline bool destroy() noexcept;
 	simd_stl_nodiscard simd_stl_always_inline bool available() const noexcept;
 	
 	simd_stl_always_inline friend bool operator==(
-		const handle& left,
-		const handle& right) noexcept;
+		const handle& __left,
+		const handle& __right) noexcept;
 
 	simd_stl_always_inline friend bool operator!=(
-		const handle& left,
-		const handle& right) noexcept;
+		const handle& __left,
+		const handle& __right) noexcept;
 protected:
-	native_handle_type	_nativeHandle	= nullptr;
+	native_handle_type	_native_handle	= nullptr;
 	deleter_type		_deleter		= nullptr;
 
-	bool _autoDelete = true;
+	bool _auto_delete = true;
 };
 
 handle::handle() noexcept {}
 
 handle::~handle() noexcept {
-	if (_autoDelete)
+	if (_auto_delete)
 		destroy();
 }
 
-handle::handle(native_handle_type handle) noexcept:
-	_nativeHandle(handle)
+handle::handle(native_handle_type __handle) noexcept:
+	_native_handle(__handle)
 {}
 
 handle::handle(
-	native_handle_type	handle,
-	bool				autoDelete,
-	deleter_type		deleter
+	native_handle_type	__handle,
+	bool				__auto_delete,
+	deleter_type		__deleter
 ) noexcept:
-	_nativeHandle(handle),
-	_autoDelete(autoDelete),
-	_deleter(std::move(deleter))
+	_native_handle(__handle),
+	_auto_delete(__auto_delete),
+	_deleter(std::move(__deleter))
 {}
 
-handle& handle::operator=(const native_handle_type other) noexcept {
-	_nativeHandle = other;
+handle& handle::operator=(const native_handle_type __other) noexcept {
+	_native_handle = __other;
 	return *this;
 }
 
-void handle::setDeleter(deleter_type deleter) noexcept {
-	_deleter = std::move(deleter);
+void handle::set_deleter(deleter_type __deleter) noexcept {
+	_deleter = std::move(__deleter);
 }
 
 handle::deleter_type handle::deleter() const noexcept {
 	return _deleter;
 }
 
-void handle::setAutoDelete(bool autoDelete) noexcept {
-	_autoDelete = autoDelete;
+void handle::set_auto_delete(bool __auto_delete) noexcept {
+	_auto_delete = __auto_delete;
 }
 
-bool handle::autoDelete() const noexcept {
-	return _autoDelete;
+bool handle::auto_delete() const noexcept {
+	return _auto_delete;
 }
 
-void handle::setNativeHandle(
-	native_handle_type	handle,
-	bool				deletePrevious) noexcept 
+void handle::set_native_handle(
+	native_handle_type	__handle,
+	bool				__delete_previous) noexcept
 {
-	if (handle == _nativeHandle)
+	if (__handle == _native_handle)
 		return;
 
-	if (deletePrevious)
+	if (__delete_previous)
 		destroy();
 
-	_nativeHandle = handle;
+	_native_handle = __handle;
 }
 
-handle::native_handle_type handle::nativeHandle() noexcept {
-	return _nativeHandle;
+handle::native_handle_type handle::native_handle() noexcept {
+	return _native_handle;
 }
 
 bool handle::destroy() noexcept {
-	if (_nativeHandle != nullptr) {
-		_deleter(_nativeHandle);
-		_nativeHandle = nullptr;
+	if (_native_handle != nullptr) {
+		_deleter(_native_handle);
+		_native_handle = nullptr;
 
 		return true;
 	}
@@ -122,26 +122,26 @@ bool handle::destroy() noexcept {
 }
 
 bool handle::available() const noexcept {
-	return (_nativeHandle != nullptr);
+	return (_native_handle != nullptr);
 }
 
-handle& handle::operator=(const handle& other) noexcept {
-	_nativeHandle = other._nativeHandle;
+handle& handle::operator=(const handle& __other) noexcept {
+	_native_handle = __other._native_handle;
 	return *this;
 }
 
 simd_stl_nodiscard bool operator==(
-	const handle& left,
-	const handle& right) noexcept
+	const handle& __left,
+	const handle& __right) noexcept
 {
-	return left._nativeHandle == right._nativeHandle;
+	return __left._native_handle == __right._native_handle;
 }
 
 simd_stl_nodiscard bool operator!=(
-	const handle& left,
-	const handle& right) noexcept
+	const handle& __left,
+	const handle& __right) noexcept
 {
-	return left._nativeHandle != right._nativeHandle;
+	return __left._native_handle != __right._native_handle;
 }
 
 __SIMD_STL_SYSTEM_NAMESPACE_END

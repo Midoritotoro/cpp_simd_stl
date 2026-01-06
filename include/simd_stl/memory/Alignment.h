@@ -10,66 +10,38 @@
 
 __SIMD_STL_MEMORY_NAMESPACE_BEGIN
 
-#if defined(simd_stl_cpp_gnu)
-#  if simd_stl_cpp_gnu > 430
-#    define ALLOC_SIZE(...) __attribute__((alloc_size(__VA_ARGS__)))
-#  else
-#    define ALLOC_SIZE(...)
-#  endif
-#else 
-#  define ALLOC_SIZE(...) 
-#endif
-
-#if defined(simd_stl_os_windows) && !defined(aligned_malloc)
-#  define aligned_malloc		                _aligned_malloc
-#elif !defined(aligned_malloc)
-#  define aligned_malloc(size, alignment)		malloc(size)
-#endif
-
-#if defined(simd_stl_os_windows) && !defined(aligned_realloc)
-#  define aligned_realloc                       _aligned_realloc
-#elif !defined(aligned_realloc)
-#  define aligned_realloc(block, size, align)   realloc(block, size)
-#endif
-
-#if defined (simd_stl_os_windows) && !defined(aligned_free)
-#  define aligned_free(pointer)                 _aligned_free(pointer)
-#elif !defined(aligned_free)
-#  define aligned_free(pointer)                 free(pointer)
-#endif
-
-simd_stl_always_inline bool isAlignment(std::size_t value) noexcept {
-    return (value > 0) && ((value & (value - 1)) == 0);
+simd_stl_always_inline bool is_alignment(sizetype __value) noexcept {
+    return (__value > 0) && ((__value & (__value - 1)) == 0);
 }
 
-simd_stl_always_inline bool isAligned(
-    const void* pointer,
-    sizetype    alignment) noexcept
+simd_stl_always_inline bool is_aligned(
+    const void* __pointer,
+    sizetype    __alignment) noexcept
 {
-    DebugAssert(isAlignment(alignment));
-    return (pointerToIntegral(pointer) & (alignment - 1)) == 0;
+    simd_stl_debug_assert(is_alignment(__alignment));
+    return (pointer_to_integral(__pointer) & (__alignment - 1)) == 0;
 }
 
-simd_stl_always_inline void* alignDown(
-    void*       pointer, 
-    sizetype    alignment) noexcept
+simd_stl_always_inline void* align_down(
+    void*       __pointer,
+    sizetype    __alignment) noexcept
 {
-    DebugAssert(isAlignment(alignment));
-    return reinterpret_cast<void*>(~(alignment - 1) & pointerToIntegral(pointer));
+    simd_stl_debug_assert(is_alignment(__alignment));
+    return reinterpret_cast<void*>(~(__alignment - 1) & pointer_to_integral(__pointer));
 
 }
 
-simd_stl_always_inline void* alignUp(
-    void*       pointer,
-    sizetype    alignment) noexcept
+simd_stl_always_inline void* align_up(
+    void*       __pointer,
+    sizetype    __alignment) noexcept
 {
-    DebugAssert(isAlignment(alignment));
-    return reinterpret_cast<void*>(~(alignment - 1) & (pointerToIntegral(pointer) + alignment - 1));
+    simd_stl_debug_assert(is_alignment(__alignment));
+    return reinterpret_cast<void*>(~(__alignment - 1) & (pointer_to_integral(__pointer) + __alignment - 1));
 }
 
-template <std::size_t N>
-struct IsAlignmentConstant : 
-    std::integral_constant<bool, (N > 0) && ((N & (N - 1)) == 0)> 
+template <sizetype _Size_>
+struct is_alignment_constant : 
+    std::integral_constant<bool, (_Size_ > 0) && ((_Size_& (_Size_ - 1)) == 0)>
 {};
 
 __SIMD_STL_MEMORY_NAMESPACE_END

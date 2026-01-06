@@ -12,22 +12,22 @@ template <
     class _FirstBidirectionalIterator_,
     class _SecondBidirectionalIterator_>
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_copy(
-    _FirstBidirectionalIterator_    first,
-    _FirstBidirectionalIterator_    last,
-    _SecondBidirectionalIterator_   destination) noexcept
+    _FirstBidirectionalIterator_    __first,
+    _FirstBidirectionalIterator_    __last,
+    _SecondBidirectionalIterator_   __destination) noexcept
 {
-    using _FirstBidirectionalUnwrappedIterator_     = unwrapped_iterator_type<_FirstBidirectionalIterator_>;
-    using _SecondBidirectionalUnwrappedIterator_    = unwrapped_iterator_type<_SecondBidirectionalIterator_>;
+    using _FirstBidirectionalUnwrappedIterator_     = __unwrapped_iterator_type<_FirstBidirectionalIterator_>;
+    using _SecondBidirectionalUnwrappedIterator_    = __unwrapped_iterator_type<_SecondBidirectionalIterator_>;
 
     using _FirstBidirectionalIteratorValueType_     = type_traits::iterator_value_type<_FirstBidirectionalUnwrappedIterator_>;
 
-    __verifyRange(first, last);
-    memory::_CheckIntersection(first, last, destination);
+    __verify_range(__first, __last);
+    memory::__check_intersection(__first, __last, __destination);
 
-    auto firstUnwrapped             = _UnwrapIterator(first);
-    auto lastUnwrapped              = _UnwrapIterator(last);
+    auto __first_unwrapped          = __unwrap_iterator(__first);
+    auto __last_unwrapped           = __unwrap_iterator(__last);
 
-    auto destinationUnwrapped       = _UnwrapIterator(destination);
+    auto __destination_unwrapped    = __unwrap_iterator(__destination);
 
     if constexpr (
         type_traits::is_iterator_contiguous_v<_FirstBidirectionalUnwrappedIterator_> &&
@@ -36,15 +36,16 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_
     {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
         {
-            return _ReverseCopyVectorized<_FirstBidirectionalIteratorValueType_>(
-                std::to_address(firstUnwrapped), std::to_address(lastUnwrapped), std::to_address(destinationUnwrapped));
+            return __reverse_copy_vectorized<_FirstBidirectionalIteratorValueType_>(
+                std::to_address(__first_unwrapped), std::to_address(__last_unwrapped),
+                std::to_address(__destination_unwrapped));
         }
     }
 
-    for (; firstUnwrapped != lastUnwrapped; ++destinationUnwrapped)
-        *destinationUnwrapped = std::move(*--lastUnwrapped);
+    for (; __first_unwrapped != __last_unwrapped; ++__destination_unwrapped)
+        *__destination_unwrapped = std::move(*--__last_unwrapped);
 }
 
 template <
@@ -53,11 +54,11 @@ template <
     class _SecondBidirectionalIterator_>
 simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline void reverse_copy(
     _ExecutionPolicy_&&,
-    _FirstBidirectionalIterator_    first,
-    _FirstBidirectionalIterator_    last,
-    _SecondBidirectionalIterator_   destination) noexcept
+    _FirstBidirectionalIterator_    __first,
+    _FirstBidirectionalIterator_    __last,
+    _SecondBidirectionalIterator_   __destination) noexcept
 {
-    return simd_stl::algorithm::reverse_copy(first, last, destination);
+    return simd_stl::algorithm::reverse_copy(__first, __last, __destination);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

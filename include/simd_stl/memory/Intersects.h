@@ -12,38 +12,39 @@ template <
 	typename _FirstForwardIterator_,
 	typename _SecondForwardIterator_>
 simd_stl_nodiscard simd_stl_always_inline bool intersects(
-	const _FirstForwardIterator_	firstBegin,
-	const _FirstForwardIterator_	firstEnd,
-	const _SecondForwardIterator_	secondBegin) noexcept
+	const _FirstForwardIterator_	__first_begin,
+	const _FirstForwardIterator_	__first_end,
+	const _SecondForwardIterator_	__second_begin) noexcept
 {
-	const auto firstRangeBeginAddress	= reinterpret_cast<const volatile char*>(std::to_address(firstBegin));
-	const auto secondRangeBeginAddress	= reinterpret_cast<const volatile char*>(std::to_address(secondBegin));
+	const auto __first_range_begin_address	= reinterpret_cast<const volatile char*>(std::to_address(__first_begin));
+	const auto __second_range_begin_address	= reinterpret_cast<const volatile char*>(std::to_address(__second_begin));
 
-	const auto firstRangeEndAddress		= reinterpret_cast<const volatile char*>(std::to_address(firstEnd));
-	const auto secondRangeEndAddress	= reinterpret_cast<const volatile char*>(secondRangeBeginAddress) + algorithm::__byte_length(firstRangeBeginAddress, firstRangeEndAddress);
+	const auto __first_range_end_address		= reinterpret_cast<const volatile char*>(std::to_address(__first_end));
+	const auto __second_range_end_address	= reinterpret_cast<const volatile char*>(__second_range_begin_address) 
+		+ algorithm::__byte_length(__first_range_begin_address, __first_range_end_address);
 
-	return ((firstRangeBeginAddress > secondRangeBeginAddress) && (firstRangeBeginAddress < secondRangeEndAddress)) ||
-		((secondRangeBeginAddress > firstRangeBeginAddress) && (secondRangeBeginAddress < firstRangeEndAddress));
+	return ((__first_range_begin_address > __second_range_begin_address) && (__first_range_begin_address < __second_range_end_address)) ||
+		((__second_range_begin_address > __first_range_begin_address) && (__second_range_begin_address < __first_range_end_address));
 }
 
 template <
 	typename _FirstForwardIterator_,
 	typename _SecondForwardIterator_>
-void _CheckIntersection(
-	const _FirstForwardIterator_	firstBegin,
-	const _FirstForwardIterator_	firstEnd,
-	const _SecondForwardIterator_	secondBegin) noexcept
+void __check_intersection(
+	const _FirstForwardIterator_	__first_begin,
+	const _FirstForwardIterator_	__first_end,
+	const _SecondForwardIterator_	__second_begin) noexcept
 {
 #if !defined(NDEBUG)
-	using _FirstForwardIteratorUnwrappedType_	= algorithm::unwrapped_iterator_type<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_	= algorithm::unwrapped_iterator_type<_SecondForwardIterator_>;
+	using _FirstForwardIteratorUnwrappedType_	= algorithm::__unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= algorithm::__unwrapped_iterator_type<_SecondForwardIterator_>;
 
 	if constexpr (
 		type_traits::is_iterator_contiguous_v<_FirstForwardIteratorUnwrappedType_> &&
 		type_traits::is_iterator_contiguous_v<_SecondForwardIteratorUnwrappedType_>)
 	{
-		DebugAssert(memory::intersects(
-			std::move(firstBegin), std::move(firstEnd), std::move(secondBegin)) == false);
+		simd_stl_debug_assert(memory::intersects(std::move(__first_begin),
+			std::move(__first_end), std::move(__second_begin)) == false);
 	}
 #endif
 }

@@ -13,11 +13,11 @@ template <
 	class _Type_ = type_traits::iterator_value_type<_Iterator_>>
 __simd_nodiscard_inline_constexpr sizetype count(
 	_Iterator_											__first,
-	_Iterator_											_Last,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept
+	_Iterator_											__last,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	__verifyRange(__first, _Last);
-	return _CountUnchecked(_UnwrapIterator(__first), _UnwrapIterator(_Last), _Value);
+	__verify_range(__first, __last);
+	return __count_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last), __value);
 }
 
 template <
@@ -25,13 +25,13 @@ template <
 	class _Predicate_>
 __simd_nodiscard_inline_constexpr type_traits::iterator_difference_type<_InputIterator_> count_if(
 	_InputIterator_	__first,
-	_InputIterator_	_Last,
-	_Predicate_ 	_Predicate) noexcept(
+	_InputIterator_	__last,
+	_Predicate_ 	__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-	__verifyRange(__first, _Last);
-	return _CountIfUnchecked(_UnwrapIterator(__first), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate));
+	__verify_range(__first, __last);
+	return __count_if_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last), type_traits::__pass_function(__predicate));
 }
 
 template <
@@ -42,10 +42,10 @@ template <
 simd_stl_nodiscard sizetype count(
 	_ExecutionPolicy_&&,
 	_Iterator_											__first,
-	_Iterator_											_Last,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept
+	_Iterator_											__last,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	return simd_stl::algorithm::count(__first, _Last, _Value);
+	return simd_stl::algorithm::count(__first, __last, __value);
 }
 
 template <
@@ -56,12 +56,12 @@ template <
 simd_stl_nodiscard type_traits::iterator_difference_type<_InputIterator_> count_if(
 	_ExecutionPolicy_&&,
 	_InputIterator_			__first,
-	const _InputIterator_	_Last,
-	_Predicate_ 			_Predicate) noexcept(
+	const _InputIterator_	__last,
+	_Predicate_ 			__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-	return simd_stl::algorithm::count_if(__first, _Last, type_traits::passFunction(_Predicate));
+	return simd_stl::algorithm::count_if(__first, __last, type_traits::__pass_function(__predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

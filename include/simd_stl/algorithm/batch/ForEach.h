@@ -16,8 +16,9 @@ __simd_inline_constexpr _UnaryFunction_ for_each(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
 			type_traits::iterator_value_type<_InputIterator_>>)
 {
-	__verifyRange(__first, __last);
-	_ForEachUnchecked(_UnwrapIterator(__first), _UnwrapIterator(__last), type_traits::__pass_function(__function));
+	__verify_range(__first, __last);
+	__for_each_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), type_traits::__pass_function(__function));
 
 	return __function;
 }

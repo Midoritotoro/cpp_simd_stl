@@ -18,50 +18,48 @@ template <
 	class _SecondForwardIterator_,
 	class _Predicate_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2,
-	_Predicate_				predicate) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2,
+	_Predicate_				__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
-			type_traits::iterator_value_type<_SecondForwardIterator_>
-		>
-	)
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
 	using _Value_ = type_traits::iterator_value_type<_FirstForwardIterator_>;
 
-	using _FirstForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_FirstForwardIterator_>;
-	using _SecondForwardIteratorUnwrappedType_	= unwrapped_iterator_type<_SecondForwardIterator_>;
+	using _FirstForwardIteratorUnwrappedType_	= __unwrapped_iterator_type<_FirstForwardIterator_>;
+	using _SecondForwardIteratorUnwrappedType_	= __unwrapped_iterator_type<_SecondForwardIterator_>;
 
-	__verifyRange(first1, last1);
-	__verifyRange(first2, last2);
+	__verify_range(__first1, __last1);
+	__verify_range(__first2, __last2);
 
-	auto first1Unwrapped	= _UnwrapIterator(first1);
-	auto first2Unwrapped	= _UnwrapIterator(first2);
+	auto __first1_unwrapped	= __unwrap_iterator(__first1);
+	auto __first2_unwrapped	= __unwrap_iterator(__first2);
 
-	auto last1Unwrapped		= _UnwrapIterator(last1);
-	auto last2Unwrapped		= _UnwrapIterator(last2);
+	auto __last1_unwrapped	= __unwrap_iterator(__last1);
+	auto __last2_unwrapped	= __unwrap_iterator(__last2);
 
 	if constexpr (
 		type_traits::is_iterator_random_ranges_v<_FirstForwardIteratorUnwrappedType_> &&
 		type_traits::is_iterator_random_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	)
 	{
-		const auto firstRangeLength		= __iterators_difference(first1Unwrapped, last1Unwrapped);
-		const auto secondRangeLength	= __iterators_difference(first2Unwrapped, last2Unwrapped);
+		const auto __first_range_length		= __iterators_difference(__first1_unwrapped, __last1_unwrapped);
+		const auto __second_range_length	= __iterators_difference(__first2_unwrapped, __last2_unwrapped);
 
-		if (firstRangeLength < secondRangeLength)
+		if (__first_range_length < __second_range_length)
 			return false;
 
-		if (secondRangeLength == 1)
-			return (predicate(*--last1Unwrapped, *first2Unwrapped));
+		if (__second_range_length == 1)
+			return (__predicate(*--__last1_unwrapped, *__first2_unwrapped));
 
-		first1Unwrapped += (firstRangeLength - secondRangeLength);
+		__first1_unwrapped += (__first_range_length - __second_range_length);
 
-		for (sizetype current = 0; current < secondRangeLength; ++current, ++first1Unwrapped, ++first2Unwrapped)
-			if (predicate(*first1Unwrapped, *first2Unwrapped) == false)
+		for (auto __current = sizetype(0); __current < __second_range_length; ++__current, ++__first1_unwrapped, ++__first2_unwrapped)
+			if (__predicate(*__first1_unwrapped, *__first2_unwrapped) == false)
 				return false;
 		
 		return true;
@@ -71,20 +69,20 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 		type_traits::is_iterator_forward_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	)
 	{
-		const auto secondRangeLength = std::distance(first2Unwrapped, last2Unwrapped);
+		const auto __second_range_length = distance(__first2_unwrapped, __last2_unwrapped);
 
-		if (secondRangeLength == 0)
+		if (__second_range_length == 0)
 			return true;
 
-		const auto firstRangeLength = std::distance(first1Unwrapped, last1Unwrapped);
+		const auto __first_range_length = distance(__first1_unwrapped, __last1_unwrapped);
 
-		if (firstRangeLength < secondRangeLength)
+		if (__first_range_length < __second_range_length)
 			return false;
 
-		std::advance(first1Unwrapped, firstRangeLength - secondRangeLength);
+		std::advance(__first1_unwrapped, __first_range_length - __second_range_length);
 
-		for (; first2Unwrapped != last2Unwrapped; ++first1Unwrapped, ++first2Unwrapped)
-			if (!predicate(*first1Unwrapped, *first2Unwrapped))
+		for (; __first2_unwrapped != __last2_unwrapped; ++__first1_unwrapped, ++__first2_unwrapped)
+			if (!__predicate(*__first1_unwrapped, *__first2_unwrapped))
 				return false;
 
 		return true;
@@ -94,14 +92,14 @@ simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_wit
 		type_traits::is_iterator_bidirectional_ranges_v<_SecondForwardIteratorUnwrappedType_>
 	)
 	{
-		while (last2Unwrapped != first2Unwrapped) {
-			if (last1Unwrapped == first1Unwrapped)
+		while (__last2_unwrapped != __first2_unwrapped) {
+			if (__last1_unwrapped == __first1_unwrapped)
 				return false;
 			
-			--last1Unwrapped;
-			--last2Unwrapped;
+			--__last1_unwrapped;
+			--__last2_unwrapped;
 
-			if (!predicate(*last1Unwrapped, *last2Unwrapped))
+			if (!__predicate(*__last1_unwrapped, *__last2_unwrapped))
 				return false;
 		}
 
@@ -113,18 +111,16 @@ template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
-			type_traits::iterator_value_type<_SecondForwardIterator_>
-		>
-	)
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::ends_with(first1, last1, first2, last2, type_traits::equal_to<>{});
+	return simd_stl::algorithm::ends_with(__first1, __last1, __first2, __last2, type_traits::equal_to<>{});
 }
 
 template <
@@ -135,19 +131,17 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
 	_ExecutionPolicy_&&,
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2,
-	_Predicate_				predicate) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2,
+	_Predicate_				__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
-			type_traits::iterator_value_type<_SecondForwardIterator_>
-		>
-	)
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::ends_with(first1, last1, first2, last2, type_traits::passFunction(predicate));
+	return simd_stl::algorithm::ends_with(__first1, __last1, __first2, __last2, type_traits::__pass_function(__predicate));
 }
 
 template <
@@ -157,18 +151,16 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20 bool ends_with(
 	_ExecutionPolicy_&&,
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2,
-	_SecondForwardIterator_ last2) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
-			type_traits::iterator_value_type<_SecondForwardIterator_>
-		>
-	)
+			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::ends_with(first1, last1, first2, last2);
+	return simd_stl::algorithm::ends_with(__first1, __last1, __first2, __last2);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

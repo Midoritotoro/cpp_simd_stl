@@ -13,52 +13,52 @@ template <
 	class _Iterator_,
 	class _Type_ = type_traits::iterator_value_type<_Iterator_>>
 __simd_nodiscard_inline_constexpr _Iterator_ find(
-	_Iterator_											_First,
-	_Iterator_											_Last,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept
+	_Iterator_											__first,
+	_Iterator_											__last,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	__verifyRange(_First, _Last);
+	__verify_range(__first, __last);
 
-	__seek_possibly_wrapped_iterator(_First, _FindUnchecked(_UnwrapIterator(_First),
-		_UnwrapIterator(_Last), _Value));
+	__seek_possibly_wrapped_iterator(__first, __find_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), __value));
 
-	return _First;
+	return __first;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
 __simd_nodiscard_inline_constexpr _InputIterator_ find_if_not(
-	_InputIterator_	_First, 
-	_InputIterator_	_Last, 
-	_Predicate_		_Predicate) noexcept(
+	_InputIterator_	__first, 
+	_InputIterator_	__last, 
+	_Predicate_		__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-	__verifyRange(_First, _Last);
+	__verify_range(__first, __last);
 
-	__seek_possibly_wrapped_iterator(_First, _FindIfNotUnchecked(_UnwrapIterator(_First),
-		_UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
+	__seek_possibly_wrapped_iterator(__first, __find_if_not_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), type_traits::__pass_function(__predicate)));
 
-	return _First;
+	return __first;
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
 __simd_nodiscard_inline_constexpr _InputIterator_ find_if(
-	_InputIterator_	_First, 
-	_InputIterator_	_Last, 
-	_Predicate_		_Predicate) noexcept(
+	_InputIterator_	__first,
+	_InputIterator_	__last,
+	_Predicate_		__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-	__verifyRange(_First, _Last);
+	__verify_range(__first, __last);
 
-	__seek_possibly_wrapped_iterator(_First, _FindIfUnchecked(_UnwrapIterator(_First), 
-		_UnwrapIterator(_Last), type_traits::passFunction(_Predicate)));
+	__seek_possibly_wrapped_iterator(__first, __find_if_unchecked(__unwrap_iterator(__first),
+		__unwrap_iterator(__last), type_traits::__pass_function(__predicate)));
 
-	return _First;
+	return __first;
 }
 
 template <
@@ -68,8 +68,8 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_nodiscard _Iterator_ find(
 	_ExecutionPolicy_&&,
-	_Iterator_											_First,
-	_Iterator_											_Last,
-	const typename std::type_identity<_Type_>::type&	_Value) noexcept;
+	_Iterator_											__first,
+	_Iterator_											__last,
+	const typename std::type_identity<_Type_>::type&	__value) noexcept;
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

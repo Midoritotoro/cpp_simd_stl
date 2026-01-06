@@ -10,31 +10,31 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _BidirectionalIterator_>
 __simd_inline_constexpr void reverse(
-    _BidirectionalIterator_ first,
-    _BidirectionalIterator_ last) noexcept
+    _BidirectionalIterator_ __first,
+    _BidirectionalIterator_ __last) noexcept
 {
-    __verifyRange(first, last);
+    using _BidirectionalUnwrappedIterator_ = __unwrapped_iterator_type<_BidirectionalIterator_>;
+    using _ValueType = type_traits::iterator_value_type<_BidirectionalUnwrappedIterator_>;
 
-    using _BidirectionalUnwrappedIterator_ = unwrapped_iterator_type<_BidirectionalIterator_>;
+    __verify_range(__first, __last);
 
-    auto firstUnwrapped = _UnwrapIterator(first);
-    auto lastUnwrapped  = _UnwrapIterator(last);
+    auto __first_unwrapped = __unwrap_iterator(__first);
+    auto __last_unwrapped  = __unwrap_iterator(__last);
 
     if constexpr (
         type_traits::is_iterator_contiguous_v<_BidirectionalUnwrappedIterator_> &&
-        type_traits::__is_vector_type_supported_v<type_traits::iterator_value_type<_BidirectionalUnwrappedIterator_>>) 
+        type_traits::__is_vector_type_supported_v<_ValueType>)
     {
 #if simd_stl_has_cxx20
         if (type_traits::is_constant_evaluated() == false)
-#endif
+#endif // simd_stl_has_cxx20
         {
-            return _ReverseVectorized<type_traits::iterator_value_type<_BidirectionalUnwrappedIterator_>>(
-                std::to_address(firstUnwrapped), std::to_address(lastUnwrapped));
+            return __reverse_vectorized<_ValueType>(std::to_address(__first_unwrapped), std::to_address(__last_unwrapped));
         }
     }
 
-    for (; firstUnwrapped != lastUnwrapped && firstUnwrapped != --lastUnwrapped; ++firstUnwrapped)
-        simd_stl::algorithm::iter_swap(firstUnwrapped, lastUnwrapped);
+    for (; __first_unwrapped != __last_unwrapped && __first_unwrapped != --__last_unwrapped; ++__first_unwrapped)
+        simd_stl::algorithm::iter_swap(__first_unwrapped, __last_unwrapped);
 }
 
 template <
@@ -43,10 +43,10 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_inline_constexpr void reverse(
     _ExecutionPolicy_&&,
-    _BidirectionalIterator_ first,
-    _BidirectionalIterator_ last) noexcept
+    _BidirectionalIterator_ __first,
+    _BidirectionalIterator_ __last) noexcept
 {
-    return simd_stl::algorithm::reverse(first, last);
+    return simd_stl::algorithm::reverse(__first, __last);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

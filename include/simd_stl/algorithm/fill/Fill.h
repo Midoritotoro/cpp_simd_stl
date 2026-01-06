@@ -17,24 +17,24 @@ template <
     class _ForwardIterator_,
     class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>>
 __simd_inline_constexpr _ForwardIterator_ fill(
-    _ForwardIterator_                                   first,
-    _ForwardIterator_                                   last,
-    const typename std::type_identity<_Type_>::type&    value) noexcept
+    _ForwardIterator_                                   __first,
+    _ForwardIterator_                                   __last,
+    const typename std::type_identity<_Type_>::type&    __value) noexcept
 {
-    __verifyRange(first, last);
+    __verify_range(__first, __last);
 
-    auto firstUnwrapped         = _UnwrapIterator(first);
-    const auto lastUnwrapped    = _UnwrapIterator(last);
+    auto __first_unwrapped         = __unwrap_iterator(__first);
+    const auto __last_unwrapped    = __unwrap_iterator(__last);
 
-    if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>) {
-        const auto difference = __iterators_difference(firstUnwrapped, lastUnwrapped);
-        _MemsetVectorized<_Type_>(std::to_address(firstUnwrapped), value, difference * sizeof(_Type_));
+    if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>) {
+        const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
+        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __difference * sizeof(_Type_));
     }
     else
-        for (; firstUnwrapped != lastUnwrapped; ++firstUnwrapped)
-            *firstUnwrapped = value;
+        for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)
+            *__first_unwrapped = __value;
 
-    return last;
+    return __last;
 }
 
 template <
@@ -43,11 +43,11 @@ template <
     class _Type_>
 _ForwardIterator_ fill(
     _ExecutionPolicy_&&,
-    _ForwardIterator_   first,
-    _ForwardIterator_   last,
-    const _Type_&       value) noexcept
+    _ForwardIterator_   __first,
+    _ForwardIterator_   __last,
+    const _Type_&       __value) noexcept
 {
-    return simd_stl::algorithm::fill(first, last, value);
+    return simd_stl::algorithm::fill(__first, __last, __value);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

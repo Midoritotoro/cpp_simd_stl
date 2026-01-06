@@ -11,16 +11,18 @@ template <
     class _OutputIterator_,
     class _UnaryPredicate_>
 __simd_nodiscard_inline_constexpr _OutputIterator_ transform(
-    _InputIterator_     _First,
-    _InputIterator_     _Last,
-    _OutputIterator_    _Destination,
-    _UnaryPredicate_    _Predicate) noexcept
+    _InputIterator_     __first,
+    _InputIterator_     __last,
+    _OutputIterator_    __destination,
+    _UnaryPredicate_    __predicate) noexcept
 {
-    __verifyRange(_First, _Last);
-    __seek_possibly_wrapped_iterator(_Destination, _TransformUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last),
-        _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate)));
+    __verify_range(__first, __last);
 
-    return _Destination;
+    __seek_possibly_wrapped_iterator(__destination, 
+        __transform_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last),
+        __unwrap_iterator(__destination), type_traits::__pass_function(__predicate)));
+
+    return __destination;
 }
 
 template <
@@ -29,17 +31,19 @@ template <
     class _OutputIterator_,
     class _UnaryPredicate_>
 __simd_nodiscard_inline_constexpr _OutputIterator_ transform(
-    _FirstInputIterator_    _First1,
-    _FirstInputIterator_    _Last1,
-    _SecondInputIterator_   _First2,
-    _OutputIterator_        _Destination,
-    _UnaryPredicate_        _Predicate) noexcept
+    _FirstInputIterator_    __first1,
+    _FirstInputIterator_    __last1,
+    _SecondInputIterator_   __first2,
+    _OutputIterator_        __destination,
+    _UnaryPredicate_        __predicate) noexcept
 {
-    __verifyRange(_First1, _Last1);
-    __seek_possibly_wrapped_iterator(_Destination, _TransformUnchecked(_UnwrapIterator(_First1), _UnwrapIterator(_Last1),
-        _UnwrapIterator(_First2), _UnwrapIterator(_Destination), type_traits::passFunction(_Predicate)));
+    __verify_range(__first1, __last1);
 
-    return _Destination;
+    __seek_possibly_wrapped_iterator(__destination, 
+        __transform_unchecked(__unwrap_iterator(__first1), __unwrap_iterator(__last1),
+        __unwrap_iterator(__first2), __unwrap_iterator(__destination), type_traits::__pass_function(__predicate)));
+
+    return __destination;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

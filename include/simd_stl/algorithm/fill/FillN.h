@@ -19,20 +19,20 @@ template <
     class _SizeType_,
     class _Type_ = type_traits::iterator_value_type<_ForwardIterator_>>
 __simd_inline_constexpr _ForwardIterator_ fill_n(
-    _ForwardIterator_                                   first,
-    _SizeType_                                          count,
-    const typename std::type_identity<_Type_>::type&    value) noexcept
+    _ForwardIterator_                                   __first,
+    _SizeType_                                          __count,
+    const typename std::type_identity<_Type_>::type&    __value) noexcept
 {
-    auto firstUnwrapped         = _UnwrapIteratorOffset(first, count);
+    auto __first_unwrapped = __unwrap_iterator_offset(__first, __count);
 
-    if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>)
-        _MemsetVectorized<_Type_>(std::to_address(firstUnwrapped), value, count * sizeof(_Type_));
+    if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>)
+        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __count * sizeof(_Type_));
     else
-        for (_SizeType_ current = 0; current < count; ++current, ++firstUnwrapped)
-            *firstUnwrapped = value;
+        for (auto __current = _SizeType_(0); __current < __count; ++__current, ++__first_unwrapped)
+            *__first_unwrapped = __value;
 
-    __seek_possibly_wrapped_iterator(first, first + count);
-    return first;
+    __seek_possibly_wrapped_iterator(__first, __first + __count);
+    return __first;
 }
 
 template <
@@ -42,11 +42,11 @@ template <
     class _Type_>
 __simd_inline_constexpr _ForwardIterator_ fill_n(
     _ExecutionPolicy_&&,
-    _ForwardIterator_   first,
-    _SizeType_          count,
-    const _Type_&       value) noexcept
+    _ForwardIterator_   __first,
+    _SizeType_          __count,
+    const _Type_&       __value) noexcept
 {
-    return simd_stl::algorithm::fill_n(first, count, value);
+    return simd_stl::algorithm::fill_n(__first, __count, __value);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -9,12 +9,12 @@ template <
     class _Predicate_>
 __simd_nodiscard_inline_constexpr bool all_of(
     _InputIterator_ __first,
-    _InputIterator_ _Last,
-    _Predicate_     _Predicate) noexcept(
+    _InputIterator_ __last,
+    _Predicate_     __predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
 		    _Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-    return (simd_stl::algorithm::find_if_not(__first, _Last, type_traits::passFunction(_Predicate)) == _Last);
+    return (simd_stl::algorithm::find_if_not(__first, __last, type_traits::__pass_function(__predicate)) == _Last);
 }
 
 template <
@@ -25,13 +25,12 @@ template <
 simd_stl_nodiscard bool all_of(
     _ExecutionPolicy_&&,
     _InputIterator_ __first,
-    _InputIterator_ _Last,
-    _Predicate_     _Predicate) noexcept(
+    _InputIterator_ __last,
+    _Predicate_     __predicate) noexcept(
         type_traits::is_nothrow_invocable_v<
         _Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
-
 {
-    return simd_stl::algorithm::all_of(__first, _Last, type_traits::passFunction(_Predicate));
+    return simd_stl::algorithm::all_of(__first, __last, type_traits::__pass_function(__predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

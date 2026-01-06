@@ -11,26 +11,26 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
 constexpr void swap(
-	_Type_& first,
-	_Type_& second) noexcept(
+	_Type_& __first,
+	_Type_& __second) noexcept(
 		std::is_nothrow_move_constructible<_Type_>::value &&
 		std::is_nothrow_move_assignable<_Type_>::value
 	)
 {
-	auto temp = first;
+	auto __temp = __first;
 
-	first	= std::move(second);
-	second	= std::move(temp);
+	__first		= std::move(__second);
+	__second	= std::move(__temp);
 }
 
 template <
 	typename _FirstForwardIterator_,
 	typename _SecondForwardIterator_>
 constexpr void iter_swap(
-	_FirstForwardIterator_	first,
-	_SecondForwardIterator_ second) noexcept(noexcept(swap(*first, *second)))
+	_FirstForwardIterator_	__first,
+	_SecondForwardIterator_ __second) noexcept(noexcept(swap(*__first, *__second)))
 {
-	swap(*first, *second);
+	swap(*__first, *__second);
 }
 
 #if defined(simd_stl_cpp_clang) || defined(__EDG__)
@@ -42,12 +42,12 @@ constexpr void iter_swap(
 template <
 	class,
 	class = void>
-struct _Has_adl_swap:
+struct __has_adl_swap:
 	std::false_type
 {};
 
 template <class _Type_>
-struct _Has_adl_swap<_Type_, std::void_t<decltype(swap(
+struct __has_adl_swap<_Type_, std::void_t<decltype(swap(
 	std::declval<_Type_&>(),
 	std::declval<_Type_&>()))>
 >:
@@ -69,24 +69,26 @@ inline constexpr bool is_trivially_swappable_v<std::byte> = true;
 
 
 template <
-	class _Type_,
-	sizetype _Length_> 
+	class		_Type_,
+	sizetype	_Length_> 
 constexpr void swap(
-	_Type_ (&first)[_Length_],
-	_Type_ (&second)[_Length_]) noexcept(noexcept(swap(*first, *second)))
+	_Type_ (&__first)[_Length_],
+	_Type_ (&__second)[_Length_]) noexcept(noexcept(swap(*__first, *__second)))
 {
-	if (&first == &second)
+	if (&__first == &__second)
 		return;
 
 	if constexpr (is_trivially_swappable_v<_Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
-			return _SwapRangesVectorized<_Type_>(first, second, _Length_);
+		{
+			return __swap_ranges_vectorized<_Type_>(__first, __second, _Length_);
+		}
 	}
 	else {
-		for (sizetype current = 0; current < _Length_; ++current)
-			swap(first[current], second[current]);
+		for (auto __current = sizetype(0); __current < _Length_; ++__current)
+			swap(__first[__current], __second[__current]);
 	}
 }
 
@@ -94,40 +96,39 @@ template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_>
 constexpr _FirstForwardIterator_ swap_ranges(
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2) noexcept
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2) noexcept
 {
-	using _FirstForwardIteratorUnwrapped_ = unwrapped_iterator_type<_FirstForwardIterator_>;
-
-	__verifyRange(first1, last1);
-
-	const auto first1Unwrapped	= _UnwrapIterator(first1);
-	const auto last1Unwrapped	= _UnwrapIterator(last1);
-
-	const auto first2Unwrapped	= _UnwrapIterator(first2);
-
 	using _ValueType_ = type_traits::iterator_value_type<_FirstForwardIterator_>;
+	__verify_range(__first1, __last1);
+
+	const auto __first1_unwrapped	= __unwrap_iterator(__first1);
+	const auto __last1_unwrapped	= __unwrap_iterator(__last1);
+
+	const auto __first2_unwrapped	= __unwrap_iterator(__first2);
 
 	if constexpr (is_trivially_swappable_v<_ValueType_>) {
-		const auto difference = __iterators_difference(first1Unwrapped, last1Unwrapped);
+		const auto __difference = __iterators_difference(__first1_unwrapped, __last1_unwrapped);
 
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
-			_SwapRangesVectorized<_ValueType_>(
-				std::to_address(first1Unwrapped), std::to_address(first2Unwrapped), difference);
+		{
+			__swap_ranges_vectorized<_ValueType_>(std::to_address(__first1_unwrapped),
+				std::to_address(__first2_unwrapped), __difference);
+		}
 
-		__seek_possibly_wrapped_iterator(first2, first2 + difference);
+		__seek_possibly_wrapped_iterator(__first2, __first2 + __difference);
 	}
 	else {
-		for (; first1Unwrapped != last1; ++first1Unwrapped, ++first2Unwrapped)
-			swap(*first1Unwrapped, *first2Unwrapped);
+		for (; __first1_unwrapped != __last1_unwrapped; ++__first1_unwrapped, ++__first2_unwrapped)
+			swap(*__first1_unwrapped, *__first2_unwrapped);
 
-		__seek_possibly_wrapped_iterator(first2, first2Unwrapped);
+		__seek_possibly_wrapped_iterator(__first2, __first2_unwrapped);
 	}
 
-	return first2;
+	return __first2;
 }
 
 template <
@@ -136,11 +137,11 @@ template <
 	class _SecondForwardIterator_>
 constexpr _FirstForwardIterator_ swap_ranges(
 	_ExecutionPolicy_&&,
-	_FirstForwardIterator_	first1,
-	_FirstForwardIterator_	last1,
-	_SecondForwardIterator_ first2) noexcept
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2) noexcept
 {
-	return simd_stl::algorithm::swap_ranges(first1, last1, first2);
+	return simd_stl::algorithm::swap_ranges(__first1, __last1, __first2);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

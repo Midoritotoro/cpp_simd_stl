@@ -11,17 +11,16 @@ template <
 	class _SizeType_,
 	class _UnaryFunction_>
 __simd_inline_constexpr _UnaryFunction_ for_each_n(
-	_InputIterator_	_First,
-	_SizeType_		_Count,
-	_UnaryFunction_	_Function) noexcept(
+	_InputIterator_	__first,
+	_SizeType_		__count,
+	_UnaryFunction_	__function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
 			type_traits::iterator_value_type<_InputIterator_>>)
 {
-	__verifyRange(_First, _Last);
+	__verify_range(__first, __last);
+	__for_each_n_unchecked(__unwrap_iterator(__first), __count, type_traits::__pass_function(__function));
 
-	_ForEachNUnchecked(_UnwrapIterator(_First), _Count, type_traits::passFunction(_Function));
-
-	return _Function;
+	return __function;
 }
 
 template <
@@ -32,13 +31,13 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 simd_stl_always_inline void for_each_n(
 	_ExecutionPolicy_&&,
-	_InputIterator_	_First,
-	_SizeType_		_Count,
-	_UnaryFunction_	_Function) noexcept(
+	_InputIterator_	__first,
+	_SizeType_		__count,
+	_UnaryFunction_	__function) noexcept(
 		type_traits::is_nothrow_invocable_v<_UnaryFunction_,
 			type_traits::iterator_value_type<_InputIterator_>>)
 {
-	return simd_stl::algorithm::for_each_n(_First, _Count, type_traits::passFunction(_Function));
+	return simd_stl::algorithm::for_each_n(__first, __count, type_traits::__pass_function(__function));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

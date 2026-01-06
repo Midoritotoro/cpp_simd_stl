@@ -8,42 +8,46 @@ __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
 __simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
-	const _Type_& _Left,
-	const _Type_& _Right) noexcept
+	const _Type_& __left,
+	const _Type_& __right) noexcept
 {
-	return (_Left < _Right) ? std::pair<_Type_, _Type_>{ _Left, _Right } : std::pair<_Type_, _Type_>{ _Right, _Left };
+	return (__left < __right) 
+		? std::pair<_Type_, _Type_>{ __left, __right } 
+		: std::pair<_Type_, _Type_>{ __right, __left };
 }
 
 template <
 	class _Type_,
 	class _Predicate_>
 __simd_nodiscard_inline std::pair<_Type_, _Type_> minmax(
-	const _Type_&	_Left,
-	const _Type_&	_Right,
-	_Predicate_		_Predicate) noexcept
+	const _Type_&	__left,
+	const _Type_&	__right,
+	_Predicate_		__predicate) noexcept
 {
-	return _Predicate(_Right, _Left) ? std::pair<_Type_, _Type_>{ _Right, _Left } : std::pair<_Type_, _Type_>{ _Left, _Right };
+	return __predicate(__right, __left) 
+		? std::pair<_Type_, _Type_>{ __right, __left } 
+		: std::pair<_Type_, _Type_>{ __left, __right };
 }
 
 template <class _InputIterator_>
-__simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
-	_InputIterator_ _First,
-	_InputIterator_ _Last) noexcept
+__simd_nodiscard_inline __minmax_return_type<_InputIterator_> minmax_range(
+	_InputIterator_ __first,
+	_InputIterator_ __last) noexcept
 {
-	Assert(_First != _Last && "minmax_range requires non-empty range");
-	return _MinmaxUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last));
+	simd_stl_assert(__first != __last && "minmax_range requires non-empty range");
+	return __minmax_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last));
 }
 
 template <
 	class _InputIterator_,
 	class _Predicate_>
-__simd_nodiscard_inline _Minmax_return_type<_InputIterator_> minmax_range(
-	_InputIterator_ _First,
-	_InputIterator_ _Last,
-	_Predicate_		_Predicate) noexcept
+__simd_nodiscard_inline __minmax_return_type<_InputIterator_> minmax_range(
+	_InputIterator_ __first,
+	_InputIterator_ __last,
+	_Predicate_		__predicate) noexcept
 {
-	Assert(_First != _Last && "minmax_range requires non-empty range");
-	return _MinmaxUnchecked(_UnwrapIterator(_First), _UnwrapIterator(_Last), type_traits::passFunction(_Predicate));
+	simd_stl_assert(__first != __last && "minmax_range requires non-empty range");
+	return __minmax_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last), type_traits::__pass_function(__predicate));
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

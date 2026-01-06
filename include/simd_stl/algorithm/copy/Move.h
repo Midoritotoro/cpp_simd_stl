@@ -10,16 +10,16 @@ template <
     class _InputIterator_,
     class _OutputIterator_>
 __simd_inline_constexpr _OutputIterator_ move(
-    _InputIterator_     _First,
-    _InputIterator_     _Last,
-    _OutputIterator_    _Destination) noexcept
+    _InputIterator_     __first,
+    _InputIterator_     __last,
+    _OutputIterator_    __destination) noexcept
 {
-    __verifyRange(_First, _Last);
+    __verify_range(__first, __last);
 
-    __seek_possibly_wrapped_iterator(_Destination, _MoveUnchecked(_UnwrapIterator(_First),
-        _UnwrapIterator(_Last), _UnwrapUnverifiedIterator(_Destination)));
+    __seek_possibly_wrapped_iterator(__destination, __move_unchecked(__unwrap_iterator(__first),
+        __unwrap_iterator(__last), __unwrap_unverified_iterator(__destination)));
 
-    return _Destination;
+    return __destination;
 }
 
 template <
@@ -29,11 +29,11 @@ template <
     concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 _OutputIterator_ move(
     _ExecutionPolicy_&&,
-    _InputIterator_     _First,
-    _InputIterator_     _Last,
-    _OutputIterator_    _Destination) noexcept
+    _InputIterator_     __first,
+    _InputIterator_     __last,
+    _OutputIterator_    __destination) noexcept
 {
-    return simd_stl::algorithm::move(_First, _Last, _Destination);
+    return simd_stl::algorithm::move(__first, __last, __destination);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
