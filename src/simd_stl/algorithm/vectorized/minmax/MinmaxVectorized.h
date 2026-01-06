@@ -30,7 +30,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_
     const void* _First,
     const void* _Last) noexcept
 {
-    numeric::zero_upper_at_exit_guard<_Simd_::_Generation> _Guard;
+    numeric::zero_upper_at_exit_guard<_Simd_::__generation> _Guard;
 
     constexpr auto _Is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
         _Simd_::template is_native_mask_load_supported_v<>;

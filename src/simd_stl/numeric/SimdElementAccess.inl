@@ -33,7 +33,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE2, xmm128
                 __intrin_bitcast<__m128i>(__vector), __vector_value));
     }
     else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>) {
-        switch (_Position) {
+        switch (__position) {
         case 0:
             __vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi16(__intrin_bitcast<__m128i>(__vector), __value, 0));
             break;
@@ -123,7 +123,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
         }
     }
     else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>) {
-        switch (_Where) {
+        switch (__where) {
             case 0:
                 return static_cast<_DesiredType_>(_mm_extract_epi16(__intrin_bitcast<__m128i>(__vector), 0));
             case 1:
@@ -163,7 +163,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE41, xmm12
     if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
         auto __qword_value = memory::pointer_to_integral(__value);
 
-        switch (_Position) {
+        switch (__position) {
             case 0:
                 __vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi64(__intrin_bitcast<__m128i>(__vector), __qword_value, 0));
                 break;
@@ -173,9 +173,9 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE41, xmm12
         }
     }
     else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_>) {
-        auto __dword_value = memory::pointerToIntegral(__value);
+        auto __dword_value = memory::pointer_to_integral(__value);
 
-        switch (_Position) {
+        switch (__position) {
             case 0:
                 __vector = __intrin_bitcast<_VectorType_>(_mm_insert_epi32(__intrin_bitcast<__m128i>(__vector), __dword_value, 0));
                 break;
@@ -311,28 +311,28 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX, ymm256>
 
         switch (__position) {
             case 0:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 1);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 1);
                 break;
             case 1:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 2);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 2);
                 break;
             case 2:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 4);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 4);
                 break;
             case 3:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 8);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 8);
                 break;
             case 4:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 0x10);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 0x10);
                 break;
             case 5:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 0x20);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 0x20);
                 break;
             case 6:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 0x40);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 0x40);
                 break;
             default:
-                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), _Broadcasted, 0x80);
+                __vector = _mm256_blend_ps(__intrin_bitcast<__m256>(__vector), __broadcasted, 0x80);
                 break;
         }
     }
@@ -460,13 +460,13 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX512F, zmm
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi64(
             __intrin_bitcast<__m512i>(__vector),
             static_cast<uint8>(1u << __position), 
-            memory::pointerToIntegral(__value)));
+            memory::pointer_to_integral(__value)));
     }
     else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi32(
             __intrin_bitcast<__m512i>(__vector),
             static_cast<uint16>(1u << __position),
-            memory::pointerToIntegral(__value)));
+            memory::pointer_to_integral(__value)));
     }
     else if constexpr (__is_ps_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_broadcastss_ps(

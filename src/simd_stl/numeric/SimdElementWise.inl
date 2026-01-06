@@ -35,7 +35,7 @@ template <
 simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSE2, xmm128>::__reverse(_VectorType_ __vector) noexcept {
     if constexpr (sizeof(_DesiredType_) == 8) {
         return __intrin_bitcast<_VectorType_>(_mm_shuffle_pd(
-            __intrin_bitcast<__m128d>(_Vector), __intrin_bitcast<__m128d>(__vector), 1));
+            __intrin_bitcast<__m128d>(__vector), __intrin_bitcast<__m128d>(__vector), 1));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         return __intrin_bitcast<_VectorType_>(_mm_shuffle_epi32(__intrin_bitcast<__m128i>(__vector), 0x1B));

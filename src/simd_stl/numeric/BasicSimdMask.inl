@@ -14,7 +14,7 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_type __mask) noexcept :
-	_mask(mask)
+	_mask(__mask)
 {}
 
 template <
@@ -266,7 +266,7 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator bool() const noexcept {
-	return anyOf();
+	return any_of();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

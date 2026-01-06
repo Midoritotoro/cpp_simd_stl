@@ -15,28 +15,28 @@ template <typename It1, typename It2>
 void check_starts_with(It1 f1, It1 l1, It2 f2, It2 l2) {
     bool std_res = std::ranges::starts_with(f1, l1, f2, l2);
     bool simd_res = simd_stl::algorithm::starts_with(f1, l1, f2, l2, [](auto&& a, auto&& b) { return a == b; });
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_starts_with(It1 f1, It1 l1, It2 f2, It2 l2, Pred pred) {
     bool std_res = std::ranges::starts_with(f1, l1, f2, l2, pred);
     bool simd_res = simd_stl::algorithm::starts_with(f1, l1, f2, l2, pred);
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2>
 void check_ends_with(It1 f1, It1 l1, It2 f2, It2 l2) {
     bool std_res = std::ranges::ends_with(f1, l1, f2, l2);
     bool simd_res = simd_stl::algorithm::ends_with(f1, l1, f2, l2, [](auto&& a, auto&& b) { return a == b; });
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_ends_with(It1 f1, It1 l1, It2 f2, It2 l2, Pred pred) {
     bool std_res = std::ranges::ends_with(f1, l1, f2, l2, pred);
     bool simd_res = simd_stl::algorithm::ends_with(f1, l1, f2, l2, pred);
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 int main() {

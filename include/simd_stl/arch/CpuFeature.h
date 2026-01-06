@@ -54,12 +54,12 @@ struct __contains {
 #define __zmm_features arch::CpuFeature::AVX512F, arch::CpuFeature::AVX512BW, arch::CpuFeature::AVX512DQ, arch::CpuFeature::AVX512VLDQ, arch::CpuFeature::AVX512VLBW, arch::CpuFeature::AVX512VLF, arch::CpuFeature::AVX512VLBWDQ
 
 template <arch::CpuFeature _SimdGeneration_> 
-constexpr inline bool __is_xmm_v = Contains<_SimdGeneration_, __xmm_features>::value;
+constexpr inline bool __is_xmm_v = __contains<_SimdGeneration_, __xmm_features>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_ymm_v = Contains<_SimdGeneration_, __ymm_features>::value;
+constexpr inline bool __is_ymm_v = __contains<_SimdGeneration_, __ymm_features>::value;
 
 template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __is_zmm_v = Contains<_SimdGeneration_, __zmm_features>::value;
+constexpr inline bool __is_zmm_v = __contains<_SimdGeneration_, __zmm_features>::value;
 
 __SIMD_STL_ARCH_NAMESPACE_END

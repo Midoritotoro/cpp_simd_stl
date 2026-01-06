@@ -23,7 +23,7 @@ void test_reverse_copy_container(const InContainer& in) {
     simd_stl::algorithm::reverse_copy(in.begin(), in.end(), out_simd.begin());
     std::reverse_copy(in.begin(), in.end(), out_ref.begin());
 
-    assert(std::equal(out_simd.begin(), out_simd.end(), out_ref.begin()));
+    simd_stl_assert(std::equal(out_simd.begin(), out_simd.end(), out_ref.begin()));
 }
 
 template <typename T>

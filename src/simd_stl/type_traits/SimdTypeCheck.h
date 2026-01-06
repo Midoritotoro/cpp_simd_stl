@@ -13,7 +13,7 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
 template <arch::CpuFeature _SimdGeneration_>
 constexpr inline bool __is_generation_supported_v =
-    arch::Contains<_SimdGeneration_, __ymm_features, __xmm_features, __zmm_features>::value;
+    arch::__contains<_SimdGeneration_, __ymm_features, __xmm_features, __zmm_features>::value;
 
 template <typename _VectorElementType_>
 constexpr inline bool __is_pointer_decay_v = std::is_pointer_v<std::decay_t<_VectorElementType_>>;
@@ -39,7 +39,7 @@ private:
     static constexpr bool __is_fp32 = std::is_same_v<_Type_, float>;
     static constexpr bool __is_int  = is_nonbool_integral_v<_Type_> || (std::is_same_v<_Type_, std::nullptr_t> && sizeof(std::nullptr_t) == 4);
     static constexpr bool __is_ptr  = __is_pointer_decay_v<_VectorElementType_>;
-    static constexpr bool __use_i   = is_int || is_ptr;
+    static constexpr bool __use_i   = __is_int || __is_ptr;
 
 public:
     using type =

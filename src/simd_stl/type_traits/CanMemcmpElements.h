@@ -72,7 +72,7 @@ template <
 constexpr bool __equal_memcmp_is_safe_helper = 
 	is_iterator_contiguous_v<_FirstIterator_> && is_iterator_contiguous_v<_SecondIterator_>
 	&& !is_iterator_volatile_v<_FirstIterator_> && !is_iterator_volatile_v<_SecondIterator_>
-	&& can_memcmp_elements_with_pred_v<
+	&& __can_memcmp_elements_with_pred_v<
 		iterator_value_type<_FirstIterator_>,
 		iterator_value_type<_SecondIterator_>, _Function_>;
 
@@ -92,7 +92,7 @@ template <
 	class _FirstIterator_,
 	class _SecondIterator_,
 	class _Function_>
-constexpr bool __is_vectorized_search_algorithm_safe_v = equal_memcmp_is_safe_v<_FirstIterator_, _SecondIterator_, _Function_>;
+constexpr bool __is_vectorized_search_algorithm_safe_v = __equal_memcmp_is_safe_v<_FirstIterator_, _SecondIterator_, _Function_>;
 
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

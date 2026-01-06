@@ -65,7 +65,7 @@ struct __insert_mask {
 template <
     class _VectorType_,
     class _DesiredType_>
-constexpr auto _MakeSimdInsertMask() noexcept { 
+constexpr auto __simd_make_insert_mask() noexcept { 
     constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
     auto __mask = __insert_mask<_VectorType_, _DesiredType_>();
 

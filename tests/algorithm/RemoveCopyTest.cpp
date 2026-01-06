@@ -48,8 +48,8 @@ void test_remove_copy_large() {
     auto out_it = simd_stl::algorithm::remove_copy(in.begin(), in.end(), out_simd.begin(), value_to_remove);
     size_t simd_written = std::distance(out_simd.begin(), out_it);
     size_t ref_written = ref_remove_copy(in, out_ref, value_to_remove);
-    assert(simd_written == ref_written);
-    assert(std::equal(out_simd.begin(), out_simd.begin() + simd_written, out_ref.begin()));
+    simd_stl_assert(simd_written == ref_written);
+    simd_stl_assert(std::equal(out_simd.begin(), out_simd.begin() + simd_written, out_ref.begin()));
 }
 
 template <typename T>
@@ -70,8 +70,8 @@ void test_remove_copy_if_large() {
     auto out_it = simd_stl::algorithm::remove_copy_if(in.begin(), in.end(), out_simd.begin(), pred);
     size_t simd_written = std::distance(out_simd.begin(), out_it);
     size_t ref_written = ref_remove_copy_if<T>(in, out_ref, pred);
-    assert(simd_written == ref_written);
-    assert(std::equal(out_simd.begin(), out_simd.begin() + simd_written, out_ref.begin()));
+    simd_stl_assert(simd_written == ref_written);
+    simd_stl_assert(std::equal(out_simd.begin(), out_simd.begin() + simd_written, out_ref.begin()));
 }
 
 template <typename T>
@@ -90,10 +90,10 @@ void test_alignment_variants_remove_copy() {
     size_t wU = static_cast<size_t>(itU - out_unaligned_ptr);
     std::vector<T> ref(N, T{});
     size_t wR = ref_remove_copy(in, ref, value_to_remove);
-    assert(wA == wR);
-    assert(wU == wR);
-    assert(std::equal(out_aligned.begin(), out_aligned.begin() + wA, ref.begin()));
-    assert(std::equal(out_unaligned_ptr, out_unaligned_ptr + wU, ref.begin()));
+    simd_stl_assert(wA == wR);
+    simd_stl_assert(wU == wR);
+    simd_stl_assert(std::equal(out_aligned.begin(), out_aligned.begin() + wA, ref.begin()));
+    simd_stl_assert(std::equal(out_unaligned_ptr, out_unaligned_ptr + wU, ref.begin()));
 }
 
 template <typename T>
@@ -118,10 +118,10 @@ void test_alignment_variants_remove_copy_if() {
     size_t wU = static_cast<size_t>(itU - out_unaligned_ptr);
     std::vector<T> ref(N, T{});
     size_t wR = ref_remove_copy_if(in, ref, pred);
-    assert(wA == wR);
-    assert(wU == wR);
-    assert(std::equal(out_aligned.begin(), out_aligned.begin() + wA, ref.begin()));
-    assert(std::equal(out_unaligned_ptr, out_unaligned_ptr + wU, ref.begin()));
+    simd_stl_assert(wA == wR);
+    simd_stl_assert(wU == wR);
+    simd_stl_assert(std::equal(out_aligned.begin(), out_aligned.begin() + wA, ref.begin()));
+    simd_stl_assert(std::equal(out_unaligned_ptr, out_unaligned_ptr + wU, ref.begin()));
 }
 
 int main() {

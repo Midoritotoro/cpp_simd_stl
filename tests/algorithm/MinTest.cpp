@@ -14,7 +14,7 @@ template <class It>
 typename std::iterator_traits<It>::value_type
 ref_min_range(It first, It last) {
     using V = typename std::iterator_traits<It>::value_type;
-    assert(first != last && "ref_min_range requires non-empty range");
+    simd_stl_assert(first != last && "ref_min_range requires non-empty range");
     V best = *first;
     for (++first; first != last; ++first)
         if (*first < best) best = *first;
@@ -38,7 +38,7 @@ void test_container(std::size_t bytes) {
     if (c.empty()) return;
     auto got = min_range<typename Cont::iterator, T>(c.begin(), c.end());
     auto ref = ref_min_range(c.begin(), c.end());
-    assert(got == ref);
+    simd_stl_assert(got == ref);
 }
 
 template <class T>
@@ -46,10 +46,10 @@ void run_tests_for_type() {
     using simd_stl::algorithm::min;
     using simd_stl::algorithm::min_range;
 
-    assert(min<T>(1, 2) == ref_min_scalar<T>(1, 2));
-    assert(min<T>(2, 1) == ref_min_scalar<T>(2, 1));
-    assert(min<T>(0, 0) == ref_min_scalar<T>(0, 0));
-    assert(min<T>(std::numeric_limits<T>::min(),
+    simd_stl_assert(min<T>(1, 2) == ref_min_scalar<T>(1, 2));
+    simd_stl_assert(min<T>(2, 1) == ref_min_scalar<T>(2, 1));
+    simd_stl_assert(min<T>(0, 0) == ref_min_scalar<T>(0, 0));
+    simd_stl_assert(min<T>(std::numeric_limits<T>::min(),
         std::numeric_limits<T>::max())
         == ref_min_scalar<T>(std::numeric_limits<T>::min(),
             std::numeric_limits<T>::max()));

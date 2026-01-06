@@ -13,7 +13,7 @@ template <
     typename _BasicSimd_, 
     typename _ImposedElementType_ = typename _BasicSimd_::value_type>
 class simd_element_reference {
-    static_assert(_Is_valid_basic_simd_v<_BasicSimd_>);
+    static_assert(__is_valid_basic_simd_v<_BasicSimd_>);
 public: 
     using parent_type   = _BasicSimd_;
     using vector_type   = typename _BasicSimd_::vector_type;

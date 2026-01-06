@@ -69,8 +69,8 @@ template <
     class               _VectorType_>
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
-template <class _VectorType_, std::enable_if_t<__is_valid_basic_simd_v<_VectorType_> || __is_intrin_type_v<_VectorType_>, int>>
-simd_stl_nodiscard simd_stl_always_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_VectorType_ __vector) noexcept {
+template <class _VectorType_>
+__simd_nodiscard_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_VectorType_ __vector) noexcept {
     if constexpr (__is_valid_basic_simd_v<_VectorType_>)
         return __vector.unwrap();
     else
@@ -88,9 +88,10 @@ __simd_nodiscard_inline auto __simd_unwrap_mask(_MaskType_ __mask) noexcept {
 template <
     class _ToType_,
     class _FromType_,
-    std::enable_if_t<(__is_valid_basic_simd_v<_ToType_> || type_traits::__is_vector_type_supported_v<_ToType_> 
-        || __is_intrin_type_v<_ToType_>) && (__is_valid_basic_simd_v<_FromType_> || __is_intrin_type_v<_FromType_>), int>>
-simd_stl_nodiscard simd_stl_always_inline __rebind_vector_element_type<_ToType_, _FromType_> simd_cast(_FromType_ __from) noexcept {
+    std::enable_if_t<(__is_valid_basic_simd_v<_ToType_> || __is_intrin_type_v<_ToType_> ||
+        type_traits::__is_vector_type_supported_v<_ToType_>) &&
+    (__is_valid_basic_simd_v<_FromType_> || __is_intrin_type_v<_FromType_>), int>>
+__simd_nodiscard_inline __rebind_vector_element_type<_ToType_, _FromType_> simd_cast(_FromType_ __from) noexcept {
     return __intrin_bitcast<__unwrapped_vector_type<__rebind_vector_element_type<_ToType_, _FromType_>>>(__simd_unwrap(__from));
 }
 
@@ -98,7 +99,7 @@ template <
     arch::CpuFeature	_ToSimdGeneration_,
     class               _FromVector_,
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int>>
-simd_stl_nodiscard simd_stl_always_inline __rebind_vector_generation_type<_ToSimdGeneration_,
+__simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
     __vector_element_type<_FromVector_>, _FromVector_> simd_cast(_FromVector_ __from) noexcept
 {
     return __intrin_bitcast<__unwrapped_vector_type<__rebind_vector_generation_type<_ToSimdGeneration_,
@@ -109,9 +110,9 @@ template <
     arch::CpuFeature	_ToSimdGeneration_,
     class               _ToElementType_,
     class               _FromVector_,
-    std::enable_if_t<__is_valid_basic_simd_v<_FromVector_>|| __is_intrin_type_v<_FromVector_>, int>>
-simd_stl_nodiscard simd_stl_always_inline __rebind_vector_generation_type<_ToSimdGeneration_,
-    _ToElementType_, _FromVector_> simd_cast(_FromVector_ __from) noexcept
+    std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int>>
+__simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
+    _ToElementType_, _FromVector_> simd_cast(_FromVector_ __from) noexcept 
 {
     return __intrin_bitcast<__unwrapped_vector_type<__rebind_vector_generation_type<_ToSimdGeneration_,
         _ToElementType_, _FromVector_>>>(__simd_unwrap(__from));
@@ -122,10 +123,10 @@ template <
     class               _RegisterPolicy_,
     class               _Type_,
     class               _MaskType_>
-simd_stl_always_inline _Make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, 
+__simd_nodiscard_inline __make_tail_mask_return_type<simd<_SimdGeneration_, _Type_,
     _RegisterPolicy_>> __simd_convert_to_mask_for_native_store(_MaskType_ __mask) noexcept
 {
-    using _ConvertTo = _Make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
+    using _ConvertTo = __make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
 
     constexpr auto __from_simd      = __is_valid_basic_simd_v<_MaskType_>;
     constexpr auto __to_simd        = __is_valid_basic_simd_v<_ConvertTo>;

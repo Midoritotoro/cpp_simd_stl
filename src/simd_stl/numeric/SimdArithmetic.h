@@ -140,15 +140,15 @@ public:
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>:
-    public simd_arithmetic<arch::CpuFeature::SSE2, xmm128>
+    public __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>
 {};
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>:
-    public simd_arithmetic<arch::CpuFeature::SSE3, xmm128>
+    public __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSSE3;
-    using _RegisterPolicy               = numeric::xmm128;
+    static constexpr auto __generation   = arch::CpuFeature::SSSE3;
+    using __register_policy               = numeric::xmm128;
 public:
     template <
         typename _DesiredType_,
@@ -176,7 +176,7 @@ template <
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>:
-    public simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>
+    public __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>
 {
     static constexpr auto __generation  = arch::CpuFeature::SSE41;
     using __register_policy             = numeric::xmm128;

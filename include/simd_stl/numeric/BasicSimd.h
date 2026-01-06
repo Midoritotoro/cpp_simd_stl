@@ -54,11 +54,11 @@ public:
     using reference_type = __reference_type<value_type>;
 
     template <typename _DesiredType_ = value_type>
-    static constexpr inline bool is_native_mask_load_supported_v = _Is_native_mask_load_supported_v<
+    static constexpr inline bool is_native_mask_load_supported_v = __is_native_mask_load_supported_v<
         __generation, policy_type, _DesiredType_>;
 
     template <typename _DesiredType_ = value_type>
-    static constexpr inline bool is_native_mask_store_supported_v = _Is_native_mask_store_supported_v<
+    static constexpr inline bool is_native_mask_store_supported_v = __is_native_mask_store_supported_v<
         __generation, policy_type, _DesiredType_>;
 
     simd() noexcept;
@@ -202,7 +202,7 @@ public:
     simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_mask() const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline _Reduce_type<_DesiredType_> reduce_add() const noexcept;
+    simd_stl_always_inline __reduce_type<_DesiredType_> reduce_add() const noexcept;
 
     simd_stl_always_inline static void streaming_fence() noexcept;
 
@@ -246,7 +246,7 @@ public:
 
     simd_stl_always_inline vector_type unwrap() const noexcept;
 
-    static simd_stl_always_inline _Make_tail_mask_return_type<simd> make_tail_mask(uint32 __bytes) noexcept;
+    static simd_stl_always_inline __make_tail_mask_return_type<simd> make_tail_mask(uint32 __bytes) noexcept;
 private:
     vector_type _vector;
 };

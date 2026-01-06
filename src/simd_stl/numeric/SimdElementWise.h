@@ -38,11 +38,11 @@ simd_stl_always_inline _VectorType_ __simd_blend(
 
 template <>
 class __simd_element_wise<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE2;
+    static constexpr auto __generation   = arch::CpuFeature::SSE2;
     using __register_policy               = xmm128;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, _RegisterPolicy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,
@@ -87,11 +87,11 @@ template <>
 class __simd_element_wise<arch::CpuFeature::SSE41, xmm128> :
     public __simd_element_wise<arch::CpuFeature::SSSE3, xmm128>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::SSE41;
+    static constexpr auto __generation   = arch::CpuFeature::SSE41;
     using __register_policy = xmm128;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, __register_policy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,
@@ -122,11 +122,11 @@ class __simd_element_wise<arch::CpuFeature::SSE42, xmm128> :
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX;
+    static constexpr auto __generation   = arch::CpuFeature::AVX;
     using __register_policy = ymm256;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, __register_policy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,
@@ -154,11 +154,11 @@ template <>
 class __simd_element_wise<arch::CpuFeature::AVX2, ymm256>:
     public __simd_element_wise<arch::CpuFeature::AVX, ymm256>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX2;
+    static constexpr auto __generation   = arch::CpuFeature::AVX2;
     using __register_policy = ymm256;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, __register_policy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,
@@ -188,11 +188,11 @@ public:
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX512F, zmm512>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX512F;
+    static constexpr auto __generation   = arch::CpuFeature::AVX512F;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, __register_policy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,
@@ -219,11 +219,11 @@ template <>
 class __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>:
     public __simd_element_wise<arch::CpuFeature::AVX512F, zmm512>
 {
-    static constexpr auto _Generation   = arch::CpuFeature::AVX512BW;
+    static constexpr auto __generation   = arch::CpuFeature::AVX512BW;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<_Generation, _DesiredType_, __register_policy>;
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
         typename    _DesiredType_,

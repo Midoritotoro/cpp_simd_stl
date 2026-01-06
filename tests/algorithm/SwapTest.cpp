@@ -16,40 +16,40 @@ int main() {
     {
         int a = 1, b = 2;
         simd_stl::algorithm::swap(a, b);
-        Assert(a == 2 && b == 1);
+        simd_stl_assert(a == 2 && b == 1);
     }
 
     {
         double a = 3.14, b = 2.71;
         simd_stl::algorithm::swap(a, b);
-        Assert(a == 2.71 && b == 3.14);
+        simd_stl_assert(a == 2.71 && b == 3.14);
     }
 
     {
         Custom c1(10), c2(20);
         simd_stl::algorithm::swap(c1, c2);
-        Assert(c1.x == 20 && c2.x == 10);
+        simd_stl_assert(c1.x == 20 && c2.x == 10);
     }
 
     {
         int arr1[3] = { 1,2,3 };
         int arr2[3] = { 4,5,6 };
         simd_stl::algorithm::swap(arr1, arr2);
-        Assert((arr1[0] == 4 && arr1[1] == 5 && arr1[2] == 6));
-        Assert((arr2[0] == 1 && arr2[1] == 2 && arr2[2] == 3));
+        simd_stl_assert((arr1[0] == 4 && arr1[1] == 5 && arr1[2] == 6));
+        simd_stl_assert((arr2[0] == 1 && arr2[1] == 2 && arr2[2] == 3));
     }
 
     {
         int arr1[1] = { 42 };
         int arr2[1] = { 99 };
         simd_stl::algorithm::swap(arr1, arr2);
-        Assert(arr1[0] == 99 && arr2[0] == 42);
+        simd_stl_assert(arr1[0] == 99 && arr2[0] == 42);
     }
 
     {
         int a = 123;
         simd_stl::algorithm::swap(a, a);
-        Assert(a == 123);
+        simd_stl_assert(a == 123);
     }
 
     {
@@ -62,8 +62,8 @@ int main() {
 
         simd_stl::algorithm::swap(v1, v2);
 
-        Assert(std::all_of(v1, v1 + N, [](int x) { return x == 2; }));
-        Assert(std::all_of(v2, v2 + N, [](int x) { return x == 1; }));
+        simd_stl_assert(std::all_of(v1, v1 + N, [](int x) { return x == 2; }));
+        simd_stl_assert(std::all_of(v2, v2 + N, [](int x) { return x == 1; }));
     }
 
     {
@@ -77,8 +77,8 @@ int main() {
         std::swap(b1, b2);
 
         for (int i = 0; i < 5; ++i) {
-            Assert(a1[i] == b1[i]);
-            Assert(a2[i] == b2[i]);
+            simd_stl_assert(a1[i] == b1[i]);
+            simd_stl_assert(a2[i] == b2[i]);
         }
     }
 
@@ -89,8 +89,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
 
-        Assert((a == std::vector<int>{4, 5, 6}));
-        Assert((b == std::vector<int>{1, 2, 3}));
+        simd_stl_assert((a == std::vector<int>{4, 5, 6}));
+        simd_stl_assert((b == std::vector<int>{1, 2, 3}));
     }
 
     {
@@ -100,8 +100,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
 
-        Assert(a[0].x == 9 && a[1].x == 8);
-        Assert(b[0].x == 1 && b[1].x == 2);
+        simd_stl_assert(a[0].x == 9 && a[1].x == 8);
+        simd_stl_assert(b[0].x == 1 && b[1].x == 2);
     }
 
     {
@@ -111,8 +111,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a.begin() + 1, a.begin() + 3, b.begin() + 1);
 
-        Assert((a == std::vector<int>{1, 8, 7, 4}));
-        Assert((b == std::vector<int>{9, 2, 3, 6}));
+        simd_stl_assert((a == std::vector<int>{1, 8, 7, 4}));
+        simd_stl_assert((b == std::vector<int>{9, 2, 3, 6}));
     }
 
     {
@@ -122,8 +122,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a, a + 3, b);
 
-        Assert((a[0] == 1 && a[1] == 2 && a[2] == 3));
-        Assert((b[0] == 10 && b[1] == 20 && b[2] == 30));
+        simd_stl_assert((a[0] == 1 && a[1] == 2 && a[2] == 3));
+        simd_stl_assert((b[0] == 10 && b[1] == 20 && b[2] == 30));
     }
 
     {
@@ -133,8 +133,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a.begin(), a.begin(), b.begin()); // ничего не меняется
 
-        Assert((a == std::vector<int>{1, 2, 3}));
-        Assert((b == std::vector<int>{4, 5, 6}));
+        simd_stl_assert((a == std::vector<int>{1, 2, 3}));
+        simd_stl_assert((b == std::vector<int>{4, 5, 6}));
     }
 
     {
@@ -143,7 +143,7 @@ int main() {
         std::vector<int> b = { 4,5,6 };
 
         auto it = simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
-        Assert(it == b.end());
+        simd_stl_assert(it == b.end());
     }
 
     {
@@ -157,8 +157,8 @@ int main() {
         simd_stl::algorithm::swap_ranges(a1.begin(), a1.end(), b1.begin());
         std::swap_ranges(a2.begin(), a2.end(), b2.begin());
 
-        Assert(a1 == a2);
-        Assert(b1 == b2);
+        simd_stl_assert(a1 == a2);
+        simd_stl_assert(b1 == b2);
     }
 
     {
@@ -169,8 +169,8 @@ int main() {
 
         simd_stl::algorithm::swap_ranges(a.begin(), a.end(), b.begin());
 
-        Assert(std::all_of(a.begin(), a.end(), [](int x) { return x == 2; }));
-        Assert(std::all_of(b.begin(), b.end(), [](int x) { return x == 1; }));
+        simd_stl_assert(std::all_of(a.begin(), a.end(), [](int x) { return x == 2; }));
+        simd_stl_assert(std::all_of(b.begin(), b.end(), [](int x) { return x == 1; }));
     }
 
     return 0;

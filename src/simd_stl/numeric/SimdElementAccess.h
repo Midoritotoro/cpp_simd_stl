@@ -212,7 +212,7 @@ simd_stl_always_inline void __simd_insert(
     const _DesiredType_ __value) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __insert(__vector, __position, _Value);
+    __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __insert(__vector, __position, __value);
 }
 
 template <

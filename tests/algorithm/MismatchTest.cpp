@@ -1,4 +1,4 @@
-#include <cAssert>
+#include <cassert>
 #include <cctype>
 #include <iostream>
 
@@ -9,8 +9,8 @@
 
 template <typename It1, typename It2>
 void check_equal(It1 simd_first, It1 std_first, It2 simd_second, It2 std_second) {
-    Assert(simd_first == std_first);
-    Assert(simd_second == std_second);
+    simd_stl_assert(simd_first == std_first);
+    simd_stl_assert(simd_second == std_second);
 }
 
 int main() {
@@ -29,8 +29,8 @@ int main() {
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);
-        Assert(*simd.first == 1);
-        Assert(*simd.second == 9);
+        simd_stl_assert(*simd.first == 1);
+        simd_stl_assert(*simd.second == 9);
     }
 
     {
@@ -40,8 +40,8 @@ int main() {
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);
-        Assert(*simd.first == 1);
-        Assert(*simd.second == 7);
+        simd_stl_assert(*simd.first == 1);
+        simd_stl_assert(*simd.second == 7);
     }
 
     {
@@ -51,8 +51,8 @@ int main() {
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);
-        Assert(*simd.first == 1);
-        Assert(*simd.second == 0);
+        simd_stl_assert(*simd.first == 1);
+        simd_stl_assert(*simd.second == 0);
     }
 
     {
@@ -61,8 +61,8 @@ int main() {
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin(), b.end());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin(), b.end());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);
-        Assert(simd.first == a.begin() + 32);
-        Assert(simd.second == b.end());
+        simd_stl_assert(simd.first == a.begin() + 32);
+        simd_stl_assert(simd.second == b.end());
     }
 
     {

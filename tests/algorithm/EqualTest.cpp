@@ -7,19 +7,18 @@
 #include <simd_stl/algorithm/find/Equal.h>
 
 
-// Вспомогательная функция для проверки
 template <typename It1, typename It2>
 void check_equal(It1 first1, It1 last1, It2 first2, It2 last2) {
     bool std_res = std::equal(first1, last1, first2, last2);
     bool simd_res = simd_stl::algorithm::equal(first1, last1, first2, last2);
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_equal(It1 first1, It1 last1, It2 first2, It2 last2, Pred pred) {
     bool std_res = std::equal(first1, last1, first2, last2, pred);
     bool simd_res = simd_stl::algorithm::equal(first1, last1, first2, last2, pred);
-    Assert(std_res == simd_res);
+    simd_stl_assert(std_res == simd_res);
 }
 
 int main() {

@@ -459,7 +459,7 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSS
         __shuffle = __load_lower_half<__m128i>(__tables_8bit_sse.__shuffle[__mask]);
 
     const auto __destination = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle);
-    __simd_store_lower_half(__address, __destination);
+    __store_lower_half(__address, __destination);
 
     if constexpr (sizeof(_DesiredType_) == 4)
         algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
@@ -1831,7 +1831,7 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
 
 template <typename _Type_>
 simd_stl_always_inline auto __simd_memory_access<arch::CpuFeature::AVX512BW, numeric::zmm512>::__make_tail_mask(uint32 __bytes) noexcept {
-    const auto __elements = _Bytes / sizeof(_Type_);
+    const auto __elements = __bytes / sizeof(_Type_);
     return (__elements == 0) ? 0 : (static_cast<__simd_mask_type<_Type_>>((1ull << __elements) - 1));
 }
 
@@ -2783,7 +2783,7 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     else if constexpr (sizeof(_DesiredType_) == 4) {
         const auto __not = uint16(~__mask);
 
-        const auto _Co__compressedmpressed = _mm_mask_compress_epi32(
+        const auto __compressed = _mm_mask_compress_epi32(
             __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector));
         __store_unaligned(__address, __compressed);
 

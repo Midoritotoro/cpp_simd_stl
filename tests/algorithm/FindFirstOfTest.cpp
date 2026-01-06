@@ -13,14 +13,14 @@ template <typename It1, typename It2>
 void check_find_first_of(It1 first1, It1 last1, It2 first2, It2 last2) {
     auto std_res = std::find_first_of(first1, last1, first2, last2);
     auto simd_res = simd_stl::algorithm::find_first_of(first1, last1, first2, last2);
-    Assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
+    simd_stl_assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
 }
 
 template <typename It1, typename It2, typename Pred>
 void check_find_first_of(It1 first1, It1 last1, It2 first2, It2 last2, Pred pred) {
     auto std_res = std::find_first_of(first1, last1, first2, last2, pred);
     auto simd_res = simd_stl::algorithm::find_first_of(first1, last1, first2, last2, pred);
-    Assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
+    simd_stl_assert((std_res == last1 && simd_res == last1) || (std_res - first1 == simd_res - first1));
 }
 
 int main() {

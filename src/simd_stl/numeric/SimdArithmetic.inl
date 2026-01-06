@@ -56,7 +56,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
             __intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, type_traits::less<>>(__left, __right);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -104,7 +104,7 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE2, x
 
         for (auto __index = 1; __index < __length; ++__index)
             if (__reduce(__array[__index], __folded))
-                __folded = __array[_Index];
+                __folded = __array[__index];
 
         return __folded;
     }
@@ -144,7 +144,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
             __intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
     }
     else {
-        const auto __mask = _SimdCompare<__generation, __register_policy, _DesiredType_, type_traits::greater<>>(__left, __right);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -168,7 +168,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
     }
     else if constexpr (__is_epi64_v<_DesiredType_>) {
         const auto __high_sign  = _mm_srai_epi32(__intrin_bitcast<__m128i>(__vector), 31);
-        const auto __sign       = _mm_shuffle_epi32(_HighSign, 0xF5);
+        const auto __sign       = _mm_shuffle_epi32(__high_sign, 0xF5);
 
         const auto __invert     = _mm_xor_si128(__intrin_bitcast<__m128i>(__vector), __sign);
         return __intrin_bitcast<_VectorType_>(_mm_sub_epi64(__invert, __sign));
@@ -308,7 +308,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>::_Negate(_VectorType_ __vector) noexcept {
+simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>::__negate(_VectorType_ __vector) noexcept {
     if      constexpr (__is_ps_v<_DesiredType_>)
         return __intrin_bitcast<_VectorType_>(_mm_xor_ps(__vector, _mm_set1_ps(-0.0f)));
 
@@ -487,7 +487,7 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, 
     _ReduceBinaryFunction_  __reduce) noexcept
 {
     if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_> || __is_pd_v<_DesiredType_>) {
-        auto __horizontal_folded_values = __intrin_bitcast<__m128d>(_Vector);
+        auto __horizontal_folded_values = __intrin_bitcast<__m128d>(__vector);
 
         const auto __shuffled       = _mm_shuffle_pd(__horizontal_folded_values, __horizontal_folded_values, 1);
         __horizontal_folded_values  = __reduce(__shuffled, __horizontal_folded_values);
@@ -498,7 +498,7 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, 
             return _mm_cvtsi128_si64(__intrin_bitcast<__m128i>(__horizontal_folded_values));
     }
     else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_> || __is_ps_v<_DesiredType_>) {
-        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(_Vector);
+        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(__vector);
 
         const auto __shuffled1      = _mm_shuffle_epi32(__horizontal_folded_values, 0x4E);
         __horizontal_folded_values  = __reduce(__horizontal_folded_values, __shuffled1);
@@ -514,7 +514,7 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, 
     else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>) {
         const auto __shuffle_words = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
 
-        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(_Vector);
+        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(__vector);
         
         const auto __shuffled1      = _mm_shuffle_epi32(__horizontal_folded_values, 0x4E);
         __horizontal_folded_values  = __reduce(__horizontal_folded_values, __shuffled1);
@@ -531,7 +531,7 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, 
         const auto __shuffle_bytes = _mm_set_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
         const auto __shuffle_words = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
 
-        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(_Vector);
+        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(__vector);
 
         const auto __shuffled1      = _mm_shuffle_epi32(__horizontal_folded_values, 0x4E);
         __horizontal_folded_values  = __reduce(__horizontal_folded_values, __shuffled1);
@@ -552,21 +552,21 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::_HorizontalMin(_VectorType_ __vector) noexcept {
-    return __horizontal_fold<_DesiredType_>(__vector, _VerticalMinWrapper<__generation, __register_policy, _DesiredType_>{});
+simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::__horizontal_min(_VectorType_ __vector) noexcept {
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::_HorizontalMax(_VectorType_ __vector) noexcept {
-    return __horizontal_fold<_DesiredType_>(__vector, _VerticalMaxWrapper<__generation, __register_policy, _DesiredType_>{});
+simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::__horizontal_max(_VectorType_ __vector) noexcept {
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_max_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::_Reduce(_VectorType_ __vector) noexcept {
+simd_stl_always_inline auto __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>::__reduce(_VectorType_ __vector) noexcept {
     using _ReduceType = __reduce_type<_DesiredType_>;
 
     if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_>) {
@@ -656,7 +656,7 @@ static simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::S
 template <
     typename _DesiredType_,
     typename _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>::_VerticalMax(
+static simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>::__vertical_max(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -684,7 +684,7 @@ static simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::S
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>::_HorizontalMax(_VectorType_ __vector) noexcept {
+simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>::__horizontal_max(_VectorType_ __vector) noexcept {
     return __horizontal_fold<_DesiredType_>(__vector, __vertical_max_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
@@ -768,7 +768,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX2, ym
             __intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, type_traits::less<>>(__left, __right);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -777,7 +777,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>::__horizontal_min(_VectorType_ __vector) noexcept {
-    return __horizontal_fold<_DesiredType_>(_Vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <
@@ -820,7 +820,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX2, ym
             __intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, type_traits::greater<>>(__left, __right);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -830,7 +830,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_,
     typename _ReduceBinaryFunction_>
-simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>::_HorizontalFold(
+simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>::__horizontal_fold(
     _VectorType_            __vector,
     _ReduceBinaryFunction_  __reduce) noexcept
 {
@@ -1368,7 +1368,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
             __intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, type_traits::less<>>(__left, __right);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -1377,7 +1377,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>::__horizontal_min(_VectorType_ __vector) noexcept {
-    return __horizontal_fold<_DesiredType_>(__vector, _VerticalMinWrapper<__generation, __register_policy, _DesiredType_>{});
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <
@@ -1412,8 +1412,8 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
             __intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, type_traits::greater<>>(__left, __right);
-        return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, _Mask);
+        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
 
@@ -1481,9 +1481,7 @@ simd_stl_always_inline auto __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>
     }
 }
 
-template <
-    typename _DesiredType_,
-    typename _VectorType_>
+template <typename _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>::__shift_right_vector(
     _VectorType_    __vector,
     uint32          __byte_shift) noexcept
@@ -1491,9 +1489,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
     return __vector;
 }
 
-template <
-    typename _DesiredType_,
-    typename _VectorType_>
+template <typename _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>::__shift_left_vector(
     _VectorType_    __vector,
     uint32          __byte_shift) noexcept
@@ -1658,13 +1654,13 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
 template <typename _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>::__bit_not(_VectorType_ __vector) noexcept {
     if      constexpr (std::is_same_v<_VectorType_, __m512d>)
-        return _mm512_xor_pd(_Vector, _mm512_set1_pd(-1));
+        return _mm512_xor_pd(__vector, _mm512_set1_pd(-1));
 
     else if constexpr (std::is_same_v<_VectorType_, __m512i>)
-        return _mm512_xor_si512(_Vector, _mm512_set1_epi32(-1));
+        return _mm512_xor_si512(__vector, _mm512_set1_epi32(-1));
 
     else if constexpr (std::is_same_v<_VectorType_, __m512>)
-        return _mm512_xor_ps(_Vector, _mm512_set1_ps(-1));
+        return _mm512_xor_ps(__vector, _mm512_set1_ps(-1));
 }
 
 template <typename _VectorType_>
@@ -1813,7 +1809,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512>::__horizontal_min(_VectorType_ __vector) noexcept {
-    return __hoeizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <

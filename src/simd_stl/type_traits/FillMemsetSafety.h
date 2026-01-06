@@ -14,7 +14,7 @@ template <
 constexpr bool __is_fill_memset_safe_v = std::conjunction_v<
     std::is_scalar<_Type_>,
     is_character_or_byte_or_bool_v<
-        unwrap_enum_t<
+        unwrap_enum_type<
             std::remove_reference_t<
                 iterator_reference_type<_ForwardIterator_>>>>,
     std::negation<

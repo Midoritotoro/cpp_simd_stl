@@ -252,7 +252,7 @@ using __decltype_invoke_zero = decltype(std::declval<_Callable_>()());
 
 template <class _Callable_>
 struct __invoke_traits_zero<std::void_t<__decltype_invoke_zero<_Callable_>>, _Callable_>:
-    _Invoke_common_traits<__decltype_invoke_zero<_Callable_>, noexcept(std::declval<_Callable_>()())>
+    __invoke_common_traits<__decltype_invoke_zero<_Callable_>, noexcept(std::declval<_Callable_>()())>
 {};
 
 template <

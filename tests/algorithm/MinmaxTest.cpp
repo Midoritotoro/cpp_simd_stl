@@ -18,7 +18,7 @@ std::pair<typename std::iterator_traits<It>::value_type,
     typename std::iterator_traits<It>::value_type>
     ref_minmax_range(It first, It last) {
     using V = typename std::iterator_traits<It>::value_type;
-    assert(first != last && "ref_minmax_range requires non-empty range");
+    simd_stl_assert(first != last && "ref_minmax_range requires non-empty range");
     V minv = *first, maxv = *first;
     for (++first; first != last; ++first) {
         if (*first < minv) minv = *first;
@@ -44,8 +44,8 @@ void test_container(std::size_t bytes) {
     if (c.empty()) return;
     auto got = minmax_range<typename Cont::iterator>(c.begin(), c.end());
     auto ref = ref_minmax_range(c.begin(), c.end());
-    assert(got.first == ref.first);
-    assert(got.second == ref.second);
+    simd_stl_assert(got.first == ref.first);
+    simd_stl_assert(got.second == ref.second);
 }
 
 template <class T>
@@ -55,21 +55,21 @@ void run_tests_for_type() {
 
     auto p1 = minmax<T>(1, 2);
     auto r1 = ref_minmax_scalar<T>(1, 2);
-    assert(p1.first == r1.first && p1.second == r1.second);
+    simd_stl_assert(p1.first == r1.first && p1.second == r1.second);
 
     auto p2 = minmax<T>(2, 1);
     auto r2 = ref_minmax_scalar<T>(2, 1);
-    assert(p2.first == r2.first && p2.second == r2.second);
+    simd_stl_assert(p2.first == r2.first && p2.second == r2.second);
 
     auto p3 = minmax<T>(0, 0);
     auto r3 = ref_minmax_scalar<T>(0, 0);
-    assert(p3.first == r3.first && p3.second == r3.second);
+    simd_stl_assert(p3.first == r3.first && p3.second == r3.second);
 
     auto p4 = minmax<T>(std::numeric_limits<T>::min(),
         std::numeric_limits<T>::max());
     auto r4 = ref_minmax_scalar<T>(std::numeric_limits<T>::min(),
         std::numeric_limits<T>::max());
-    assert(p4.first == r4.first && p4.second == r4.second);
+    simd_stl_assert(p4.first == r4.first && p4.second == r4.second);
 
     for (std::size_t sz : {16u, 64u, 512u, 4000u}) {
         test_container<std::vector<T>, T>(sz);

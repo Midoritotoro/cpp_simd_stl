@@ -19,8 +19,8 @@ void fill_sequential(Container& c, T start = T(0)) {
 
 template <typename Container>
 void verify_equal(const Container& a, const Container& b) {
-    assert(a.size() == b.size());
-    assert(std::equal(a.begin(), a.end(), b.begin()));
+    simd_stl_assert(a.size() == b.size());
+    simd_stl_assert(std::equal(a.begin(), a.end(), b.begin()));
 }
 
 template <typename Container>

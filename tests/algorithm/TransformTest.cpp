@@ -20,7 +20,7 @@ void test_unary(size_t bytes, UnaryOp op) {
     const auto stdRet = std::transform(input.begin(), input.end(), out_std.begin(), op);
     const auto simdStlRet = simd_stl::algorithm::transform(input.begin(), input.end(), out_simd.begin(), op);
 
-    Assert(out_simd == out_std);
+    simd_stl_assert(out_simd == out_std);
 }
 
 template <typename T, typename BinaryOp>
@@ -38,7 +38,7 @@ void test_binary(size_t bytes, BinaryOp op) {
     const auto stdRet =  std::transform(a.begin(), a.end(), b.begin(), out_std.begin(), op);
     const auto simdStlRet = simd_stl::algorithm::transform(a.begin(), a.end(), b.begin(), out_simd.begin(), op);
 
-    Assert(out_simd == out_std);
+    simd_stl_assert(out_simd == out_std);
 }
 
 void testAll(uint8_t bytes) noexcept {

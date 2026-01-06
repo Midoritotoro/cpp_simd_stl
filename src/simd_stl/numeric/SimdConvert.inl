@@ -208,8 +208,8 @@ template <
         constexpr auto __maximum    = math::__maximum_integral_limit<_HalfType>();
         constexpr auto __shift      = (sizeof(_MaskType) << 2);
 
-        const auto __low = __simd_to_vector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>(__mask & _Maximum);
-        const auto __high = __simd_to_vector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>((__mask >> _Shift));
+        const auto __low = __simd_to_vector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>(__mask & __maximum);
+        const auto __high = __simd_to_vector<arch::CpuFeature::AVX2, ymm256, __m256i, _DesiredType_>((__mask >> __shift));
 
         return __intrin_bitcast<_VectorType_>(_mm512_inserti64x4(__intrin_bitcast<__m512i>(__low), __high, 1));
     }

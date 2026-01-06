@@ -116,17 +116,17 @@ template <class _BasicSimd_>
 struct __is_valid_basic_simd<
     _BasicSimd_,
     std::void_t<simd<
-        _BasicSimd_::_Generation,
+        _BasicSimd_::__generation,
         typename _BasicSimd_::value_type,
         typename _BasicSimd_::policy_type>>> 
     : std::bool_constant<
         type_traits::is_virtual_base_of_v<
-            simd<_BasicSimd_::_Generation,
+            simd<_BasicSimd_::__generation,
                        typename _BasicSimd_::value_type,
                        typename _BasicSimd_::policy_type>,
             _BasicSimd_> ||
         std::is_same_v<
-            simd<_BasicSimd_::_Generation,
+            simd<_BasicSimd_::__generation,
                        typename _BasicSimd_::value_type,
                        typename _BasicSimd_::policy_type>,
             _BasicSimd_>> 

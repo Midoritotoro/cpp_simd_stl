@@ -60,18 +60,18 @@ simd_stl_nodiscard constexpr decltype(auto) __unwrap_iterator_offset(
         type_traits::is_nonbool_integral_v<_DifferenceType_>) 
     {
         using _IteratorDifferenceType      = type_traits::iterator_difference_type<std::remove_cvref_t<_Iterator_>>;
-        using _CommonDifferenceType        = std::common_type_t<_DifferenceType_, _IteratorDifferenceType_>;
+        using _CommonDifferenceType        = std::common_type_t<_DifferenceType_, _IteratorDifferenceType>;
 
-        const auto __common_offset = static_cast<_CommonDifferenceType_>(__offset);
+        const auto __common_offset = static_cast<_CommonDifferenceType>(__offset);
 
         constexpr auto __maximum = math::__maximum_integral_limit<_IteratorDifferenceType>();
-        constexpr auto __minimum = math::__minimum_integral_limit<_IteratorDifferenceType_();
+        constexpr auto __minimum = math::__minimum_integral_limit<_IteratorDifferenceType>();
 
-        DebugAssert(__common_offset <= static_cast<_CommonDifferenceType>(__maximum)
+        simd_stl_debug_assert_log(__common_offset <= static_cast<_CommonDifferenceType>(__maximum)
             && (std::is_unsigned_v<_DifferenceType_> || static_cast<_CommonDifferenceType>(__minimum) <= __common_offset),
             "integer overflow");
 
-        __iterator._Verify_offset(static_cast<_IteratorDifferenceType>(offset));
+        __iterator._Verify_offset(static_cast<_IteratorDifferenceType>(__offset));
         return std::move(__iterator)._Unwrapped();
     } 
     else if constexpr (type_traits::__is_possibly_unverified_iterator_unwrappable_v<_Iterator_>) {
@@ -107,7 +107,7 @@ simd_stl_nodiscard constexpr decltype(auto) __unwrap_iterator_bytes_offset(
         (type_traits::__is_iterator_unwrappable_for_offset_v<_Iterator_> == false ||
             type_traits::__is_iterator_unwrappable_for_offset_v<_Iterator_>))
 {
-    using _ValueType = type_traits::iterator_value_type<unwrapped_iterator_type<_Iterator_>>;
+    using _ValueType = type_traits::iterator_value_type<__unwrapped_iterator_type<_Iterator_>>;
 
     if constexpr (std::is_pointer_v<std::decay_t<_Iterator_>>)
         return __iterator + 0;

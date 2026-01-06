@@ -5,20 +5,18 @@
 #include <random>
 #include <simd_stl/algorithm/find/Count.h>
 
-#define Assert(x) assert(x)
-
 template <typename T>
 void test_basic() {
     {
         std::vector<T> v;
-        Assert(simd_stl::algorithm::count(v.begin(), v.end(), T{}) == std::count(v.begin(), v.end(), T{}));
+        simd_stl_assert(simd_stl::algorithm::count(v.begin(), v.end(), T{}) == std::count(v.begin(), v.end(), T{}));
     }
 
     {
         std::vector<T> v1 = { T(42) };
         std::vector<T> v2 = { T(13) };
-        Assert(simd_stl::algorithm::count(v1.begin(), v1.end(), T(42)) == std::count(v1.begin(), v1.end(), T(42)));
-        Assert(simd_stl::algorithm::count(v2.begin(), v2.end(), T(42)) == std::count(v2.begin(), v2.end(), T(42)));
+        simd_stl_assert(simd_stl::algorithm::count(v1.begin(), v1.end(), T(42)) == std::count(v1.begin(), v1.end(), T(42)));
+        simd_stl_assert(simd_stl::algorithm::count(v2.begin(), v2.end(), T(42)) == std::count(v2.begin(), v2.end(), T(42)));
     }
 
     {
@@ -26,14 +24,14 @@ void test_basic() {
         for (T val : { T(2), T(4), T(5) }) {
             auto first = simd_stl::algorithm::count(v.begin(), v.end(), val);
             auto second = std::count(v.begin(), v.end(), val);
-            Assert(first == second);
+            simd_stl_assert(first == second);
         }
     }
 
     {
         std::array<T, 5> arr = { T(7), T(8), T(7), T(9), T(7) };
         for (T val : { T(7), T(8), T(10) }) {
-            Assert(simd_stl::algorithm::count(arr.begin(), arr.end(), val) == std::count(arr.begin(), arr.end(), val));
+            simd_stl_assert(simd_stl::algorithm::count(arr.begin(), arr.end(), val) == std::count(arr.begin(), arr.end(), val));
         }
     }
 }
@@ -57,7 +55,7 @@ void test_large(size_t bytes) {
         T val = v[i];
         auto first = simd_stl::algorithm::count(v.begin(), v.end(), val);
         auto second = std::count(v.begin(), v.end(), val);
-        Assert(first == second);
+        simd_stl_assert(first == second);
     }
 }
 

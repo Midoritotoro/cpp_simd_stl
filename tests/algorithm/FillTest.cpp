@@ -15,7 +15,7 @@ int main() {
         simd_stl::algorithm::fill(v1.begin(), v1.end(), 42);
         std::fill(v2.begin(), v2.end(), 42);
 
-        Assert(v1 == v2);
+        simd_stl_assert(v1 == v2);
     }
 
     {
@@ -25,7 +25,7 @@ int main() {
         simd_stl::algorithm::fill(v1.begin(), v1.end(), 7);
         std::fill(v2.begin(), v2.end(), 7);
 
-        Assert(v1 == v2);
+        simd_stl_assert(v1 == v2);
     }
 
     {
@@ -35,7 +35,7 @@ int main() {
         simd_stl::algorithm::fill_n(v1.begin(), 5, 99);
         std::fill_n(v2.begin(), 5, 99);
 
-        Assert(v1 == v2);
+        simd_stl_assert(v1 == v2);
     }
 
     {
@@ -45,14 +45,14 @@ int main() {
         simd_stl::algorithm::fill_n(v1.begin(), 0, 123);
         std::fill_n(v2.begin(), 0, 123);
 
-        Assert(v1 == v2);
+        simd_stl_assert(v1 == v2);
     }
 
     {
         std::vector<int> v(5, 0);
         auto it1 = simd_stl::algorithm::fill_n(v.begin(), 3, 5);
-        Assert(it1 == v.begin() + 3);
-        Assert((v == std::vector<int>{5,5,5,0,0}));
+        simd_stl_assert(it1 == v.begin() + 3);
+        simd_stl_assert((v == std::vector<int>{5,5,5,0,0}));
     }
 */
     constexpr size_t N = 10'000'000;
@@ -67,7 +67,7 @@ int main() {
         std::fill(v2.begin(), v2.end(), 123);
         auto t4 = std::chrono::high_resolution_clock::now();
 
-        assert(v1 == v2);
+        simd_stl_assert(v1 == v2);
 
         std::cout << "fill simd_stl: "
                   << std::chrono::duration<double, std::milli>(t2 - t1).count()
@@ -88,7 +88,7 @@ int main() {
         std::fill_n(v4.begin(), N, 777);
         auto t4 = std::chrono::high_resolution_clock::now();
 
-        assert(v3 == v4);
+        simd_stl_assert(v3 == v4);
 
         std::cout << "fill_n simd_stl: "
                   << std::chrono::duration<double, std::milli>(t2 - t1).count()

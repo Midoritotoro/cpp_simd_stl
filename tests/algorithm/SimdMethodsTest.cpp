@@ -33,7 +33,7 @@ void testMethods() {
         Simd v1;
         Simd v2(5);
 
-        for (int i = 0; i < v2.size(); ++i) Assert(v2.extract<T>(i) == 5);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v2.extract<T>(i) == 5);
 
         alignas(16) T arr[N];
         for (int i = 0; i < N; ++i)
@@ -41,30 +41,30 @@ void testMethods() {
 
         Simd v3 = Simd::load(arr);
         for (int i = 0; i < v2.size(); ++i)
-            Assert(v3.extract<T>(i) == arr[i]);
+            simd_stl_assert(v3.extract<T>(i) == arr[i]);
 
 
         Simd v4(v3.unwrap());
-        for (int i = 0; i < v2.size(); ++i) Assert(v4.extract<T>(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v4.extract<T>(i) == arr[i]);
 
         Simd v5(v3);
-        for (int i = 0; i < v2.size(); ++i) Assert(v5.extract<T>(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v5.extract<T>(i) == arr[i]);
     }
 
     {
         Simd v;
         v.fill<T>(42);
-        for (int i = 0; i < v.size(); ++i) Assert(v.extract<T>(i) == 42);
+        for (int i = 0; i < v.size(); ++i) simd_stl_assert(v.extract<T>(i) == 42);
 
         v.insert<T>(0, 99);
-        Assert(v.extract<T>(0) == 99);
+        simd_stl_assert(v.extract<T>(0) == 99);
     }
 
     {
         Simd v(7);
         auto ref = v.extract_wrapped<T>(0);
         ref = 123;
-        Assert(v.extract<T>(0) == 123);
+        simd_stl_assert(v.extract<T>(0) == 123);
     }
 
     {
@@ -80,7 +80,7 @@ void testMethods() {
         static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::simd128_sse2<float>>);
         static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, simd_stl::numeric::xmm128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
-        static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::simd<Simd::_Generation, int, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::simd<Simd::__generation, int, typename Simd::policy_type>>);
     }
 
     {
@@ -88,12 +88,12 @@ void testMethods() {
         Simd v = Simd::load(arr, simd_stl::numeric::aligned_policy{});
         simd_stl::int32 out[4] = {};
         v.store(out, simd_stl::numeric::aligned_policy{});
-        for (int i = 0; i < 4; ++i) Assert(out[i] == arr[i]);
+        for (int i = 0; i < 4; ++i) simd_stl_assert(out[i] == arr[i]);
 
         Simd v2 = Simd::load(arr);
         simd_stl::int32 out2[4] = {};
         v2.store(out2);
-        for (int i = 0; i < 4; ++i) Assert(out2[i] == arr[i]);
+        for (int i = 0; i < 4; ++i) simd_stl_assert(out2[i] == arr[i]);
     }
 
     {
@@ -117,35 +117,35 @@ void testMethods() {
         Simd loaded_unaligned = Simd::mask_load(src, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
-                Assert(loaded_unaligned.extract<T>(i) == src[i]);
+                simd_stl_assert(loaded_unaligned.extract<T>(i) == src[i]);
             else
-                Assert(loaded_unaligned.extract<T>(i) == T(0));
+                simd_stl_assert(loaded_unaligned.extract<T>(i) == T(0));
         }
 
         Simd loaded_aligned = Simd::mask_load(src, mask, simd_stl::numeric::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
-                Assert(loaded_aligned.extract<T>(i) == src[i]);
+                simd_stl_assert(loaded_aligned.extract<T>(i) == src[i]);
             else
-                Assert(loaded_aligned.extract<T>(i) == T(0));
+                simd_stl_assert(loaded_aligned.extract<T>(i) == T(0));
         }
 
         Simd v(77);
         v.mask_store(dst, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
-                Assert(dst[i] == T(77));
+                simd_stl_assert(dst[i] == T(77));
             else
-                Assert(dst[i] == T(100 + i));
+                simd_stl_assert(dst[i] == T(100 + i));
         }
 
         for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i);
         v.mask_store(dst, mask, simd_stl::numeric::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if (mask & (typename Simd::mask_type(1) << i))
-                Assert(dst[i] == T(77));
+                simd_stl_assert(dst[i] == T(77));
             else
-                Assert(dst[i] == T(200 + i));
+                simd_stl_assert(dst[i] == T(200 + i));
         }
     }
 
@@ -167,7 +167,7 @@ void testMethods() {
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
 
-            Assert(std::equal(expected, expected + N, dst));
+            simd_stl_assert(std::equal(expected, expected + N, dst));
         }
 
         {
@@ -177,7 +177,7 @@ void testMethods() {
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
 
-            Assert(std::equal(expected, expected + N, dst));
+            simd_stl_assert(std::equal(expected, expected + N, dst));
         }
     }
 
@@ -193,31 +193,31 @@ void testMethods() {
         Simd b = Simd::load(vb.data());
         Simd c = Simd::load(vc.data());
 
-        Assert(a == b);
-        Assert(a != c);
+        simd_stl_assert(a == b);
+        simd_stl_assert(a != c);
 
-        auto mEq = a.mask_compare(b, simd_stl::type_traits::equal_to<>{});
+        auto mEq = a.mask_compare<simd_stl::numeric::simd_comparison::equal>(b);
         for (size_t i = 0; i < N; ++i) {
-            Assert(mEq[i] == true);
+            simd_stl_assert(mEq[i] == true);
         }
 
-        auto mNeq = a.mask_compare(c, simd_stl::type_traits::not_equal_to<>{});
+        auto mNeq = a.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(c);
         for (size_t i = 0; i < N; ++i) {
-            Assert(mNeq[i] == true);
+            simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mGt = c.mask_compare(a, simd_stl::type_traits::greater<>{});
-        auto mLt = a.mask_compare(c, simd_stl::type_traits::less<>{});
+        auto mGt = c.mask_compare<simd_stl::numeric::simd_comparison::greater>(a);
+        auto mLt = a.mask_compare<simd_stl::numeric::simd_comparison::less>(c);
         for (size_t i = 0; i < N; ++i) {
-            Assert(mGt[i] == true);
-            Assert(mLt[i] == true);
+            simd_stl_assert(mGt[i] == true);
+            simd_stl_assert(mLt[i] == true);
         }
 
-        auto mGe = a.mask_compare(b, simd_stl::type_traits::greater_equal<>{});
-        auto mLe = a.mask_compare(b, simd_stl::type_traits::less_equal<>{});
+        auto mGe = a.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(b);
+        auto mLe = a.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(b);
         for (size_t i = 0; i < N; ++i) {
-            Assert(mGe[i] == true);
-            Assert(mLe[i] == true);
+            simd_stl_assert(mGe[i] == true);
+            simd_stl_assert(mLe[i] == true);
         }
     }
 
@@ -231,25 +231,25 @@ void testMethods() {
         Simd v0 = Simd::load(arr0);
         Simd vmax = Simd::load(arrMax);
 
-        Assert(v0 != vmax);
+        simd_stl_assert(v0 != vmax);
 
-        auto mEq = v0.mask_compare(v0, simd_stl::type_traits::equal_to<>{});
-        auto mNeq = v0.mask_compare(vmax, simd_stl::type_traits::not_equal_to<>{});
+        auto mEq = v0.mask_compare<simd_stl::numeric::simd_comparison::equal>(v0);
+        auto mNeq = v0.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(vmax);
         for (size_t i = 0; i < N; ++i) {
-            Assert(mEq[i] == true);
-            Assert(mNeq[i] == true);
+            simd_stl_assert(mEq[i] == true);
+            simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mLt = v0.mask_compare(vmax, simd_stl::type_traits::less<>{});
-        auto mGt = vmax.mask_compare(v0, simd_stl::type_traits::greater<>{});
-        auto mLe = v0.mask_compare(v0, simd_stl::type_traits::less_equal<>{});
-        auto mGe = vmax.mask_compare(vmax, simd_stl::type_traits::greater_equal<>{});
+        auto mLt = v0.mask_compare<simd_stl::numeric::simd_comparison::less>(vmax);
+        auto mGt = vmax.mask_compare<simd_stl::numeric::simd_comparison::greater>(v0);
+        auto mLe = v0.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(v0);
+        auto mGe = vmax.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(vmax);
 
         for (size_t i = 0; i < N; ++i) {
-            Assert(mLt[i] == true);
-            Assert(mGt[i] == true);
-            Assert(mLe[i] == true);
-            Assert(mGe[i] == true);
+            simd_stl_assert(mLt[i] == true);
+            simd_stl_assert(mGt[i] == true);
+            simd_stl_assert(mLe[i] == true);
+            simd_stl_assert(mGe[i] == true);
         }
     }
 
@@ -263,26 +263,26 @@ void testMethods() {
             Simd vA = Simd::load(arrA);
             Simd vB = Simd::load(arrB);
 
-            auto mEq = vA.mask_compare(vA, simd_stl::type_traits::equal_to<>{});
-            auto mNeq = vA.mask_compare(vB, simd_stl::type_traits::not_equal_to<>{});
-            auto mLt = vA.mask_compare(vB, simd_stl::type_traits::less<>{});
-            auto mGt = vB.mask_compare(vA, simd_stl::type_traits::greater<>{});
-            auto mLe = vA.mask_compare(vA, simd_stl::type_traits::less_equal<>{});
-            auto mGe = vB.mask_compare(vB, simd_stl::type_traits::greater_equal<>{});
+            auto mEq = vA.mask_compare<simd_stl::numeric::simd_comparison::equal>(vA);
+            auto mNeq = vA.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(vB);
+            auto mLt = vA.mask_compare<simd_stl::numeric::simd_comparison::less>(vB);
+            auto mGt = vB.mask_compare<simd_stl::numeric::simd_comparison::greater>(vA);
+            auto mLe = vA.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(vA);
+            auto mGe = vB.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(vB);
 
             for (size_t i = 0; i < N; ++i) {
-                Assert(mEq[i] == true);
-                Assert(mNeq[i] == true);
-                Assert(mLt[i] == true);
-                Assert(mGt[i] == true);
-                Assert(mLe[i] == true);
-                Assert(mGe[i] == true);
+                simd_stl_assert(mEq[i] == true);
+                simd_stl_assert(mNeq[i] == true);
+                simd_stl_assert(mLt[i] == true);
+                simd_stl_assert(mGt[i] == true);
+                simd_stl_assert(mLe[i] == true);
+                simd_stl_assert(mGe[i] == true);
             }
         }
     }
   
     {
-        simd_stl::numeric::_Reduce_type<T> reduced = 0;
+        simd_stl::numeric::__reduce_type<T> reduced = 0;
 
         alignas(64) T array[N] = {};
         for (auto i = 0; i < N; ++i) {
@@ -296,7 +296,7 @@ void testMethods() {
         Simd a = Simd::load(array);
         auto simdReduced = a.reduce_add();
 
-        Assert(simdReduced == reduced);
+        simd_stl_assert(simdReduced == reduced);
     }
 
 
@@ -312,25 +312,25 @@ void testMethods() {
 
         auto minVec = a.vertical_min(b);
         for (size_t i = 0; i < N; ++i) {
-            Assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
+            simd_stl_assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
         }
 
         auto maxVec = a.vertical_max(b);
         for (size_t i = 0; i < N; ++i) {
-            Assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
+            simd_stl_assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
         }
 
         T minScalar = a.horizontal_min();
         T expectedMin = *std::min_element(arrA, arrA + N);
-        Assert(minScalar == expectedMin);
+        simd_stl_assert(minScalar == expectedMin);
 
         T maxScalar = a.horizontal_max();
         T expectedMax = *std::max_element(arrA, arrA + N);
-        Assert(maxScalar == expectedMax);
+        simd_stl_assert(maxScalar == expectedMax);
 
         auto absVec = a.abs();
         for (size_t i = 0; i < N; ++i) {
-            Assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
+            simd_stl_assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
         }
     }
 }

@@ -11,53 +11,53 @@ template <
 	class _SecondForwardIterator_,
 	class _Predicate_> 
 __simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
-	_FirstForwardIterator_	_First1,
-	_FirstForwardIterator_	_Last1,
-	_SecondForwardIterator_ _First2,
-	_SecondForwardIterator_ _Last2,
-	_Predicate_				_Predicate) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2,
+	_Predicate_				__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
 			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	__verifyRange(_First1, _Last1);
-	__verifyRange(_First2, _Last2);
+	__verify_range(__first1, __last1);
+	__verify_range(__first2, __last2);
 	
-	__seek_possibly_wrapped_iterator(_First1, _SearchUnchecked(_UnwrapIterator(_First1),
-		_UnwrapIterator(_Last1), _UnwrapIterator(_First2), _UnwrapIterator(_Last2), 
-		type_traits::passFunction(_Predicate)));
+	__seek_possibly_wrapped_iterator(__first1, __search_unchecked(__unwrap_iterator(__first1),
+		__unwrap_iterator(__last1), __unwrap_iterator(__first2), __unwrap_iterator(__last2),
+		type_traits::__pass_function(__predicate)));
 
-	return _First1;
+	return __first1;
 }
 
 template <
 	class _FirstForwardIterator_,
 	class _SecondForwardIterator_>
 __simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
-	_FirstForwardIterator_	_First1,
-	_FirstForwardIterator_	_Last1,
-	_SecondForwardIterator_ _First2,
-	_SecondForwardIterator_ _Last2) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
 			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::search(_First1, _Last1, _First2, _Last2, type_traits::equal_to<>{});
+	return simd_stl::algorithm::search(__first1, __last1, __first2, __last2, type_traits::equal_to<>{});
 }
 
 template <
 	class _ForwardIterator_, 
 	class _Searcher_>
 __simd_nodiscard_inline_constexpr _ForwardIterator_ search(
-	_ForwardIterator_ _First, 
-	_ForwardIterator_ _Last,
-	const _Searcher_& _Searcher) noexcept(
+	_ForwardIterator_ __first, 
+	_ForwardIterator_ __last,
+	const _Searcher_& __searcher) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Searcher_, type_traits::iterator_value_type<_ForwardIterator_>>)
 {
-	return _Searcher(_First, _Last).first;
+	return __searcher(__first, __last).first;
 }
 
 template <
@@ -68,17 +68,17 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_ExecutionPolicy_&&,
-	_FirstForwardIterator_	_First1,
-	_FirstForwardIterator_	_Last1,
-	_SecondForwardIterator_ _First2,
-	_SecondForwardIterator_ _Last2,
-	_Predicate_				_Predicate) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2,
+	_Predicate_				__predicate) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
 			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::search(_First1, _Last1, _First2, _Last2, type_traits::passFunction(_Predicate));
+	return simd_stl::algorithm::search(__first1, __last1, __first2, __last2, type_traits::__pass_function(__predicate));
 }
 
 template <
@@ -88,16 +88,16 @@ template <
 	concurrency::enable_if_execution_policy<_ExecutionPolicy_> = 0>
 __simd_nodiscard_inline_constexpr _FirstForwardIterator_ search(
 	_ExecutionPolicy_&&,
-	_FirstForwardIterator_	_First1,
-	_FirstForwardIterator_	_Last1,
-	_SecondForwardIterator_ _First2,
-	_SecondForwardIterator_ _Last2) noexcept(
+	_FirstForwardIterator_	__first1,
+	_FirstForwardIterator_	__last1,
+	_SecondForwardIterator_ __first2,
+	_SecondForwardIterator_ __last2) noexcept(
 		type_traits::is_nothrow_invocable_v<
 			type_traits::equal_to<>,
 			type_traits::iterator_value_type<_FirstForwardIterator_>,
 			type_traits::iterator_value_type<_SecondForwardIterator_>>)
 {
-	return simd_stl::algorithm::search(_First1, _Last1, _First2, _Last2);
+	return simd_stl::algorithm::search(__first1, __last1, __first2, __last2);
 }
 
 

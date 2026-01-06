@@ -29,7 +29,7 @@ void test_for_each_container(Container& c) {
     std::for_each(c_std.begin(), c_std.end(), op);
     simd_stl::algorithm::for_each(c_simd.begin(), c_simd.end(), op);
 
-    Assert(std::equal(c_simd.begin(), c_simd.end(), c_std.begin()));
+    simd_stl_assert(std::equal(c_simd.begin(), c_simd.end(), c_std.begin()));
 }
 
 template <typename Container, typename T>
@@ -42,7 +42,7 @@ void test_for_each_n_container(Container& c, size_t n) {
     std::for_each_n(c_std.begin(), n, op);
     simd_stl::algorithm::for_each_n(c_simd.begin(), n, op);
 
-    Assert(std::equal(c_simd.begin(), c_simd.end(), c_std.begin()));
+    simd_stl_assert(std::equal(c_simd.begin(), c_simd.end(), c_std.begin()));
 }
 
 template <typename T>

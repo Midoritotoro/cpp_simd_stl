@@ -24,7 +24,7 @@ void test_replace_container(Container& c, const T& old_value, const T& new_value
     Container c_ref = c;
     std::replace(c_ref.begin(), c_ref.end(), old_value, new_value);
 
-    assert(std::equal(c_copy.begin(), c_copy.end(), c_ref.begin()));
+    simd_stl_assert(std::equal(c_copy.begin(), c_copy.end(), c_ref.begin()));
 }
 
 template <typename T>
