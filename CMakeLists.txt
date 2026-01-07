@@ -104,8 +104,6 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/unchecked/minmax/MaxUnchecked.h
     src/simd_stl/algorithm/unchecked/minmax/MinmaxUnchecked.h
 
-    src/simd_stl/algorithm/vectorized/VectorizedOperators.h
-
     src/simd_stl/math/CountTrailingZeros.h
     src/simd_stl/math/CountLeadingZeros.h
     src/simd_stl/math/PopulationCount.h
