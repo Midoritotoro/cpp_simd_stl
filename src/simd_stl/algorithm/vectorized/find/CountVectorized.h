@@ -73,8 +73,8 @@ struct __count_vectorized_internal {
 
         if constexpr (__is_masked_memory_access_supported) {
             if (__tail_size != 0) {
-                const auto __tail_mask = _Simd_::make_tail_mask(__tail_size);
-                const auto __loaded = _Simd_::mask_load(__first, __tail_mask);
+                const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
+                const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
                 const auto __compared = __comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask;
                 const auto __mask = numeric::simd_mask<_Simd_::__generation, typename _Simd_::value_type>(

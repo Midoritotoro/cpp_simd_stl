@@ -45,14 +45,35 @@ constexpr auto __make_shuffle_tables(
     return __result;
 }
 
+template <sizetype _Size_> 
+constexpr auto __tables_sse = [] { 
+    static_assert(_Size_ == 1 || _Size_ == 2 || _Size_ == 4 || _Size_ == 8, "Unsupported element size for __tables_sse");
+    return __shuffle_tables<1, 1>();
+}();
 
-constexpr auto __tables_8bit_sse    = __make_shuffle_tables<256, 8>(1, 1);
-constexpr auto __tables_16bit_sse   = __make_shuffle_tables<256, 16>(2, 2);
-constexpr auto __tables_32bit_sse   = __make_shuffle_tables<16, 16>(4, 4);
-constexpr auto __tables_64bit_sse   = __make_shuffle_tables<4, 16>(8, 8);
+template <>
+constexpr auto __tables_sse<1>  = __make_shuffle_tables<256, 8>(1, 1);
 
-constexpr auto __tables_32bit_avx   = __make_shuffle_tables<256, 8>(4, 1);
-constexpr auto __tables_64bit_avx   = __make_shuffle_tables<16, 8>(8, 2);
+template <>
+constexpr auto __tables_sse<2>  = __make_shuffle_tables<256, 16>(2, 2);
+
+template <>
+constexpr auto __tables_sse<4>  = __make_shuffle_tables<16, 16>(4, 4);
+
+template <>
+constexpr auto __tables_sse<8>  = __make_shuffle_tables<4, 16>(8, 8);
+
+template <sizetype _Size_>
+constexpr auto __tables_avx = [] { 
+    static_assert(_Size_ == 1 || _Size_ == 2 || _Size_ == 4 || _Size_ == 8, "Unsupported element size for __tables_avx");
+    return __shuffle_tables<1, 1>();
+}();
+
+template <>
+constexpr auto __tables_avx<4> = __make_shuffle_tables<256, 8>(4, 1);
+
+template <>
+constexpr auto __tables_avx<8> = __make_shuffle_tables<16, 8>(8, 2);
 
 template <
     class _VectorType_,

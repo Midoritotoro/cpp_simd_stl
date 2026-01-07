@@ -1,6 +1,7 @@
 #pragma once
 
 #include <src/simd_stl/numeric/SizedSimdDispatcher.h>
+#include <src/simd_stl/numeric/CachePrefetcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -25,12 +26,14 @@ simd_stl_declare_const_function bool simd_stl_stdcall __contains_scalar(
 
 template <class _Simd_>
 struct __contains_vectorized_internal {
+    template <class _CachePrefetcher_>
     simd_stl_declare_const_function bool simd_stl_stdcall operator()(
         sizetype                    __aligned_size,
         sizetype                    __tail_size,
         const void*                 __first,
         const void*                 __last,
-        typename _Simd_::value_type __value) noexcept
+        typename _Simd_::value_type __value,
+        _CachePrefetcher_&&         __prefetcher) noexcept
     {
         numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
 
@@ -39,7 +42,12 @@ struct __contains_vectorized_internal {
 
         const auto __comparand = _Simd_(__value);
 
-        while (__aligned_size != 0) {
+        const void* __stop_at = __first;
+        __advance_bytes(__stop_at, __aligned_size);
+
+        do {
+            __prefetcher(reinterpret_cast<const char*>(__first) + (sizeof(_Simd_)));
+
             const auto __loaded = _Simd_::load(__first);
             const auto __mask   = __comparand.mask_compare<numeric::simd_comparison::equal>(__loaded);
 
@@ -47,25 +55,24 @@ struct __contains_vectorized_internal {
                 return true;
 
             __advance_bytes(__first, sizeof(_Simd_));
-            __aligned_size -= sizeof(_Simd_);
-        }
+        } while (__first != __stop_at);
+
+        if (__tail_size == 0)
+            return false;
 
         if constexpr (__is_masked_memory_access_supported) {
-            if (__tail_size != 0) {
-                const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
-                const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
+            const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
+            const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-                const auto __compared   = __comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask;
-                const auto __mask       = numeric::simd_mask<_Simd_::__generation, typename _Simd_::value_type>(
-                    numeric::__simd_to_native_mask<_Simd_::__generation, typename _Simd_::policy_type, std::remove_cv_t<decltype(__compared)>>(__compared));
+            const auto __compared   = __comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask;
+            const auto __mask       = numeric::simd_mask<_Simd_::__generation, typename _Simd_::value_type>(
+                numeric::__simd_to_native_mask<_Simd_::__generation, typename _Simd_::policy_type, std::remove_cv_t<decltype(__compared)>>(__compared));
 
-                if (__mask.any_of())
-                    return true;
-            }
+            if (__mask.any_of())
+                return true;
         }
         else {
-            if (__first != __last)
-                return __contains_scalar(__first, __last, __value);
+            return __contains_scalar(__first, __last, __value);
         }
     }
 };
@@ -77,9 +84,10 @@ simd_stl_declare_const_function bool simd_stl_stdcall __contains_vectorized(
     const void* __last,
     _Type_      __value) noexcept
 {
-    auto __args = std::make_tuple(__first, __last, __value);
     return numeric::__simd_sized_dispatcher<__contains_vectorized_internal>::__apply<_Type_>(
-        __byte_length(__first, __last), &__contains_scalar<_Type_>, __args, __args);
+        __byte_length(__first, __last), &__contains_scalar<_Type_>,
+        std::make_tuple(__first, __last, __value, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>{}),
+        std::make_tuple(__first, __last, __value));
 }
 
 

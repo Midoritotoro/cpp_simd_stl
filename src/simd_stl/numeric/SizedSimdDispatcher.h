@@ -90,6 +90,62 @@ public:
 
         return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
     }
+
+    template <
+        class       _Type_,
+        class       _SizeType_,
+        class       _FallbackFunction_,
+        class ...   _Args_>
+    simd_stl_always_inline static auto __apply(
+        _SizeType_              __size,
+        _FallbackFunction_&&    __fallback,
+        _Args_...               __args) noexcept
+    {
+        if (__size >= __zmm_threshold<_Type_>) {
+            if constexpr (sizeof(_Type_) <= 2) {
+                using _Simd_                = simd512_avx512bw<_Type_>;
+                const auto __calculated     = __sizes<_Simd_>(__size);
+
+                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512BW())
+                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+            }
+            else {
+                using _Simd_                = simd512_avx512f<_Type_>;
+                const auto __calculated     = __sizes<_Simd_>(__size);
+
+                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512F())
+                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+            }
+        }
+        else {
+            if constexpr (sizeof(_Type_) <= 2) {
+                using _Simd_                = simd256_avx512vlbw<_Type_>;
+                const auto __calculated     = __sizes<_Simd_>(__size);
+
+                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL())
+                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+            }
+            else {
+                using _Simd_                = simd256_avx512vlf<_Type_>;
+                const auto __calculated     = __sizes<_Simd_>(__size);
+
+                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL())
+                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+            }
+        }
+
+        if (const auto __calculated = __sizes<simd256_avx2<_Type_>>(__size); __calculated.first != 0 && arch::ProcessorFeatures::AVX2()) {
+            using _Simd_ = simd256_avx2<_Type_>;
+            return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+        }
+
+        else if (const auto __calculated = __sizes<simd128_sse2<_Type_>>(__size); __calculated.first != 0 && arch::ProcessorFeatures::SSE2()) {
+            using _Simd_ = simd128_sse2<_Type_>;
+            return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+        }
+
+        return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
+    }
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

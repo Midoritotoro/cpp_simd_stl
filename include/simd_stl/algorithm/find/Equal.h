@@ -22,7 +22,7 @@ __simd_nodiscard_inline_constexpr bool equal(
 {
 	__verify_range(__first1, __last1);
 	return __equal_unchecked(__unwrap_iterator(__first1), __unwrap_iterator(__last1),
-		__unwrap_iterator(__first2), type_traits::__pass_function(_Predicate));
+		__unwrap_iterator(__first2), type_traits::__pass_function(__predicate));
 }
 
 template <

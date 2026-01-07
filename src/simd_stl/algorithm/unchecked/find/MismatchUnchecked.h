@@ -37,8 +37,8 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnw
 				std::to_address(__first1_unwrapped), std::to_address(__first2_unwrapped),
 				__iterators_difference(__first1_unwrapped, __last1_unwrapped));
 
-			__first1_unwrapped += _Position;
-			__first2_unwrapped += _Position;
+			__first1_unwrapped += __position;
+			__first2_unwrapped += __position;
 
 			return { __first1_unwrapped, __first2_unwrapped };
 		}
@@ -67,7 +67,7 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstUnwrappedIterator_, _SecondUnw
 			type_traits::iterator_value_type<_FirstUnwrappedIterator_>,
 			type_traits::iterator_value_type<_SecondUnwrappedIterator_>>)
 {
-	if constexpr (type_traits::is_vectorized_search_algorithm_safe_v<
+	if constexpr (type_traits::__is_vectorized_search_algorithm_safe_v<
 		_FirstUnwrappedIterator_, _SecondUnwrappedIterator_, _Predicate_>)
 	{
 #if simd_stl_has_cxx20

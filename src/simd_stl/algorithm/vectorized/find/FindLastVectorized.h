@@ -1,126 +1,92 @@
 #pragma once
 
-#include <simd_stl/SimdStlNamespace.h>
-
-#include <simd_stl/compatibility/Inline.h>
-#include <simd_stl/compatibility/FunctionAttributes.h>
-
-#include <simd_stl/compatibility/SimdCompatibility.h>
-#include <simd_stl/arch/ProcessorFeatures.h>
-
-#include <src/simd_stl/algorithm/AdvanceBytes.h>
-
-#include <simd_stl/math/BitMath.h>
-#include <simd_stl/compatibility/Inline.h>
-
-#include <simd_stl/numeric/BasicSimd.h>
+#include <src/simd_stl/numeric/SizedSimdDispatcher.h>
+#include <src/simd_stl/numeric/CachePrefetcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastScalar(
-    const void* _First,
-    const void* _Last,
-    _Type_      _Value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline const _Type_* simd_stl_stdcall __find_last_scalar(
+    const void* __first,
+    const void* __last,
+    _Type_      __value) noexcept
 {
-    auto _Current = static_cast<const _Type_*>(_Last);
+    auto __current = static_cast<const _Type_*>(__last);
 
-    while (_Current != _First && *_Current != _Value)
-        --_Current;
+    while (__current != __first && *__current != __value)
+        --__current;
 
-    return (_Current == _First) ? _Last : _Current;
+    return __current;
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* simd_stl_stdcall _FindLastVectorizedInternal(
-    const void* _First,
-    const void* _Last,
-    _Type_      _Value) noexcept
-{
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+template <class _Simd_>
+struct __find_last_vectorized_internal {
+    template <class _CachePrefetcher_>
+    simd_stl_declare_const_function simd_stl_always_inline const typename _Simd_::value_type* simd_stl_stdcall operator()(
+        const sizetype                  __aligned_size,
+        const sizetype                  __tail_size,
+        const void*                     __first,
+        const void*                     __last,
+        typename _Simd_::value_type     __value,
+        _CachePrefetcher_&&             __prefetcher) noexcept
+    {
+        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
 
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
-        _SimdType_::template is_native_mask_load_supported_v<>;
+        constexpr auto __is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
+            _Simd_::template is_native_mask_load_supported_v<>;
 
-    const auto _Size        = __byte_length(_First, _Last);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+        const void* __cached_last = __last;
+        const auto __comparand = _Simd_(__value);
 
-    const void* _CachedLast = _Last;
-    const auto _Comparand = _SimdType_(_Value);
-
-    if (_AlignedSize != 0) {
-        const void* _StopAt = _Last;
-        __rewind_bytes(_StopAt, _AlignedSize);
+        const void* __stop_at = __last;
+        __rewind_bytes(__stop_at, __aligned_size);
 
         do {
-            __rewind_bytes(_Last, sizeof(_SimdType_));
+            __rewind_bytes(__last, sizeof(_Simd_));
+            __prefetcher(reinterpret_cast<const char*>(__last) - sizeof(_Simd_));
 
-            const auto _Loaded  = _SimdType_::loadUnaligned(_Last);
-            const auto _Mask    = _Comparand.maskEqual(_Loaded);
+            const auto __loaded  = _Simd_::load(__last);
+            const auto __mask    = __comparand.mask_compare<numeric::simd_comparison::equal>(__loaded);
 
-            if (_Mask.anyOf())
-                return static_cast<const _Type_*>(_Last) + _Mask.countTrailingZeroBits();
-        } while (_Last != _StopAt);
-    }
+            if (__mask.any_of())
+                return static_cast<const typename _Simd_::value_type*>(__last) + __mask.count_trailing_zero_bits();
+        } while (__last != __stop_at);
 
-    if constexpr (_Is_masked_memory_access_supported) {
-        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+        if (__tail_size == 0)
+            return static_cast<const typename _Simd_::value_type*>(__cached_last);
 
-        if (_TailSize != 0) {
-            __rewind_bytes(_Last, _TailSize);
+        if constexpr (__is_masked_memory_access_supported) {
+            __rewind_bytes(__last, __tail_size);
 
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-            const auto _Loaded = _SimdType_::maskLoadUnaligned(_Last, _TailMask);
+            const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
+            const auto __loaded     = _Simd_::mask_load(__last, __tail_mask);
 
-            const auto _Compared = _Comparand.nativeEqual(_Loaded) & _TailMask;
-            const auto _Mask = numeric::simd_mask<_SimdGeneration_,
-                _Type_>(numeric::_SimdToNativeMask<_SimdGeneration_,
-                    typename _SimdType_::policy_type, std::remove_cv_t<decltype(_Compared)>>(_Compared));
+            const auto __compared = __comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask;
 
-            if (_Mask.anyOf())
-                return static_cast<const _Type_*>(_Last) + _Mask.countTrailingZeroBits() + 1;
+            const auto __mask = numeric::simd_mask<_Simd_::__generation, typename _Simd_::value_type>(numeric::__simd_to_native_mask<_Simd_::__generation,
+                typename _Simd_::policy_type, std::remove_cv_t<decltype(__compared)>>(__compared));
+
+            if (__mask.any_of())
+                return static_cast<const typename _Simd_::value_type*>(__last) + __mask.count_trailing_zero_bits() + 1;
         }
+        else {
+            return __find_last_scalar(__first, __last, __value);
+        }
+    }
 
-        return _CachedLast;
-    }
-    else {
-        if (_First == _Last)
-            return _CachedLast;
-        
-        return _FindLastScalar(_First, _Last, _Value);
-    }
-}
+};
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall _FindLastVectorized(
-    const void* _First,
-    const void* _Last,
-    _Type_      _Value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall __find_last_vectorized(
+    const void* __first,
+    const void* __last,
+    _Type_      __value) noexcept
 {
-    if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return const_cast<_Type_*>(static_cast<const _Type_*>(
-                _FindLastVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value)));
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return const_cast<_Type_*>(static_cast<const _Type_*>(
-                _FindLastVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value)));
-    }
-
-    if (arch::ProcessorFeatures::AVX2())
-        return const_cast<_Type_*>(static_cast<const _Type_*>(
-            _FindLastVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value)));
-    else if (arch::ProcessorFeatures::SSE2())
-        return const_cast<_Type_*>(static_cast<const _Type_*>(
-            _FindLastVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _Value)));
-
-    return const_cast<_Type_*>(static_cast<const _Type_*>(_FindLastScalar(_First, _Last, _Value)));
+    return const_cast<_Type_*>(numeric::__simd_sized_dispatcher<__find_last_vectorized_internal>::__apply<_Type_>(
+        __byte_length(__first, __last), &__find_last_scalar<_Type_>,
+        std::make_tuple(__first, __last, __value, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>{}),
+        std::make_tuple(__first, __last, __value)));
 }
-
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

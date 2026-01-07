@@ -289,28 +289,19 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSE
 {
     static_assert(sizeof(_DesiredType_) != 8);
 
-    __m128i __shuffle;
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    _DesiredType_ __source[__length];
 
-    if constexpr (sizeof(_DesiredType_) == 4)
-        __shuffle = __load_lower_half<__m128i>(__tables_32bit_sse.__shuffle[__mask]);
+    __store_unaligned(__source, __vector);
 
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        __shuffle = __load_lower_half<__m128i>(__tables_16bit_sse.__shuffle[__mask]);
+    auto __start = __address;
 
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        __shuffle = __load_lower_half<__m128i>(__tables_8bit_sse.__shuffle[__mask]);
+    for (auto __index = 0; __index < (__length >> 1); ++__index)
+        if (!((__mask >> __index) & 1))
+            *__address++ = __source[__index];
 
-    const auto __destination = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle);
-    __store_lower_half(__address, __destination);
-
-    if constexpr (sizeof(_DesiredType_) == 4)
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        algorithm::__advance_bytes(__address, __tables_8bit_sse.__size[__mask]);
+    const auto __bytes = (__address - __start);
+    std::memcpy(__address, __source + __bytes, sizeof(_VectorType_) - __bytes);
 
     return __address;
 }
@@ -324,28 +315,20 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSE
     _VectorType_                    __vector) noexcept
 {
     static_assert(sizeof(_DesiredType_) != 8);
-    __m128i __shuffle;
 
-    if constexpr (sizeof(_DesiredType_) == 4)
-        __shuffle = __load_upper_half<__m128i>(__tables_32bit_sse.__shuffle[__mask]);
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    _DesiredType_ __source[__length];
 
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        __shuffle = __load_upper_half<__m128i>(__tables_16bit_sse.__shuffle[__mask]);
+    __store_unaligned(__source, __vector);
 
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        __shuffle = __load_upper_half<__m128i>(__tables_8bit_sse.__shuffle[__mask]);
+    auto __start = __address;
 
-    const auto __destination = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle);
-    __store_upper_half(__address, __destination);
+    for (auto __index = (__length >> 1); __index >= 0; ++__index)
+        if (!((__mask >> __index) & 1))
+            *__address++ = __source[__index];
 
-    if constexpr (sizeof(_DesiredType_) == 4)
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        algorithm::__advance_bytes(__address, __tables_8bit_sse.__size[__mask]);
+    const auto __bytes = (__address - __start);
+    std::memcpy(__address, __source + __bytes, sizeof(_VectorType_) - __bytes);
 
     return __address;
 }
@@ -358,34 +341,19 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSE
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if      constexpr (sizeof(_DesiredType_) == 8) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_64bit_sse.__shuffle[__mask])));
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    _DesiredType_ __source[__length];
 
-        algorithm::__advance_bytes(__address, __tables_64bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_32bit_sse.__shuffle[__mask])));
+    __store_unaligned(__source, __vector);
 
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_16bit_sse.__shuffle[__mask])));
+    auto __start = __address;
 
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
-        auto __start = __address;
+    for (auto __index = 0; __index < __length; ++__index)
+        if (!((__mask >> __index) & 1))
+            *__address++ = __source[__index];
 
-        __address = __compress_store_lower_half(__address, __mask & 0xFF, __vector);
-        __address = __compress_store_lower_half(__address, (__mask >> 8) & 0xFF, _mm_movehl_ps(
-            __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(__vector), 8)),
-            __intrin_bitcast<__m128>(__vector)));
-
-        __mask_store_unaligned<_DesiredType_>(__start, ~((1u << (__xmm_width - (__address - __start))) - 1u), __vector);
-    }
+    const auto __bytes = (__address - __start);
+    std::memcpy(__address, __source + __bytes, sizeof(_VectorType_) - __bytes);
 
     return __address;
 }
@@ -398,34 +366,19 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSE
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if      constexpr (sizeof(_DesiredType_) == 8) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_64bit_sse.__shuffle[__mask])));
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    _DesiredType_ __source[__length];
 
-        algorithm::__advance_bytes(__address, __tables_64bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_32bit_sse.__shuffle[__mask])));
+    __store_aligned(__source, __vector);
 
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_16bit_sse.__shuffle[__mask])));
+    auto __start = __address;
 
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
-        auto __start = __address;
+    for (auto __index = 0; __index < __length; ++__index)
+        if (!((__mask >> __index) & 1))
+            *__address++ = __source[__index];
 
-        __address = __compress_store_lower_half(__address, __mask & 0xFF, __vector);
-        __address = __compress_store_lower_half(__address, (__mask >> 8) & 0xFF, _mm_movehl_ps(
-            __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(__vector), 8)),
-            __intrin_bitcast<__m128>(__vector)));
-
-        __mask_store_unaligned<_DesiredType_>(__start, ~((1u << (__xmm_width - (__address - __start))) - 1u), __vector);
-    }
+    const auto __bytes = (__address - __start);
+    std::memcpy(__address, __source + __bytes, sizeof(_VectorType_) - __bytes);
 
     return __address;
 }
@@ -441,34 +394,16 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128>::__compress_store_lower_half(
-    _DesiredType_*                          __address,
-    const __simd_mask_type<_DesiredType_>   __mask,
-    const _VectorType_                      __vector) noexcept
+    _DesiredType_*                  __address,
+    __simd_mask_type<_DesiredType_> __mask,
+    _VectorType_                    __vector) noexcept
 {
     static_assert(sizeof(_DesiredType_) != 8);
 
-    __m128i __shuffle;
+    const auto __shuffle = __load_lower_half<__m128i>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask]);
+    __store_lower_half(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle));
 
-    if constexpr (sizeof(_DesiredType_) == 4)
-        __shuffle = __load_lower_half<__m128i>(__tables_32bit_sse.__shuffle[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        __shuffle = __load_lower_half<__m128i>(__tables_16bit_sse.__shuffle[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        __shuffle = __load_lower_half<__m128i>(__tables_8bit_sse.__shuffle[__mask]);
-
-    const auto __destination = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle);
-    __store_lower_half(__address, __destination);
-
-    if constexpr (sizeof(_DesiredType_) == 4)
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        algorithm::__advance_bytes(__address, __tables_8bit_sse.__size[__mask]);
+    algorithm::__advance_bytes(__address, __tables_sse<sizeof(_DesiredType_)>.__size[__mask]);
 
     return __address;
 }
@@ -477,33 +412,16 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128>::__compress_store_upper_half(
-    _DesiredType_*                          __address,
-    const __simd_mask_type<_DesiredType_>   __mask,
-    const _VectorType_                      __vector) noexcept
+    _DesiredType_*                  __address,
+    __simd_mask_type<_DesiredType_> __mask,
+    _VectorType_                    __vector) noexcept
 {
     static_assert(sizeof(_DesiredType_) != 8);
-    __m128i __shuffle;
 
-    if constexpr (sizeof(_DesiredType_) == 4)
-        __shuffle = __load_upper_half<__m128i>(__tables_32bit_sse.__shuffle[__mask]);
+    const auto __shuffle = __load_upper_half<__m128i>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask]);
+    __store_upper_half(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle));
 
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        __shuffle = __load_upper_half<__m128i>(__tables_16bit_sse.__shuffle[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        __shuffle = __load_upper_half<__m128i>(__tables_8bit_sse.__shuffle[__mask]);
-
-    const auto __destination = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle);
-    __simd_store_upper_half(__address, __destination);
-
-    if constexpr (sizeof(_DesiredType_) == 4)
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 2)
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-
-    else if constexpr (sizeof(_DesiredType_) == 1)
-        algorithm::__advance_bytes(__address, __tables_8bit_sse.__size[__mask]);
+    algorithm::__advance_bytes(__address, __tables_sse<sizeof(_DesiredType_)>.__size[__mask]);
 
     return __address;
 }
@@ -512,29 +430,11 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128>::__compress_store_unaligned(
-    _DesiredType_*                          __address,
-    const __simd_mask_type<_DesiredType_>   __mask,
-    const _VectorType_                      __vector) noexcept
+    _DesiredType_*                      __address,
+    __simd_mask_type<_DesiredType_>     __mask,
+    _VectorType_                        __vector) noexcept
 {
-    if      constexpr (sizeof(_DesiredType_) == 8) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_64bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_64bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_32bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_16bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
+    if constexpr (sizeof(_DesiredType_) == 1) {
         auto __start = __address;
 
         __address = __compress_store_lower_half(__address, __mask & 0xFF, __vector);
@@ -543,6 +443,12 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSS
             __intrin_bitcast<__m128>(__vector)));
 
         __mask_store_unaligned<_DesiredType_>(__start, ~((1u << (__xmm_width - (__address - __start))) - 1u), __vector);
+    }
+    else {
+        __store_unaligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
+            __load_unaligned<__m128i>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask])));
+
+        algorithm::__advance_bytes(__address, __tables_sse<sizeof(_DesiredType_)>.__size[__mask]);
     }
 
     return __address;
@@ -552,29 +458,11 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128>::__compress_store_aligned(
-    _DesiredType_*                          __address,
-    const __simd_mask_type<_DesiredType_>   __mask,
-    const _VectorType_                      __vector) noexcept
+    _DesiredType_*                      __address,
+    __simd_mask_type<_DesiredType_>     __mask,
+    _VectorType_                        __vector) noexcept
 {
-    if      constexpr (sizeof(_DesiredType_) == 8) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_64bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_64bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_32bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_32bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
-            __load_unaligned<__m128i>(__tables_16bit_sse.__shuffle[__mask])));
-
-        algorithm::__advance_bytes(__address, __tables_16bit_sse.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
+    if constexpr (sizeof(_DesiredType_) == 1) {
         auto __start = __address;
 
         __address = __compress_store_lower_half(__address, __mask & 0xFF, __vector);
@@ -582,7 +470,13 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSS
             __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(__vector), 8)),
             __intrin_bitcast<__m128>(__vector)));
 
-        __mask_store_unaligned<_DesiredType_>(__start, ~((1u << (__xmm_width - (__address - __start))) - 1u), __vector);
+        __mask_store_aligned<_DesiredType_>(__start, ~((1u << (__xmm_width - (__address - __start))) - 1u), __vector);
+    }
+    else {
+        __store_aligned(__address, _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector),
+            __load_unaligned<__m128i>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask])));
+    
+        algorithm::__advance_bytes(__address, __tables_sse<sizeof(_DesiredType_)>.__size[__mask]);
     }
 
     return __address;
@@ -1362,25 +1256,17 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_64bit_avx.__shuffle[__mask]));
-        const auto __destination = _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle);
+    if constexpr (sizeof(_DesiredType_) >= 4) {
+        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_avx<sizeof(_DesiredType_)>.__shuffle[__mask]));
 
-        _mm256_storeu_si256(reinterpret_cast<__m256i*>(__address), __destination);
-        algorithm::__advance_bytes(__address, __tables_64bit_avx.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_32bit_avx.__shuffle[__mask]));
-        const auto __destination = _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i*>(__address), __destination);
-        algorithm::__advance_bytes(__address, __tables_32bit_avx.__size[__mask]);
+        __store_unaligned(__address, _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle));
+        algorithm::__advance_bytes(__address, __tables_avx<sizeof(_DesiredType_)>.__size[__mask]);
     }
     else {
         constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
         _DesiredType_ __source[__length];
 
-        __simd_store_unaligned<__generation, __register_policy>(__source, __vector);
+        __store_unaligned(__source, __vector);
 
         auto __start = __address;
 
@@ -1403,24 +1289,16 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_64bit_avx.__shuffle[__mask]));
-        const auto __destination = _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle);
+    if constexpr (sizeof(_DesiredType_) >= 4) {
+        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_avx<sizeof(_DesiredType_)>.__shuffle[__mask]));
 
-        _mm256_store_si256(reinterpret_cast<__m256i*>(__address), __destination);
-        algorithm::__advance_bytes(__address, __tables_64bit_avx.__size[__mask]);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_32bit_avx.__shuffle[__mask]));
-        const auto __destination = _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle);
-
-        _mm256_store_si256(reinterpret_cast<__m256i*>(__address), __destination);
-        algorithm::__advance_bytes(__address, __tables_32bit_avx.__size[__mask]);
+        __store_aligned(__address, _mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle));
+        algorithm::__advance_bytes(__address, __tables_avx<sizeof(_DesiredType_)>.__size[__mask]);
     }
     else {
         constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
-
         _DesiredType_ __source[__length];
+
         __store_unaligned(__source, __vector);
 
         auto __start = __address;

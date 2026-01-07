@@ -94,19 +94,26 @@ simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE2, x
         else
             return _mm_cvtsi128_si32(__horizontal_folded_values);
     }
-    else {
-        constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+    else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>) {
+        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(__vector);
+        
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 8));
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 4));
 
-        _DesiredType_ __array[__length];
-        __simd_store_unaligned<__generation, __register_policy>(__array, __vector);
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 2));
 
-        _DesiredType_ __folded = __array[0];
+        return _mm_cvtsi128_si32(__intrin_bitcast<__m128i>(__horizontal_folded_values));
+    } 
+    else if constexpr (__is_epi8_v<_DesiredType_> || __is_epu8_v<_DesiredType_>) {
+        auto __horizontal_folded_values = __intrin_bitcast<__m128i>(__vector);
 
-        for (auto __index = 1; __index < __length; ++__index)
-            if (__reduce(__array[__index], __folded))
-                __folded = __array[__index];
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 8));
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 4));
 
-        return __folded;
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 2));
+        __horizontal_folded_values = __reduce(__horizontal_folded_values, _mm_srli_si128(__horizontal_folded_values, 1));
+
+        return _mm_cvtsi128_si32(__intrin_bitcast<__m128i>(__horizontal_folded_values));
     }
 }
 
@@ -114,10 +121,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>::__horizontal_min(_VectorType_ __vector) noexcept {
-    if constexpr (sizeof(_DesiredType_) >= 4)
-        return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
-    else
-        return __horizontal_fold<_DesiredType_>(__vector, [](auto&& __left, auto&& __right) { return __left < __right; });
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_min_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <
@@ -153,10 +157,7 @@ template <
     typename _DesiredType_,
     typename _VectorType_>
 simd_stl_always_inline _DesiredType_ __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>::__horizontal_max(_VectorType_ __vector) noexcept {
-    if constexpr (sizeof(_DesiredType_) >= 4)
-        return __horizontal_fold<_DesiredType_>(__vector, __vertical_max_wrapper<__generation, __register_policy, _DesiredType_>{});
-    else
-        return __horizontal_fold<_DesiredType_>(__vector, [] (auto&& __left, auto&& __right) { return __left > __right; });
+    return __horizontal_fold<_DesiredType_>(__vector, __vertical_max_wrapper<__generation, __register_policy, _DesiredType_>{});
 }
 
 template <

@@ -1,76 +1,63 @@
 #pragma once
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <src/simd_stl/numeric/SimdDispatcher.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-void simd_stl_stdcall _ReverseCopyScalar(
-    const void* _First,
-    const void* _Last,
-    void*       _Destination) noexcept
+void simd_stl_stdcall __reverse_copy_scalar(
+    const void* __first,
+    const void* __last,
+    void*       __destination) noexcept
 {
-    auto _FirstPointer = static_cast<const _Type_*>(_First);
-    auto _LastPointer = static_cast<const _Type_*>(_Last);
+    auto __first_pointer        = static_cast<const _Type_*>(__first);
+    auto __last_pointer         = static_cast<const _Type_*>(__last);
 
-    auto _DestinationPointer = static_cast<_Type_*>(_Destination);
+    auto __destination_pointer  = static_cast<_Type_*>(__destination);
 
-    for (; _FirstPointer != _LastPointer; ++_DestinationPointer)
-        *_DestinationPointer = *--_LastPointer;
+    for (; __first_pointer != __last_pointer; ++__destination_pointer)
+        *__destination_pointer = *--__last_pointer;
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-void simd_stl_stdcall _ReverseCopyVectorized(
-    const void* _First,
-    const void* _Last,
-    void*       _Destination) noexcept
-{
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+template <class _Simd_>
+struct __reverse_copy_vectorized_internal {
+    void simd_stl_stdcall operator()(
+        const void* __first,
+        const void* __last,
+        void*       __destination) noexcept
+    {
+        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
 
-    const auto _AlignedSize = __byte_length(_First, _Last) & (~((sizeof(_SimdType_)) - 1));
+        const auto __aligned_size = __byte_length(__first, __last) & (~((sizeof(_Simd_)) - 1));
 
-    if (_AlignedSize != 0) {
-        const void* _StopAt = _Last;
-        __rewind_bytes(_StopAt, _AlignedSize);
+        if (__aligned_size != 0) {
+            const void* __stop_at = __last;
+            __rewind_bytes(__stop_at, __aligned_size);
 
-        do {
-            auto _Loaded = _SimdType_::loadUnaligned(static_cast<const char*>(_Last) - sizeof(_SimdType_));
-            _Loaded.reverse();
-            _Loaded.storeUnaligned(_Destination);
+            do {
+                auto __loaded = _Simd_::load(static_cast<const char*>(__last) - sizeof(_Simd_));
+                __loaded.reverse();
+                __loaded.store(__destination);
 
-            __advance_bytes(_Destination, sizeof(_SimdType_));
-            __rewind_bytes(_Last, sizeof(_SimdType_));
-        } while (_Last != _StopAt);
+                __advance_bytes(__destination, sizeof(_Simd_));
+                __rewind_bytes(__last, sizeof(_Simd_));
+            } while (__last != __stop_at);
+        }
+
+        if (__first != __last)
+            __reverse_copy_scalar<typename _Simd_::value_type>(__first, __last, __destination);
     }
-
-    if (_First != _Last)
-        _ReverseCopyScalar<_Type_>(_First, _Last, _Destination);
-}
+};
 
 template <class _Type_>
-void simd_stl_stdcall _ReverseCopyVectorized(
-    const void* _First,
-    const void* _Last,
-    void*       _Destination) noexcept
+void simd_stl_stdcall __reverse_copy_vectorized(
+    const void* __first,
+    const void* __last,
+    void*       __destination) noexcept
 {
-    if constexpr (sizeof(_Type_) == 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return _ReverseCopyVectorized<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Destination);
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return _ReverseCopyVectorized<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Destination);
-    }
-
-    if (arch::ProcessorFeatures::AVX2())
-        return _ReverseCopyVectorized<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination);
-    else if (arch::ProcessorFeatures::SSSE3())
-        return _ReverseCopyVectorized<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Destination);
-
-    _ReverseCopyScalar<_Type_>(_First, _Last, _Destination);
+    return numeric::__simd_dispatcher<__reverse_copy_vectorized_internal>::__apply<_Type_>(
+        &__reverse_copy_scalar<_Type_>, __first, __last, __destination);
 }
 
 

@@ -1,99 +1,74 @@
 #pragma once
 
-#include <simd_stl/SimdStlNamespace.h>
-
-#include <simd_stl/compatibility/Inline.h>
-#include <simd_stl/compatibility/FunctionAttributes.h>
-
-#include <simd_stl/compatibility/SimdCompatibility.h>
-#include <simd_stl/arch/ProcessorFeatures.h>
-
-#include <src/simd_stl/algorithm/AdvanceBytes.h>
-
-#include <simd_stl/math/BitMath.h>
-#include <simd_stl/numeric/BasicSimd.h>
+#include <src/simd_stl/numeric/SimdDispatcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline const void* _RemoveScalar(
-    void*       _First,
-    const void* _Current,
-    const void* _Last,
-    _Type_      _Value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline _Type_* __remove_scalar(
+    void*       __first,
+    const void* __current,
+    const void* __last,
+    _Type_      __value) noexcept
 {
-    auto _CurrentCasted  = static_cast<const _Type_*>(_Current);
-    auto _FirstCasted    = static_cast<_Type_*>(_First);
+    auto __current_pointer  = static_cast<const _Type_*>(__current);
+    auto __first_pointer    = static_cast<_Type_*>(__first);
 
-    for (; _CurrentCasted != _Last; ++_CurrentCasted) {
-        const auto _CurrentValue = *_CurrentCasted;
+    for (; __current_pointer != __last; ++__current_pointer) {
+        const auto __current_value = *__current_pointer;
 
-        if (_CurrentValue != _Value)
-            *_FirstCasted++ = _CurrentValue;
+        if (__current_value != __value)
+            *__first_pointer++ = __current_value;
     }
 
-    return _FirstCasted;
+    return __first_pointer;
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_always_inline const void* _RemoveVectorizedInternal(
-    void*       _First,
-    const void* _Last,
-    _Type_      _Value) noexcept
-{
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    const auto _AlignedSize  = __byte_length(_First, _Last) & (~(sizeof(_SimdType_) - 1));
+template <class _Simd_>
+struct __remove_vectorized_internal {
+    simd_stl_always_inline typename _Simd_::value_type* operator()(
+        void*                       __first,
+        const void*                 __last,
+        typename _Simd_::value_type __value) noexcept
+    {
+        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
 
-    void* _Current = _First;
+        const auto __aligned_size = __byte_length(__first, __last) & (~(sizeof(_Simd_) - 1));
+        auto __current = __first;
 
-    if (_AlignedSize != 0) {
-        const auto _Comparand = _SimdType_(_Value);
+        if (__aligned_size != 0) {
+            const auto __comparand = _Simd_(__value);
 
-        const void* _StopAt = _First;
-        __advance_bytes(_StopAt, _AlignedSize);
+            auto __stop_at = __first;
+            __advance_bytes(__stop_at, __aligned_size);
 
-        do {
-            const auto _Loaded = _SimdType_::loadUnaligned(_Current);
-            const auto _Mask = _Comparand.maskEqual(_Loaded);
+            do {
+                const auto __loaded = _Simd_::load(__current);
+                const auto __mask = __comparand.mask_compare<numeric::simd_comparison::equal>(__loaded);
 
-            _First = _Loaded.compressStoreUnaligned(_First, _Mask.unwrap());
-            __advance_bytes(_Current, sizeof(_SimdType_));
-        } while (_Current != _StopAt);
+                __first = __loaded.compress_store(__first, __mask);
+                __advance_bytes(__current, sizeof(_Simd_));
+            } while (__current != __stop_at);
+        }
+
+        return (__current == __last) ? __first : __remove_scalar<typename _Simd_::value_type>(__first, __current, __last, __value);
     }
-
-    return (_Current == _Last) ? _First : _RemoveScalar<_Type_>(_First, _Current, _Last, _Value);
-}
+};
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline _Type_* _RemoveVectorized(
-    void*       _First,
-    const void* _Last,
-    _Type_      _Value) noexcept
+simd_stl_declare_const_function simd_stl_always_inline _Type_* __remove_vectorized(
+    void*       __first,
+    const void* __last,
+    _Type_      __value) noexcept
 {
-    if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return const_cast<_Type_*>(static_cast<const _Type_*>(
-                _RemoveVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Value)));
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return const_cast<_Type_*>(static_cast<const _Type_*>(
-                _RemoveVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Value)));
-    }
+    auto __first_pointer = static_cast<_Type_*>(__first);
+    auto __last_pointer = static_cast<_Type_*>(__last);
 
-    if (arch::ProcessorFeatures::AVX2())
-        return const_cast<_Type_*>(static_cast<const _Type_*>(
-            _RemoveVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Value)));
-    else if (arch::ProcessorFeatures::SSSE3())
-        return const_cast<_Type_*>(static_cast<const _Type_*>(
-            _RemoveVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last, _Value)));
-
-    return const_cast<_Type_*>(static_cast<const _Type_*>(_RemoveScalar<_Type_>(_First, _First, _Last, _Value)));
+    return numeric::__simd_dispatcher<__remove_vectorized_internal>::__apply<_Type_>(
+        &__remove_scalar<_Type_>, std::make_tuple(__first, __last_pointer, __value),
+        std::make_tuple(__first, __first, __last_pointer, __value));
 }
 
 

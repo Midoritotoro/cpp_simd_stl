@@ -49,7 +49,7 @@ __simd_nodiscard_inline_constexpr std::pair<_FirstIterator_, _SecondIterator_> m
 	__verify_range(__first1, __last1);
 	__verify_range(__first2, __last2);
 
-	const auto __mismatch_position = _MismatchUnchecked(__unwrap_iterator(__first1), __unwrap_iterator(__last1),
+	const auto __mismatch_position = __mismatch_unchecked(__unwrap_iterator(__first1), __unwrap_iterator(__last1),
 		__unwrap_iterator(__first2), __unwrap_iterator(__last2), type_traits::__pass_function(__predicate));
 
 	__seek_possibly_wrapped_iterator(__first1, __mismatch_position.first);

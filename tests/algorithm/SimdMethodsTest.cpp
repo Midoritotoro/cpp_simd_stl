@@ -302,9 +302,21 @@ void testMethods() {
 
     {
         alignas(64) T arrA[N], arrB[N];
+
         for (size_t i = 0; i < N; ++i) {
-            arrA[i] = static_cast<T>(i - 2);
-            arrB[i] = static_cast<T>(N - i);
+            if (i % 4 == 0)
+                arrA[i] = static_cast<T>(100);
+            else if (i % 5 == 0)
+                arrA[i] = static_cast<T>(-50);
+            else
+                arrA[i] = static_cast<T>(i - 2);
+
+            if (i % 3 == 0)
+                arrB[i] = static_cast<T>(200);
+            else if (i % 7 == 0)
+                arrB[i] = static_cast<T>(-100);
+            else
+                arrB[i] = static_cast<T>(N - i);
         }
 
         Simd a = Simd::load(arrA);
@@ -333,6 +345,7 @@ void testMethods() {
             simd_stl_assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
         }
     }
+
 }
 
 template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>

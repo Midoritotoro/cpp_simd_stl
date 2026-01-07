@@ -331,7 +331,7 @@ std::string FormatString(const char* msg, va_list args) {
     va_end(args_cp);
 
     // currently there is no error handling for failure, so this is hack.
-    Assert(ret >= 0);
+    simd_stl_assert(ret >= 0);
 
     if (ret == 0) {  // handle empty expansion
         return {};
@@ -343,7 +343,7 @@ std::string FormatString(const char* msg, va_list args) {
     size = static_cast<size_t>(ret) + 1;  // + 1 for the null byte
     std::unique_ptr<char[]> buff(new char[size]);
     ret = vsnprintf(buff.get(), size, msg, args);
-    Assert(ret > 0 && (static_cast<size_t>(ret)) < size);
+    simd_stl_assert(ret > 0 && (static_cast<size_t>(ret)) < size);
     return buff.get();
 }
 
