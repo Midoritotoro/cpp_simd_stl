@@ -15,7 +15,7 @@ simd_stl_constexpr_cxx20 void __verify_range__(
 	const _Type_* const __first,
 	const _Type_* const __last) noexcept
 {
-	DebugAssertLog(__first <= __last, "transposed pointer range");
+	simd_stl_debug_assert_log(__first <= __last, "transposed pointer range");
 }
 
 template <
@@ -27,10 +27,10 @@ simd_stl_constexpr_cxx20 void __verify_range__(
 {
 #if !defined(NDEBUG)
 	if constexpr (std::is_pointer_v<_Iterator_> && std::is_pointer_v<_Sentinel_>) {
-		DebugAssertLog(__first <= __last, "transposed pointer range");
+		simd_stl_debug_assert_log(__first <= __last, "transposed pointer range");
 		return;
 	}
-	else if constexpr (type_traits::is_range_verifiable_v<_Iterator_, _Sentinel_>) {
+	else if constexpr (type_traits::__is_range_verifiable_v<_Iterator_, _Sentinel_>) {
 		__verify_range__(
 			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__first))),
 			const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__last))));
@@ -38,7 +38,7 @@ simd_stl_constexpr_cxx20 void __verify_range__(
 #endif
 }
 
-#if !defined(__verifyRange)
+#if !defined(__verify_range)
 #  if !defined(NDEBUG)
 #    define __verify_range(__first, __last)  __verify_range__(__first, __last) 
 #  else

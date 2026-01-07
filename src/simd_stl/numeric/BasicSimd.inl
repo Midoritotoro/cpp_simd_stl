@@ -568,7 +568,7 @@ template <
 simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_compare(const simd& __right) const noexcept
 {
-    return _SimdCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+    return __simd_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
 }
 
 template <
@@ -582,7 +582,7 @@ simd_stl_always_inline __native_compare_return_type<simd<_SimdGeneration_, _Elem
     _RegisterPolicy_>, _DesiredType_, _Comparison_>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::native_compare(const simd& __right) const noexcept
 {
-    return _SimdNativeCompare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
 }
 
 template <

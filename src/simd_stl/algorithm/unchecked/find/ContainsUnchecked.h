@@ -24,9 +24,6 @@ __simd_nodiscard_inline_constexpr bool __contains_unchecked(
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (numeric::__is_comparable<_UnwrappedIterator_>(__value) == false)
-				return false;
-
 			return __contains_vectorized(std::to_address(__first_unwrapped), std::to_address(__last_unwrapped), __value);
 		}
 	}
