@@ -17,7 +17,7 @@ __simd_nodiscard_inline_constexpr sizetype __count_unchecked(
 	_UnwrappedIterator_									__last_unwrapped,
 	const typename std::type_identity<_Type_>::type&	__value) noexcept
 {
-	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedInputIterator_>;
+	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedIterator_>;
 
 	if constexpr (type_traits::is_iterator_random_ranges_v<_UnwrappedIterator_>) {
 		const auto __size = __byte_length(__first_unwrapped, __last_unwrapped);

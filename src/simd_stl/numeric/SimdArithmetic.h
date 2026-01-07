@@ -693,7 +693,7 @@ simd_stl_always_inline _VectorType_ __simd_add(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Add<_DesiredType_>(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __add<_DesiredType_>(__left, __right);
 }
 
 template <
@@ -706,7 +706,7 @@ simd_stl_always_inline _VectorType_ __simd_substract(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Substract<_DesiredType_>(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __substract<_DesiredType_>(__left, __right);
 }
 
 template <
@@ -719,7 +719,7 @@ simd_stl_always_inline _VectorType_ __simd_multiply(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Multiply<_DesiredType_>(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __multiply<_DesiredType_>(__left, __right);
 }
 
 template <
@@ -732,7 +732,7 @@ simd_stl_always_inline _VectorType_ __simd_divide(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template _Divide<_DesiredType_>(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __divide<_DesiredType_>(__left, __right);
 }
 
 template <

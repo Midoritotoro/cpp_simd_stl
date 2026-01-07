@@ -77,8 +77,9 @@ simd_stl_declare_const_function bool simd_stl_stdcall __contains_vectorized(
     const void* __last,
     _Type_      __value) noexcept
 {
+    auto __args = std::make_tuple(__first, __last, __value);
     return numeric::__simd_sized_dispatcher<__contains_vectorized_internal>::__apply<_Type_>(
-        __byte_length(__first, __last), &__contains_scalar<_Type_>, __first, __last, __value);
+        __byte_length(__first, __last), &__contains_scalar<_Type_>, __args, __args);
 }
 
 
