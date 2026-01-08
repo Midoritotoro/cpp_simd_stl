@@ -16,6 +16,11 @@ class simd_mask {
 
 	using __implementation = __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 public:
+	static constexpr auto __generation = _SimdGeneration_;
+
+	using value_type = _Element_;
+	using policy_type = _RegisterPolicy_;
+
 	using mask_type = typename __implementation::mask_type;
 	using size_type = typename __implementation::size_type;
 
@@ -59,6 +64,37 @@ public:
 private:
 	mask_type _mask = 0;
 };
+
+template <
+	class _SimdMask_, 
+	class = void>
+struct __is_valid_simd_mask :
+	std::false_type
+{};
+
+template <class _SimdMask_>
+struct __is_valid_simd_mask<
+	_SimdMask_,
+    std::void_t<simd_mask<
+        _SimdMask_::__generation,
+        typename _SimdMask_::value_type,
+        typename _SimdMask_::policy_type>>>
+    : std::bool_constant<
+        type_traits::is_virtual_base_of_v<
+            simd_mask<_SimdMask_::__generation,
+                typename _SimdMask_::value_type,
+                typename _SimdMask_::policy_type>,
+            _SimdMask_> ||
+        std::is_same_v<
+            simd_mask<_SimdMask_::__generation,
+				typename _SimdMask_::value_type,
+				typename _SimdMask_::policy_type>,
+            _SimdMask_>> 
+{};
+
+template <class _SimdMask_>
+constexpr bool __is_valid_simd_mask_v = __is_valid_simd_mask<_SimdMask_>::value;
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

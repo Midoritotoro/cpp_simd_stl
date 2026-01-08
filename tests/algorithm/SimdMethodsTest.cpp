@@ -346,6 +346,23 @@ void testMethods() {
         }
     }
 
+    {
+        alignas(64) T arr[N];
+        alignas(64) T reversed[N];
+
+        for (size_t i = 0; i < N; ++i) {
+            arr[i] = static_cast<T>(i);
+        }
+
+
+        Simd simdVec = Simd::load(arr);
+        simdVec.reverse();
+        simdVec.store(reversed);
+
+        for (size_t i = 0; i < N; ++i) {
+            assert(reversed[i] == arr[N - 1 - i]);
+        }
+    }
 }
 
 template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>
@@ -388,8 +405,6 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::ymm256>();
-
-
 
     return 0;
 }

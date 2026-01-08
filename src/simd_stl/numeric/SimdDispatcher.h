@@ -7,6 +7,16 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <template <class> class _Function_>
 struct __simd_dispatcher {
+private:
+    template <
+        class       _SpecializedFunction_,
+        class...    _VectorizedArgs_>
+    simd_stl_always_inline static auto __invoke_simd(std::tuple<_VectorizedArgs_...>&& __simd_args) noexcept {
+        return std::apply([&](auto&&... __args) {
+            return _SpecializedFunction_()(std::forward<decltype(__args)>(__args)...);
+        }, std::move(__simd_args));
+    }
+public:
     template <
         class       _Type_,
         class       _FallbackFunction_,
@@ -19,23 +29,23 @@ struct __simd_dispatcher {
     {
         if constexpr (sizeof(_Type_)<= 2) {
             if (arch::ProcessorFeatures::AVX512BW())
-                return _Function_<numeric::simd512_avx512bw<_Type_>>()(std::forward<_VectorizedArgs_>(__simd_args)...);
+                return __invoke_simd<_Function_<numeric::simd512_avx512bw<_Type_>>>(std::move(__simd_args));
         }
         else {
             if (arch::ProcessorFeatures::AVX512F())
-                return _Function_<numeric::simd512_avx512f<_Type_>>()(std::forward<_VectorizedArgs_>(__simd_args)...);
+                return __invoke_simd<_Function_<numeric::simd512_avx512f<_Type_>>>(std::move(__simd_args));
         }
 
         if (arch::ProcessorFeatures::AVX2())
-            return _Function_<numeric::simd256_avx2<_Type_>>()(std::forward<_VectorizedArgs_>(__simd_args)...);
+            return __invoke_simd<_Function_<numeric::simd256_avx2<_Type_>>>(std::move(__simd_args));
 
         else if (arch::ProcessorFeatures::SSE42())
-            return _Function_<numeric::simd128_sse42<_Type_>>()(std::forward<_VectorizedArgs_>(__simd_args)...);
+            return __invoke_simd<_Function_<numeric::simd128_sse42<_Type_>>>(std::move(__simd_args));
 
         else if (arch::ProcessorFeatures::SSE2())
-            return _Function_<numeric::simd128_sse2<_Type_>>()(std::forward<_VectorizedArgs_>(__simd_args)...);
+            return __invoke_simd<_Function_<numeric::simd128_sse2<_Type_>>>(std::move(__simd_args));
 
-        return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_FallbackArgs_>(__fallback_args)...);
+        return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
     }
 
     template <

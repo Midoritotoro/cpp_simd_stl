@@ -9,7 +9,7 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 template <class _VectorType_>
 __simd_nodiscard_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_VectorType_ __vector) noexcept;
 
-template <class _MaskType_, std::enable_if_t<__is_valid_basic_simd_v<_MaskType_> || __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_>, int> = 0>
+template <class _MaskType_, std::enable_if_t<__is_valid_basic_simd_v<_MaskType_> || __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_> || __is_valid_simd_mask_v<_MaskType_>, int> = 0>
 __simd_nodiscard_inline auto __simd_unwrap_mask(_MaskType_ __mask) noexcept;
 
 template <

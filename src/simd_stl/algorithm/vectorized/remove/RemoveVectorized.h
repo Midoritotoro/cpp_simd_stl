@@ -53,7 +53,9 @@ struct __remove_vectorized_internal {
             } while (__current != __stop_at);
         }
 
-        return (__current == __last) ? __first : __remove_scalar<typename _Simd_::value_type>(__first, __current, __last, __value);
+        return (__current == __last) 
+            ? static_cast<typename _Simd_::value_type*>(__first)
+            : __remove_scalar<typename _Simd_::value_type>(__first, __current, __last, __value);
     }
 };
 
@@ -64,11 +66,11 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_* __remove_vectoriz
     _Type_      __value) noexcept
 {
     auto __first_pointer = static_cast<_Type_*>(__first);
-    auto __last_pointer = static_cast<_Type_*>(__last);
+    auto __last_pointer = static_cast<const _Type_*>(__last);
 
     return numeric::__simd_dispatcher<__remove_vectorized_internal>::__apply<_Type_>(
-        &__remove_scalar<_Type_>, std::make_tuple(__first, __last_pointer, __value),
-        std::make_tuple(__first, __first, __last_pointer, __value));
+        &__remove_scalar<_Type_>, std::make_tuple(__first_pointer, __last_pointer, __value),
+        std::make_tuple(__first_pointer, __first_pointer, __last_pointer, __value));
 }
 
 
