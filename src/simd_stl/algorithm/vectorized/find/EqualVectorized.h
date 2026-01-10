@@ -35,7 +35,7 @@ struct __equal_vectorized_internal {
         const sizetype      __length,
         _CachePrefetcher_&& __prefetcher) noexcept
     {
-        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
+        const auto __guard = numeric::make_guard<_Simd_>();
 
         constexpr auto __is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
             _Simd_::template is_native_mask_load_supported_v<>;

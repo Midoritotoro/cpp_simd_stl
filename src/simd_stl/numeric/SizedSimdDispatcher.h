@@ -20,17 +20,28 @@ private:
     }
 
     template <
+        class       _SpecializedFunction_, 
+        class       _SizeType_,
+        class...    _Args>
+    simd_stl_always_inline static auto __invoke_simd_helper(
+        _SizeType_ __aligned_size,
+        _SizeType_ __tail_size,
+        _Args&&... __args) noexcept
+    {
+        return _SpecializedFunction_()(__aligned_size, __tail_size, std::forward<_Args>(__args)...);
+    }
+
+    template <
         class       _SpecializedFunction_,
         class       _SizeType_,
-        class...    _VectorizedArgs_> 
+        class...    _VectorizedArgs_>
     simd_stl_always_inline static auto __invoke_simd(
-        _SizeType_                          __aligned_size, 
-        _SizeType_                          __tail_size, 
-        std::tuple<_VectorizedArgs_...>&&   __simd_args) noexcept 
+        _SizeType_                          __aligned_size,
+        _SizeType_                          __tail_size,
+        std::tuple<_VectorizedArgs_...>&& __simd_args) noexcept
     {
-        return std::apply([&](auto&&... __args) {
-            return _SpecializedFunction_()(__aligned_size, __tail_size, std::forward<decltype(__args)>(__args)...);
-        }, std::move(__simd_args)); 
+        return std::apply(&__invoke_simd_helper<_SpecializedFunction_, _SizeType_, _VectorizedArgs_...>,
+            std::tuple_cat(std::make_tuple(__aligned_size, __tail_size), std::move(__simd_args)));
     }
 public:
     template <

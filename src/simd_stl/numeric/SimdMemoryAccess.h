@@ -200,22 +200,6 @@ public:
     template <
         typename _DesiredType_,
         typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_lower_half(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_upper_half(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
     static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
         _DesiredType_*                  __address,
         __simd_mask_type<_DesiredType_> __mask,
@@ -276,6 +260,7 @@ public:
         _DesiredType_*                          __address,
         const __simd_mask_type<_DesiredType_>   __mask,
         const _VectorType_                      __vector) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>

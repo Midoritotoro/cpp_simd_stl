@@ -7,102 +7,81 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <typename _Type_>
-simd_stl_always_inline void simd_stl_stdcall _ReplaceScalar(
-    void*           _First,
-    void*           _Last,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
+simd_stl_always_inline void simd_stl_stdcall __replace_scalar(
+    void*           __first,
+    void*           __last,
+    const _Type_    __old_value,
+    const _Type_    __new_value) noexcept
 {
-    auto _Current = static_cast<_Type_*>(_First);
+    auto __first_pointer = static_cast<_Type_*>(__first);
 
-    for (; _Current != _Last; ++_Current)
-        if (*_Current == _OldValue)
-            *_Current = _NewValue;
+    for (; __first_pointer != __last; ++__first_pointer)
+        if (*__first_pointer == __old_value)
+            *__first_pointer = __new_value;
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_always_inline void simd_stl_stdcall _ReplaceVectorizedInternal(
-    void*           _First,
-    void*           _Last,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
-{
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+template <class _Simd_>
+struct __replace_vectorized_internal {
+    template <class _CachePrefetcher_>
+    simd_stl_always_inline void simd_stl_stdcall operator()(
+        sizetype                            __aligned_size,
+        sizetype                            __tail_size,
+        void*                               __first,
+        void*                               __last,
+        const typename _Simd_::value_type   __old_value,
+        const typename _Simd_::value_type   __new_value,
+        _CachePrefetcher_&&                 __prefetcher) noexcept
+    {
+        const auto __guard = numeric::make_guard<_Simd_>();
 
-    constexpr auto _Is_masked_store_supported = _SimdType_::template is_native_mask_store_supported_v<>;
-    constexpr auto _Is_masked_memory_access_supported = _Is_masked_store_supported &&
-        _SimdType_::template is_native_mask_load_supported_v<>;
+        constexpr auto __is_masked_store_supported = _Simd_::template is_native_mask_store_supported_v<>;
+        constexpr auto __is_masked_memory_access_supported = __is_masked_store_supported &&
+            _Simd_::template is_native_mask_load_supported_v<>;
 
-    const auto _Size        = __byte_length(_First, _Last);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+        void* __stop_at = __first;
+        __advance_bytes(__stop_at, __aligned_size);
 
-    void* _StopAt = _First;
-    __advance_bytes(_StopAt, _AlignedSize);
+        const auto __comparand      = _Simd_(__old_value);
+        const auto __replacement    = _Simd_(__new_value);
 
-    const auto _Comparand   = _SimdType_(_OldValue);
-    const auto _Replacement = _SimdType_(_NewValue);
+        do {
+            __prefetcher(static_cast<const char*>(__first) + sizeof(_Simd_));
 
-    while (_First != _StopAt) {
-        const auto _Loaded      = _SimdType_::loadUnaligned(_First);
-        const auto _NativeMask  = _Loaded.nativeEqual(_Comparand);
+            const auto __loaded = _Simd_::load(__first);
+            const auto __mask   = __loaded.native_compare<numeric::simd_comparison::equal>(__comparand);
 
-        if constexpr (_Is_masked_store_supported)
-            _Replacement.maskStoreUnaligned(_First, _NativeMask);
-        else
-            _Replacement.maskBlendStoreUnaligned(_First, _NativeMask, _Loaded);
+            __replacement.mask_store(__first, __mask);
+            __advance_bytes(__first, sizeof(_Simd_));
+        } while (__first != __stop_at);
 
-        __advance_bytes(_First, sizeof(_SimdType_));
-    }
-    
-    if constexpr (_Is_masked_memory_access_supported) {
-        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+        if (__tail_size == 0)
+            return;
 
-        if (_TailSize != 0) {
-            const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
-            const auto _Loaded      = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+        if constexpr (__is_masked_memory_access_supported) {
+            const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
+            const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-            const auto _Mask                = _Loaded.nativeEqual(_Comparand);
-            const auto _MaskForNativeStore  = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
-                typename _SimdType_::policy_type, _Type_>(_Mask);
+            const auto __mask                   = __loaded.native_compare<numeric::simd_comparison::equal>(__comparand);
+            const auto __mask_for_native_store  = numeric::__simd_convert_to_mask_for_native_store<_Simd_::__generation,
+                typename _Simd_::policy_type, typename _Simd_::value_type>(__mask);
 
-            const auto _StoreMask   = _MaskForNativeStore & _TailMask;
-            _Replacement.maskStoreUnaligned(_First, _StoreMask);
+            const auto __store_mask = __mask_for_native_store & __tail_mask;
+            __replacement.mask_store(__first, __store_mask);
+        }
+        else {
+            __replace_scalar<typename _Simd_::value_type>(__first, __last, __old_value, __new_value);
         }
     }
-    else {
-        if (_First != _Last)
-            _ReplaceScalar<_Type_>(_First, _Last, _OldValue, _NewValue);
-    }
-}
+};
 
 template <typename _Type_>
-void simd_stl_stdcall _ReplaceVectorized(
-    void*           _First,
-    void*           _Last,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
+void simd_stl_stdcall __replace_vectorized(
+    void*           __first,
+    void*           __last,
+    const _Type_    __old_value,
+    const _Type_    __new_value) noexcept
 {
     
-    if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _OldValue, _NewValue);
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return _ReplaceVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _OldValue, _NewValue);
-    }
-
-    if (arch::ProcessorFeatures::AVX2())
-        return _ReplaceVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _OldValue, _NewValue);
-    else if (arch::ProcessorFeatures::SSE41())
-        return _ReplaceVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last, _OldValue, _NewValue);
-    else if (arch::ProcessorFeatures::SSE2())
-        return _ReplaceVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _OldValue, _NewValue);
-
-    return _ReplaceScalar<_Type_>(_First, _Last, _OldValue, _NewValue);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

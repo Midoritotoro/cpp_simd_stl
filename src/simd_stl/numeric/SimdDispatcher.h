@@ -10,11 +10,16 @@ struct __simd_dispatcher {
 private:
     template <
         class       _SpecializedFunction_,
+        class...    _Args_>
+    simd_stl_always_inline static auto __invoke_simd_helper(_Args_&&... __args) noexcept {
+        return _SpecializedFunction_()(std::forward<_Args_>(__args)...);
+    }
+
+    template <
+        class       _SpecializedFunction_,
         class...    _VectorizedArgs_>
     simd_stl_always_inline static auto __invoke_simd(std::tuple<_VectorizedArgs_...>&& __simd_args) noexcept {
-        return std::apply([&](auto&&... __args) {
-            return _SpecializedFunction_()(std::forward<decltype(__args)>(__args)...);
-        }, std::move(__simd_args));
+        return std::apply(&__invoke_simd_helper<_SpecializedFunction_, _VectorizedArgs_...>, std::move(__simd_args));
     }
 public:
     template <

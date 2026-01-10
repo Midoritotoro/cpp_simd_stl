@@ -32,9 +32,6 @@ __simd_nodiscard_inline_constexpr _UnwrappedOutputIterator_ __remove_copy_unchec
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (numeric::__is_comparable<_UnwrappedInputIterator_>(__value) == false)
-				return __destination_unwrapped;
-
 			const auto __destination_address = std::to_address(__destination_unwrapped);
 			auto __position					 = __remove_copy_vectorized<_Type_>(std::to_address(__first_unwrapped),
 				std::to_address(__last_unwrapped), __destination_address, __value);

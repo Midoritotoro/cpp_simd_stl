@@ -31,7 +31,7 @@ struct __find_vectorized_internal {
         typename _Simd_::value_type __value,
         _CachePrefetcher_&&         __prefetcher) noexcept
     {
-        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
+        const auto __guard = numeric::make_guard<_Simd_>();
 
         constexpr auto __is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
             _Simd_::template is_native_mask_load_supported_v<>;
@@ -77,7 +77,7 @@ struct __find_vectorized_internal {
 };
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_* simd_stl_stdcall __find_vectorized(
+simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall __find_vectorized(
     const void* __first,
     const void* __last,
     _Type_      __value) noexcept

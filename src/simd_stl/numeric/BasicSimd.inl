@@ -779,13 +779,23 @@ void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::reverse() noexcept {
 }
 
 template <arch::CpuFeature _SimdGeneration_>
-zero_upper_at_exit_guard<_SimdGeneration_>::zero_upper_at_exit_guard() noexcept
+__zero_upper_at_exit_guard<_SimdGeneration_>::__zero_upper_at_exit_guard() noexcept
 {}
 
 template <arch::CpuFeature _SimdGeneration_>
-zero_upper_at_exit_guard<_SimdGeneration_>::~zero_upper_at_exit_guard() noexcept {
+__zero_upper_at_exit_guard<_SimdGeneration_>::~__zero_upper_at_exit_guard() noexcept {
     if constexpr (type_traits::__is_zeroupper_required_v<_SimdGeneration_>)
         _mm256_zeroupper();
+}
+
+template <arch::CpuFeature _SimdGeneration_>
+simd_stl_always_inline __zero_upper_at_exit_guard<_SimdGeneration_> make_guard() noexcept {
+    return __zero_upper_at_exit_guard<_SimdGeneration_>();
+}
+
+template <class _Simd_, std::enable_if_t<__is_valid_basic_simd_v<_Simd_>, int>>
+simd_stl_always_inline __zero_upper_at_exit_guard<_Simd_::__generation> make_guard() noexcept {
+    return __zero_upper_at_exit_guard<_Simd_::__generation>();
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

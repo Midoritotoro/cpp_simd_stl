@@ -27,8 +27,7 @@ struct __reverse_copy_vectorized_internal {
         const void* __last,
         void*       __destination) noexcept
     {
-        numeric::zero_upper_at_exit_guard<_Simd_::__generation> __guard;
-
+        const auto __guard = numeric::make_guard<_Simd_>();
         const auto __aligned_size = __byte_length(__first, __last) & (~((sizeof(_Simd_)) - 1));
 
         if (__aligned_size != 0) {

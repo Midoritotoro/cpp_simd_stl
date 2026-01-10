@@ -26,9 +26,6 @@ __simd_nodiscard_inline_constexpr _UnwrappedInputIterator_ __remove_unchecked(
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (numeric::__is_comparable<_UnwrappedInputIterator_>(__value) == false)
-				return __last_unwrapped;
-
 			const auto __first_address = std::to_address(__first_unwrapped);
 			const auto __position = __remove_vectorized<type_traits::iterator_value_type<_UnwrappedInputIterator_>>(
 				__first_address, std::to_address(__last_unwrapped), __value);
