@@ -34,7 +34,7 @@ public:
         static constexpr unsigned int value = 0b00000000000000000000000000000001;
 
         while (state.KeepRunning())
-            benchmark::DoNotOptimize(simd_stl::math::CountLeadingZeroBits(value));
+            benchmark::DoNotOptimize(simd_stl::math::count_leading_zero_bits(value));
     }
 };
 

@@ -143,6 +143,11 @@ public:
         const _MaskType_&   __mask,
         _AlignmentPolicy_&& __policy = unaligned_policy{}) const noexcept;
 
+    template <
+        typename    _DesiredType_   = value_type,
+        class       _MaskType_      = __mask_type<_DesiredType_>>
+    simd_stl_always_inline int32 compress(const _MaskType_& __mask) noexcept;
+
     simd_stl_always_inline friend simd operator+  <>(const simd& __left, const value_type __right) noexcept;
     simd_stl_always_inline friend simd operator-  <>(const simd& __left, const value_type __right) noexcept;
     simd_stl_always_inline friend simd operator*  <>(const simd& __left, const value_type __right) noexcept;

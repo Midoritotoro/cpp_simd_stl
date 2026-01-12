@@ -10,6 +10,7 @@ template <
 struct __shuffle_tables {
     uint8 __shuffle[_VerticalSize_][_HorizontalSize_];
     uint8 __size[_VerticalSize_];
+    uint8 __unprocessed_tail[_VerticalSize_][_HorizontalSize_];
 };
 
 template <
@@ -28,7 +29,7 @@ constexpr auto __make_shuffle_tables(
             if ((__vertical_index & (1 << __horizontal_index)) == 0) {
                 for (auto __element_offset = uint32(0); __element_offset != __element_group_stride; ++__element_offset)
                     __result.__shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
-                    static_cast<uint8>(__horizontal_index * __element_group_stride + __element_offset);
+                        static_cast<uint8>(__horizontal_index * __element_group_stride + __element_offset);
 
                 ++__active_group_count;
             }
@@ -37,9 +38,12 @@ constexpr auto __make_shuffle_tables(
         __result.__size[__vertical_index] = static_cast<uint8>(__active_group_count * __multiplier);
 
         for (; __active_group_count != _HorizontalSize_ / __element_group_stride; ++__active_group_count)
-            for (uint32 __element_offset = 0; __element_offset != __element_group_stride; ++__element_offset)
+            for (auto __element_offset = uint32(0); __element_offset != __element_group_stride; ++__element_offset)
                 __result.__shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
-                static_cast<uint8>(__active_group_count * __element_group_stride + __element_offset);
+                    static_cast<uint8>(__active_group_count * __element_group_stride + __element_offset);
+
+        for (auto __inactive_group_count = uint32(0); __inactive_group_count < _HorizontalSize_; ++__inactive_group_count)
+            __result.__unprocessed_tail[__vertical_index][__inactive_group_count] = static_cast<uint8>(__inactive_group_count);
     }
 
     return __result;

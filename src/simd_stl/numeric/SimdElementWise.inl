@@ -18,6 +18,126 @@ simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSE2, 
 }
 
 template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSE2, xmm128>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
+{
+    return __compress<_DesiredType_>(__simd_to_mask<__generation, __register_policy, _DesiredType_>(__vector, __mask));
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSE2, xmm128>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
+    if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_> || __is_pd_v<_DesiredType_>) {
+        switch ((__mask & 0x3)) {
+            case 0:
+                return { 16, __vector };
+            case 1:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_pd(
+                    __intrin_bitcast<__m128d>(__vector), __intrin_bitcast<__m128d>(__vector), 0x3));
+                return { 8, __vector };
+
+            case 2:
+                return { 8, __vector };
+
+            default:
+                simd_stl_assert_unreachable();
+                break;
+        }
+    }
+    else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_> || __is_ps_v<_DesiredType_>) {
+        switch ((__mask & 0xF)) {
+            case 0x0:
+                return { 16, __vector };
+            case 0x1:
+                __vector = __intrin_bitcast<_VectorType_>(
+                    _mm_shuffle_ps(__intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xF9));
+                return { 12, __vector };
+            case 0x2:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xF8));
+                return { 12, __vector };
+            case 0x3:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xEE));
+                return { 8, __vector };
+            case 0x4:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xF4));
+                return { 12, __vector };
+            case 0x5:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xED));
+                return { 8, __vector };
+            case 0x6:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xEC));
+                
+                return { 8, __vector };
+            case 0x7:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE7));
+                
+                return { 4, __vector };
+            case 0x8:
+                return { 12, __vector };
+            case 0x9:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE9));
+                return { 8, __vector };
+            case 0xA:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE8));
+                return { 8, __vector };
+            case 0xB:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE6));
+                return { 4, __vector };
+            case 0xC:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE5));
+
+                return { 12, __vector };
+            case 0xD:
+                __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_ps(
+                    __intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector), 0xE5));
+                return { 4, __vector };
+            case 0xE:
+                return { 4, __vector };
+            case 0xF:
+                return { 0, __vector };
+            default:
+                simd_stl_assert_unreachable();
+        }
+    }
+    else {
+        constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+        _DesiredType_ __source[__length], __result[__length];
+
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(__source), __intrin_bitcast<__m128i>(__vector));
+
+        _DesiredType_* __result_pointer = __result;
+        auto __start = __result_pointer;
+
+        for (auto __index = 0; __index < __length; ++__index)
+            if (!((__mask >> __index) & 1))
+                *__result_pointer++ = __source[__index];
+
+        const auto __processed_size   = (__result_pointer - __start);
+        const auto __processed_bytes  = __processed_size * sizeof(_DesiredType_);
+
+        std::memcpy(__result_pointer, __source + __processed_size, sizeof(_VectorType_) - __processed_bytes);
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm_loadu_si128(reinterpret_cast<const __m128i*>(__result))) };
+    }
+}
+
+template <
     typename    _DesiredType_,
     typename    _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSE2, xmm128>::__blend(
@@ -62,6 +182,60 @@ simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSE2, 
 template <
     typename _DesiredType_,
     typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSSE3, xmm128>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
+{
+    return __compress<_DesiredType_>(__simd_to_mask<__generation, __register_policy, _DesiredType_>(__vector, __mask));
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSSE3, xmm128>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) == 1) {
+        const auto __low_mask   = __mask & 0xFF;
+        const auto __high_mask  = (__mask >> 8) & 0xFF;
+
+        const auto __processed_bytes = __tables_sse<sizeof(_DesiredType_)>.__size[__low_mask] + __tables_sse<sizeof(_DesiredType_)>.__size[__high_mask];
+
+        // src = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+        // mask - 10101010_10101010
+        // __shuffled_low - 2, 4, 6, 8, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0
+        // __shuffled_high - 2, 4, 6, 8, 10, 12, 14, 16, 0, 0, 0, 0, 0, 0, 0, 0
+
+        const auto __shuffle_mask_low   = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__low_mask]));
+        const auto __shuffle_mask_high  = _mm_loadh_pd(_mm_setzero_pd(), reinterpret_cast<const double*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__high_mask]));
+        
+        const auto __unprocessed_tail_blend_mask = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__unprocessed_tail[__processed_bytes]));
+
+        const auto __swapped_halfs = __intrin_bitcast<__m128i>(_mm_movehl_ps(__intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector)));
+
+        const auto __shuffled_low = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle_mask_low);
+        const auto __shuffled_high = _mm_shuffle_epi8(__swapped_halfs, __intrin_bitcast<__m128i>(__shuffle_mask_high));
+
+        const auto __shuffled = __intrin_bitcast<__m128i>(_mm_shuffle_pd(
+            __intrin_bitcast<__m128d>(__shuffled_high), __intrin_bitcast<__m128d>(__shuffled_low), 1));
+
+        const auto __final = _mm_shuffle_epi8(__shuffled, __unprocessed_tail_blend_mask);
+
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(__final) };
+    }
+    else {
+        const auto __shuffle_mask = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask]));
+        const auto __processed_bytes = __tables_sse<sizeof(_DesiredType_)>.__size[__mask];
+
+        __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle_mask));
+        return { __processed_bytes, __vector };
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSSE3, xmm128>::__reverse(_VectorType_ __vector) noexcept {
     if constexpr (sizeof(_DesiredType_) == 8) {
         return __intrin_bitcast<_VectorType_>(_mm_shuffle_pd(
@@ -83,6 +257,58 @@ simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSSE3,
     }
 }
 
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSE41, xmm128>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
+{
+    return __compress<_DesiredType_>(__simd_to_mask<__generation, __register_policy, _DesiredType_>(__vector, __mask));
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::SSE41, xmm128>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) == 1) {
+        const auto __low_mask   = __mask & 0xFF;
+        const auto __high_mask  = (__mask >> 8) & 0xFF;
+
+        const auto __processed_bytes = __tables_sse<sizeof(_DesiredType_)>.__size[__low_mask] + __tables_sse<sizeof(_DesiredType_)>.__size[__high_mask];
+
+        // src = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+        // mask - 00001010_10101010
+        // __shuffled_low - 1, 3, 5, 7, 9, 11, 13, 15, 0, 0, 0, 0, 0, 0, 0, 0
+        // __shuffled_high - 2, 4, 6, 8, 10, 12, 14, 16, 0, 0, 0, 0, 0, 0, 0, 0
+
+        const auto __shuffle_mask_low               = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__low_mask]));
+        const auto __shuffle_mask_high              = _mm_loadh_pd(_mm_setzero_pd(), reinterpret_cast<const double*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__high_mask]));
+
+      //  const auto __unprocessed_tail_blend_mask    = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__unprocessed_tail[__processed_bytes]));
+
+        const auto __swapped_halfs = __intrin_bitcast<__m128i>(_mm_movehl_ps(
+            __intrin_bitcast<__m128>(_mm_slli_si128(__intrin_bitcast<__m128i>(__vector), 8)),
+            __intrin_bitcast<__m128>(__vector)));
+
+        const auto __shuffled_low = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle_mask_low);
+        const auto __shuffled_high = _mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __swapped_halfs);
+
+        //const auto __blended = __blend<_DesiredType_>(__shuffled_low, __shuffled_high, __unprocessed_tail_blend_mask);
+
+        return { __processed_bytes, __vector };
+    }
+    else {
+        const auto __shuffle_mask = _mm_lddqu_si128(reinterpret_cast<const __m128*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask]));
+        const auto __processed_bytes = __tables_sse<sizeof(_DesiredType_)>.__size[__mask];
+
+        __vector = __intrin_bitcast<_VectorType_>(_mm_shuffle_epi8(__intrin_bitcast<__m128i>(__vector), __shuffle_mask));
+        return { __processed_bytes, __vector };
+    }
+}
 
 template <
     typename    _DesiredType_,
@@ -113,57 +339,52 @@ simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::SSE41,
 #pragma region Avx-Avx2 Simd element wise
 
 template <
-    typename    _DesiredType_,
-    typename    _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX, ymm256>::__blend(
-    _VectorType_ __first,
-    _VectorType_ __second,
-    _VectorType_ __mask) noexcept
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX2, ymm256>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
 {
-    return __intrin_bitcast<_VectorType_>(_mm256_or_ps(
-        _mm256_and_ps(__intrin_bitcast<__m256>(__mask), __intrin_bitcast<__m256>(__first)),
-        _mm256_andnot_ps(__intrin_bitcast<__m256>(__mask), __intrin_bitcast<__m256>(__second))));
-}
+    if constexpr (sizeof(_DesiredType_) >= 4) {
+        const auto __processed_bytes = __tables_avx<sizeof(_DesiredType_)>.__size[__mask];
+        const auto __shuffle = _mm256_cvtepu8_epi32(_mm_loadu_si64(__tables_avx<sizeof(_DesiredType_)>.__shuffle[__mask]));
 
-template <
-    typename    _DesiredType_,
-    typename    _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX, ymm256>::__blend(
-    _VectorType_                        __first,
-    _VectorType_                        __second,
-    __simd_mask_type<_DesiredType_>     __mask) noexcept
-{
-    return __blend<_DesiredType_>(__first, __second,
-        __simd_to_vector<__generation, __register_policy, _VectorType_, _DesiredType_>(__mask));
+        __vector = __intrin_bitcast<_VectorType_>(_mm256_permutevar8x32_epi32(__intrin_bitcast<__m256i>(__vector), __shuffle));
+        return { __processed_bytes, __vector };
+    }
+    else {
+        using _MaskType = __simd_mask_type<_DesiredType_>;
+        using _HalfType = IntegerForSize<__constexpr_max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
+
+        constexpr auto __maximum    = math::__maximum_integral_limit<_HalfType>();
+        constexpr auto __shift      = (sizeof(_MaskType) << 2);
+
+        const auto __low    = __intrin_bitcast<__m128i>(__vector);
+        const auto __high   = _mm256_extracti128_si256(__intrin_bitcast<__m256i>(__vector), 1);
+
+        auto __processed = std::pair<int32, _VectorType_>{};
+
+        const auto __compressed_low     = __simd_compress<arch::CpuFeature::SSE42, xmm128, _DesiredType_>((__mask & __maximum), __low);
+        const auto __compressed_high    = __simd_compress<arch::CpuFeature::SSE42, xmm128, _DesiredType_>(((__mask >> __shift) & __maximum), __high);
+
+        __processed.first += __compressed_low.first;
+        __processed.first += __compressed_high.first;
+
+       // const auto __length = (__address - __start);
+       // const auto __store_mask = (1u << (sizeof(_VectorType_) - (__length * sizeof(_DesiredType_)))) - 1;
+        return __processed;
+       // __mask_store_unaligned<_DesiredType_>(__address, __mask, __vector);
+    }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX, ymm256>::__reverse(_VectorType_ __vector) noexcept {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        return __intrin_bitcast<_VectorType_>(_mm256_permute4x64_epi64(__intrin_bitcast<__m256>(__vector), 0x1B));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        return __intrin_bitcast<_VectorType_>(_mm256_permutevar8x32_epi32(
-            __intrin_bitcast<__m256>(__vector), _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7)));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        const auto __reverse_mask = _mm256_set_epi8(
-            1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14,
-            1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14);
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX2, ymm256>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
 
-        const auto __shuffled = _mm256_permute4x64_epi64(__intrin_bitcast<__m256>(__vector), 0x4E);
-        return _mm256_shuffle_epi8(__shuffled, __reverse_mask);
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
-        const auto __reverse_mask = _mm256_set_epi8(
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-        const auto __shuffled = _mm256_permute4x64_epi64(__intrin_bitcast<__m256>(__vector), 0x4E);
-        return _mm256_shuffle_epi8(__shuffled, __reverse_mask);
-    }
 }
 
 template <

@@ -233,7 +233,7 @@ template <>
 class __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128> :
     public __simd_memory_access<arch::CpuFeature::SSE3, numeric::xmm128>
 {
-    static constexpr auto __generation   = arch::CpuFeature::SSE2;
+    static constexpr auto __generation   = arch::CpuFeature::SSSE3;
     using __register_policy = numeric::xmm128;
 
     template <class _DesiredType_>
@@ -421,13 +421,6 @@ class __simd_memory_access<arch::CpuFeature::AVX, numeric::ymm256>
     template <class _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 
-    template <
-        int32 _First_,
-        int32 _Second_>
-    static constexpr int32 _Max() noexcept {
-        return (_First_ > _Second_) ? _First_ : _Second_;
-    }
-
     template <sizetype _TypeSize_>
     struct __native_mask_load_support:
         std::bool_constant<false> 
@@ -604,13 +597,6 @@ class __simd_memory_access<arch::CpuFeature::AVX2, numeric::ymm256>:
 
     template <class _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
-
-    template <
-        int32 __first_,
-        int32 _Second_>
-    static constexpr int32 _Max() noexcept {
-        return (__first_ > _Second_) ? __first_ : _Second_;
-    }
     
     template <sizetype _TypeSize_>
     struct __native_mask_load_support :

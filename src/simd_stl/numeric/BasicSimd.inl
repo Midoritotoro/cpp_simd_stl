@@ -706,6 +706,17 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <
+    typename    _DesiredType_,
+    class       _MaskType_>
+simd_stl_always_inline int32 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress(const _MaskType_& __mask) noexcept {
+    return __simd_compress<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __simd_unwrap_mask(__mask));
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <
     class       _MaskType_,
     typename    _DesiredType_>
 simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::blend(
