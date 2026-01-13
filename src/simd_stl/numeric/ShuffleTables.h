@@ -10,7 +10,6 @@ template <
 struct __shuffle_tables {
     uint8 __shuffle[_VerticalSize_][_HorizontalSize_];
     uint8 __size[_VerticalSize_];
-    uint8 __unprocessed_tail[_VerticalSize_][_HorizontalSize_];
 };
 
 template <
@@ -41,9 +40,6 @@ constexpr auto __make_shuffle_tables(
             for (auto __element_offset = uint32(0); __element_offset != __element_group_stride; ++__element_offset)
                 __result.__shuffle[__vertical_index][__active_group_count * __element_group_stride + __element_offset] =
                     static_cast<uint8>(__active_group_count * __element_group_stride + __element_offset);
-
-        for (auto __inactive_group_count = uint32(0); __inactive_group_count < _HorizontalSize_; ++__inactive_group_count)
-            __result.__unprocessed_tail[__vertical_index][__inactive_group_count] = static_cast<uint8>(__inactive_group_count);
     }
 
     return __result;
@@ -56,7 +52,7 @@ constexpr auto __tables_sse = [] {
 }();
 
 template <>
-constexpr auto __tables_sse<1>  = __make_shuffle_tables<256, 8>(1, 1);
+constexpr auto __tables_sse<1>  = __make_shuffle_tables<256, 16>(1, 1);
 
 template <>
 constexpr auto __tables_sse<2>  = __make_shuffle_tables<256, 16>(2, 2);
@@ -102,5 +98,29 @@ constexpr auto __simd_make_insert_mask() noexcept {
 
     return __mask;
 }
+
+constexpr auto __make_unprocessed_shuffle_chars_table() noexcept {
+    auto __result = __shuffle_tables<256, 8>();
+
+    for (auto __vertical_index = uint32(0); __vertical_index != 256; ++__vertical_index) {
+        auto __active_group_count = uint32(0);
+
+        for (auto __horizontal_index = uint32(0); __horizontal_index != 8; ++__horizontal_index) {
+            if ((__vertical_index & (1 << __horizontal_index)) != 0) {
+                __result.__shuffle[__vertical_index][7 - __active_group_count] = static_cast<uint8>(__horizontal_index);
+                ++__active_group_count;
+            }
+        }
+
+        for (; __active_group_count != 8; ++__active_group_count) {
+            __result.__shuffle[__vertical_index][7 - __active_group_count] = static_cast<uint8>(__active_group_count);
+        }
+    }
+
+    return __result;
+}
+
+constexpr auto __unprocessed_shuffle_chars_table = __make_unprocessed_shuffle_chars_table();
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

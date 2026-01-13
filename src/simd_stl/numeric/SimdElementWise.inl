@@ -200,17 +200,24 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __low_mask   = __mask & 0xFF;
         const auto __high_mask  = (__mask >> 8) & 0xFF;
 
-        const auto __processed_bytes = __tables_sse<sizeof(_DesiredType_)>.__size[__low_mask] + __tables_sse<sizeof(_DesiredType_)>.__size[__high_mask];
+        const auto __processed_low_bytes    = __tables_sse<sizeof(_DesiredType_)>.__size[__low_mask];
+        const auto __processed_high_bytes   = __tables_sse<sizeof(_DesiredType_)>.__size[__high_mask];
+
+        const auto __processed_bytes = __processed_low_bytes + __processed_high_bytes;
+
+        const auto __unprocessed_tail_blend_mask = (1u << (sizeof(_VectorType_) - __processed_bytes)) - 1;
+        const auto __unprocessed_tail_vector_blend_mask = __simd_to_vector<__generation, __register_policy, __m128i, _DesiredType_>(__unprocessed_tail_blend_mask);
 
         // src = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
         // mask - 10101010_10101010
-        // __shuffled_low - 2, 4, 6, 8, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0
+        // __shuffled_low - 1, 3, 5, 7, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0
         // __shuffled_high - 2, 4, 6, 8, 10, 12, 14, 16, 0, 0, 0, 0, 0, 0, 0, 0
 
         const auto __shuffle_mask_low   = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__low_mask]));
-        const auto __shuffle_mask_high  = _mm_loadh_pd(_mm_setzero_pd(), reinterpret_cast<const double*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__high_mask]));
-        
-        const auto __unprocessed_tail_blend_mask = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__unprocessed_tail[__processed_bytes]));
+        const auto __shuffle_mask_high  = __intrin_bitcast<__m128i>(_mm_loadh_pd(_mm_setzero_pd(), reinterpret_cast<const double*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__high_mask])));
+
+        const auto __unprocessed_elements_low = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__unprocessed_shuffle_chars_table.__shuffle[__low_mask]));
+        const auto __unprocessed_elements_high = __intrin_bitcast<__m128i>(_mm_loadh_pd(_mm_setzero_pd(), reinterpret_cast<const double*>(__unprocessed_shuffle_chars_table.__shuffle[__high_mask])));
 
         const auto __swapped_halfs = __intrin_bitcast<__m128i>(_mm_movehl_ps(__intrin_bitcast<__m128>(__vector), __intrin_bitcast<__m128>(__vector)));
 
@@ -220,7 +227,7 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __shuffled = __intrin_bitcast<__m128i>(_mm_shuffle_pd(
             __intrin_bitcast<__m128d>(__shuffled_high), __intrin_bitcast<__m128d>(__shuffled_low), 1));
 
-        const auto __final = _mm_shuffle_epi8(__shuffled, __unprocessed_tail_blend_mask);
+        const auto __final = _mm_shuffle_epi8(__shuffled, __unprocessed_tail_vector_blend_mask);
 
         return { __processed_bytes, __intrin_bitcast<_VectorType_>(__final) };
     }
