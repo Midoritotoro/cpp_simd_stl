@@ -1530,45 +1530,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(~__mask);
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_unaligned(__address, __compressed.second);
 
-        const auto __compressed = _mm512_mask_compress_epi64(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector));
-        _mm512_storeu_si512(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint16(~__mask);
-
-        const auto __compressed = _mm512_mask_compress_epi32(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector));
-        _mm512_storeu_si512(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        using _MaskType = __simd_mask_type<_DesiredType_>;
-        using _HalfType = IntegerForSize<__constexpr_max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
-
-        constexpr auto __maximum = math::__maximum_integral_limit<_HalfType>();
-        constexpr auto __shift = (sizeof(_MaskType) << 2);
-
-        const auto __low = __intrin_bitcast<__m256i>(__vector);
-        const auto __high = __intrin_bitcast<__m256i>(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
-
-        const auto __start = __address;
-
-        __address = __simd_compress_store_unaligned<arch::CpuFeature::AVX2, ymm256>(__address, (__mask & __maximum), __low);
-        __address = __simd_compress_store_unaligned<arch::CpuFeature::AVX2, ymm256>(__address, ((__mask >> __shift) & __maximum), __high);
-
-        const auto __length = (__address - __start);
-        const auto __store_mask = (1u << (sizeof(_VectorType_) - (__length * sizeof(_DesiredType_)))) - 1;
-
-        __mask_store_unaligned<_DesiredType_>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 
@@ -1580,45 +1545,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(~__mask);
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_aligned(__address, __compressed.second);
 
-        const auto __compressed = _mm512_mask_compress_epi64(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector));
-        _mm512_store_si512(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint16(~__mask);
-
-        const auto __compressed = _mm512_mask_compress_epi32(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector));
-        _mm512_store_si512(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        using _MaskType = __simd_mask_type<_DesiredType_>;
-        using _HalfType = IntegerForSize<__constexpr_max<(sizeof(_DesiredType_) >> 1), 1>()>::Unsigned;
-
-        constexpr auto __maximum = math::__maximum_integral_limit<_HalfType>();
-        constexpr auto __shift = (sizeof(_MaskType) << 2);
-
-        const auto __low = __intrin_bitcast<__m256i>(__vector);
-        const auto __high = __intrin_bitcast<__m256i>(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
-
-        const auto __start = __address;
-
-        __address = __simd_compress_store_aligned<arch::CpuFeature::AVX2, ymm256>(__address, (__mask & __maximum), __low);
-        __address = __simd_compress_store_aligned<arch::CpuFeature::AVX2, ymm256>(__address, ((__mask >> __shift) & __maximum), __high);
-
-        const auto __length = (__address - __start);
-        const auto __store_mask = (1u << (sizeof(_VectorType_) - (__length * sizeof(_DesiredType_)))) - 1;
-
-        __mask_store_aligned<_DesiredType_>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 
@@ -2067,28 +1997,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_unaligned(__address, __compressed.second);
 
-        const auto __compressed = _mm256_mask_compress_epi64(
-            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector));
-        __store_unaligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint16(uint16(0xFF) & uint16(~__mask));
-
-        const auto __compressed = _mm256_mask_compress_epi32(
-            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector));
-        __store_unaligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        return __simd_compress_store_unaligned<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 
@@ -2100,28 +2012,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_aligned(__address, __compressed.second);
 
-        const auto __compressed = _mm256_mask_compress_epi64(
-            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector));
-        __store_aligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint16(uint16(0xFF) & uint16(~__mask));
-
-        const auto __compressed = _mm256_mask_compress_epi32(
-            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector));
-        __store_aligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        return __simd_compress_store_aligned<arch::CpuFeature::AVX2, ymm256>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 
@@ -2576,28 +2470,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(uint8(0x03) & uint8(~__mask));
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_unaligned(__address, __compressed.second);
 
-        const auto __compressed = _mm_mask_compress_epi64(
-            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector));
-        __store_unaligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
-
-        const auto __compressed = _mm_mask_compress_epi32(
-            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector));
-        __store_unaligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        return __simd_compress_store_unaligned<arch::CpuFeature::SSE42, xmm128, _DesiredType_>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 
@@ -2609,28 +2485,10 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
     __simd_mask_type<_DesiredType_>     __mask,
     _VectorType_                        __vector) noexcept
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __not = uint8(uint8(0x03) & uint8(~__mask));
+    const auto __compressed = __simd_compress<__generation, __register_policy, _DesiredType_>(__vector, __mask);
+    __store_aligned(__address, __compressed.second);
 
-        const auto __compressed = _mm_mask_compress_epi64(
-            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector));
-        __store_aligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 3));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
-
-        const auto __compressed = _mm_mask_compress_epi32(
-            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector));
-        __store_aligned(__address, __compressed);
-
-        algorithm::__advance_bytes(__address, (math::population_count(__not) << 2));
-    }
-    else {
-        return __simd_compress_store_aligned<arch::CpuFeature::SSE42, xmm128, _DesiredType_>(__address, __mask, __vector);
-    }
-
+    algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
 }
 

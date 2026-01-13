@@ -284,7 +284,27 @@ class __simd_element_wise<arch::CpuFeature::AVX512DQ, zmm512> :
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX512VLF, ymm256> :
     public __simd_element_wise<arch::CpuFeature::AVX2, ymm256>
-{};
+{
+    static constexpr auto __generation  = arch::CpuFeature::AVX512VLF;
+    using __register_policy             = ymm256;
+
+    template <typename _DesiredType_>
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
+        _VectorType_    __vector,
+        _VectorType_    __mask) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
+        _VectorType_                    __vector,
+        __simd_mask_type<_DesiredType_> __mask) noexcept;
+};
 
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX512VLBW, ymm256> :
@@ -304,7 +324,27 @@ class __simd_element_wise<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX512VLF, xmm128> :
     public __simd_element_wise<arch::CpuFeature::SSE42, xmm128>
-{};
+{
+    static constexpr auto __generation  = arch::CpuFeature::AVX512VLF;
+    using __register_policy             = xmm128;
+
+    template <typename _DesiredType_>
+    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+public:
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
+        _VectorType_    __vector,
+        _VectorType_    __mask) noexcept;
+
+    template <
+        typename _DesiredType_,
+        typename _VectorType_>
+    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
+        _VectorType_                    __vector,
+        __simd_mask_type<_DesiredType_> __mask) noexcept;
+};
 
 template <>
 class __simd_element_wise<arch::CpuFeature::AVX512VLBW, xmm128> :

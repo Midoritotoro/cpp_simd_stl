@@ -554,15 +554,15 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __not = uint8(~__mask);
         const auto __processed_bytes = (math::population_count(__not) << 3);
 
-        return __intrin_bitcast<_VectorType_>(_mm512_mask_compress_epi64(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector)));
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm512_mask_compress_epi64(
+            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector))) };
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
         const auto __not = uint16(~__mask);
         const auto __processed_bytes = (math::population_count(__not) << 2);
 
-        return __intrin_bitcast<_VectorType_>(_mm512_mask_compress_epi32(
-            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector)));
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm512_mask_compress_epi32(
+            __intrin_bitcast<__m512i>(__vector), __not, __intrin_bitcast<__m512i>(__vector))) };
     }
     else if constexpr (sizeof(_DesiredType_) == 2) {
         alignas(sizeof(_VectorType_)) _DesiredType_ __temporary_stack_buffer[__length];
@@ -623,10 +623,10 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __ymm_higher_lane_vector = _mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1);
 
         const auto __xmm_lane_vector1   = __intrin_bitcast<__m128i>(__ymm_lower_lane_vector);
-        const auto __xmm_lane_vector2   = _mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_lower_lane_vector), 1);
+        const auto __xmm_lane_vector2   = __intrin_bitcast<__m128i>(_mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_lower_lane_vector), 1));
 
         const auto __xmm_lane_vector3   = __intrin_bitcast<__m128i>(__ymm_higher_lane_vector);
-        const auto __xmm_lane_vector4   = _mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_higher_lane_vector), 1);
+        const auto __xmm_lane_vector4   = __intrin_bitcast<__m128i>(_mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_higher_lane_vector), 1));
 
         const auto __xmm_lane_upper_half_vector1   = __intrin_bitcast<__m128i>(_mm_movehl_ps(
             __intrin_bitcast<__m128>(_mm_slli_si128(__xmm_lane_vector1, 8)),
@@ -657,10 +657,10 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __processed_byte_count_second_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_second];
         const auto __processed_byte_count_third_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_third];
         const auto __processed_byte_count_fourth_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_fourth];
-        const auto __processed_byte_count_fifth_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_first];
-        const auto __processed_byte_count_sixth_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_second];
-        const auto __processed_byte_count_seventh_segment   = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_third];
-        const auto __processed_byte_count_eighth_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_fourth];
+        const auto __processed_byte_count_fifth_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_fifth];
+        const auto __processed_byte_count_sixth_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_sixth];
+        const auto __processed_byte_count_seventh_segment   = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_seventh];
+        const auto __processed_byte_count_eighth_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_eighth];
 
         const auto __total_processed_byte_count_xmm_lane1   = __processed_byte_count_first_segment + __processed_byte_count_second_segment;
         const auto __total_processed_byte_count_xmm_lane2   = __processed_byte_count_third_segment + __processed_byte_count_fourth_segment;
@@ -669,7 +669,8 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
 
         const auto __total_processed_byte_count_combined = __total_processed_byte_count_xmm_lane1 + __total_processed_byte_count_xmm_lane2
             + __total_processed_byte_count_xmm_lane3 + __total_processed_byte_count_xmm_lane4;
-        const auto __unprocessed_tail_blending_mask = (__simd_mask_type<_DesiredType_>(1u << (sizeof(_VectorType_) - __total_processed_byte_count_combined)) - 1) << __total_processed_byte_count_combined;
+
+        const auto __unprocessed_tail_blending_mask = (__simd_mask_type<_DesiredType_>(uint64(1) << (__length - __total_processed_byte_count_combined)) - 1) << __total_processed_byte_count_combined;
 
         const auto __shuffle_control_mask_first_segment     = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_first]));
         const auto __shuffle_control_mask_second_segment    = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_second]));
@@ -686,8 +687,8 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __packed_data_fourth_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector2, __shuffle_control_mask_fourth_segment);
         const auto __packed_data_fifth_segment      = _mm_shuffle_epi8(__xmm_lane_vector3, __shuffle_control_mask_fifth_segment);
         const auto __packed_data_sixth_segment      = _mm_shuffle_epi8(__xmm_lane_upper_half_vector3, __shuffle_control_mask_sixth_segment);
-        const auto __packed_data_seventh_segment    = _mm_shuffle_epi8(__xmm_lane_vector2, __shuffle_control_mask_seventh_segment);
-        const auto __packed_data_eighth_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector2, __shuffle_control_mask_eighth_segment);
+        const auto __packed_data_seventh_segment    = _mm_shuffle_epi8(__xmm_lane_vector4, __shuffle_control_mask_seventh_segment);
+        const auto __packed_data_eighth_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector4, __shuffle_control_mask_eighth_segment);
 
         _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_first_segment));
         algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_first_segment);
@@ -826,6 +827,82 @@ static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature:
     }
     else {
         return __simd_reverse<arch::CpuFeature::AVX512F, __register_policy, _DesiredType_>(__vector);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX512VLF, ymm256>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
+{
+    return __compress<_DesiredType_>(__vector, __simd_to_mask<__generation, __register_policy, _DesiredType_>(__mask));
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX512VLF, ymm256>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (sizeof(_DesiredType_) == 8) {
+        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
+        const auto __processed_bytes = (math::population_count(__not) << 3);
+
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm256_mask_compress_epi64(
+            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector))) };
+    }
+    else if constexpr (sizeof(_DesiredType_) == 4) {
+        const auto __not = uint16(uint16(0xFF) & uint16(~__mask));
+        const auto __processed_bytes = (math::population_count(__not) << 2);
+
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm256_mask_compress_epi32(
+            __intrin_bitcast<__m256i>(__vector), __not, __intrin_bitcast<__m256i>(__vector))) };
+    }
+    else {
+        return __simd_compress<arch::CpuFeature::AVX2, __register_policy, _DesiredType_>(__vector, __mask);
+    }
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX512VLF, xmm128>::__compress(
+    _VectorType_    __vector,
+    _VectorType_    __mask) noexcept
+{
+    return __compress<_DesiredType_>(__vector, __simd_to_mask<__generation, __register_policy, _DesiredType_>(__mask));
+}
+
+template <
+    typename _DesiredType_,
+    typename _VectorType_>
+simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::CpuFeature::AVX512VLF, xmm128>::__compress(
+    _VectorType_                    __vector,
+    __simd_mask_type<_DesiredType_> __mask) noexcept
+{
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
+    if constexpr (sizeof(_DesiredType_) == 8) {
+        const auto __not = uint8(uint8(0x03) & uint8(~__mask));
+        const auto __processed_bytes = (math::population_count(__not) << 3);
+
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm_mask_compress_epi64(
+            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector))) };
+    }
+    else if constexpr (sizeof(_DesiredType_) == 4) {
+        const auto __not = uint8(uint8(0xF) & uint8(~__mask));
+        const auto __processed_bytes = (math::population_count(__not) << 2);
+
+        return { __processed_bytes, __intrin_bitcast<_VectorType_>(_mm_mask_compress_epi32(
+            __intrin_bitcast<__m128i>(__vector), __not, __intrin_bitcast<__m128i>(__vector))) };
+    }
+    else {
+        return __simd_compress<arch::CpuFeature::SSE42, __register_policy, _DesiredType_>(__vector, __mask);
     }
 }
 
