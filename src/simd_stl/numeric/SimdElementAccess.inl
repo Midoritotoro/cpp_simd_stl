@@ -283,7 +283,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX, ymm256>::__insert(
+simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX2, ymm256>::__insert(
     _VectorType_&       __vector,
     const uint8         __position,
     const _DesiredType_ __value) noexcept
@@ -398,7 +398,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX, ymm256>
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX, ymm256>::__extract(
+simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX2, ymm256>::__extract(
     _VectorType_    __vector,
     const uint8     __where) noexcept
 {

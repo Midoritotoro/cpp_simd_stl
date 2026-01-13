@@ -6,20 +6,22 @@ __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <
     sizetype _VerticalSize_,
-    sizetype _HorizontalSize_>
+    sizetype _HorizontalSize_,
+    sizetype _Alignment_>
 struct __shuffle_tables {
-    uint8 __shuffle[_VerticalSize_][_HorizontalSize_];
-    uint8 __size[_VerticalSize_];
+    alignas(_Alignment_) uint8 __shuffle[_VerticalSize_][_HorizontalSize_];
+    alignas(_Alignment_) uint8 __size[_VerticalSize_];
 };
 
 template <
     sizetype _VerticalSize_,
-    sizetype _HorizontalSize_>
+    sizetype _HorizontalSize_,
+    sizetype _Alignment_>
 constexpr auto __make_shuffle_tables(
     const uint32 __multiplier,
     const uint32 __element_group_stride) noexcept
 {
-    auto __result = __shuffle_tables<_VerticalSize_, _HorizontalSize_>();
+    auto __result = __shuffle_tables<_VerticalSize_, _HorizontalSize_, _Alignment_>();
 
     for (auto __vertical_index = uint32(0); __vertical_index != _VerticalSize_; ++__vertical_index) {
         auto __active_group_count = uint32(0);
@@ -52,16 +54,16 @@ constexpr auto __tables_sse = [] {
 }();
 
 template <>
-constexpr auto __tables_sse<1>  = __make_shuffle_tables<256, 16>(1, 1);
+constexpr auto __tables_sse<1>  = __make_shuffle_tables<256, 8, 16>(1, 1);
 
 template <>
-constexpr auto __tables_sse<2>  = __make_shuffle_tables<256, 16>(2, 2);
+constexpr auto __tables_sse<2>  = __make_shuffle_tables<256, 16, 16>(2, 2);
 
 template <>
-constexpr auto __tables_sse<4>  = __make_shuffle_tables<16, 16>(4, 4);
+constexpr auto __tables_sse<4>  = __make_shuffle_tables<16, 16, 16>(4, 4);
 
 template <>
-constexpr auto __tables_sse<8>  = __make_shuffle_tables<4, 16>(8, 8);
+constexpr auto __tables_sse<8>  = __make_shuffle_tables<4, 16, 16>(8, 8);
 
 template <sizetype _Size_>
 constexpr auto __tables_avx = [] { 
@@ -70,10 +72,10 @@ constexpr auto __tables_avx = [] {
 }();
 
 template <>
-constexpr auto __tables_avx<4> = __make_shuffle_tables<256, 8>(4, 1);
+constexpr auto __tables_avx<4> = __make_shuffle_tables<256, 8, 16>(4, 1);
 
 template <>
-constexpr auto __tables_avx<8> = __make_shuffle_tables<16, 8>(8, 2);
+constexpr auto __tables_avx<8> = __make_shuffle_tables<16, 8, 16>(8, 2);
 
 template <
     class _VectorType_,
@@ -98,29 +100,5 @@ constexpr auto __simd_make_insert_mask() noexcept {
 
     return __mask;
 }
-
-constexpr auto __make_unprocessed_shuffle_chars_table() noexcept {
-    auto __result = __shuffle_tables<256, 8>();
-
-    for (auto __vertical_index = uint32(0); __vertical_index != 256; ++__vertical_index) {
-        auto __active_group_count = uint32(0);
-
-        for (auto __horizontal_index = uint32(0); __horizontal_index != 8; ++__horizontal_index) {
-            if ((__vertical_index & (1 << __horizontal_index)) != 0) {
-                __result.__shuffle[__vertical_index][7 - __active_group_count] = static_cast<uint8>(__horizontal_index);
-                ++__active_group_count;
-            }
-        }
-
-        for (; __active_group_count != 8; ++__active_group_count) {
-            __result.__shuffle[__vertical_index][7 - __active_group_count] = static_cast<uint8>(__active_group_count);
-        }
-    }
-
-    return __result;
-}
-
-constexpr auto __unprocessed_shuffle_chars_table = __make_unprocessed_shuffle_chars_table();
-
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

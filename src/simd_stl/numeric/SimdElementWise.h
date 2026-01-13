@@ -9,6 +9,8 @@
 #include <src/simd_stl/numeric/MaskExpand.h>
 #include <src/simd_stl/utility/Assert.h>
 
+#include <src/simd_stl/algorithm/AdvanceBytes.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -178,6 +180,7 @@ public:
         _VectorType_ __first,
         _VectorType_ __second,
         _VectorType_ __mask) noexcept;
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -234,6 +237,7 @@ public:
         _VectorType_                        __first,
         _VectorType_                        __second,
         __simd_mask_type<_DesiredType_>     __mask) noexcept;
+
     template <
         typename _DesiredType_,
         typename _VectorType_>

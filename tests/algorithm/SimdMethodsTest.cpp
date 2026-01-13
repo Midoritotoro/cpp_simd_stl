@@ -414,7 +414,7 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
 
     //testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
     //testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();

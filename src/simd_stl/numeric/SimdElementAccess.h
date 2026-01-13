@@ -96,10 +96,10 @@ class __simd_element_access<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx-Avx2 Simd element access 
 
 template <>
-class __simd_element_access<arch::CpuFeature::AVX, ymm256>
+class __simd_element_access<arch::CpuFeature::AVX2, ymm256>
 {
-    static constexpr auto __generation   = arch::CpuFeature::AVX;
-    using __register_policy = numeric::ymm256;
+    static constexpr auto __generation      = arch::CpuFeature::AVX2;
+    using __register_policy                 = numeric::ymm256;
 public:
     template <
         typename _DesiredType_,
@@ -116,11 +116,6 @@ public:
         _VectorType_    __vector,
         const uint8     __where) noexcept;
 };
-
-template <>
-class __simd_element_access<arch::CpuFeature::AVX2, ymm256>:
-    public __simd_element_access<arch::CpuFeature::AVX, ymm256>
-{};
 
 #pragma endregion
 
@@ -212,7 +207,7 @@ simd_stl_always_inline void __simd_insert(
     const _DesiredType_ __value) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __insert(__vector, __position, __value);
+    __simd_element_access<_SimdGeneration_, _RegisterPolicy_>::template __insert<_DesiredType_>(__vector, __position, __value);
 }
 
 template <
