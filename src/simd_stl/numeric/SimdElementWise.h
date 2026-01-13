@@ -255,20 +255,6 @@ class __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>:
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
-        _VectorType_    __vector,
-        _VectorType_    __mask) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline std::pair<int32, _VectorType_> __compress(
-        _VectorType_                    __vector,
-        __simd_mask_type<_DesiredType_> __mask) noexcept;
-
-    template <
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline _VectorType_ __blend(
