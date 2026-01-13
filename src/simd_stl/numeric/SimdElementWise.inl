@@ -385,24 +385,24 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         alignas(sizeof(_VectorType_)) _DesiredType_ __temporary_stack_buffer[__length];
         _DesiredType_* __destination_write_pointer = __temporary_stack_buffer;
 
-        const auto __lower_lane_vector      = __intrin_bitcast<__m128i>(__vector);
-        const auto __higher_lane_vector     = _mm256_extracti128_si256(__intrin_bitcast<__m256i>(__vector), 1);
+        const auto __lower_lane_vector = __intrin_bitcast<__m128i>(__vector);
+        const auto __higher_lane_vector = _mm256_extracti128_si256(__intrin_bitcast<__m256i>(__vector), 1);
 
-        const auto __mask_segment_lower     = __mask & 0xFF;
-        const auto __mask_segment_higher    = (__mask >> 8) & 0xFF;
+        const auto __mask_segment_lower = __mask & 0xFF;
+        const auto __mask_segment_higher = (__mask >> 8) & 0xFF;
 
-        const auto __processed_byte_count_lower_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_lower];
-        const auto __processed_byte_count_higher_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_higher];
+        const auto __processed_byte_count_lower_segment = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_lower];
+        const auto __processed_byte_count_higher_segment = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_higher];
 
-        const auto __total_processed_byte_count_combined    = __processed_byte_count_lower_segment + __processed_byte_count_higher_segment;
+        const auto __total_processed_byte_count_combined = __processed_byte_count_lower_segment + __processed_byte_count_higher_segment;
         const auto __total_processed_element_count_combined = __total_processed_byte_count_combined / sizeof(_DesiredType_);
 
         const auto __unprocessed_tail_blending_mask = (__simd_mask_type<_DesiredType_>(1u << (__length - __total_processed_element_count_combined)) - 1) << __total_processed_element_count_combined;
 
-        const auto __shuffle_control_mask_lower_segment     = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_lower]));
-        const auto __shuffle_control_mask_higher_segment    = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_higher]));
+        const auto __shuffle_control_mask_lower_segment = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_lower]));
+        const auto __shuffle_control_mask_higher_segment = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_higher]));
 
-        const auto __packed_data_lower_segment  = _mm_shuffle_epi8(__lower_lane_vector, __shuffle_control_mask_lower_segment);
+        const auto __packed_data_lower_segment = _mm_shuffle_epi8(__lower_lane_vector, __shuffle_control_mask_lower_segment);
         const auto __packed_data_higher_segment = _mm_shuffle_epi8(__higher_lane_vector, __shuffle_control_mask_higher_segment);
 
         _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_lower_segment));
@@ -548,6 +548,8 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
     _VectorType_                    __vector,
     __simd_mask_type<_DesiredType_> __mask) noexcept
 {
+    constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
+
     if constexpr (sizeof(_DesiredType_) == 8) {
         const auto __not = uint8(~__mask);
         const auto __processed_bytes = (math::population_count(__not) << 3);
@@ -566,16 +568,81 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         alignas(sizeof(_VectorType_)) _DesiredType_ __temporary_stack_buffer[__length];
         _DesiredType_* __destination_write_pointer = __temporary_stack_buffer;
 
-        const auto __lower_lane_vector  = __intrin_bitcast<__m128i>(__vector);
-        const auto __higher_lane_vector = _mm256_extracti128_si256(__intrin_bitcast<__m256i>(__vector), 1);
+        const auto __xmm_lane_vector1 = __intrin_bitcast<__m128i>(__vector);
+        const auto __xmm_lane_vector2 = _mm256_extracti128_si256(__intrin_bitcast<__m256i>(__vector), 1);
+        const auto __xmm_lane_vector3 = __intrin_bitcast<__m128i>(_mm512_extractf32x4_ps(__intrin_bitcast<__m512>(__vector), 2));
+        const auto __xmm_lane_vector4 = __intrin_bitcast<__m128i>(_mm512_extractf32x4_ps(__intrin_bitcast<__m512>(__vector), 3));
 
-        const auto __lower_lane_upper_half_vector   = __intrin_bitcast<__m128i>(_mm_movehl_ps(
-            __intrin_bitcast<__m128>(_mm_slli_si128(__lower_lane_vector, 8)),
-            __intrin_bitcast<__m128>(__lower_lane_vector)));
+        const auto __mask_segment_first     = __mask & 0xFF;
+        const auto __mask_segment_second    = (__mask >> 8) & 0xFF;
+        const auto __mask_segment_third     = (__mask >> 16) & 0xFF;
+        const auto __mask_segment_fourth    = (__mask >> 24) & 0xFF;
 
-        const auto __higher_lane_upper_half_vector  = __intrin_bitcast<__m128i>(_mm_movehl_ps(
-            __intrin_bitcast<__m128>(_mm_slli_si128(__higher_lane_vector, 8)),
-            __intrin_bitcast<__m128>(__higher_lane_vector)));
+        const auto __processed_byte_count_first_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_first];
+        const auto __processed_byte_count_second_segment   = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_second];
+        const auto __processed_byte_count_third_segment     = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_third];
+        const auto __processed_byte_count_fourth_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_fourth];
+
+        const auto __total_processed_byte_count_combined = __processed_byte_count_first_segment + __processed_byte_count_second_segment
+            + __processed_byte_count_third_segment + __processed_byte_count_fourth_segment;
+        const auto __total_processed_element_count_combined = __total_processed_byte_count_combined / sizeof(_DesiredType_);
+
+        const auto __unprocessed_tail_blending_mask = (__simd_mask_type<_DesiredType_>(1u << (__length - __total_processed_element_count_combined)) - 1) << __total_processed_element_count_combined;
+
+        const auto __shuffle_control_mask_first_segment     = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_first]));
+        const auto __shuffle_control_mask_second_segment    = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_second]));
+        const auto __shuffle_control_mask_third_segment     = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_third]));
+        const auto __shuffle_control_mask_fourth_segment    = _mm_load_si128(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_fourth]));
+
+        const auto __packed_data_first_segment  = _mm_shuffle_epi8(__xmm_lane_vector1, __shuffle_control_mask_first_segment);
+        const auto __packed_data_second_segment = _mm_shuffle_epi8(__xmm_lane_vector2, __shuffle_control_mask_second_segment);
+        const auto __packed_data_third_segment  = _mm_shuffle_epi8(__xmm_lane_vector3, __shuffle_control_mask_third_segment);
+        const auto __packed_data_fourth_segment = _mm_shuffle_epi8(__xmm_lane_vector4, __shuffle_control_mask_fourth_segment);
+
+        _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_first_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_first_segment);
+
+        _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_second_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_second_segment);
+
+        _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_third_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_third_segment);
+
+        _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_fourth_segment));
+
+        const auto __final_packed_vector = _mm512_load_si512(__temporary_stack_buffer);
+        const auto __final_blended_result_vector = __blend<_DesiredType_>(__intrin_bitcast<__m512i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
+
+        return { __total_processed_byte_count_combined, __intrin_bitcast<_VectorType_>(__final_blended_result_vector) };
+    }
+    else if constexpr (sizeof(_DesiredType_) == 1) {
+        alignas(sizeof(_VectorType_)) _DesiredType_ __temporary_stack_buffer[__length];
+        _DesiredType_* __destination_write_pointer = __temporary_stack_buffer;
+
+        const auto __ymm_lower_lane_vector  = __intrin_bitcast<__m256i>(__vector);;
+        const auto __ymm_higher_lane_vector = _mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1);
+
+        const auto __xmm_lane_vector1   = __intrin_bitcast<__m128i>(__ymm_lower_lane_vector);
+        const auto __xmm_lane_vector2   = _mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_lower_lane_vector), 1);
+
+        const auto __xmm_lane_vector3   = __intrin_bitcast<__m128i>(__ymm_higher_lane_vector);
+        const auto __xmm_lane_vector4   = _mm256_extractf128_pd(__intrin_bitcast<__m256d>(__ymm_higher_lane_vector), 1);
+
+        const auto __xmm_lane_upper_half_vector1   = __intrin_bitcast<__m128i>(_mm_movehl_ps(
+            __intrin_bitcast<__m128>(_mm_slli_si128(__xmm_lane_vector1, 8)),
+            __intrin_bitcast<__m128>(__xmm_lane_vector1)));
+
+        const auto __xmm_lane_upper_half_vector2 = __intrin_bitcast<__m128i>(_mm_movehl_ps(
+            __intrin_bitcast<__m128>(_mm_slli_si128(__xmm_lane_vector2, 8)),
+            __intrin_bitcast<__m128>(__xmm_lane_vector2)));
+
+        const auto __xmm_lane_upper_half_vector3 = __intrin_bitcast<__m128i>(_mm_movehl_ps(
+            __intrin_bitcast<__m128>(_mm_slli_si128(__xmm_lane_vector3, 8)),
+            __intrin_bitcast<__m128>(__xmm_lane_vector3)));
+
+        const auto __xmm_lane_upper_half_vector4 = __intrin_bitcast<__m128i>(_mm_movehl_ps(
+            __intrin_bitcast<__m128>(_mm_slli_si128(__xmm_lane_vector4, 8)),
+            __intrin_bitcast<__m128>(__xmm_lane_vector4)));
 
         const auto __mask_segment_first     = __mask & 0xFF;
         const auto __mask_segment_second    = (__mask >> 8) & 0xFF;
@@ -595,35 +662,58 @@ simd_stl_always_inline std::pair<int32, _VectorType_> __simd_element_wise<arch::
         const auto __processed_byte_count_seventh_segment   = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_third];
         const auto __processed_byte_count_eighth_segment    = __tables_sse<sizeof(_DesiredType_)>.__size[__mask_segment_fourth];
 
-        const auto __total_processed_byte_count_lower_xmm_lane1  = __processed_byte_count_first_segment + __processed_byte_count_second_segment;
-        const auto __total_processed_byte_count_higher_lane = __processed_byte_count_third_segment + __processed_byte_count_fourth_segment;
+        const auto __total_processed_byte_count_xmm_lane1   = __processed_byte_count_first_segment + __processed_byte_count_second_segment;
+        const auto __total_processed_byte_count_xmm_lane2   = __processed_byte_count_third_segment + __processed_byte_count_fourth_segment;
+        const auto __total_processed_byte_count_xmm_lane3   = __processed_byte_count_fifth_segment + __processed_byte_count_sixth_segment;
+        const auto __total_processed_byte_count_xmm_lane4   = __processed_byte_count_seventh_segment + __processed_byte_count_eighth_segment;
 
-        const auto __total_processed_byte_count_combined = __total_processed_byte_count_lower_lane + __total_processed_byte_count_higher_lane;
+        const auto __total_processed_byte_count_combined = __total_processed_byte_count_xmm_lane1 + __total_processed_byte_count_xmm_lane2
+            + __total_processed_byte_count_xmm_lane3 + __total_processed_byte_count_xmm_lane4;
         const auto __unprocessed_tail_blending_mask = (__simd_mask_type<_DesiredType_>(1u << (sizeof(_VectorType_) - __total_processed_byte_count_combined)) - 1) << __total_processed_byte_count_combined;
 
         const auto __shuffle_control_mask_first_segment     = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_first]));
         const auto __shuffle_control_mask_second_segment    = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_second]));
         const auto __shuffle_control_mask_third_segment     = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_third]));
         const auto __shuffle_control_mask_fourth_segment    = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_fourth]));
+        const auto __shuffle_control_mask_fifth_segment     = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_fifth]));
+        const auto __shuffle_control_mask_sixth_segment     = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_sixth]));
+        const auto __shuffle_control_mask_seventh_segment   = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_seventh]));
+        const auto __shuffle_control_mask_eighth_segment    = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(__tables_sse<sizeof(_DesiredType_)>.__shuffle[__mask_segment_eighth]));
 
-        const auto __packed_data_first_segment  = _mm_shuffle_epi8(__lower_lane_vector, __shuffle_control_mask_first_segment);
-        const auto __packed_data_second_segment = _mm_shuffle_epi8(__lower_lane_upper_half_vector, __shuffle_control_mask_second_segment);
-        const auto __packed_data_third_segment  = _mm_shuffle_epi8(__higher_lane_vector, __shuffle_control_mask_third_segment);
-        const auto __packed_data_fourth_segment = _mm_shuffle_epi8(__higher_lane_upper_half_vector, __shuffle_control_mask_fourth_segment);
+        const auto __packed_data_first_segment      = _mm_shuffle_epi8(__xmm_lane_vector1, __shuffle_control_mask_first_segment);
+        const auto __packed_data_second_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector1, __shuffle_control_mask_second_segment);
+        const auto __packed_data_third_segment      = _mm_shuffle_epi8(__xmm_lane_vector2, __shuffle_control_mask_third_segment);
+        const auto __packed_data_fourth_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector2, __shuffle_control_mask_fourth_segment);
+        const auto __packed_data_fifth_segment      = _mm_shuffle_epi8(__xmm_lane_vector3, __shuffle_control_mask_fifth_segment);
+        const auto __packed_data_sixth_segment      = _mm_shuffle_epi8(__xmm_lane_upper_half_vector3, __shuffle_control_mask_sixth_segment);
+        const auto __packed_data_seventh_segment    = _mm_shuffle_epi8(__xmm_lane_vector2, __shuffle_control_mask_seventh_segment);
+        const auto __packed_data_eighth_segment     = _mm_shuffle_epi8(__xmm_lane_upper_half_vector2, __shuffle_control_mask_eighth_segment);
 
         _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_first_segment));
-        __destination_write_pointer += __processed_byte_count_first_segment;
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_first_segment);
 
         _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_second_segment));
-        __destination_write_pointer += __processed_byte_count_second_segment;
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_second_segment);
 
         _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_third_segment));
-        __destination_write_pointer += __processed_byte_count_third_segment;
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_third_segment);
 
         _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_fourth_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_fourth_segment);
+        
+        _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_fifth_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_fifth_segment);
 
-        const auto __final_packed_vector = _mm256_load_si256(reinterpret_cast<const __m256i*>(__temporary_stack_buffer));
-        const auto __final_blended_result_vector = __blend<_DesiredType_>(__intrin_bitcast<__m256i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
+        _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_sixth_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_sixth_segment);
+
+        _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_seventh_segment));
+        algorithm::__advance_bytes(__destination_write_pointer, __processed_byte_count_seventh_segment);
+
+        _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_eighth_segment));
+
+        const auto __final_packed_vector = _mm512_load_si512(__temporary_stack_buffer);
+        const auto __final_blended_result_vector = __blend<_DesiredType_>(__intrin_bitcast<__m512i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
 
         return { __total_processed_byte_count_combined, __intrin_bitcast<_VectorType_>(__final_blended_result_vector) };
     }
