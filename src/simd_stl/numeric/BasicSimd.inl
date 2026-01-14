@@ -709,7 +709,9 @@ template <
     typename    _DesiredType_,
     class       _MaskType_>
 simd_stl_always_inline int32 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress(const _MaskType_& __mask) noexcept {
-    return __simd_compress<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __simd_unwrap_mask(__mask));
+    const auto __compressed = __simd_compress<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __simd_unwrap_mask(__mask));
+    _vector = __compressed.second;
+    return __compressed.first;
 }
 
 template <
