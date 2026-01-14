@@ -13,27 +13,13 @@ template <
     class               _RegisterPolicy_>
 class __simd_memory_access;
 
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-simd_stl_always_inline _DesiredType_* __simd_compress_store_unaligned(
-    _DesiredType_*                          __address,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    __mask,
-    _VectorType_                            __vector) noexcept;
+struct __aligned_policy {
+    static constexpr bool __alignment = true;
+};
 
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-simd_stl_always_inline _DesiredType_* __simd_compress_store_aligned(
-    _DesiredType_*                          __address,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    __mask,
-    const _VectorType_                      __vector) noexcept;
+struct __unaligned_policy {
+    static constexpr bool __alignment = false;
+};
 
 #pragma region Sse2-Sse4.2 memory access 
 
@@ -52,12 +38,6 @@ public:
     static constexpr auto __native_mask_store_supported = false;
 
     template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_upper_half(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_lower_half(const void* __address) noexcept;
-
-    template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ __non_temporal_load(const void* __address) noexcept;
 
     template <typename _VectorType_>
@@ -67,151 +47,63 @@ public:
 
     static simd_stl_always_inline void __streaming_fence() noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_unaligned(const void* __address) noexcept;
+    template <
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __load(
+        const void*         __address,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_aligned(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_upper_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_lower_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_unaligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_aligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
+    template <
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline void __store(
+        void*               __address,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
         typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
+        typename _MaskType_,
         typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void* __address,
-        const __simd_mask_type<_DesiredType_>    __mask) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_           __mask,
+        _VectorType_        __additional_source,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
+        typename    _DesiredType_,
+        class       _MaskType_,
+        typename    _VectorType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*      __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <typename _Type_>
     static simd_stl_always_inline __m128i __make_tail_mask(uint32 __bytes) noexcept;
@@ -246,36 +138,15 @@ public:
     static constexpr auto __native_mask_store_supported = false;
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_lower_half(
-        _DesiredType_*                          __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_upper_half(
-        _DesiredType_*                          __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                          __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                          __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+        typename    _DesiredType_,
+        class       _MaskType_,
+        typename    _VectorType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*      __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 };
 
 template <>
@@ -299,107 +170,35 @@ public:
 
     template <
         typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+        typename _MaskType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void* __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void* __address,
+        _MaskType_          __mask,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>    __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void* __address,
+        _MaskType_           __mask,
+        _VectorType_        __additional_source,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 };
 
 template <>
@@ -413,187 +212,10 @@ class __simd_memory_access<arch::CpuFeature::SSE42, numeric::xmm128> :
 #pragma region Avx-Avx2 memory access
 
 template <>
-class __simd_memory_access<arch::CpuFeature::AVX, numeric::ymm256>
+class __simd_memory_access<arch::CpuFeature::AVX2, numeric::ymm256>
 {
-    static constexpr auto __generation   = arch::CpuFeature::AVX;
-    using __register_policy = numeric::ymm256;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
-
-    template <sizetype _TypeSize_>
-    struct __native_mask_load_support:
-        std::bool_constant<false> 
-    {};
-
-    template <>
-    struct __native_mask_load_support<4>:
-        std::bool_constant<true> 
-    {}; 
-
-    template <>
-    struct __native_mask_load_support<8>:
-        std::bool_constant<true>
-    {}; 
-public:
-    template <sizetype _TypeSize_>
-    static constexpr auto __native_mask_load_supported = __native_mask_load_support<_TypeSize_>::value;
-
-    template <sizetype _TypeSize_>
-    static constexpr auto __native_mask_store_supported = __native_mask_load_support<_TypeSize_>::value;
-
-    template <typename _Type_>
-    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_upper_half(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_lower_half(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __non_temporal_load(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __non_temporal_store(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    static simd_stl_always_inline void __streaming_fence() noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_unaligned(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_aligned(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_upper_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_lower_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_unaligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_aligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-     template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_lower_half(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_upper_half(
-        _DesiredType_*                  __address,
-        __simd_mask_type<_DesiredType_> __mask,
-        _VectorType_                    __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
-};
-
-template <>
-class __simd_memory_access<arch::CpuFeature::AVX2, numeric::ymm256>:
-    public __simd_memory_access<arch::CpuFeature::AVX, numeric::ymm256>
-{
-    static constexpr auto __generation   = arch::CpuFeature::AVX2;
-    using __register_policy = numeric::ymm256;
+    static constexpr auto __generation  = arch::CpuFeature::AVX2;
+    using __register_policy             = numeric::ymm256;
 
     template <class _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
@@ -619,128 +241,76 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = __native_mask_load_support<_TypeSize_>::value;
 
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ __non_temporal_load(const void* __address) noexcept;
 
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
+    template <typename _VectorType_>
+    static simd_stl_always_inline void __non_temporal_store(
+        void*           __address,
+        _VectorType_    __vector) noexcept;
+
+    static simd_stl_always_inline void __streaming_fence() noexcept;
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __load(
+        const void*         __address,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline void __store(
+        void*               __address,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _VectorType_        __additional_policy,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+    
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*      __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <typename _Type_>
+    static simd_stl_always_inline __m256i __make_tail_mask(uint32 __bytes) noexcept;
 };
 
 #pragma endregion
@@ -777,15 +347,6 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = __native_mask_load_support<_TypeSize_>::value;
 
-    template <typename _Type_>
-    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_upper_half(const void* __address) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_lower_half(const void* __address) noexcept;
-
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ __non_temporal_load(const void* __address) noexcept;
 
@@ -796,151 +357,66 @@ public:
 
     static simd_stl_always_inline void __streaming_fence() noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_unaligned(const void* __address) noexcept;
+    template <
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __load(
+        const void*         __address,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __load_aligned(const void* __address) noexcept;
+    template <
+        typename                    _VectorType_,
+        class _AlignmentPolicy_ =   __unaligned_policy>
+    static simd_stl_always_inline void __store(
+        void*               __address,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_upper_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_lower_half(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_unaligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline void __store_aligned(
-        void*           __address,
-        _VectorType_    __vector) noexcept;
-
-     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _VectorType_        __additional_policy,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
     
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*      __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
+    template <typename _Type_>
+    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
 };
 
 template <>
@@ -959,112 +435,48 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = true;
 
-    template <typename _Type_>
-    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        const _MaskType_    __mask,
+        const _VectorType_  __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*             __address,
+        _MaskType_              __mask,
+        _AlignmentPolicy_&&     __policy = _AlignmentPolicy_{}) noexcept;
+        
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _VectorType_        __additional_policy,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
     
     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*      __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 };
 
 template <>
@@ -1104,128 +516,48 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = __native_mask_load_support<_TypeSize_>::value;
 
+    template <
+        typename _DesiredType_,
+        typename _MaskType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        const _MaskType_    __mask,
+        const _VectorType_  __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _VectorType_                            __additional_policy,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*                  __address,
+        __simd_mask_type<_DesiredType_> __mask,
+        _VectorType_                    __vector,
+        _AlignmentPolicy_&&             __policy = _AlignmentPolicy_{}) noexcept;
+
     template <typename _Type_>
     static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
-
-     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
 };
 
 template <>
@@ -1244,112 +576,48 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = true;
 
+    template <
+        typename _DesiredType_,
+        typename _MaskType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        const _MaskType_    __mask,
+        const _VectorType_  __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _VectorType_                            __additional_policy,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*                  __address,
+        __simd_mask_type<_DesiredType_> __mask,
+        _VectorType_                    __vector,
+        _AlignmentPolicy_&&             __policy = _AlignmentPolicy_{}) noexcept;
+
     template <typename _Type_>
     static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
-
-     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
 };
 
 template <>
@@ -1398,125 +666,48 @@ public:
     template <typename _Type_>
     static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
 
-     template <
+    template <
         typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
+        typename _MaskType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        const _MaskType_    __mask,
+        const _VectorType_  __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
         const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _VectorType_                            __additional_policy,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
     
     template <
         typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
         typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*                  __address,
+        __simd_mask_type<_DesiredType_> __mask,
+        _VectorType_                    __vector,
+        _AlignmentPolicy_&&             __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_unaligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _DesiredType_* __compress_store_aligned(
-        _DesiredType_*                      __address,
-        __simd_mask_type<_DesiredType_>     __mask,
-        _VectorType_                        __vector) noexcept;
+    template <typename _Type_>
+    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
 };
 
 template <>
@@ -1535,112 +726,48 @@ public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_store_supported = true;
 
+    template <
+        typename _DesiredType_,
+        typename _MaskType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        const _MaskType_    __mask,
+        const _VectorType_  __vector,
+        _AlignmentPolicy_&& __policy) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _VectorType_,
+        typename    _DesiredType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*                             __address,
+        const __simd_mask_type<_DesiredType_>   __mask,
+        _VectorType_                            __additional_policy,
+        _AlignmentPolicy_&&                     __policy = _AlignmentPolicy_{}) noexcept;
+    
+    template <
+        typename _DesiredType_,
+        typename _VectorType_,
+        class _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _DesiredType_* __compress_store(
+        _DesiredType_*                  __address,
+        __simd_mask_type<_DesiredType_> __mask,
+        _VectorType_                    __vector,
+        _AlignmentPolicy_&&             __policy = _AlignmentPolicy_{}) noexcept;
+
     template <typename _Type_>
     static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
-
-     template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                                   __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        const _VectorType_                      __vector) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_unaligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-    
-    template <
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        typename _VectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline void __mask_store_aligned(
-        void*                   __address,
-        const _MaskVectorType_  __mask,
-        const _VectorType_      __vector) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*                             __address,
-        const __simd_mask_type<_DesiredType_>   __mask,
-        _VectorType_                            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_unaligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
-
-    template <
-        typename _VectorType_,
-        typename _DesiredType_,
-        typename _MaskVectorType_,
-        std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-    static simd_stl_always_inline _VectorType_ __mask_load_aligned(
-        const void*             __address,
-        const _MaskVectorType_  __mask,
-        _VectorType_            __additional_source) noexcept;
 };
 
 template <>
@@ -1661,19 +788,14 @@ class __simd_memory_access<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_load_unaligned(const void* __address) noexcept {
+    class				_VectorType_,
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_load(
+    const void*         __address, 
+    _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
+{
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __load_unaligned<_VectorType_>(__address);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_load_aligned(const void* __address) noexcept {
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __load_aligned<_VectorType_>(__address);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __load<_VectorType_>(__address, __policy);
 }
 
 template <
@@ -1685,130 +807,6 @@ simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_non_temporal_load(
     return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __non_temporal_load<_VectorType_>(__address);
 }
 
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_load_upper_half(const void* __address) noexcept {
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __load_upper_half<_VectorType_>(__address);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline _VectorType_ __simd_load_lower_half(const void* __address) noexcept {
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __load_lower_half<_VectorType_>(__address);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_>
-simd_stl_always_inline _VectorType_ __simd_mask_load_unaligned(
-    const void*                                             __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load_unaligned<_VectorType_, _DesiredType_>(__address, __mask);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_,
-    typename            _VectorMaskType_,
-    std::enable_if_t<__is_intrin_type_v<_VectorMaskType_>, int> = 0>
-simd_stl_always_inline _VectorType_ __simd_mask_load_unaligned(
-    const void*             __address,
-    const _VectorMaskType_  __mask) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load_unaligned<_VectorType_, _DesiredType_, _VectorMaskType_>(__address, __mask);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_,
-    typename            _VectorMaskType_,
-    std::enable_if_t<__is_intrin_type_v<_VectorMaskType_>, int> = 0>
-simd_stl_always_inline _VectorType_ __simd_mask_load_aligned(
-    const void*             __address,
-    const _VectorMaskType_  __mask) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load_aligned<_VectorType_, _DesiredType_, _VectorMaskType_>(__address, __mask);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_>
-simd_stl_always_inline _VectorType_ __simd_mask_load_aligned(
-    const void*                                             __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load_aligned<_VectorType_, _DesiredType_>(__address, __mask);
-}
-
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_store_unaligned(
-    void*               __address,
-    const _VectorType_  __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store_unaligned(__address, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_store_aligned(
-    void*               __address,
-    const _VectorType_  __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store_aligned(__address, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_store_upper_half(
-    void*               __address,
-    const _VectorType_  __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store_upper_half(__address, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_store_lower_half(
-    void*               __address,
-    const _VectorType_  __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store_lower_half(__address, __vector);
-}
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -1822,6 +820,36 @@ simd_stl_nodiscard simd_stl_always_inline void __simd_non_temporal_store(
     __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __non_temporal_store(__address, __vector);
 }
 
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _VectorType_,
+    typename            _DesiredType_,
+    class               _MaskType_,
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_always_inline _VectorType_ __simd_mask_load(
+    const void*         __address,
+    const _MaskType_    __mask,
+    _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
+{
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load<_VectorType_, _DesiredType_>(__address, __mask, __policy);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    class				_VectorType_,
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_nodiscard simd_stl_always_inline void __simd_store(
+    void*               __address,
+    const _VectorType_  __vector,
+    _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
+{
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store(__address, __vector, __policy);
+}
+
 template <arch::CpuFeature _SimdGeneration_>
 simd_stl_nodiscard simd_stl_always_inline void __simd_streaming_fence() noexcept {
     __simd_memory_access<_SimdGeneration_, __default_register_policy<_SimdGeneration_>>::__streaming_fence();
@@ -1831,93 +859,34 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
     class               _DesiredType_,
-    class               _VectorType_>
-simd_stl_always_inline void __simd_mask_store_unaligned(
-    void*                                                   __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask,
-    const _VectorType_                                      __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_store_unaligned<_DesiredType_>(__address, __mask, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _VectorType_>
-simd_stl_always_inline void __simd_mask_store_aligned(
-    void*                                                   __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask,
-    const _VectorType_                                      __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_store_aligned<_DesiredType_>(__address, __mask, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
     class               _MaskVectorType_,
     class               _VectorType_,
-    std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-simd_stl_always_inline void __simd_mask_store_unaligned(
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_always_inline void __simd_mask_store(
     void*                   __address,
     const _MaskVectorType_  __mask,
-    const _VectorType_      __vector) noexcept
+    const _VectorType_      __vector,
+    _AlignmentPolicy_&&     __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_store_unaligned<_DesiredType_>(__address, __mask, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    class               _DesiredType_,
-    class               _MaskVectorType_,
-    class               _VectorType_,
-    std::enable_if_t<__is_intrin_type_v<_MaskVectorType_>, int> = 0>
-simd_stl_always_inline void __simd_mask_store_aligned(
-    void*                   __address,
-    const _MaskVectorType_  __mask,
-    const _VectorType_      __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_store_aligned<_DesiredType_>(__address, __mask, __vector);
+    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_store<_DesiredType_>(__address, __mask, __vector, __policy);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
     typename            _DesiredType_,
-    typename            _VectorType_>
-simd_stl_always_inline _DesiredType_* __simd_compress_store_unaligned(
-    _DesiredType_*                          __address,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    __mask,
-    const _VectorType_                      __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __compress_store_unaligned(__address, __mask, __vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
+    class               _MaskType_,
     typename            _VectorType_,
-    typename            _DesiredType_>
-simd_stl_always_inline _VectorType_ __simd_mask_load_unaligned(
-    const void*                                             __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask,
-    _VectorType_                                            __additional_source) noexcept
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_always_inline _DesiredType_* __simd_compress_store(
+    _DesiredType_*      __address,
+    _MaskType_          __mask,
+    const _VectorType_  __vector,
+    _AlignmentPolicy_&& __policy) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>
-        ::template __mask_load_unaligned<_VectorType_, _DesiredType_>(__address, __mask, __additional_source);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __compress_store(__address, __mask, __vector, __policy);
 }
 
 template <
@@ -1925,64 +894,17 @@ template <
     class				_RegisterPolicy_,
     typename            _VectorType_,
     typename            _DesiredType_,
-    typename            _VectorMaskType_,
-    std::enable_if_t<__is_intrin_type_v<_VectorMaskType_>, int> = 0>
-simd_stl_always_inline _VectorType_ __simd_mask_load_unaligned(
-    const void*             __address,
-    const _VectorMaskType_  __mask,
-    _VectorType_            __additional_source) noexcept
+    class               _MaskType_,
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_always_inline _VectorType_ __simd_mask_load(
+    const void*         __address,
+    const _MaskType_    __mask,
+    _VectorType_        __additional_source,
+    _AlignmentPolicy_&& __policy) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>
-        ::template __mask_load_unaligned<_VectorType_, _DesiredType_, _VectorMaskType_>(__address, __mask, __additional_source);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_,
-    typename            _VectorMaskType_,
-    std::enable_if_t<__is_intrin_type_v<_VectorMaskType_>, int> = 0>
-simd_stl_always_inline _VectorType_ __simd_mask_load_aligned(
-    const void*             __address,
-    const _VectorMaskType_  __mask,
-    _VectorType_            __additional_source) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>
-        ::template __mask_load_aligned<_VectorType_, _DesiredType_, _VectorMaskType_>(__address, __mask, __additional_source);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _VectorType_,
-    typename            _DesiredType_>
-simd_stl_always_inline _VectorType_ __simd_mask_load_aligned(
-    const void*                                             __address,
-    const type_traits::__deduce_simd_mask_type<
-        _SimdGeneration_, _DesiredType_, _RegisterPolicy_>  __mask,
-    _VectorType_                                            __additional_source) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>
-        ::template __mask_load_aligned<_VectorType_, _DesiredType_>(__address, __mask, __additional_source);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-simd_stl_always_inline _DesiredType_* __simd_compress_store_aligned(
-    _DesiredType_*                          __address,
-    type_traits::__deduce_simd_mask_type<_SimdGeneration_,
-        _DesiredType_, _RegisterPolicy_>    __mask,
-    const _VectorType_                      __vector) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __compress_store_aligned(__address, __mask, __vector);
+        ::template __mask_load<_VectorType_, _DesiredType_>(__address, __mask, __additional_source, __policy);
 }
 
 template <

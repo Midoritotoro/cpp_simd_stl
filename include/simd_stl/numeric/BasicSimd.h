@@ -16,13 +16,8 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
-struct aligned_policy {
-    static constexpr bool __alignment    = true;
-};
-
-struct unaligned_policy {
-    static constexpr bool __alignment    = false;
-};
+using aligned_policy    = __aligned_policy;
+using unaligned_policy  = __unaligned_policy;
 
 using simd_comparison = __simd_comparison;
 
