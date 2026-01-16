@@ -11,9 +11,9 @@ class StdFindBenchmark {
 public:
     static void FindInEnd(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[sizeForBenchmark - 1] = 42;
 
         while (state.KeepRunning()) {
             auto* result = std::find(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
@@ -24,9 +24,9 @@ public:
 
     static void FindInMiddle(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[sizeForBenchmark / 2] = 42;
 
         while (state.KeepRunning()) {
             auto* result = std::find(array, array + sizeForBenchmark, array[sizeForBenchmark / 2]);
@@ -37,9 +37,9 @@ public:
 
     static void FindInBegin(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[0] = 42;
 
         while (state.KeepRunning()) {
             auto* result = std::find(array, array + sizeForBenchmark, array[0]);
@@ -56,9 +56,9 @@ class SimdStlFindBenchmark {
 public:
     static void FindInEnd(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[sizeForBenchmark - 1] = 42;
 
         while (state.KeepRunning()) {
             auto* result = simd_stl::algorithm::find(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
@@ -69,9 +69,9 @@ public:
 
     static void FindInMiddle(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[sizeForBenchmark / 2] = 42;
 
         while (state.KeepRunning()) {
             auto* result = simd_stl::algorithm::find(array, array + sizeForBenchmark, array[sizeForBenchmark / 2]);
@@ -82,9 +82,9 @@ public:
 
     static void FindInBegin(benchmark::State& state) noexcept {
         _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
 
-        for (int i = 0; i < sizeForBenchmark; ++i)
-            array[i] = i;
+        array[0] = 42;
 
         while (state.KeepRunning()) {
             auto* result = simd_stl::algorithm::find(array, array + sizeForBenchmark, array[0]);

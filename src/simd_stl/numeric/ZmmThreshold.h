@@ -5,6 +5,6 @@
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <typename _Type_>
-static constexpr auto __zmm_threshold = 512 * sizeof(_Type_);
+static constexpr auto __zmm_threshold = 1024;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
