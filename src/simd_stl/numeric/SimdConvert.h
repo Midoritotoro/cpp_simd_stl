@@ -83,12 +83,12 @@ class __simd_convert<arch::CpuFeature::SSE42, xmm128> :
 #pragma region Avx-Avx2 Simd convert
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX, ymm256>
+class __simd_convert<arch::CpuFeature::AVX2, xmm128> :
+    public __simd_convert<arch::CpuFeature::SSE42, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX2, ymm256> :
-    public __simd_convert<arch::CpuFeature::AVX, ymm256>
+class __simd_convert<arch::CpuFeature::AVX2, ymm256>
 {
     static constexpr auto __generation  = arch::CpuFeature::AVX2;
     using __register_policy             = ymm256;

@@ -396,12 +396,11 @@ template <
     class               _RegisterPolicy_>
 template <class _AlignmentPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
-simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::load(const void* __address, _AlignmentPolicy_&&)  noexcept
+simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::load(
+    const void*         __address,
+    _AlignmentPolicy_&& __policy) noexcept
 {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        return __simd_load_aligned<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address);
-    else 
-        return __simd_load_unaligned<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address);
+    return __simd_load<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address, __policy);
 }
 
 template <
@@ -409,11 +408,11 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <class _AlignmentPolicy_>
-simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::store(void* __address, _AlignmentPolicy_&&) const noexcept {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        return __simd_store_aligned<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address, _vector);
-    else
-        return __simd_store_unaligned<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address, _vector);
+simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::store(
+    void*               __address, 
+    _AlignmentPolicy_&& __policy) const noexcept
+{
+    return __simd_store<_SimdGeneration_, _RegisterPolicy_, vector_type>(__address, _vector, __policy);
 }
 
 template <
@@ -428,14 +427,10 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_load(
         const void*         __address,
         const _MaskType_&   __mask,
-        _AlignmentPolicy_&&) noexcept
+        _AlignmentPolicy_&& __policy) noexcept
 {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        return __simd_mask_load_aligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
-            reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), simd(0)._vector);
-    else 
-        return __simd_mask_load_unaligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
-            reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), simd(0)._vector);
+    return __simd_mask_load<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), simd(0)._vector, __policy);
 }
 
 template <
@@ -452,14 +447,10 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> simd<
     const void*         __address,
     const _MaskType_&   __mask,
     _VectorType_        __additional_source,
-    _AlignmentPolicy_&&) noexcept
+    _AlignmentPolicy_&& __policy) noexcept
 {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        return __simd_mask_load_aligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
-            reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source));
-    else
-        return __simd_mask_load_unaligned<_SimdGeneration_, _RegisterPolicy_, vector_type, _DesiredType_>(
-            reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source));
+    return __simd_mask_load<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
 }
 
 template <
@@ -472,15 +463,11 @@ template <
     class       _AlignmentPolicy_>
 simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_store(
     void*               __address,
-    const _MaskType_& __mask,
-    _AlignmentPolicy_&&) const noexcept
+    const _MaskType_&   __mask,
+    _AlignmentPolicy_&& __policy) const noexcept
 {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        __simd_mask_store_aligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), __simd_unwrap_mask(__mask), _vector);
-    else
-        __simd_mask_store_unaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), __simd_unwrap_mask(__mask), _vector);
+    __simd_mask_store<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        reinterpret_cast<_DesiredType_*>(__address), __simd_unwrap_mask(__mask), _vector, __policy);
 }
 
 //template <
@@ -691,14 +678,11 @@ template <
 _DesiredType_* simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress_store(
     void*               __address,
     const _MaskType_&   __mask,
-    _AlignmentPolicy_&&) const noexcept
+    _AlignmentPolicy_&& __policy) const noexcept
 {
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment)
-        return __simd_compress_store_aligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask)), _vector);
-    else 
-        return __simd_compress_store_unaligned<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
-            reinterpret_cast<_DesiredType_*>(__address), __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask)), _vector);
+    return __simd_compress_store<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
+        reinterpret_cast<_DesiredType_*>(__address), 
+        __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask)), _vector, __policy);
 }
 
 template <

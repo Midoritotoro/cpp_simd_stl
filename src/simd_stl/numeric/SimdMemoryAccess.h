@@ -24,12 +24,9 @@ struct __unaligned_policy {
 #pragma region Sse2-Sse4.2 memory access 
 
 template <>
-class __simd_memory_access<arch::CpuFeature::SSE2, numeric::xmm128> {
+class __simd_memory_access<arch::CpuFeature::SSE2, xmm128> {
     static constexpr auto __generation   = arch::CpuFeature::SSE2;
-    using __register_policy = numeric::xmm128;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+    using __register_policy = xmm128;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = false;
@@ -110,9 +107,10 @@ public:
 };
 
 template <>
-class __simd_memory_access<arch::CpuFeature::SSE3, numeric::xmm128>:
-    public __simd_memory_access<arch::CpuFeature::SSE2, numeric::xmm128>
+class __simd_memory_access<arch::CpuFeature::SSE3, xmm128>:
+    public __simd_memory_access<arch::CpuFeature::SSE2, xmm128>
 {
+public:
     template <
         typename                    _VectorType_,
         class _AlignmentPolicy_ =   __unaligned_policy>
@@ -122,14 +120,11 @@ class __simd_memory_access<arch::CpuFeature::SSE3, numeric::xmm128>:
 };
 
 template <>
-class __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128> :
-    public __simd_memory_access<arch::CpuFeature::SSE3, numeric::xmm128>
+class __simd_memory_access<arch::CpuFeature::SSSE3, xmm128> :
+    public __simd_memory_access<arch::CpuFeature::SSE3, xmm128>
 {
     static constexpr auto __generation  = arch::CpuFeature::SSSE3;
-    using __register_policy             = numeric::xmm128;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+    using __register_policy             = xmm128;
 public:
     template <
         typename    _DesiredType_,
@@ -144,14 +139,11 @@ public:
 };
 
 template <>
-class __simd_memory_access<arch::CpuFeature::SSE41, numeric::xmm128> :
-    public __simd_memory_access<arch::CpuFeature::SSSE3, numeric::xmm128>
+class __simd_memory_access<arch::CpuFeature::SSE41, xmm128> :
+    public __simd_memory_access<arch::CpuFeature::SSSE3, xmm128>
 {    
     static constexpr auto __generation  = arch::CpuFeature::SSE41;
-    using __register_policy             = numeric::xmm128;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+    using __register_policy             = xmm128;
 public:
     template <typename _VectorType_>
     static simd_stl_always_inline _VectorType_ __non_temporal_load(const void* __address) noexcept;
@@ -190,8 +182,8 @@ public:
 };
 
 template <>
-class __simd_memory_access<arch::CpuFeature::SSE42, numeric::xmm128> :
-    public __simd_memory_access<arch::CpuFeature::SSE41, numeric::xmm128>
+class __simd_memory_access<arch::CpuFeature::SSE42, xmm128> :
+    public __simd_memory_access<arch::CpuFeature::SSE41, xmm128>
 {};
 
 #pragma endregion
@@ -199,13 +191,51 @@ class __simd_memory_access<arch::CpuFeature::SSE42, numeric::xmm128> :
 #pragma region Avx-Avx2 memory access
 
 template <>
-class __simd_memory_access<arch::CpuFeature::AVX2, numeric::ymm256>
+class __simd_memory_access<arch::CpuFeature::AVX2, xmm128> :
+    public __simd_memory_access<arch::CpuFeature::SSE42, xmm128>
 {
     static constexpr auto __generation  = arch::CpuFeature::AVX2;
-    using __register_policy             = numeric::ymm256;
+    using __register_policy             = xmm128;
+public:
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline void __mask_store(
+        void*               __address,
+        _MaskType_          __mask,
+        _VectorType_        __vector,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+
+    template <
+        typename    _DesiredType_,
+        typename    _VectorType_,
+        class       _MaskType_,
+        class       _AlignmentPolicy_ = __unaligned_policy>
+    static simd_stl_always_inline _VectorType_ __mask_load(
+        const void*         __address,
+        _MaskType_          __mask,
+        _VectorType_        __additional_source,
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
+};
+
+
+template <>
+class __simd_memory_access<arch::CpuFeature::AVX2, ymm256>
+{
+    static constexpr auto __generation  = arch::CpuFeature::AVX2;
+    using __register_policy             = ymm256;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = (_TypeSize_ == 4) || (_TypeSize_ == 8);
@@ -294,9 +324,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512F, zmm512>
 {
     static constexpr auto __generation   = arch::CpuFeature::AVX512F;
     using __register_policy = zmm512;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = (_TypeSize_ == 4) || (_TypeSize_ == 8);
@@ -382,9 +409,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512BW, zmm512>:
 {
     static constexpr auto __generation = arch::CpuFeature::AVX512BW;
     using __register_policy = zmm512;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = true;
@@ -423,17 +447,6 @@ public:
         _MaskType_          __mask,
         _VectorType_        __additional_policy,
         _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
-    
-    template <
-        typename    _DesiredType_,
-        typename    _VectorType_,
-        class       _MaskType_,
-        class       _AlignmentPolicy_ = __unaligned_policy>
-    static simd_stl_always_inline _DesiredType_* __compress_store(
-        _DesiredType_*      __address,
-        _MaskType_          __mask,
-        _VectorType_        __vector,
-        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 };
 
 template <>
@@ -448,9 +461,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512VLF, ymm256> :
 {
     static constexpr auto __generation   = arch::CpuFeature::AVX512VLF;
     using __register_policy = ymm256;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = (_TypeSize_ == 4) || (_TypeSize_ == 8);
@@ -511,9 +521,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512VLBW, ymm256> :
 {
     static constexpr auto __generation   = arch::CpuFeature::AVX512VLBW;
     using __register_policy = ymm256;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = true;
@@ -552,17 +559,6 @@ public:
         _MaskType_          __mask,
         _VectorType_        __additional_policy,
         _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
-    
-    template <
-        typename    _DesiredType_,
-        typename    _VectorType_,
-        class       _MaskType_,
-        class       _AlignmentPolicy_ = __unaligned_policy>
-    static simd_stl_always_inline _DesiredType_* __compress_store(
-        _DesiredType_*      __address,
-        _MaskType_          __mask,
-        _VectorType_        __vector,
-        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
 };
 
 template <>
@@ -581,9 +577,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512VLF, xmm128> :
 {
     static constexpr auto __generation      = arch::CpuFeature::AVX512VLF;
     using __register_policy                 = xmm128;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = (_TypeSize_ == 4) || (_TypeSize_ == 8);
@@ -644,9 +637,6 @@ class __simd_memory_access<arch::CpuFeature::AVX512VLBW, xmm128> :
 {
     static constexpr auto __generation   = arch::CpuFeature::AVX512VLBW;
     using __register_policy               = xmm128;
-
-    template <class _DesiredType_>
-    using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <sizetype _TypeSize_>
     static constexpr auto __native_mask_load_supported = true;
@@ -685,20 +675,6 @@ public:
         _MaskType_          __mask,
         _VectorType_        __additional_policy,
         _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
-    
-    template <
-        typename    _DesiredType_,
-        typename    _VectorType_,
-        class       _MaskType_,
-        class       _AlignmentPolicy_ = __unaligned_policy>
-    static simd_stl_always_inline _DesiredType_* __compress_store(
-        _DesiredType_*      __address,
-        _MaskType_          __mask,
-        _VectorType_        __vector,
-        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept;
-
-    template <typename _Type_>
-    static simd_stl_always_inline auto __make_tail_mask(uint32 __bytes) noexcept;
 };
 
 template <>
@@ -741,8 +717,8 @@ template <
     class				_RegisterPolicy_,
     class				_VectorType_>
 simd_stl_nodiscard simd_stl_always_inline void __simd_non_temporal_store(
-    void*               __address,
-    const _VectorType_  __vector) noexcept
+    void*           __address,
+    _VectorType_    __vector) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __non_temporal_store(__address, __vector);
@@ -757,7 +733,7 @@ template <
     class               _AlignmentPolicy_ = __unaligned_policy>
 simd_stl_always_inline _VectorType_ __simd_mask_load(
     const void*         __address,
-    const _MaskType_    __mask,
+    _MaskType_          __mask,
     _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
@@ -771,7 +747,7 @@ template <
     class               _AlignmentPolicy_ = __unaligned_policy>
 simd_stl_nodiscard simd_stl_always_inline void __simd_store(
     void*               __address,
-    const _VectorType_  __vector,
+    _VectorType_        __vector,
     _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
@@ -792,8 +768,8 @@ template <
     class               _AlignmentPolicy_ = __unaligned_policy>
 simd_stl_always_inline void __simd_mask_store(
     void*                   __address,
-    const _MaskVectorType_  __mask,
-    const _VectorType_      __vector,
+    _MaskVectorType_        __mask,
+    _VectorType_            __vector,
     _AlignmentPolicy_&&     __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
@@ -810,7 +786,7 @@ template <
 simd_stl_always_inline _DesiredType_* __simd_compress_store(
     _DesiredType_*      __address,
     _MaskType_          __mask,
-    const _VectorType_  __vector,
+    _VectorType_        __vector,
     _AlignmentPolicy_&& __policy) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
@@ -826,7 +802,7 @@ template <
     class               _AlignmentPolicy_ = __unaligned_policy>
 simd_stl_always_inline _VectorType_ __simd_mask_load(
     const void*         __address,
-    const _MaskType_    __mask,
+    _MaskType_          __mask,
     _VectorType_        __additional_source,
     _AlignmentPolicy_&& __policy) noexcept
 {

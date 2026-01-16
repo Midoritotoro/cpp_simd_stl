@@ -96,6 +96,11 @@ class __simd_element_access<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx-Avx2 Simd element access 
 
 template <>
+class __simd_element_access<arch::CpuFeature::AVX2, xmm128>:
+    public __simd_element_access<arch::CpuFeature::SSE42, xmm128>
+{};
+
+template <>
 class __simd_element_access<arch::CpuFeature::AVX2, ymm256>
 {
     static constexpr auto __generation      = arch::CpuFeature::AVX2;

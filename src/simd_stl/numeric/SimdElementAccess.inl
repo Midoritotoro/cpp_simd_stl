@@ -71,7 +71,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE2, xmm128
         const auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();
 
         const auto __broadcasted = __simd_broadcast<__generation, __register_policy, _VectorType_>(memory::pointer_to_integral(__value));
-        const auto __insert_mask = __simd_load_unaligned<__generation, __register_policy, _VectorType_>(
+        const auto __insert_mask = __simd_load<__generation, __register_policy, _VectorType_>(
             (__mask.__array + __mask.__offset - (__position & (__mask.__offset - 1))));
 
         __vector = __simd_blend<__generation, __register_policy, _DesiredType_>(__vector, __broadcasted, __insert_mask);
@@ -146,7 +146,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
         constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
         _DesiredType_ __array[__length];
 
-        __simd_store_unaligned<__generation, __register_policy>(__array, __vector);
+        __simd_store<__generation, __register_policy>(__array, __vector);
         return __array[__where & (__length - 1)];
     }
 }
@@ -388,7 +388,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX2, ymm256
         const auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();
 
         const auto __broadcasted = __simd_broadcast<__generation, __register_policy, _VectorType_>(__value);
-        const auto __insert_mask = __simd_load_unaligned<__generation, __register_policy, _VectorType_>(
+        const auto __insert_mask = __simd_load<__generation, __register_policy, _VectorType_>(
             (__mask.__array + __mask.__offset - (__position & (__mask.__offset - 1))));
 
         __vector = __simd_blend<__generation, __register_policy, _DesiredType_>(__vector, __broadcasted, __insert_mask);
@@ -438,7 +438,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX
         constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
         _DesiredType_ __array[__length];
 
-        __simd_store_unaligned<__generation, __register_policy>(__array, __vector);
+        __simd_store<__generation, __register_policy>(__array, __vector);
         return __array[__where & (__length - 1)];
     }
 }
@@ -484,7 +484,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX512F, zmm
         const auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();
 
         const auto __broadcasted = __simd_broadcast<__generation, __register_policy, _VectorType_>(__value);
-        const auto __insert_mask = __simd_load_unaligned<__generation, __register_policy, _VectorType_>(
+        const auto __insert_mask = __simd_load<__generation, __register_policy, _VectorType_>(
             (__mask.__array + __mask.__offset - (__position & (__mask.__offset - 1))));
 
         __vector = __simd_blend<__generation, __register_policy, _DesiredType_>(__vector, __broadcasted, __insert_mask);
@@ -518,7 +518,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX
         constexpr auto __length = sizeof(_VectorType_) / sizeof(_DesiredType_);
         _DesiredType_ __array[__length];
 
-        __simd_store_unaligned<__generation, __register_policy>(__array, __vector);
+        __simd_store<__generation, __register_policy>(__array, __vector);
         return __array[__where & (__length - 1)];
     }
 }

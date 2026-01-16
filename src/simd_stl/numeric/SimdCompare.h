@@ -217,12 +217,12 @@ public:
 #pragma region Avx Simd compare
 
 template <>
-class __simd_compare_implementation<arch::CpuFeature::AVX, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX2, xmm128>:
+    public __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>
 {};
 
 template <>
-class __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>:
-    public __simd_compare_implementation<arch::CpuFeature::AVX, ymm256>
+class __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>
 {
     static constexpr auto __generation   = arch::CpuFeature::AVX2;
     using __register_policy               = ymm256;

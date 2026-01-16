@@ -223,7 +223,13 @@ class __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx Simd arithmetic
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX, ymm256> {};
+class __simd_arithmetic<arch::CpuFeature::AVX2, xmm128> :
+    public __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>
+{};
+
+template <>
+class __simd_arithmetic<arch::CpuFeature::AVX, ymm256> 
+{};
 
 template <>
 class __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>:

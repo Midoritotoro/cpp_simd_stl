@@ -52,6 +52,11 @@ class __simd_broadcast_implementation<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx-Avx2 Simd broadcast
 
 template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX2, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::SSE42, xmm128>
+{};
+
+template <>
 class __simd_broadcast_implementation<arch::CpuFeature::AVX, numeric::ymm256> {
 public:
 	template <
