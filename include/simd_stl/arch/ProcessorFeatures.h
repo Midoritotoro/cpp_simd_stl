@@ -34,51 +34,47 @@ public:
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512CD()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512DQ()    noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512VBMI()  noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static bool AVX512VBMI2() noexcept;
     
     simd_stl_nodiscard simd_stl_always_inline static bool POPCNT()      noexcept;
 
     template <arch::CpuFeature _Feature_> 
     simd_stl_nodiscard simd_stl_always_inline static bool isSupported() noexcept;
-
-    //simd_stl_nodiscard simd_stl_always_inline static int L1CacheSize()    noexcept;
-    //simd_stl_nodiscard simd_stl_always_inline static int L2CacheSize()    noexcept;
-    //simd_stl_nodiscard simd_stl_always_inline static int L3CacheSize()    noexcept;
 private:
     class ProcessorFeaturesInternal
     {
-        simd_stl_nodiscard simd_stl_always_inline static int HighestFunctionId(uint32* registers) noexcept;
+        simd_stl_nodiscard simd_stl_always_inline static int highest_function_id(uint32* registers) noexcept;
     public:
         ProcessorFeaturesInternal() noexcept;
 
-        bool _sse      : 1 = false;
-        bool _sse2     : 1 = false;
-        bool _sse3     : 1 = false;
-        bool _sse41    : 1 = false;
-        bool _sse42    : 1 = false;
-        bool _ssse3    : 1 = false;
+        bool _sse           : 1 = false;
+        bool _sse2          : 1 = false;
+        bool _sse3          : 1 = false;
+        bool _sse41         : 1 = false;
+        bool _sse42         : 1 = false;
+        bool _ssse3         : 1 = false;
         
-        bool _avx      : 1 = false;
-        bool _avx2     : 1 = false;
+        bool _avx           : 1 = false;
+        bool _avx2          : 1 = false;
 
-        bool _avx512f  : 1 = false;
-        bool _avx512bw : 1 = false;
-        bool _avx512pf : 1 = false;
-        bool _avx512er : 1 = false;
-        bool _avx512cd : 1 = false;
-        bool _avx512vl : 1 = false;
-        bool _avx512dq : 1 = false;
+        bool _avx512f       : 1 = false;
+        bool _avx512bw      : 1 = false;
+        bool _avx512pf      : 1 = false;
+        bool _avx512er      : 1 = false;
+        bool _avx512cd      : 1 = false;
+        bool _avx512vl      : 1 = false;
+        bool _avx512dq      : 1 = false;
+        bool _avx512vbmi    : 1 = false;
+        bool _avx512vbmi2   : 1 = false;
 
-        bool _popcnt   : 1 = false;
-
-        //int _L1CacheSize = 0;
-        //int _L2CacheSize = 0;
-        //int _L3CacheSize = 0;
+        bool _popcnt        : 1 = false;
     };
 
     static inline ProcessorFeaturesInternal _processorFeaturesInternal;
 };
 
-simd_stl_always_inline int ProcessorFeatures::ProcessorFeaturesInternal::HighestFunctionId(uint32* registers) noexcept {
+simd_stl_always_inline int ProcessorFeatures::ProcessorFeaturesInternal::highest_function_id(uint32* registers) noexcept {
     cpuid(registers, 0);
     return registers[0];
 }
@@ -86,7 +82,7 @@ simd_stl_always_inline int ProcessorFeatures::ProcessorFeaturesInternal::Highest
 ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexcept {
     std::array<uint32, 4> registers;
 
-    const auto leafCount = HighestFunctionId(registers.data());
+    const auto leafCount = highest_function_id(registers.data());
  
     if (leafCount >= 1) {
         std::memset(registers.data(), 0, registers.size() * sizeof(uint32));
@@ -117,16 +113,20 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
         cpuidex(registers.data(), 7, 0); // 0 - eax, 1 - ebx, 2 - ecx, 3 - edx
 
         const auto leaf7Ebx = registers[1];
+        const auto leaf7Ecx = registers[2];
         
-        _avx2       = (leaf7Ebx >> 5) & 1;
+        _avx2           = (leaf7Ebx >> 5) & 1;
 
-        _avx512f    = (leaf7Ebx >> 16) & 1;
-        _avx512dq   = (leaf7Ebx >> 17) & 1;
-        _avx512bw   = (leaf7Ebx >> 30) & 1;
-        _avx512pf   = (leaf7Ebx >> 26) & 1;
-        _avx512er   = (leaf7Ebx >> 27) & 1;
-        _avx512cd   = (leaf7Ebx >> 28) & 1;
-        _avx512vl   = (leaf7Ebx >> 31) & 1;
+        _avx512f        = (leaf7Ebx >> 16) & 1;
+        _avx512dq       = (leaf7Ebx >> 17) & 1;
+        _avx512bw       = (leaf7Ebx >> 30) & 1;
+        _avx512pf       = (leaf7Ebx >> 26) & 1;
+        _avx512er       = (leaf7Ebx >> 27) & 1;
+        _avx512cd       = (leaf7Ebx >> 28) & 1;
+        _avx512vl       = (leaf7Ebx >> 31) & 1;
+
+        _avx512vbmi     = (leaf7Ecx >> 1) & 1;
+        _avx512vbmi2    = (leaf7Ecx >> 6) & 1;
     }
 }
 
@@ -190,6 +190,14 @@ bool ProcessorFeatures::AVX512DQ() noexcept {
     return _processorFeaturesInternal._avx512dq;
 }
 
+bool ProcessorFeatures::AVX512VBMI() noexcept {
+    return _processorFeaturesInternal._avx512vbmi;
+}
+
+bool ProcessorFeatures::AVX512VBMI2() noexcept {
+    return _processorFeaturesInternal._avx512vbmi2;
+}
+
 bool ProcessorFeatures::POPCNT() noexcept {
     return _processorFeaturesInternal._popcnt;
 }
@@ -228,18 +236,10 @@ bool ProcessorFeatures::isSupported() noexcept {
         return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512dq;
     else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VLBWDQ))
         return _processorFeaturesInternal._avx512vl && _processorFeaturesInternal._avx512dq && _processorFeaturesInternal._avx512bw;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VBMI))
+        return _processorFeaturesInternal._avx512vbmi;
+    else if constexpr (static_cast<int8>(_Feature_) == static_cast<int8>(CpuFeature::AVX512VBMI2))
+        return _processorFeaturesInternal._avx512vbmi2;
 }
-
-//int ProcessorFeatures::L1CacheSize() noexcept {
-//    return _processorFeaturesInternal._L1CacheSize;
-//}
-//
-//int ProcessorFeatures::L2CacheSize() noexcept {
-//    return _processorFeaturesInternal._L2CacheSize;
-//}
-//
-//int ProcessorFeatures::L3CacheSize() noexcept {
-//    return _processorFeaturesInternal._L1CacheSize;
-//}
 
 __SIMD_STL_ARCH_NAMESPACE_END
