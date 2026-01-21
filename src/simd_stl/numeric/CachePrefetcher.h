@@ -15,6 +15,8 @@ enum class __prefetch_hint: int32 {
 template <__prefetch_hint _Hint_>
 class __cache_prefetcher {
 public:
+	static constexpr auto __prefetch_stride = 0x40;
+
 	template <class _Pointer_>
 	simd_stl_always_inline void operator()(_Pointer_ __pointer) const noexcept {
 		_mm_prefetch(const_cast<const char*>(reinterpret_cast<const volatile char*>(std::to_address(__pointer))), static_cast<int>(_Hint_));

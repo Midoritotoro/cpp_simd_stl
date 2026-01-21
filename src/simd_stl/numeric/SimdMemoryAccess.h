@@ -843,17 +843,6 @@ using __make_tail_mask_return_type = __make_tail_mask_return_type_helper<_BasicS
     type_traits::invoke_result_type<decltype(__simd_make_tail_mask<_BasicSimd_::__generation, typename _BasicSimd_::policy_type,
     typename _BasicSimd_::value_type>), uint32>>;
 
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    class               _RegisterPolicy_,
-    typename            _MaskOrBasicSimdType_>
-simd_stl_always_inline auto __simd_to_native_mask(_MaskOrBasicSimdType_ __mask) noexcept {
-    if constexpr (__is_valid_basic_simd_v<_MaskOrBasicSimdType_>)
-        return __mask.to_mask();
-    else
-        return __mask;
-}
-
 __SIMD_STL_NUMERIC_NAMESPACE_END
 
 #include <src/simd_stl/numeric/SimdMemoryAccess.inl>

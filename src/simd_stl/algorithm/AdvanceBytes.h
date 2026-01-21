@@ -56,6 +56,7 @@ simd_stl_always_inline void __advance_bytes(
         reinterpret_cast<const volatile unsigned char*>(__target)) + __offset);
 }
 
+
 simd_stl_always_inline sizetype __byte_length(
     const volatile void* __first,
     const volatile void* __last) noexcept
@@ -64,6 +65,7 @@ simd_stl_always_inline sizetype __byte_length(
         const_cast<const unsigned char*>(reinterpret_cast<const volatile unsigned char*>(__last)) - 
         const_cast<const unsigned char*>(reinterpret_cast<const volatile unsigned char*>(__first)));
 }
+
 
 template <class _ContiguousIterator_>
 constexpr inline type_traits::iterator_difference_type<_ContiguousIterator_> __iterators_difference(
@@ -135,6 +137,27 @@ simd_stl_nodiscard _Char_* __unsigned_integral_to_buffer(
     } while (__truncated != 0);
 
     return __end;
+}
+
+template <
+    typename    _Type_,
+    class       _Integral_>
+simd_stl_always_inline const _Type_* __bytes_pointer_offset(
+    const _Type_*   __target,
+    _Integral_      __offset) noexcept
+{
+    return reinterpret_cast<const _Type_*>(const_cast<const unsigned char*>(
+        reinterpret_cast<const volatile unsigned char*>(__target)) + __offset);
+}
+
+template <
+    typename    _Type_,
+    class       _Integral_>
+simd_stl_always_inline const _Type_* __pointer_offset(
+    const _Type_*   __target,
+    _Integral_      __offset) noexcept
+{
+    return __target + __offset;
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

@@ -27,6 +27,9 @@ public:
 	simd_mask() noexcept;
 	simd_mask(const mask_type __mask) noexcept;
 	
+	template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int> = 0>
+	simd_mask(const _VectorMask_& __vector_mask) noexcept;
+	
 	constexpr simd_stl_always_inline bool all_of() const noexcept;
 	constexpr simd_stl_always_inline bool any_of() const noexcept;
 	constexpr simd_stl_always_inline bool none_of() const noexcept;
@@ -94,6 +97,7 @@ struct __is_valid_simd_mask<
 
 template <class _SimdMask_>
 constexpr bool __is_valid_simd_mask_v = __is_valid_simd_mask<_SimdMask_>::value;
+
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

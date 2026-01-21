@@ -13,6 +13,18 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
+template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int>>
+simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const _VectorMask_& __vector_mask) noexcept {
+	if constexpr (__is_valid_basic_simd_v<_VectorMask_>)
+		_mask = __vector_mask.to_mask().unwrap();
+	else
+		_mask = __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _Element_>(__vector_mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_type __mask) noexcept :
 	_mask(__mask)
 {}

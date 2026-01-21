@@ -1,36 +1,118 @@
 #include <simd_stl/algorithm/find/Contains.h>
 #include <benchmarks/tools/BenchmarkHelper.h>
 
-#include <ranges>
+#include <uchar.h>
+#include <wchar.h> 
 
 template <
     typename _Char_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
-class StdFindBenchmark {
+    SizeForBenchmark sizeForBenchmark>
+class StdContainsBenchmark {
 public:
-    static void Find(benchmark::State& state) noexcept {
-        static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
+    static void ContainsInEnd(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[sizeForBenchmark - 1] = 42;
 
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(std::ranges::contains(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+            auto result = std::ranges::contains(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
+        }
+    }
+
+    static void ContainsInMiddle(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[sizeForBenchmark / 2] = 42;
+
+        while (state.KeepRunning()) {
+            auto result = std::ranges::contains(array, array + sizeForBenchmark, array[sizeForBenchmark / 2]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
+        }
+    }
+
+    static void ContainsInBegin(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[0] = 42;
+
+        while (state.KeepRunning()) {
+            auto result = std::ranges::contains(array, array + sizeForBenchmark, array[0]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
         }
     }
 };
 
 template <
     typename _Char_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
-class SimdStlFindBenchmark {
+    SizeForBenchmark sizeForBenchmark>
+class SimdStlContainsBenchmark {
 public:
-    static void Find(benchmark::State& state) noexcept {
-        static constexpr auto textArray = FixedArray<_Char_, sizeForBenchmark>{};
+    static void ContainsInEnd(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[sizeForBenchmark - 1] = 42;
 
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(simd_stl::algorithm::contains(textArray.data, textArray.data + sizeForBenchmark, sizeForBenchmark - 1));
+            auto result = simd_stl::algorithm::contains(array, array + sizeForBenchmark, array[sizeForBenchmark - 1]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
+        }
+    }
+
+    static void ContainsInMiddle(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[sizeForBenchmark / 2] = 42;
+
+        while (state.KeepRunning()) {
+            auto result = simd_stl::algorithm::contains(array, array + sizeForBenchmark, array[sizeForBenchmark / 2]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
+        }
+    }
+
+    static void ContainsInBegin(benchmark::State& state) noexcept {
+        _Char_ array[sizeForBenchmark];
+        std::memset(array, 0, sizeof(array));
+
+        array[0] = 42;
+
+        while (state.KeepRunning()) {
+            auto result = simd_stl::algorithm::contains(array, array + sizeForBenchmark, array[0]);
+            benchmark::DoNotOptimize(result);
+            benchmark::ClobberMemory();
         }
     }
 };
 
-SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFindBenchmark, StdFindBenchmark, long long, Find);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint8, ContainsInBegin);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint16, ContainsInBegin);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint32, ContainsInBegin);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint64, ContainsInBegin);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, float, ContainsInBegin);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, double, ContainsInBegin);
+
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint8, ContainsInMiddle);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint16, ContainsInMiddle);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint32, ContainsInMiddle);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint64, ContainsInMiddle);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, float, ContainsInMiddle);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, double, ContainsInMiddle);
+
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint8, ContainsInEnd);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint16, ContainsInEnd);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint32, ContainsInEnd);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, simd_stl::uint64, ContainsInEnd);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, float, ContainsInEnd);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlContainsBenchmark, StdContainsBenchmark, double, ContainsInEnd);
 
 SIMD_STL_BENCHMARK_MAIN();

@@ -44,7 +44,7 @@ public:
     using vector_type   = type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
     using size_type     = uint32;
-    using mask_type     = __mask_type<_Element_>;
+    using mask_type     = simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 
     using reference_type = __reference_type<value_type>;
 

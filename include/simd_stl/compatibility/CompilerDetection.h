@@ -4,10 +4,6 @@
 #  define SIMD_STL_ECHO(...) __VA_ARGS__
 #endif
 
-
-#define _PP_CAT(a,b) a##b
-#define PP_CAT(a,b) _PP_CAT(a,b)
-
 #if defined(_MSC_VER)
 #  define simd_stl_cpp_msvc			(_MSC_VER)
 #  define simd_stl_cpp_msvc_only	simd_stl_cpp_msvc
@@ -141,7 +137,21 @@
 #define __SIMD_STL_REPEAT_63(X) __SIMD_STL_REPEAT_62(X), __SIMD_STL_REPEAT__(X)
 #define __SIMD_STL_REPEAT_64(X) __SIMD_STL_REPEAT_63(X), __SIMD_STL_REPEAT__(X)
 
-#define __SIMD_STL_REPEAT_N(N, X) PP_CAT(__SIMD_STL_REPEAT_, N)(X)
-
 #define __SIMD_STL_PP_CAT(a,b) a##b
 #define SIMD_STL_PP_CAT(a,b) __SIMD_STL_PP_CAT(a,b)
+
+#define __SIMD_STL_REPEAT_N(N, X) SIMD_STL_PP_CAT(__SIMD_STL_REPEAT_, N)(X)
+
+
+#define __SIMD_STL_DUPLICATE__(X) X
+
+#define __SIMD_STL_DUPLICATE_1(X)  __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_2(X)  __SIMD_STL_DUPLICATE_1(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_3(X)  __SIMD_STL_DUPLICATE_2(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_4(X)  __SIMD_STL_DUPLICATE_3(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_5(X)  __SIMD_STL_DUPLICATE_4(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_6(X)  __SIMD_STL_DUPLICATE_5(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_7(X)  __SIMD_STL_DUPLICATE_6(X) __SIMD_STL_DUPLICATE__(X)
+#define __SIMD_STL_DUPLICATE_8(X)  __SIMD_STL_DUPLICATE_7(X) __SIMD_STL_DUPLICATE__(X)
+
+#define __SIMD_STL_DUPLICATE_N(N, X) SIMD_STL_PP_CAT(__SIMD_STL_DUPLICATE_, N)(X)
