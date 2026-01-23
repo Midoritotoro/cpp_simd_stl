@@ -15,8 +15,8 @@ void check_equal(It1 simd_first, It1 std_first, It2 simd_second, It2 std_second)
 
 int main() {
     {
-        std::vector<int> a(63, 1);
-        std::vector<int> b(63, 1);
+        std::vector<double> a(63, 1);
+        std::vector<double> b(63, 1);
         auto simd = simd_stl::algorithm::mismatch(a.begin(), a.end(), b.begin());
         auto stdm = std::mismatch(a.begin(), a.end(), b.begin());
         check_equal(simd.first, stdm.first, simd.second, stdm.second);

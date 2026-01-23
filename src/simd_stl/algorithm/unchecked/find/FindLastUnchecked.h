@@ -21,16 +21,11 @@ __simd_nodiscard_inline_constexpr _UnwrappedIterator_ __find_last_unchecked(
 {
 	using _DifferenceType = type_traits::iterator_difference_type<_UnwrappedIterator_>;
 
-	const auto __cached_last = __last_unwrapped;
-
 	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedIterator_, _Type_>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20
 		{
-			if (numeric::__is_comparable<_UnwrappedIterator_>(__value) == false)
-				return __last_unwrapped;
-
 			const auto __first_address	= std::to_address(__first_unwrapped);
 			const auto __position		= __find_last_vectorized(__first_address, std::to_address(__last_unwrapped), __value);
 
@@ -40,6 +35,8 @@ __simd_nodiscard_inline_constexpr _UnwrappedIterator_ __find_last_unchecked(
 				return __first_unwrapped + (__position - __first_address);
 		}
 	}
+
+	const auto __cached_last = __last_unwrapped;
 
 	while (__last_unwrapped != __first_unwrapped) {
 		--__last_unwrapped;

@@ -9,8 +9,8 @@ template <
 	class _FirstElement_,
 	class _SecondElement_,
 	bool = sizeof(_FirstElement_) == sizeof(_SecondElement_)
-		&& std::is_integral_v<_FirstElement_>
-		&& std::is_integral_v<_SecondElement_>>
+		&& std::is_integral_v<_FirstElement_> || std::is_floating_point_v<_FirstElement_>
+		&& std::is_integral_v<_SecondElement_> || std::is_floating_point_v<_SecondElement_>>
 constexpr bool __can_memcmp_elements_v =
 		std::is_same_v<_FirstElement_, bool>
 	||	std::is_same_v<_SecondElement_, bool> 

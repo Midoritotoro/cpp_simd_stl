@@ -172,14 +172,8 @@ SIMD_STL_ADD_SPECIALIZATION_TO_FIXED_INTEGER_ARRAY(FixedIntegerArray, simd_stl::
 
 #if !defined(SIMD_STL_ADD_BENCHMARK)
 #  define SIMD_STL_ADD_BENCHMARK(benchFirst, benchSecond)                   \
-     BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)    \
-        ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
-        ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true);                                       \
-     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT)   \
-        ->Iterations(SIMD_STL_BENCHMARK_ITERATIONS)                         \
-        ->Repetitions(SIMD_STL_BENCHMARK_REPITITIONS)                       \
-        ->ReportAggregatesOnly(true);                                       
+     BENCHMARK(benchFirst)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT);   \
+     BENCHMARK(benchSecond)->Unit(SIMD_STL_BENCHMARK_UNIT_OF_MEASUREMENT);
 #endif // SIMD_STL_ADD_BENCHMARK
 
 #if !defined(SIMD_STL_ADD_BENCHMARK_ARGS)
@@ -414,9 +408,9 @@ public:
         for (const auto& run : reports) {
             _benchmarks.push_back(run);
 
-            if (_benchmarks.size() % 8 == 0) {
+            if (_benchmarks.size() % 2 == 0) {
                 const auto& firstBenchmark = _benchmarks[0];
-                const auto& secondBenchmark = _benchmarks[4];
+                const auto& secondBenchmark = _benchmarks[1];
 
                 const auto realTimeDifference = (secondBenchmark.GetAdjustedRealTime() / firstBenchmark.GetAdjustedRealTime());
 
@@ -427,11 +421,11 @@ public:
                 const auto secondBenchmarkPrettyName = secondBenchmarkFullName.substr(0, secondBenchmarkFullName.find('/'));
 
                 if (realTimeDifference > 1.0f)
-                    ColorPrintf(out, COLOR_BLUE, "%s(%f) faster than %s(%f) by a %f%\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
+                    ColorPrintf(out, COLOR_BLUE, "%s(%f) faster than %s(%f) by a %f %\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
                         secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
 
                 else if (realTimeDifference < 1.0f)
-                    ColorPrintf(out, COLOR_RED, "%s(%f) slower than %s(%f) by a %f%\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
+                    ColorPrintf(out, COLOR_RED, "%s(%f) slower than %s(%f) by a %f %\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
                         secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
 
                 else
