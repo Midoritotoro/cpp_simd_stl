@@ -67,7 +67,7 @@ struct __find_vectorized_internal {
 };
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_* simd_stl_stdcall __find_vectorized(
+simd_stl_always_inline _Type_* simd_stl_stdcall __find_vectorized(
     const void* __first,
     const void* __last,
     _Type_      __value) noexcept

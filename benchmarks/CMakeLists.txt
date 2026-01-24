@@ -22,8 +22,8 @@ macro(cpp_simd_stlBenchmarks_add_benchmark filename)
     add_executable(${filename} ${filename}.cpp ${CMAKE_CURRENT_SOURCE_DIR}/tools/BenchmarkHelper.h)
     target_include_directories(${filename} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tools)
 
-    set(CMAKE_CXX_FLAGS "-march=native" "-O2" "/Zi /Gm- /Zc:inline")
-
+    # set(CMAKE_CXX_FLAGS "-march=native /O2 /Zi /Gm- /Zc:inline /arch:AVX512")
+    add_compile_options(-O2 -Ot -Ob3 -Oi3 -GS- -Oy -arch:AVX512)
 
     target_link_libraries(
       ${filename} PUBLIC

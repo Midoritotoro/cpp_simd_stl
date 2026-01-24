@@ -151,6 +151,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdElementAccess.inl
     src/simd_stl/numeric/SimdElementWise.inl
     src/simd_stl/numeric/SimdMemoryAccess.inl
+    src/simd_stl/numeric/SimdIndexMask.inl
     src/simd_stl/numeric/SimdComparison.h
 
     src/simd_stl/numeric/SimdOperations.h
@@ -284,6 +285,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/numeric/BasicSimdMask.h
     include/simd_stl/numeric/BasicSimdShuffleMask.h
     include/simd_stl/numeric/SimdCast.h
+    include/simd_stl/numeric/SimdIndexMask.h
 )
 
 include(CMakePackageConfigHelpers)
@@ -356,7 +358,7 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "C
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g -Ob3 -Oi) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-O2 -Ot -Ob3 -Oi -GS- -Oy)
+        add_compile_options(-O2 -Ot -Ob3 -Oi3 -GS- -Oy)
     endif()
 
     target_compile_options(

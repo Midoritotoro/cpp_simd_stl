@@ -132,11 +132,13 @@ public:
     template <
         typename    _DesiredType_       = value_type,
         class       _MaskType_          = __mask_type<_DesiredType_>,
-        class       _AlignmentPolicy_   = unaligned_policy>
+        class       _AlignmentPolicy_   = unaligned_policy,
+        class       _MaskAssumption_    = __safe_mask_t>
     simd_stl_always_inline _DesiredType_* compress_store(
         void*               __address,
         const _MaskType_&   __mask,
-        _AlignmentPolicy_&& __policy = unaligned_policy{}) const noexcept;
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{},
+        _MaskAssumption_&&  __mask_assumption = _MaskAssumption_{}) const noexcept;
 
     template <
         typename    _DesiredType_   = value_type,
@@ -202,6 +204,9 @@ public:
     simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_mask() const noexcept;
 
     template <typename _DesiredType_ = value_type>
+    simd_stl_always_inline simd_index_mask < _SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_index_mask() const noexcept;
+
+    template <typename _DesiredType_ = value_type>
     simd_stl_always_inline __reduce_type<_DesiredType_> reduce_add() const noexcept;
 
     simd_stl_always_inline static void streaming_fence() noexcept;
@@ -214,15 +219,13 @@ public:
         const _MaskType_&                                               __mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_min(
-        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_min(const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
+
+    template <typename _DesiredType_ = _Element_>
+    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_max(const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_ horizontal_min() const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_max(
-        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
 
     template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline _DesiredType_ horizontal_max() const noexcept;
@@ -254,7 +257,7 @@ private:
 template <arch::CpuFeature _SimdGeneration_>
 struct __zero_upper_at_exit_guard {
     __zero_upper_at_exit_guard(const __zero_upper_at_exit_guard&) noexcept = delete;
-    __zero_upper_at_exit_guard(__zero_upper_at_exit_guard&&) noexcept  = delete;
+    __zero_upper_at_exit_guard(__zero_upper_at_exit_guard&&) noexcept = delete;
 
     __zero_upper_at_exit_guard() noexcept;
     ~__zero_upper_at_exit_guard() noexcept;

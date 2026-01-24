@@ -61,6 +61,19 @@ public:
 	constexpr simd_stl_always_inline simd_mask& operator=(mask_type __other) noexcept;
 	constexpr simd_stl_always_inline simd_mask& operator^=(const simd_mask& __other) noexcept;
 
+	constexpr simd_stl_always_inline simd_mask operator>>(const simd_mask& other) const noexcept;
+	constexpr simd_stl_always_inline simd_mask operator<<(const simd_mask& other) const noexcept;
+
+	constexpr simd_stl_always_inline simd_mask& operator>>=(const simd_mask& other) const noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator<<=(const simd_mask& other) const noexcept;
+
+	constexpr simd_stl_always_inline simd_mask  operator+()     const noexcept;
+	constexpr simd_stl_always_inline simd_mask  operator-()     const noexcept;
+	constexpr simd_stl_always_inline simd_mask  operator++(int) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator++()    noexcept;
+	constexpr simd_stl_always_inline simd_mask  operator--(int) noexcept;
+	constexpr simd_stl_always_inline simd_mask& operator--()    noexcept;
+
 	constexpr simd_stl_always_inline simd_mask operator~() const noexcept;
 
 	constexpr simd_stl_always_inline explicit operator bool() const noexcept;

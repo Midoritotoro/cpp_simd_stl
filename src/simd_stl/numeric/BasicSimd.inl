@@ -576,11 +576,24 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
+template <
+    typename    _DesiredType_,
+    class       _MaskAssumption_>
 simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_mask() const noexcept
+simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_mask(_MaskAssumption_&& __mask_assumption) const noexcept
 {
     return __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <typename _DesiredType_>
+simd_stl_always_inline simd_index_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_index_mask() const noexcept
+{
+
 }
 
 template <
@@ -671,18 +684,20 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-    template <
-        typename    _DesiredType_,
-        class       _MaskType_,
-        class       _AlignmentPolicy_>
+template <
+    typename    _DesiredType_,
+    class       _MaskType_,
+    class       _AlignmentPolicy_,
+    class       _MaskAssumption_>
 _DesiredType_* simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress_store(
     void*               __address,
     const _MaskType_&   __mask,
-    _AlignmentPolicy_&& __policy) const noexcept
+    _AlignmentPolicy_&& __policy,
+    _MaskAssumption_&&  __mask_assumption) const noexcept
 {
     return __simd_compress_store<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(__address), 
-        __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask)), _vector, __policy);
+        __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask), __mask_assumption), _vector, __policy);
 }
 
 template <

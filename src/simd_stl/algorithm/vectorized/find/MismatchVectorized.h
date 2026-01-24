@@ -82,7 +82,7 @@ struct __mismatch_vectorized_internal {
 
 
 template <typename _Type_>
-simd_stl_declare_const_function sizetype simd_stl_stdcall __mismatch_vectorized(
+simd_stl_always_inline simd_stl_declare_const_function sizetype simd_stl_stdcall __mismatch_vectorized(
     const void*     __first,
     const void*     __second,
     const sizetype  __length) noexcept
