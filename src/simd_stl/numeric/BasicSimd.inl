@@ -539,6 +539,19 @@ template <
 template <
     simd_comparison _Comparison_,
     typename        _DesiredType_>
+simd_stl_always_inline simd_index_mask<__simd_index_mask_divisor<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>, _SimdGeneration_, _DesiredType_, _RegisterPolicy_>
+    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::index_mask_compare(const simd& __right) const noexcept
+{
+    return __simd_index_mask_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+template <
+    simd_comparison _Comparison_,
+    typename        _DesiredType_>
 simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_compare(const simd& __right) const noexcept
 {
@@ -576,11 +589,9 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    typename    _DesiredType_,
-    class       _MaskAssumption_>
+template <typename _DesiredType_>
 simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_mask(_MaskAssumption_&& __mask_assumption) const noexcept
+    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_mask() const noexcept
 {
     return __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
@@ -590,10 +601,8 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
-simd_stl_always_inline simd_index_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_index_mask() const noexcept
-{
-
+simd_stl_always_inline auto simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::to_index_mask() const noexcept {
+    return __simd_to_index_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <
@@ -687,17 +696,15 @@ template <
 template <
     typename    _DesiredType_,
     class       _MaskType_,
-    class       _AlignmentPolicy_,
-    class       _MaskAssumption_>
+    class       _AlignmentPolicy_>
 _DesiredType_* simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::compress_store(
     void*               __address,
     const _MaskType_&   __mask,
-    _AlignmentPolicy_&& __policy,
-    _MaskAssumption_&&  __mask_assumption) const noexcept
+    _AlignmentPolicy_&& __policy) const noexcept
 {
     return __simd_compress_store<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         reinterpret_cast<_DesiredType_*>(__address), 
-        __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask), __mask_assumption), _vector, __policy);
+        __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__simd_unwrap_mask(__mask)), _vector, __policy);
 }
 
 template <

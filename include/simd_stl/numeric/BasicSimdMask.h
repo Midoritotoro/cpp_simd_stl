@@ -25,7 +25,9 @@ public:
 	using size_type = typename __implementation::size_type;
 
 	simd_mask() noexcept;
+
 	simd_mask(const mask_type __mask) noexcept;
+	simd_mask(const simd_mask& __mask) noexcept;
 	
 	template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int> = 0>
 	simd_mask(const _VectorMask_& __vector_mask) noexcept;

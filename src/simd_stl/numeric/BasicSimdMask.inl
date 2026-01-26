@@ -33,6 +33,15 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
+simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const simd_mask& __mask) noexcept :
+	_mask(__mask._mask)
+{}
+
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
 constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::all_of() const noexcept {
 	return __implementation::all_of(_mask);
 }

@@ -387,6 +387,89 @@ void testMethods() {
             assert(reversed[i] == arr[N - 1 - i]);
         }
     }
+
+    {
+        Simd v1(10);
+        Simd v2(10);
+        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+
+        using _IndexMask = decltype(mask);
+        constexpr auto divisor = _IndexMask::__divisor;
+
+        simd_stl_assert(mask.any_of());
+        simd_stl_assert(mask.all_of());
+        simd_stl_assert(!mask.none_of());
+        simd_stl_assert(static_cast<bool>(mask) == true);
+
+        simd_stl_assert(mask.count_set() == N * divisor);
+        simd_stl_assert(mask.count_trailing_zero_bits() == 0);
+        simd_stl_assert(mask.count_leading_zero_bits() == 0);
+    }
+
+    {
+        Simd v1(10);
+        Simd v2(20);
+        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+
+        simd_stl_assert(!mask.any_of());
+        simd_stl_assert(!mask.all_of());
+        simd_stl_assert(mask.none_of());
+        simd_stl_assert(mask.count_set() == 0);
+    }
+
+    for (size_t i = 0; i < N; ++i) {
+        Simd v1(0);
+        Simd v2(0);
+
+        v1.insert<T>(i, 42);
+        v2.insert<T>(i, 42);
+
+        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+
+        using _IndexMask = decltype(mask);
+        constexpr auto divisor = _IndexMask::__divisor;
+
+        simd_stl_assert(mask.any_of());
+        simd_stl_assert(!mask.all_of());
+
+        simd_stl_assert(mask.count_set() == divisor);
+        simd_stl_assert(mask.count_trailing_zero_bits() / divisor == i);
+        simd_stl_assert(mask.count_leading_zero_bits() / divisor == (N - 1 - i));
+    }
+
+    {
+        Simd v1(0);
+        Simd v2(0);
+
+        v1.insert<T>(0, 1); v2.insert<T>(0, 1);
+        v1.insert<T>(1, 1); v2.insert<T>(1, 1);
+        v1.insert<T>(N - 1, 1); v2.insert<T>(N - 1, 1);
+
+        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+        using _IndexMask = decltype(mask);
+        constexpr auto divisor = _IndexMask::__divisor;
+
+        simd_stl_assert(mask.count_trailing_one_bits() / divisor == 2);
+        simd_stl_assert(mask.count_leading_one_bits() / divisor == 1);
+        simd_stl_assert(mask.count_set() == 3 * divisor);
+    }
+
+    {
+        if constexpr (sizeof(T) > 1) {
+            T val1 = 0;
+            T val2 = 0;
+
+            unsigned char* p = reinterpret_cast<unsigned char*>(&val2);
+            p[0] = 0xFF;
+
+            Simd v1(val1);
+            Simd v2(val2);
+
+            auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+
+            simd_stl_assert(mask.none_of());
+        }
+    }
 }
 
 template <simd_stl::arch::CpuFeature _Generation_, typename _RegisterPolicy_>

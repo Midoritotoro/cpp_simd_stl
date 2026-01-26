@@ -153,6 +153,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdMemoryAccess.inl
     src/simd_stl/numeric/SimdIndexMask.inl
     src/simd_stl/numeric/SimdComparison.h
+    src/simd_stl/numeric/SimdCompareResult.inl
+
 
     src/simd_stl/numeric/SimdOperations.h
     src/simd_stl/numeric/ZmmThreshold.h
@@ -286,6 +288,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/numeric/BasicSimdShuffleMask.h
     include/simd_stl/numeric/SimdCast.h
     include/simd_stl/numeric/SimdIndexMask.h
+    include/simd_stl/numeric/SimdCompareResult.h
 )
 
 include(CMakePackageConfigHelpers)

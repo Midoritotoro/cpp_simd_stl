@@ -13,7 +13,18 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE2
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    return __simd_to_mask<__generation, __register_policy, uint8>(__compare<_DesiredType_, _CompareType_>(__left, __right), safe_mask);
+    return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
 template <
@@ -185,9 +196,19 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSSE
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    return __simd_to_mask<__generation, __register_policy, uint8>(__compare<_DesiredType_, _CompareType_>(__left, __right), safe_mask);
+    return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSSE3, xmm128>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
 
 template <
     class               _DesiredType_,
@@ -197,7 +218,18 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE4
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    return __simd_to_mask<__generation, __register_policy, uint8>(__compare<_DesiredType_, _CompareType_>(__left, __right), safe_mask);
+    return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE41, xmm128>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
 template <
@@ -280,7 +312,18 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE4
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    return __simd_to_mask<__generation, __register_policy, uint8>(__compare<_DesiredType_, _CompareType_>(__left, __right), safe_mask);
+    return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
 template <
@@ -367,7 +410,29 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX2
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    return __simd_to_mask<__generation, __register_policy, uint8>(__compare<_DesiredType_, _CompareType_>(__left, __right), safe_mask);
+    return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__mask_index_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(__compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
 template <
@@ -566,13 +631,28 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return __mask_compare_less<_DesiredType_>(__left, __right);
 
     else if constexpr (static_cast<int>(_CompareType_) == static_cast<int>(__simd_comparison::less_equal))
-        return  ~__mask_compare_greater<_DesiredType_>(__left, __right);
+        return ~__mask_compare_greater<_DesiredType_>(__left, __right);
 
     else if constexpr (static_cast<int>(_CompareType_) == static_cast<int>(__simd_comparison::greater))
         return __mask_compare_greater<_DesiredType_>(__left, __right);
 
     else if constexpr (static_cast<int>(_CompareType_) == static_cast<int>(__simd_comparison::greater_equal))
         return ~__mask_compare_less<_DesiredType_>(__left, __right);
+}
+
+template <
+    class               _DesiredType_,
+    __simd_comparison   _CompareType_,
+    class               _VectorType_>
+simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__index_mask_compare(
+    _VectorType_ __left,
+    _VectorType_ __right) noexcept
+{
+    if constexpr (sizeof(_DesiredType_) >= 4)
+        return __mask_compare<_DesiredType_, _CompareType_>(__left, __right);
+    else
+        return __simd_to_index_mask<__generation, __register_policy, _DesiredType_>(
+            __blockwise_compare<_DesiredType_, _CompareType_>(__left, __right));
 }
 
 template <
@@ -628,7 +708,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm512_cmpeq_epi32_mask(__intrin_bitcast<__m512i>(__left), __intrin_bitcast<__m512i>(__right));
     }
     else {
-        return __simd_to_mask<__generation, __register_policy, uint8>(__blockwise_compare<_DesiredType_, __simd_comparison::equal>(__left, __right), safe_mask);
+        return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__blockwise_compare<_DesiredType_, __simd_comparison::equal>(__left, __right));
     }
 }
 
@@ -658,7 +738,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm512_cmplt_pd_mask(__intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right));
     }
     else {
-        return __simd_to_mask<__generation, __register_policy, uint8>(__blockwise_compare<_DesiredType_, __simd_comparison::less>(__left, __right), safe_mask);
+        return __simd_to_mask<__generation, __register_policy, _DesiredType_>(__blockwise_compare<_DesiredType_, __simd_comparison::less>(__left, __right));
     }
 }
 
@@ -920,7 +1000,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return __mask_compare_less<_DesiredType_>(__left, __right);
 
     else if constexpr (static_cast<int>(_CompareType_) == static_cast<int>(__simd_comparison::less_equal))
-        return  ~__mask_compare_greater<_DesiredType_>(__left, __right);
+        return ~__mask_compare_greater<_DesiredType_>(__left, __right);
 
     else if constexpr (static_cast<int>(_CompareType_) == static_cast<int>(__simd_comparison::greater))
         return __mask_compare_greater<_DesiredType_>(__left, __right);

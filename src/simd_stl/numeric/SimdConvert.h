@@ -24,6 +24,9 @@ class __simd_convert<arch::CpuFeature::SSE2, xmm128> {
     template <typename _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -89,6 +92,9 @@ class __simd_convert<arch::CpuFeature::AVX2, ymm256>
     template <typename _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -124,7 +130,33 @@ class __simd_convert<arch::CpuFeature::AVX512F, zmm512>
     static constexpr int32 _Max() noexcept {
         return (__first_ > _Second_) ? __first_ : _Second_;
     }
+
+    template <sizetype _TypeSize_>
+    struct __index_mask_divisor_internal {};
+
+    template <>
+    struct __index_mask_divisor_internal<1> {
+        static inline constexpr auto value = 1;
+    };
+
+    template <>
+    struct __index_mask_divisor_internal<2> {
+        static inline constexpr auto value = 2;
+    };
+
+    template <>
+    struct __index_mask_divisor_internal<4> {
+        static inline constexpr auto value = 1;
+    };
+
+    template <>
+    struct __index_mask_divisor_internal<8> {
+        static inline constexpr auto value = 1;
+    };
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = __index_mask_divisor_internal<sizeof(_DesiredType_)>::value;
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -151,6 +183,9 @@ class __simd_convert<arch::CpuFeature::AVX512BW, zmm512>:
     template <typename _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -204,11 +239,6 @@ public:
     static simd_stl_always_inline auto __to_mask(_VectorType_ _vector) noexcept;
 
     template <
-        typename    _DesiredType_,
-        typename    _VectorType_>
-    static simd_stl_always_inline auto __to_index_mask(_VectorType_ _vector) noexcept;
-
-    template <
         typename    _VectorType_,
         typename    _DesiredType_>
     static simd_stl_always_inline _VectorType_ __to_vector(__simd_mask_type<_DesiredType_> __mask) noexcept;
@@ -247,7 +277,7 @@ public:
 
 template <>
 class __simd_convert<arch::CpuFeature::AVX512VLDQ, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256>
+	public __simd_convert<arch::CpuFeature::AVX512VLF, ymm256>
 {
     static constexpr auto __generation = arch::CpuFeature::AVX512VLDQ;
     using __register_policy = ymm256;
@@ -259,11 +289,6 @@ public:
         typename    _DesiredType_,
         typename    _VectorType_>
     static simd_stl_always_inline auto __to_mask(_VectorType_ _vector) noexcept;
-
-    template <
-        typename    _DesiredType_,
-        typename    _VectorType_>
-    static simd_stl_always_inline auto __to_index_mask(_VectorType_ _vector) noexcept;
 
     template <
         typename    _VectorType_,
@@ -304,7 +329,7 @@ public:
 
 template <>
 class __simd_convert<arch::CpuFeature::AVX512VLDQ, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128>
+	public __simd_convert<arch::CpuFeature::AVX512VLF, xmm128>
 {
     static constexpr auto __generation = arch::CpuFeature::AVX512VLDQ;
     using __register_policy = xmm128;
@@ -318,11 +343,6 @@ public:
     static simd_stl_always_inline auto __to_mask(_VectorType_ _vector) noexcept;
 
     template <
-        typename    _DesiredType_,
-        typename    _VectorType_>
-    static simd_stl_always_inline auto __to_index_mask(_VectorType_ _vector) noexcept;
-
-    template <
         typename    _VectorType_,
         typename    _DesiredType_>
     static simd_stl_always_inline _VectorType_ __to_vector(__simd_mask_type<_DesiredType_> __mask) noexcept;
@@ -330,7 +350,8 @@ public:
 
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
+    public __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256>
 {
     static constexpr auto __generation = arch::CpuFeature::AVX512VLBWDQ;
     using __register_policy = ymm256;
@@ -356,7 +377,8 @@ public:
 
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, xmm128>:
+    public __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128>
 {
     static constexpr auto __generation = arch::CpuFeature::AVX512VLBWDQ;
     using __register_policy = xmm128;
@@ -426,6 +448,13 @@ simd_stl_always_inline _VectorType_ __simd_to_vector(_MaskType_ __mask) noexcept
     else
         return __simd_convert<_SimdGeneration_, _RegisterPolicy_>::template __to_vector<_VectorType_, _DesiredType_>(__mask);
 }
+
+template <
+    arch::CpuFeature    _SimdGeneration_, 
+    class               _RegisterPolicy_, 
+    class               _DesiredType_>
+constexpr inline auto __simd_index_mask_divisor = __simd_convert<_SimdGeneration_, _RegisterPolicy_>::template __index_mask_divisor<_DesiredType_>;
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

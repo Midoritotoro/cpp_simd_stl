@@ -13,6 +13,8 @@
 #include <simd_stl/numeric/BasicSimdElementReference.h>
 #include <src/simd_stl/numeric/ZmmThreshold.h>
 
+#include <simd_stl/numeric/SimdCompareResult.h>
+
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
@@ -132,13 +134,11 @@ public:
     template <
         typename    _DesiredType_       = value_type,
         class       _MaskType_          = __mask_type<_DesiredType_>,
-        class       _AlignmentPolicy_   = unaligned_policy,
-        class       _MaskAssumption_    = __safe_mask_t>
+        class       _AlignmentPolicy_   = unaligned_policy>
     simd_stl_always_inline _DesiredType_* compress_store(
         void*               __address,
         const _MaskType_&   __mask,
-        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{},
-        _MaskAssumption_&&  __mask_assumption = _MaskAssumption_{}) const noexcept;
+        _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) const noexcept;
 
     template <
         typename    _DesiredType_   = value_type,
@@ -183,28 +183,13 @@ public:
     simd_stl_always_inline simd_element_reference<simd> operator[](const size_type __index) noexcept;
 
     simd_stl_always_inline friend bool operator== <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend bool operator!= <>(const simd& __left, const simd& __right) noexcept;
-
-    template <
-        simd_comparison _Comparison_,
-        typename        _DesiredType_ = value_type>
-    simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> mask_compare(const simd& __right) const noexcept;
-    
-    template <
-        simd_comparison _Comparison_,
-        typename        _DesiredType_ = value_type>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vector_compare(const simd& __right) const noexcept;
-
-    template <
-        simd_comparison _Comparison_,
-        typename        _DesiredType_ = value_type> 
-    simd_stl_always_inline __native_compare_return_type<simd, _DesiredType_, _Comparison_> native_compare(const simd& __right) const noexcept;
+    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_,  operator!= <>(const simd& __left, const simd& __right) noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_mask() const noexcept;
 
     template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline simd_index_mask < _SimdGeneration_, _DesiredType_, _RegisterPolicy_> to_index_mask() const noexcept;
+    simd_stl_always_inline auto to_index_mask() const noexcept;
 
     template <typename _DesiredType_ = value_type>
     simd_stl_always_inline __reduce_type<_DesiredType_> reduce_add() const noexcept;
