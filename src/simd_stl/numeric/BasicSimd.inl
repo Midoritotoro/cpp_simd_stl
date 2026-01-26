@@ -514,75 +514,66 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-simd_stl_always_inline bool operator==(
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::equal> operator==(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __left.mask_compare<simd_comparison::equal>(__right).all_of();
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::equal>(__left._vector, __right._vector);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-simd_stl_always_inline bool operator!=(
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::not_equal> operator!=(
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left, 
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
+{
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::not_equal>(__left._vector, __right._vector);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    typename			_Element_,
+    class               _RegisterPolicy_>
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less> operator<(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return !(__left == __right);
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less>(__left._vector, __right._vector);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    simd_comparison _Comparison_,
-    typename        _DesiredType_>
-simd_stl_always_inline simd_index_mask<__simd_index_mask_divisor<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>, _SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::index_mask_compare(const simd& __right) const noexcept
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less_equal> operator<=(
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_index_mask_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less_equal>(__left._vector, __right._vector);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    simd_comparison _Comparison_,
-    typename        _DesiredType_>
-simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_compare(const simd& __right) const noexcept
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater> operator>(
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left, 
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_mask_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater>(__left._vector, __right._vector);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <
-    simd_comparison _Comparison_,
-    typename        _DesiredType_>
-simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_compare(const simd& __right) const noexcept
+simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater_equal> operator>=(
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
+    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <
-    simd_comparison _Comparison_,
-    typename        _DesiredType_>
-simd_stl_always_inline __native_compare_return_type<simd<_SimdGeneration_, _Element_,
-    _RegisterPolicy_>, _DesiredType_, _Comparison_>
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::native_compare(const simd& __right) const noexcept
-{
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _DesiredType_, _Comparison_>(_vector, __right._vector);
+    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater_equal>(__left._vector, __right._vector);
 }
 
 template <
