@@ -97,7 +97,7 @@ template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
     class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
-using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
+using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_RegisterPolicy_::__width / sizeof(_Element_))>;
 
 template <
 	arch::CpuFeature	_SimdGeneration_,

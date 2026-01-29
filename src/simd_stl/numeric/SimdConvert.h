@@ -235,6 +235,9 @@ class __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256> :
     template <typename _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = 1;
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>
@@ -287,6 +290,9 @@ class __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128> :
     template <typename _DesiredType_>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
+    template <class _DesiredType_>
+    static constexpr inline auto __index_mask_divisor = 1;
+
     template <
         typename    _DesiredType_,
         typename    _VectorType_>

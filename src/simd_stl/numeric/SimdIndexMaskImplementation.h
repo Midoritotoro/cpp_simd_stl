@@ -42,14 +42,14 @@ public:
 
 	template <>
 	struct __mask_type<true> {
-		static constexpr auto size = std::min((_RegisterPolicy_::__width / sizeof(_Element_)), _RegisterPolicy_::__width / __divisor);
-		using type = __native_compare_type;
+		static constexpr auto size = _RegisterPolicy_::__width / sizeof(_Element_) * __divisor;
+		using type = typename IntegerForSize<((size <= 8) ? 1 : (size / 8))>::Unsigned;
 	};
 
 	template <>
 	struct __mask_type<false> {
-		static constexpr auto size = std::min(_RegisterPolicy_::__width / sizeof(_Element_), _RegisterPolicy_::__width / __divisor);
-		using type = typename IntegerForSize<((size < 8) ? 1 : (size / 8))>::Unsigned;
+		static constexpr auto size = _RegisterPolicy_::__width / sizeof(_Element_) * __divisor;
+		using type = typename IntegerForSize<((size <= 8) ? 1 : (size / 8))>::Unsigned;
 	};
 
 	static constexpr uint8 __used_bits = __mask_type<__native_compare_returns_number>::size;

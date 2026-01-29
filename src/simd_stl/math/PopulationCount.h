@@ -120,7 +120,7 @@ template <
     typename _IntegralType_>
 constexpr simd_stl_always_inline int __popcnt_n_bits(_IntegralType_ __value) noexcept {
     static_assert(_Bits_ <= 64);
-    static_assert(simd_stl_sizeof_in_bits(_IntegralType_) >= _Bits_);
+    static_assert(_Bits_ <= (sizeof(_IntegralType_) * 8));
 
     constexpr auto __max_for_n_bits = _IntegralType_(((_IntegralType_(1) << _Bits_) - 1));
     constexpr auto __mask_size = (_Bits_ / 8) > 1 ? (_Bits_ / 8) : 1;
