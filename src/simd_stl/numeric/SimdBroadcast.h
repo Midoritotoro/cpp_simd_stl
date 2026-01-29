@@ -102,6 +102,11 @@ class __simd_broadcast_implementation<arch::CpuFeature::AVX512BW, zmm512> :
 
 template <>
 class __simd_broadcast_implementation<arch::CpuFeature::AVX512DQ, zmm512> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512F, zmm512>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512BWDQ, zmm512> :
 	public __simd_broadcast_implementation<arch::CpuFeature::AVX512BW, zmm512>
 {};
 

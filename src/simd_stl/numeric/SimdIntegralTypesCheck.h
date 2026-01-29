@@ -163,7 +163,7 @@ template <
 	bool _IsIntrin_		= __is_intrin_type_v<_VectorType_>,
 	bool _IsBasicSimd_	= __is_valid_basic_simd_v<_VectorType_>>
 struct __unwrapped_vector_t {
-	using type = void;
+	using type = _VectorType_;
 };
 
 template <class _VectorType_>

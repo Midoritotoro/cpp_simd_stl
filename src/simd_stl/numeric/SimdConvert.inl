@@ -29,7 +29,10 @@ template <
     typename    _DesiredType_,
     typename    _VectorType_>
 simd_stl_always_inline auto __simd_convert<arch::CpuFeature::SSE2, xmm128>::__to_index_mask(_VectorType_ __vector) noexcept {
-    return _mm_movemask_epi8(__intrin_bitcast<__m128i>(__vector));
+    if constexpr (sizeof(_DesiredType_) == 2)
+        return _mm_movemask_epi8(__intrin_bitcast<__m128i>(__vector));
+    else
+        return __to_mask<_DesiredType_>(__vector);
 }
 
 template <
@@ -125,7 +128,10 @@ template <
     typename    _DesiredType_,
     typename    _VectorType_>
 simd_stl_always_inline auto __simd_convert<arch::CpuFeature::AVX2, ymm256>::__to_index_mask(_VectorType_ __vector) noexcept {
-    return _mm256_movemask_epi8(__intrin_bitcast<__m256i>(__vector));
+    if constexpr (sizeof(_DesiredType_) == 2)
+        return _mm256_movemask_epi8(__intrin_bitcast<__m256i>(__vector));
+    else
+        return __to_mask<_DesiredType_>(__vector);
 }
 
 template <
@@ -203,7 +209,10 @@ simd_stl_always_inline auto __simd_convert<arch::CpuFeature::AVX512F, zmm512>::_
         const auto __low = __simd_to_index_mask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(__intrin_bitcast<__m256d>(__vector));
         const auto __high = __simd_to_index_mask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
 
-        return (static_cast<uint32>(__high) << __ymm_bits) | static_cast<uint32>(__low);
+
+        using _Type = IntegerForSize<sizeof(decltype(__low)) * 2>::Unsigned;
+
+        return (static_cast<_Type>(__high) << __ymm_bits) | static_cast<_Type>(__low);
     }
 }
 

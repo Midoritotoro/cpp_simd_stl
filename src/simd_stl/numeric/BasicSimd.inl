@@ -518,7 +518,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::equal>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::equal> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::equal>(__left._vector, __right._vector) };
 }
 
 template <
@@ -529,7 +530,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left, 
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::not_equal>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::not_equal> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::not_equal>(__left._vector, __right._vector) };
 }
 
 template <
@@ -540,7 +542,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less>(__left._vector, __right._vector) };
 }
 
 template <
@@ -551,7 +554,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less_equal>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less_equal> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::less_equal>(__left._vector, __right._vector) };
 }
 
 template <
@@ -562,7 +566,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left, 
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater>(__left._vector, __right._vector) };
 }
 
 template <
@@ -573,7 +578,8 @@ simd_stl_always_inline simd_compare_result<_SimdGeneration_, _Element_, _Registe
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __left,
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& __right) noexcept
 {
-    return __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater_equal>(__left._vector, __right._vector);
+    return simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater_equal> {
+        __simd_native_compare<_SimdGeneration_, _RegisterPolicy_, _Element_, simd_comparison::greater_equal>(__left._vector, __right._vector) };
 }
 
 template <

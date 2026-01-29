@@ -115,6 +115,8 @@ constexpr simd_stl_always_inline int __bit_hacks_ctz(_IntegralType_ __value) noe
     }
 }
 
+
+
 #if defined (simd_stl_processor_x86)
 
 template <typename _IntegralType_>
@@ -145,5 +147,85 @@ simd_stl_always_inline int __tzcnt_ctz(_IntegralType_ __value) noexcept {
 }
 
 #endif // defined(simd_stl_processor_x86)
+
+template <typename _IntegralType_>
+constexpr simd_stl_always_inline int __count_trailing_zero_bits(_IntegralType_ __value) noexcept {
+    static_assert(std::is_unsigned_v<_IntegralType_>);
+
+#if defined(simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+    if (!type_traits::is_constant_evaluated()) {
+        if (arch::ProcessorFeatures::AVX2())
+            return __tzcnt_ctz(__value);
+        else
+            return __bsf_ctz(__value);
+    }
+    else
+#endif // defined(simd_stl_processor_x86) && !defined(simd_stl_processor_arm)
+    {
+        return __bit_hacks_ctz(__value);
+    }
+}
+
+template <sizetype _Bits_> 
+struct __ctz_n_bits_implementation {
+    template <typename _IntegralType_>
+    constexpr simd_stl_always_inline int operator()(_IntegralType_ __value) const noexcept {
+        constexpr auto __max_for_n_bits = _IntegralType_(((_IntegralType_(1) << _Bits_) - 1));
+        constexpr auto __mask_size = (_Bits_ / 8) > 1 ? (_Bits_ / 8) : 1;
+
+        using _UintForBits = typename IntegerForSize<__mask_size>::Unsigned;
+
+        return __count_trailing_zero_bits(static_cast<_UintForBits>(__value & __max_for_n_bits));
+    }
+};
+
+
+template <>
+struct __ctz_n_bits_implementation<2> {
+    template <typename _IntegralType_>
+    constexpr simd_stl_always_inline int operator()(_IntegralType_ __value) const noexcept {
+        auto __result   = uint32(2);
+        __value         &= uint8(-signed(__value));
+
+        if (__value)
+            --__result;
+
+        if (__value & 0x00000055)
+            __result -= 1;
+
+        return __result;
+    }
+};
+
+
+template <> 
+struct __ctz_n_bits_implementation<4> {
+    template <typename _IntegralType_>
+    constexpr simd_stl_always_inline int operator()(_IntegralType_ __value) const noexcept {
+        auto __result   = uint32(4);
+        __value         &= uint8(-signed(__value));
+
+        if (__value)
+            --__result;
+
+        if (__value & 0x00000033)
+            __result -= 2;
+
+        if (__value & 0x00000055)
+            __result -= 1;
+
+        return __result;
+    }
+};
+
+template <
+    sizetype _Bits_, 
+    typename _IntegralType_>
+constexpr simd_stl_always_inline int __ctz_n_bits(_IntegralType_ __value) noexcept {
+    static_assert(_Bits_ <= 64);
+    static_assert(simd_stl_sizeof_in_bits(_IntegralType_) >= _Bits_);
+
+    return __ctz_n_bits_implementation<_Bits_>()(__value);
+}
 
 __SIMD_STL_MATH_NAMESPACE_END

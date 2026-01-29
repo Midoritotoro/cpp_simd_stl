@@ -23,8 +23,7 @@ public:
 	using mask_type = type_traits::__deduce_simd_mask_type<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 	using size_type = uint8;
 
-	static constexpr uint8 __used_bits = sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_,
-		_Element_, _RegisterPolicy_>) / sizeof(_Element_);
+	static constexpr uint8 __used_bits = sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_);
 
 	static constexpr simd_stl_always_inline bool all_of(mask_type __mask) noexcept;
 	static constexpr simd_stl_always_inline bool any_of(mask_type __mask) noexcept;

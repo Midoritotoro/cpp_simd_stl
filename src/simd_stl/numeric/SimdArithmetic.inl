@@ -56,7 +56,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
             __intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -148,7 +148,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::SSE2, xm
             __intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -769,7 +769,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX2, ym
             __intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -821,7 +821,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX2, ym
             __intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -1369,7 +1369,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
             __intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::less>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }
@@ -1413,7 +1413,7 @@ simd_stl_always_inline _VectorType_ __simd_arithmetic<arch::CpuFeature::AVX512F,
             __intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right)));
     }
     else {
-        const auto __mask = __simd_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        const auto __mask = __simd_native_compare<__generation, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
         return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
     }
 }

@@ -14,6 +14,7 @@
 #include <src/simd_stl/numeric/ZmmThreshold.h>
 
 #include <simd_stl/numeric/SimdCompareResult.h>
+#include <src/simd_stl/numeric/SimdCompareAdapters.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN

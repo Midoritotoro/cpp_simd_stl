@@ -4,7 +4,6 @@
 #include <simd_stl/math/IntegralTypesConversions.h>
 
 #include <simd_stl/numeric/BasicSimdMask.h>
-#include <simd_stl/numeric/SimdIndexMask.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -25,7 +24,7 @@ class __simd_convert<arch::CpuFeature::SSE2, xmm128> {
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <class _DesiredType_>
-    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+    static constexpr inline auto __index_mask_divisor = (sizeof(_DesiredType_) == 2) ? 2 : 1;
 
     template <
         typename    _DesiredType_,
@@ -93,7 +92,7 @@ class __simd_convert<arch::CpuFeature::AVX2, ymm256>
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <class _DesiredType_>
-    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+    static constexpr inline auto __index_mask_divisor = (sizeof(_DesiredType_) == 2) ? 2 : 1;
 
     template <
         typename    _DesiredType_,
@@ -130,32 +129,9 @@ class __simd_convert<arch::CpuFeature::AVX512F, zmm512>
     static constexpr int32 _Max() noexcept {
         return (__first_ > _Second_) ? __first_ : _Second_;
     }
-
-    template <sizetype _TypeSize_>
-    struct __index_mask_divisor_internal {};
-
-    template <>
-    struct __index_mask_divisor_internal<1> {
-        static inline constexpr auto value = 1;
-    };
-
-    template <>
-    struct __index_mask_divisor_internal<2> {
-        static inline constexpr auto value = 2;
-    };
-
-    template <>
-    struct __index_mask_divisor_internal<4> {
-        static inline constexpr auto value = 1;
-    };
-
-    template <>
-    struct __index_mask_divisor_internal<8> {
-        static inline constexpr auto value = 1;
-    };
 public:
     template <class _DesiredType_>
-    static constexpr inline auto __index_mask_divisor = __index_mask_divisor_internal<sizeof(_DesiredType_)>::value;
+    static constexpr inline auto __index_mask_divisor = (sizeof(_DesiredType_) == 2) ? 2 : 1;
 
     template <
         typename    _DesiredType_,
@@ -184,7 +160,7 @@ class __simd_convert<arch::CpuFeature::AVX512BW, zmm512>:
     using __simd_mask_type = type_traits::__deduce_simd_mask_type<__generation, _DesiredType_, __register_policy>;
 public:
     template <class _DesiredType_>
-    static constexpr inline auto __index_mask_divisor = sizeof(_DesiredType_);
+    static constexpr inline auto __index_mask_divisor = 1;
 
     template <
         typename    _DesiredType_,

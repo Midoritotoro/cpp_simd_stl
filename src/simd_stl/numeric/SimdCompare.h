@@ -35,7 +35,7 @@ public:
     static simd_stl_always_inline _VectorType_ __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -84,7 +84,7 @@ public:
     static simd_stl_always_inline _VectorType_ __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -107,7 +107,7 @@ public:
     static simd_stl_always_inline _VectorType_ __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -145,7 +145,7 @@ public:
     static simd_stl_always_inline _VectorType_ __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -185,12 +185,19 @@ public:
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
 
-private:
     template <
         class               _DesiredType_,
         __simd_comparison   _CompareType_,
         class               _VectorType_>
     static simd_stl_always_inline _VectorType_ __blockwise_compare(
+        _VectorType_ __left,
+        _VectorType_ __right) noexcept;
+
+    template <
+        class               _DesiredType_,
+        __simd_comparison   _CompareType_,
+        class               _VectorType_>
+    static simd_stl_always_inline auto __mask_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
 
@@ -230,7 +237,7 @@ public:
     static simd_stl_always_inline auto __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -255,7 +262,12 @@ private:
 
 template <>
 class __simd_compare_implementation<arch::CpuFeature::AVX512DQ, zmm512> :
-    public __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>
+    public __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>
+{};
+
+template <>
+class __simd_compare_implementation<arch::CpuFeature::AVX512BWDQ, zmm512> :
+	public __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>
 {};
 
 template <>
@@ -272,7 +284,6 @@ public:
     static simd_stl_always_inline auto __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
 
     template <
         class               _DesiredType_,
@@ -318,7 +329,7 @@ public:
     static simd_stl_always_inline auto __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -365,7 +376,7 @@ public:
     static simd_stl_always_inline auto __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
+
     template <
         class               _DesiredType_,
         __simd_comparison   _CompareType_,
@@ -410,7 +421,6 @@ public:
     static simd_stl_always_inline auto __native_compare(
         _VectorType_ __left,
         _VectorType_ __right) noexcept;
-private:
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -465,9 +475,9 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_>
 using __simd_native_compare_return_type = __native_compare_return_type_helper<_BasicSimd_,
-    type_traits::invoke_result_type<decltype(__simd_native_compare<_BasicSimd_::__generation,
-        typename _BasicSimd_::policy_type, _DesiredType_, _CompareType_, typename _BasicSimd_::vector_type>),
-    typename _BasicSimd_::vector_type, typename _BasicSimd_::vector_type>, _DesiredType_>;
+    type_traits::invoke_result_type<
+        decltype(__simd_native_compare<_BasicSimd_::__generation, typename _BasicSimd_::policy_type, _DesiredType_, _CompareType_, typename _BasicSimd_::vector_type>),
+        typename _BasicSimd_::vector_type, typename _BasicSimd_::vector_type>, _DesiredType_>;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

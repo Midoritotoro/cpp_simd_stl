@@ -154,6 +154,10 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdIndexMask.inl
     src/simd_stl/numeric/SimdComparison.h
     src/simd_stl/numeric/SimdCompareResult.inl
+    src/simd_stl/numeric/SimdCompareAdapters.h
+    src/simd_stl/numeric/SimdCompareAdapters.inl
+    src/simd_stl/numeric/SimdIndexMaskImplementation.h
+    src/simd_stl/numeric/SimdIndexMaskImplementation.inl
 
 
     src/simd_stl/numeric/SimdOperations.h

@@ -1,13 +1,11 @@
 #pragma once 
 
-#include <simd_stl/numeric/BasicSimdMaskImplementation.h>
+#include <src/simd_stl/numeric/SimdIndexMaskImplementation.h>
 #include <simd_stl/math/BitMath.h>
-
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <
-	sizetype			_Divisor_,
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
@@ -15,9 +13,8 @@ class simd_index_mask {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
 
-	using __implementation = __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+	using __implementation = __simd_index_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
 public:
-	static constexpr auto __divisor = _Divisor_;
 	static constexpr auto __generation = _SimdGeneration_;
 
 	using value_type = _Element_;
@@ -59,21 +56,18 @@ template <class _SimdMask_>
 struct __is_valid_simd_index_mask<
 	_SimdMask_,
     std::void_t<simd_index_mask<
-		_SimdMask_::__divisor,
         _SimdMask_::__generation,
         typename _SimdMask_::value_type,
         typename _SimdMask_::policy_type>>>
     : std::bool_constant<
         type_traits::is_virtual_base_of_v<
             simd_index_mask<
-				_SimdMask_::__divisor,
 				_SimdMask_::__generation,
                 typename _SimdMask_::value_type,
                 typename _SimdMask_::policy_type>,
             _SimdMask_> ||
         std::is_same_v<
             simd_index_mask<
-				_SimdMask_::__divisor, 
 				_SimdMask_::__generation,
 				typename _SimdMask_::value_type,
 				typename _SimdMask_::policy_type>,

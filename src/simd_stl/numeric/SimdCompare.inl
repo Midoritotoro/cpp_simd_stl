@@ -261,7 +261,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
         return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi64(__left_signed, __right_signed));
     }
     else {
-        return __simd_compare<arch::CpuFeature::SSE2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::SSE2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
@@ -427,16 +427,16 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    const auto __compared_low128 = __simd_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared_low128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
         __intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
 
-    const auto __compared2_low128 = __simd_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared2_low128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm256_extractf128_si256(__intrin_bitcast<__m256i>(__left), 1), _mm256_extractf128_si256(__intrin_bitcast<__m256i>(__right), 1));
 
-    const auto __compared_high128 = __simd_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared_high128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__left), 2), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__right), 2));
 
-    const auto __compared2_high128 = __simd_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared2_high128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__left), 3), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__right), 3));
 
     auto __result = __intrin_bitcast<__m512i>(__compared_low128);
@@ -702,7 +702,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpeq_epi32_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
 
     else
-        return __simd_mask_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
 }
 
 template <
@@ -755,7 +755,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmp_pd_mask(__intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right), _CMP_GT_OQ);
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
@@ -779,7 +779,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpeq_epu8_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
     }
 }
 
@@ -840,7 +840,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpgt_epu8_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
@@ -891,7 +891,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpeq_epi32_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
 
     else
-        return __simd_mask_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
 }
 
 template <
@@ -944,7 +944,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmp_pd_mask(__intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right), _CMP_GT_OQ);
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
@@ -968,7 +968,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpeq_epu8_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
     }
 }
 
@@ -1029,7 +1029,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpgt_epu8_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
     }
     else {
-        return __simd_mask_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 

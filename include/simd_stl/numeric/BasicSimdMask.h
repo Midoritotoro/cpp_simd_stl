@@ -113,8 +113,6 @@ struct __is_valid_simd_mask<
 template <class _SimdMask_>
 constexpr bool __is_valid_simd_mask_v = __is_valid_simd_mask<_SimdMask_>::value;
 
-
-
 __SIMD_STL_NUMERIC_NAMESPACE_END
 
 #include <src/simd_stl/numeric/BasicSimdMask.inl>

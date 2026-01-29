@@ -1,6 +1,9 @@
 #pragma once 
 
 #include <src/simd_stl/numeric/SimdCompare.h>
+#include <src/simd_stl/numeric/SimdCompareAdapters.h>
+
+#include <src/simd_stl/type_traits/TypeTraits.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -11,9 +14,14 @@ template <
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>
 class simd_compare_result {
+	friend __as_index_mask_t;
+	friend __as_mask_t;
+	friend __as_native_t;
+	friend __as_simd_t;
 public:
 	static inline constexpr auto __generation = _SimdGeneration_;
-	
+	static inline constexpr auto __comparison = _Comparison_;
+
 	using element_type		= _Element_;
 	using register_policy	= _RegisterPolicy_;
 
@@ -27,20 +35,43 @@ public:
 	simd_compare_result(simd_compare_result&&) noexcept = default; 
 	simd_compare_result& operator=(simd_compare_result&&) noexcept = default;
 
-	template <class _DesiredType_ = element_type>
-	simd_stl_always_inline simd_index_mask<__simd_index_mask_divisor<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>,
-		_SimdGeneration_, _DesiredType_, _RegisterPolicy_> as_index_mask() const noexcept;
-
-	template <class _DesiredType_ = element_type>
-	simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> as_mask() const noexcept;
-
-	template <class _DesiredType_ = element_type>
-	simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> as_simd() const noexcept;
-
-	simd_stl_always_inline native_type native() const noexcept;
+	simd_stl_always_inline operator bool() const noexcept;
 private:
 	native_type _compare_result;
 };
+
+template <
+	class _SimdCompareResult_,
+	class = void>
+struct __is_valid_simd_compare_result :
+	std::false_type
+{};
+
+template <class _SimdCompareResult_>
+struct __is_valid_simd_compare_result<
+	_SimdCompareResult_,
+    std::void_t<simd_compare_result<
+        _SimdCompareResult_::__generation,
+        typename _SimdCompareResult_::value_type,
+        typename _SimdCompareResult_::policy_type,
+		_SimdCompareResult_::__comparison>>>
+    : std::bool_constant<
+        type_traits::is_virtual_base_of_v<
+			simd_compare_result<_SimdCompareResult_::__generation,
+                typename _SimdCompareResult_::value_type,
+                typename _SimdCompareResult_::policy_type,
+				_SimdCompareResult_::__comparison>,
+            _SimdCompareResult_> ||
+        std::is_same_v<
+            simd_compare_result<_SimdCompareResult_::__generation,
+				typename _SimdCompareResult_::value_type,
+				typename _SimdCompareResult_::policy_type,
+				_SimdCompareResult_::__comparison>,
+            _SimdCompareResult_>> 
+{};
+
+template <class _SimdMask_>
+constexpr bool __is_valid_simd_compare_result_v = __is_valid_simd_compare_result<_SimdMask_>::value;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

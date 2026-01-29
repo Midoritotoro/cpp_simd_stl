@@ -99,5 +99,38 @@ simd_stl_always_inline int __popcnt_population_count(_IntegralType_ __value) noe
 
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
 
+template <typename _IntegralType_>
+constexpr simd_stl_always_inline int __population_count(_IntegralType_ __value) noexcept {
+    static_assert(std::is_unsigned_v<_IntegralType_>);
+
+#if (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
+    if (!type_traits::is_constant_evaluated()) {
+        if (arch::ProcessorFeatures::POPCNT())
+            return __popcnt_population_count(__value);
+    }
+    else
+#endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))
+    {
+        return __bit_hacks_population_count(__value);
+    }
+}
+
+template <
+    sizetype _Bits_,
+    typename _IntegralType_>
+constexpr simd_stl_always_inline int __popcnt_n_bits(_IntegralType_ __value) noexcept {
+    static_assert(_Bits_ <= 64);
+    static_assert(simd_stl_sizeof_in_bits(_IntegralType_) >= _Bits_);
+
+    constexpr auto __max_for_n_bits = _IntegralType_(((_IntegralType_(1) << _Bits_) - 1));
+    constexpr auto __mask_size = (_Bits_ / 8) > 1 ? (_Bits_ / 8) : 1;
+
+    using _UintForBits = typename IntegerForSize<__mask_size>::Unsigned;
+
+    if constexpr (_Bits_ >= 8)
+        return __population_count(static_cast<_UintForBits>(__value & __max_for_n_bits));
+    else 
+        return __bit_hacks_population_count(static_cast<_UintForBits>(__value & __max_for_n_bits));
+}
 
 __SIMD_STL_MATH_NAMESPACE_END

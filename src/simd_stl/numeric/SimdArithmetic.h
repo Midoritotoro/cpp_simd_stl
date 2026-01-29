@@ -539,6 +539,11 @@ class __simd_arithmetic<arch::CpuFeature::AVX512DQ, zmm512> :
 {};
 
 template <>
+class __simd_arithmetic<arch::CpuFeature::AVX512BWDQ, zmm512> :
+    public __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512>
+{};
+
+template <>
 class __simd_arithmetic<arch::CpuFeature::AVX512VLF, ymm256>:
     public __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>
 {

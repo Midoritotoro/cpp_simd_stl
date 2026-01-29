@@ -220,25 +220,25 @@ void testMethods() {
         simd_stl_assert(a == b);
         simd_stl_assert(a != c);
 
-        auto mEq = a.mask_compare<simd_stl::numeric::simd_comparison::equal>(b);
+        auto mEq = simd_stl::numeric::as_mask | (a == b);
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mEq[i] == true);
         }
 
-        auto mNeq = a.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(c);
+        auto mNeq = (a != c) | simd_stl::numeric::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mGt = c.mask_compare<simd_stl::numeric::simd_comparison::greater>(a);
-        auto mLt = a.mask_compare<simd_stl::numeric::simd_comparison::less>(c);
+        auto mGt = (c > a) | simd_stl::numeric::as_mask;
+        auto mLt = (a < c) | simd_stl::numeric::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mGt[i] == true);
             simd_stl_assert(mLt[i] == true);
         }
 
-        auto mGe = a.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(b);
-        auto mLe = a.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(b);
+        auto mGe = (a >= b) | simd_stl::numeric::as_mask;
+        auto mLe = (a <= b) | simd_stl::numeric::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mGe[i] == true);
             simd_stl_assert(mLe[i] == true);
@@ -257,17 +257,17 @@ void testMethods() {
 
         simd_stl_assert(v0 != vmax);
 
-        auto mEq = v0.mask_compare<simd_stl::numeric::simd_comparison::equal>(v0);
-        auto mNeq = v0.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(vmax);
+        auto mEq = (v0 == v0) | simd_stl::numeric::as_mask;
+        auto mNeq = (v0 != vmax) | simd_stl::numeric::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mEq[i] == true);
             simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mLt = v0.mask_compare<simd_stl::numeric::simd_comparison::less>(vmax);
-        auto mGt = vmax.mask_compare<simd_stl::numeric::simd_comparison::greater>(v0);
-        auto mLe = v0.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(v0);
-        auto mGe = vmax.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(vmax);
+        auto mLt = (v0 < vmax) | simd_stl::numeric::as_mask;
+        auto mGt = (vmax > v0) | simd_stl::numeric::as_mask;
+        auto mLe = (v0 <= v0) | simd_stl::numeric::as_mask;
+        auto mGe = (vmax >= vmax) | simd_stl::numeric::as_mask;
 
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mLt[i] == true);
@@ -287,12 +287,12 @@ void testMethods() {
             Simd vA = Simd::load(arrA);
             Simd vB = Simd::load(arrB);
 
-            auto mEq = vA.mask_compare<simd_stl::numeric::simd_comparison::equal>(vA);
-            auto mNeq = vA.mask_compare<simd_stl::numeric::simd_comparison::not_equal>(vB);
-            auto mLt = vA.mask_compare<simd_stl::numeric::simd_comparison::less>(vB);
-            auto mGt = vB.mask_compare<simd_stl::numeric::simd_comparison::greater>(vA);
-            auto mLe = vA.mask_compare<simd_stl::numeric::simd_comparison::less_equal>(vA);
-            auto mGe = vB.mask_compare<simd_stl::numeric::simd_comparison::greater_equal>(vB);
+            auto mEq = (vA == vA) | simd_stl::numeric::as_mask;
+            auto mNeq = (vA != vB) | simd_stl::numeric::as_mask;
+            auto mLt = (vA < vB) | simd_stl::numeric::as_mask;
+            auto mGt = (vB > vA) | simd_stl::numeric::as_mask;
+            auto mLe = (vA <= vA) | simd_stl::numeric::as_mask;
+            auto mGe = (vB >= vB) | simd_stl::numeric::as_mask;
 
             for (size_t i = 0; i < N; ++i) {
                 simd_stl_assert(mEq[i] == true);
@@ -391,30 +391,33 @@ void testMethods() {
     {
         Simd v1(10);
         Simd v2(10);
-        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
 
-        using _IndexMask = decltype(mask);
-        constexpr auto divisor = _IndexMask::__divisor;
+        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
+        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
 
-        simd_stl_assert(mask.any_of());
-        simd_stl_assert(mask.all_of());
-        simd_stl_assert(!mask.none_of());
-        simd_stl_assert(static_cast<bool>(mask) == true);
+        simd_stl_assert(index_mask.any_of());
+        simd_stl_assert(index_mask.all_of());
+        simd_stl_assert(!index_mask.none_of());
+        simd_stl_assert(static_cast<bool>(index_mask) == true);
 
-        simd_stl_assert(mask.count_set() == N * divisor);
-        simd_stl_assert(mask.count_trailing_zero_bits() == 0);
-        simd_stl_assert(mask.count_leading_zero_bits() == 0);
+        const auto a = index_mask.count_set();
+        const auto b = mask.count_set();
+
+        simd_stl_assert(index_mask.count_set() == mask.count_set());
+        simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
+        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
 
     {
         Simd v1(10);
         Simd v2(20);
-        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
 
-        simd_stl_assert(!mask.any_of());
-        simd_stl_assert(!mask.all_of());
-        simd_stl_assert(mask.none_of());
-        simd_stl_assert(mask.count_set() == 0);
+        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+
+        simd_stl_assert(!index_mask.any_of());
+        simd_stl_assert(!index_mask.all_of());
+        simd_stl_assert(index_mask.none_of());
+        simd_stl_assert(index_mask.count_set() == 0);
     }
 
     for (size_t i = 0; i < N; ++i) {
@@ -424,17 +427,15 @@ void testMethods() {
         v1.insert<T>(i, 42);
         v2.insert<T>(i, 42);
 
-        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
 
-        using _IndexMask = decltype(mask);
-        constexpr auto divisor = _IndexMask::__divisor;
+        simd_stl_assert(index_mask.any_of());
+        simd_stl_assert(index_mask.all_of());
 
-        simd_stl_assert(mask.any_of());
-        simd_stl_assert(!mask.all_of());
-
-        simd_stl_assert(mask.count_set() == divisor);
-        simd_stl_assert(mask.count_trailing_zero_bits() / divisor == i);
-        simd_stl_assert(mask.count_leading_zero_bits() / divisor == (N - 1 - i));
+        simd_stl_assert(index_mask.count_set() == mask.count_set());
+        simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
+        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
 
     {
@@ -445,13 +446,12 @@ void testMethods() {
         v1.insert<T>(1, 1); v2.insert<T>(1, 1);
         v1.insert<T>(N - 1, 1); v2.insert<T>(N - 1, 1);
 
-        auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
-        using _IndexMask = decltype(mask);
-        constexpr auto divisor = _IndexMask::__divisor;
+        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
 
-        simd_stl_assert(mask.count_trailing_one_bits() / divisor == 2);
-        simd_stl_assert(mask.count_leading_one_bits() / divisor == 1);
-        simd_stl_assert(mask.count_set() == 3 * divisor);
+        simd_stl_assert(index_mask.count_trailing_one_bits() == mask.count_trailing_one_bits());
+        simd_stl_assert(index_mask.count_leading_one_bits() == mask.count_leading_one_bits());
+        simd_stl_assert(index_mask.count_set() == mask.count_set());
     }
 
     {
@@ -465,7 +465,7 @@ void testMethods() {
             Simd v1(val1);
             Simd v2(val2);
 
-            auto mask = v1.index_mask_compare<simd_stl::numeric::simd_comparison::equal>(v2);
+            auto mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
 
             simd_stl_assert(mask.none_of());
         }
@@ -504,6 +504,8 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::numeric::zmm512>();
+
 
     testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::xmm128>();
