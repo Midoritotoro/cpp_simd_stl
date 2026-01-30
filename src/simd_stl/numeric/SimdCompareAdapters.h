@@ -62,7 +62,7 @@ requires requires(
 {
     __adapter(__compare_result);
 }
-auto operator|(
+simd_stl_always_inline auto operator|(
     _CompareResult_&&   __compare_result, 
     const _Adapter_&    __adapter) noexcept
 {
@@ -78,7 +78,7 @@ requires requires(
 {
     __adapter(__compare_result); 
 }
-auto operator|(
+simd_stl_always_inline auto operator|(
     const _Adapter_&    __adapter,
     _CompareResult_&&   __compare_result) noexcept 
 {

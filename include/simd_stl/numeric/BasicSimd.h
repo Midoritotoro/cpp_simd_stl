@@ -68,9 +68,6 @@ public:
         std::enable_if_t<__is_intrin_type_v<_VectorType_> || __is_valid_basic_simd_v<_VectorType_>, int> = 0>
     simd(_VectorType_ __other) noexcept;
 
-    //template <class _Range_>
-    //simd(_Range_&& _Range) noexcept;
-
     ~simd() noexcept;
 
     simd_stl_always_inline simd& clear() noexcept;

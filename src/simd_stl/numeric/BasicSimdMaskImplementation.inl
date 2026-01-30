@@ -7,10 +7,7 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr bool __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::all_of(mask_type __mask) noexcept {
-	if constexpr (__used_bits == (sizeof(mask_type) << 3))
-		return (__mask == math::__maximum_integral_limit<mask_type>());
-	else
-		return __mask == mask_type((mask_type(1) << __used_bits) - 1);
+	return (__mask == mask_type((mask_type(1) << __used_bits) - 1));
 }
 
 template <
@@ -42,7 +39,10 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr uint8 __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_trailing_zero_bits(mask_type __mask) noexcept {
-	return math::__ctz_n_bits<__used_bits>(__mask);
+	if constexpr (static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX2) && __used_bits >= 32)
+		return math::__tzcnt_ctz(__mask);
+	else
+		return math::__ctz_n_bits<__used_bits>(__mask);
 }
 
 template <
@@ -50,7 +50,10 @@ template <
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr uint8 __simd_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>::count_leading_zero_bits(mask_type __mask) noexcept {
-	return math::__clz_n_bits<__used_bits>(__mask);
+	if constexpr (static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX2) && __used_bits >= 16)
+		return math::__lzcnt_clz(__mask);
+	else
+		return math::__clz_n_bits<__used_bits>(__mask);
 }
 
 

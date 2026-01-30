@@ -70,8 +70,8 @@ struct __is_valid_simd_compare_result<
             _SimdCompareResult_>> 
 {};
 
-template <class _SimdMask_>
-constexpr bool __is_valid_simd_compare_result_v = __is_valid_simd_compare_result<_SimdMask_>::value;
+template <class _SimdCompareResult_>
+constexpr bool __is_valid_simd_compare_result_v = __is_valid_simd_compare_result<_SimdCompareResult_>::value;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

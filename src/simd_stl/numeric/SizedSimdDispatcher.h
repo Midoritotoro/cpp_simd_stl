@@ -12,7 +12,7 @@ private:
     template <
         class _Simd_,
         class _SizeType_>
-    simd_stl_always_inline static std::pair<_SizeType_, _SizeType_> __sizes(_SizeType_ __size) noexcept {
+    static std::pair<_SizeType_, _SizeType_> __sizes(_SizeType_ __size) noexcept {
         return { 
             __size & (~(sizeof(_Simd_) - 1)),
             __size & (sizeof(_Simd_) - sizeof(typename _Simd_::value_type)) 
@@ -23,7 +23,7 @@ private:
         class       _SpecializedFunction_, 
         class       _SizeType_,
         class...    _Args>
-    simd_stl_always_inline static auto __invoke_simd_helper(
+    static auto __invoke_simd_helper(
         _SizeType_ __aligned_size,
         _SizeType_ __tail_size,
         _Args&&... __args) noexcept
@@ -35,7 +35,7 @@ private:
         class       _SpecializedFunction_,
         class       _SizeType_,
         class...    _VectorizedArgs_>
-    simd_stl_always_inline static auto __invoke_simd(
+    static auto __invoke_simd(
         _SizeType_                          __aligned_size,
         _SizeType_                          __tail_size,
         std::tuple<_VectorizedArgs_...>&& __simd_args) noexcept
@@ -50,7 +50,7 @@ public:
         class       _FallbackFunction_,
         class ...   _VectorizedArgs_,
         class ...   _FallbackArgs_>
-    simd_stl_always_inline static auto __apply(
+    static auto __apply(
         _SizeType_                      __size,
         _FallbackFunction_&&            __fallback,
         std::tuple<_VectorizedArgs_...> __simd_args,
@@ -107,52 +107,29 @@ public:
         class       _SizeType_,
         class       _FallbackFunction_,
         class ...   _Args_>
-    simd_stl_always_inline static auto __apply(
+    static auto __apply(
         _SizeType_              __size,
         _FallbackFunction_&&    __fallback,
         _Args_...               __args) noexcept
     {
-        if (__size >= __zmm_threshold<_Type_>) {
-            if constexpr (sizeof(_Type_) <= 2) {
-                using _Simd_                = simd512_avx512bw<_Type_>;
-                const auto __calculated     = __sizes<_Simd_>(__size);
-
-                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512BW())
-                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
-            }
-            else {
-                using _Simd_                = simd512_avx512f<_Type_>;
-                const auto __calculated     = __sizes<_Simd_>(__size);
-
-                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512F())
-                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
-            }
+       
+        if constexpr (sizeof(_Type_) <= 2) {
+            using _Simd_                = simd512_avx512bw<_Type_>;
+            if (const auto __aligned_size = __size & (~(sizeof(_Simd_) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW())
+                return _Function_<_Simd_>()(__aligned_size, __size & (sizeof(_Simd_) - sizeof(typename _Simd_::value_type)), std::forward<_Args_>(__args)...);
         }
         else {
-            if constexpr (sizeof(_Type_) <= 2) {
-                using _Simd_                = simd256_avx512vlbw<_Type_>;
-                const auto __calculated     = __sizes<_Simd_>(__size);
-
-                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL())
-                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
-            }
-            else {
-                using _Simd_                = simd256_avx512vlf<_Type_>;
-                const auto __calculated     = __sizes<_Simd_>(__size);
-
-                if (__calculated.first != 0 && arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL())
-                    return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
-            }
+            using _Simd_ = simd512_avx512f<_Type_>;
+            if (const auto __aligned_size = __size & (~(sizeof(_Simd_) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F())
+                return _Function_<_Simd_>()(__aligned_size, __size & (sizeof(_Simd_) - sizeof(typename _Simd_::value_type)), std::forward<_Args_>(__args)...);
         }
 
-        if (const auto __calculated = __sizes<simd256_avx2<_Type_>>(__size); __calculated.first != 0 && arch::ProcessorFeatures::AVX2()) {
-            using _Simd_ = simd256_avx2<_Type_>;
-            return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+        if (const auto __aligned_size = __size & (~(sizeof(simd256_avx2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX2()) {
+            return _Function_<simd256_avx2<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx2<_Type_>) - sizeof(typename simd256_avx2<_Type_>::value_type)), std::forward<_Args_>(__args)...);
         }
 
-        else if (const auto __calculated = __sizes<simd128_sse2<_Type_>>(__size); __calculated.first != 0 && arch::ProcessorFeatures::SSE2()) {
-            using _Simd_ = simd128_sse2<_Type_>;
-            return _Function_<_Simd_>()(__calculated.first, __calculated.second, std::forward<_Args_>(__args)...);
+        else if (const auto __aligned_size = __size & (~(sizeof(simd128_sse2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::SSE2()) {
+            return _Function_<simd128_sse2<_Type_>>()(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) - sizeof(typename simd128_sse2<_Type_>::value_type)), std::forward<_Args_>(__args)...);
         }
 
         return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);

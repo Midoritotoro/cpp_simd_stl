@@ -368,6 +368,8 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "C
         add_compile_options(-O2 -Ot -Ob3 -Oi3 -GS- -Oy)
     endif()
 
+    target_link_options(cpp_simd_stl PRIVATE "/LTCG;/opt:ref,icf;")
+
     target_compile_options(
         cpp_simd_stl 
         PRIVATE
@@ -381,6 +383,7 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "C
 
             /guard:cf
 
+            /GL
             /w15038 
             /w14265 
             /wd4018

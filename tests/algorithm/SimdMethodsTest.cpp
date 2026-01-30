@@ -412,7 +412,7 @@ void testMethods() {
         Simd v1(10);
         Simd v2(20);
 
-        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+        auto index_mask = simd_stl::numeric::as_index_mask | (v1 == v2);
 
         simd_stl_assert(!index_mask.any_of());
         simd_stl_assert(!index_mask.all_of());

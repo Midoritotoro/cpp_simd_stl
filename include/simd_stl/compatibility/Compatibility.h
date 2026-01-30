@@ -40,13 +40,13 @@ simd_stl_disable_warning_msvc(4067)
 
 
 #if !defined(__simd_inline_constexpr)
-#  define __simd_inline_constexpr simd_stl_always_inline simd_stl_constexpr_cxx20
+#  define __simd_inline_constexpr simd_stl_constexpr_cxx20
 #endif // !defined(__simd_inline_constexpr)
 
 #if !defined(__simd_nodiscard_inline_constexpr)
-#  define __simd_nodiscard_inline_constexpr simd_stl_nodiscard simd_stl_always_inline simd_stl_constexpr_cxx20
+#  define __simd_nodiscard_inline_constexpr simd_stl_nodiscard simd_stl_constexpr_cxx20
 #endif // !defined(__simd_nodiscard_inline_constexpr)
 
 #if !defined(__simd_nodiscard_inline)
-#  define __simd_nodiscard_inline simd_stl_nodiscard simd_stl_always_inline
+#  define __simd_nodiscard_inline simd_stl_nodiscard
 #endif // !defined(__simd_nodiscard_inline)

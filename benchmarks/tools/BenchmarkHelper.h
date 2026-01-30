@@ -409,29 +409,40 @@ public:
             _benchmarks.push_back(run);
 
             if (_benchmarks.size() % 2 == 0) {
-                const auto& firstBenchmark = _benchmarks[0];
-                const auto& secondBenchmark = _benchmarks[1];
+                const auto& first = _benchmarks[0];
+                const auto& second = _benchmarks[1];
 
-                const auto realTimeDifference = (secondBenchmark.GetAdjustedRealTime() / firstBenchmark.GetAdjustedRealTime());
+                const double t1 = first.GetAdjustedRealTime();
+                const double t2 = second.GetAdjustedRealTime();
 
-                const auto firstBenchmarkFullName   = firstBenchmark.benchmark_name();
-                const auto secondBenchmarkFullName  = secondBenchmark.benchmark_name();
-                
-                const auto firstBenchmarkPrettyName = firstBenchmarkFullName.substr(0, firstBenchmarkFullName.find('/'));
-                const auto secondBenchmarkPrettyName = secondBenchmarkFullName.substr(0, secondBenchmarkFullName.find('/'));
+                const double speedup = t2 / t1;
 
-                if (realTimeDifference > 1.0f)
-                    ColorPrintf(out, COLOR_BLUE, "%s(%f) faster than %s(%f) by a %f %\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
-                        secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
+                const auto name1 = first.benchmark_name().substr(0, first.benchmark_name().find('/'));
+                const auto name2 = second.benchmark_name().substr(0, second.benchmark_name().find('/'));
 
-                else if (realTimeDifference < 1.0f)
-                    ColorPrintf(out, COLOR_RED, "%s(%f) slower than %s(%f) by a %f %\n", firstBenchmarkPrettyName.c_str(), firstBenchmark.GetAdjustedRealTime(),
-                        secondBenchmarkPrettyName.c_str(), secondBenchmark.GetAdjustedRealTime(), std::abs(realTimeDifference * 100 - 100));
-
+                if (speedup > 1.0)
+                {
+                    ColorPrintf(out, COLOR_BLUE,
+                        "%s (%.3f) is faster than %s (%.3f): speedup x%.3f\n",
+                        name1.c_str(), t1,
+                        name2.c_str(), t2,
+                        speedup);
+                }
+                else if (speedup < 1.0)
+                {
+                    ColorPrintf(out, COLOR_RED,
+                        "%s (%.3f) is slower than %s (%.3f): speedup x%.3f\n",
+                        name1.c_str(), t1,
+                        name2.c_str(), t2,
+                        speedup);
+                }
                 else
+                {
                     ColorPrintf(out, COLOR_WHITE, "Benchmarks are equal\n");
+                }
 
-                _benchmarks.resize(0);
+                _benchmarks.clear();
+
             }
         }
     }
