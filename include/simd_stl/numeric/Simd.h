@@ -55,5 +55,7 @@ using simd512_avx512bw		= simd<arch::CpuFeature::AVX512BW, _Type_, zmm512>;
 template <typename _Type_>
 using simd512_avx512dq		= simd<arch::CpuFeature::AVX512DQ, _Type_, zmm512>;
 
+template <typename _Type_>
+using simd512_avx512bwdq	= simd<arch::CpuFeature::AVX512BWDQ, _Type_, zmm512>;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

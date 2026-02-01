@@ -14,6 +14,34 @@
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
+template <sizetype _Size_>
+struct __mmask_for_size {
+	using type = void;
+};
+
+template <>
+struct __mmask_for_size<1> {
+	using type = __mmask8;
+};
+
+template <>
+struct __mmask_for_size<2> {
+	using type = __mmask16;
+};
+
+template <>
+struct __mmask_for_size<4> {
+	using type = __mmask32;
+};
+
+template <>
+struct __mmask_for_size<8> {
+	using type = __mmask64;
+};
+
+template <sizetype _Size_> 
+using __mmask_for_size_t = typename __mmask_for_size<_Size_>::type;
+
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
@@ -43,16 +71,17 @@ public:
 	template <>
 	struct __mask_type<true> {
 		static constexpr auto size = _RegisterPolicy_::__width / sizeof(_Element_) * __divisor;
-		using type = typename IntegerForSize<((size <= 8) ? 1 : (size / 8))>::Unsigned;
+		using type = __mmask_for_size_t<((size <= 8) ? 1 : (size / 8))>;
 	};
 
 	template <>
 	struct __mask_type<false> {
 		static constexpr auto size = _RegisterPolicy_::__width / sizeof(_Element_) * __divisor;
-		using type = typename IntegerForSize<((size <= 8) ? 1 : (size / 8))>::Unsigned;
+		using type = __mmask_for_size_t<((size <= 8) ? 1 : (size / 8))>;
 	};
 
 	static constexpr uint8 __used_bits = __mask_type<__native_compare_returns_number>::size;
+	static constexpr bool __is_k_register = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX512F);
 
 	using mask_type = typename __mask_type<__native_compare_returns_number>::type;
 	using size_type = uint8;
@@ -64,6 +93,22 @@ public:
 	static constexpr simd_stl_always_inline uint8 count_set(mask_type __mask) noexcept;
 	static constexpr simd_stl_always_inline uint8 count_trailing_zero_bits(mask_type __mask) noexcept;
 	static constexpr simd_stl_always_inline uint8 count_leading_zero_bits(mask_type __mask) noexcept;
+
+	static constexpr simd_stl_always_inline uint8 count_trailing_one_bits(mask_type __mask) noexcept;
+	static constexpr simd_stl_always_inline uint8 count_leading_one_bits(mask_type __mask) noexcept;
+
+	static constexpr simd_stl_always_inline mask_type __bit_and(mask_type __first, mask_type __second) noexcept;
+	static constexpr simd_stl_always_inline mask_type __bit_or(mask_type __first, mask_type __second) noexcept;
+	static constexpr simd_stl_always_inline mask_type __bit_xor(mask_type __first, mask_type __second) noexcept;
+
+	static constexpr simd_stl_always_inline mask_type __bit_not(mask_type __mask) noexcept;
+
+private:
+	template <class _Type_>
+	static constexpr simd_stl_always_inline auto __kmask_to_int(_Type_ __k) noexcept;
+
+	template <class _Type_>
+	static constexpr simd_stl_always_inline auto __int_to_kmask(_Type_ __integer) noexcept;
 };
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

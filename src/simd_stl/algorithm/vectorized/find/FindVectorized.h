@@ -1,21 +1,15 @@
 #pragma once
 
+#include <simd_stl/numeric/Simd.h>
+
 #include <src/simd_stl/numeric/SizedSimdDispatcher.h>
-#include <src/simd_stl/numeric/CachePrefetcher.h>
+#include <src/simd_stl/numeric/ZmmThreshold.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-extern "C" {
-    template <class _Type_>
-    _Type_* simd_stl_stdcall __find_trivial_1(
-        const void* __first,
-        const void* __last,
-        _Type_      __value) noexcept
-}
-
 template <class _Type_>
-const _Type_* simd_stl_stdcall __find_scalar(
+simd_stl_always_inline const _Type_* __find_scalar(
     const void* __first,
     const void* __last,
     _Type_      __value) noexcept
@@ -30,7 +24,7 @@ const _Type_* simd_stl_stdcall __find_scalar(
 
 template <class _Simd_>
 struct __find_vectorized_internal {
-    const typename _Simd_::value_type* simd_stl_stdcall operator()(
+    simd_stl_always_inline const typename _Simd_::value_type* operator()(
         sizetype                    __aligned_size,
         sizetype                    __tail_size,
         const void*                 __first,
@@ -40,6 +34,8 @@ struct __find_vectorized_internal {
         const auto __guard      = numeric::make_guard<_Simd_>();
         const auto __comparand  = _Simd_(__value);
 
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
+
         do {
             const auto __loaded = _Simd_::load(__first);
             const auto __mask   = (__comparand == __loaded) | numeric::as_index_mask;
@@ -48,15 +44,14 @@ struct __find_vectorized_internal {
                 return static_cast<const typename _Simd_::value_type*>(__first) + __mask.count_trailing_zero_bits();
 
             __advance_bytes(__first, sizeof(_Simd_));
-            __aligned_size -= sizeof(_Simd_);
-        } while (__aligned_size != 0);
+        } while (__first != __stop_at);
 
         if (__tail_size != 0) {
             if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
                 const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
                 const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-                const auto __mask = typename _Simd_::mask_type(((__comparand == __loaded) | numeric::as_native) & __tail_mask);
+                const auto __mask = ((__comparand == __loaded) & __tail_mask) | numeric::as_index_mask;
 
                 if (__mask.any_of())
                     return static_cast<const typename _Simd_::value_type*>(__first) + __mask.count_trailing_zero_bits();
@@ -71,7 +66,7 @@ struct __find_vectorized_internal {
 };
 
 template <class _Type_>
-_Type_* simd_stl_stdcall __find_vectorized(
+simd_stl_always_inline _Type_* __find_vectorized(
     const void* __first,
     const void* __last,
     _Type_      __value) noexcept

@@ -143,19 +143,19 @@ public:
         class       _MaskType_      = __mask_type<_DesiredType_>>
     simd_stl_always_inline int32 compress(const _MaskType_& __mask) noexcept;
 
-    simd_stl_always_inline friend simd operator+  <>(const simd& __left, const value_type __right) noexcept;
-    simd_stl_always_inline friend simd operator-  <>(const simd& __left, const value_type __right) noexcept;
-    simd_stl_always_inline friend simd operator*  <>(const simd& __left, const value_type __right) noexcept;
-    simd_stl_always_inline friend simd operator/  <>(const simd& __left, const value_type __right) noexcept;
-    simd_stl_always_inline friend simd operator+  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator-  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator*  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator/  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator&  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator|  <>(const simd& __left, const simd& __right) noexcept;
-    simd_stl_always_inline friend simd operator^  <>(const simd& __left, const simd& __right) noexcept;
-    //simd_stl_always_inline friend simd operator>> <>(const simd& __left, const uint32 _Shift) noexcept;
-    //simd_stl_always_inline friend simd operator<< <>(const simd& __left, const uint32 _Shift) noexcept;
+    friend simd operator+  <>(const simd& __left, const value_type __right) noexcept;
+    friend simd operator-  <>(const simd& __left, const value_type __right) noexcept;
+    friend simd operator*  <>(const simd& __left, const value_type __right) noexcept;
+    friend simd operator/  <>(const simd& __left, const value_type __right) noexcept;
+    friend simd operator+  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator-  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator*  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator/  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator&  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator|  <>(const simd& __left, const simd& __right) noexcept;
+    friend simd operator^  <>(const simd& __left, const simd& __right) noexcept;
+    //friend simd operator>> <>(const simd& __left, const uint32 _Shift) noexcept;
+    //friend simd operator<< <>(const simd& __left, const uint32 _Shift) noexcept;
 
     simd_stl_always_inline simd& operator&=(const simd& __other) noexcept;
     simd_stl_always_inline simd& operator|=(const simd& __other) noexcept;
@@ -180,22 +180,22 @@ public:
     simd_stl_always_inline _Element_ operator[](const size_type __index) const noexcept;
     simd_stl_always_inline simd_element_reference<simd> operator[](const size_type __index) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::equal> 
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::equal> 
         operator== <>(const simd& __left, const simd& __right) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::not_equal> 
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::not_equal> 
         operator!= <>(const simd& __left, const simd& __right) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less>
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less>
         operator< <>(const simd& __left, const simd& __right) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less_equal>
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less_equal>
         operator<= <>(const simd& __left, const simd& __right) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater>
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater>
         operator> <>(const simd& __left, const simd& __right) noexcept;
 
-    simd_stl_always_inline friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater_equal>
+    friend simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater_equal>
         operator>= <>(const simd& __left, const simd& __right) noexcept;
 
     template <typename _DesiredType_ = value_type>

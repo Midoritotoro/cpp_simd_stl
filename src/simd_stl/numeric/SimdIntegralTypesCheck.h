@@ -213,4 +213,19 @@ template <
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
 
+template <arch::CpuFeature _SimdGeneration_> 
+constexpr inline bool __has_avx512f_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX512F);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_avx512bw_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BW)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBW);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_avx512dq_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512DQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLDQ);
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

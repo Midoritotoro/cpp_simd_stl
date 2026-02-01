@@ -91,7 +91,7 @@ simd_stl_always_inline int __bsr_clz(_IntegralType_ __value) noexcept {
     else if constexpr (__digits == 32)
         _BitScanReverse(&__index, __value);
     else
-        __index = __bit_hacks_clz(__value);
+        return __bit_hacks_clz(__value);
 
     return static_cast<int>(__digits - 1 - __index);
 }

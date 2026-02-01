@@ -742,7 +742,24 @@ simd_stl_always_inline _VectorType_ __simd_mask_load(
     _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load<_DesiredType_>(__address, __mask, __policy);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load<_DesiredType_, _VectorType_>(__address, __mask, __policy);
+}
+
+template <
+    arch::CpuFeature	_SimdGeneration_,
+    class				_RegisterPolicy_,
+    typename            _DesiredType_,
+    typename            _VectorType_,
+    class               _MaskType_,
+    class               _AlignmentPolicy_ = __unaligned_policy>
+simd_stl_always_inline _VectorType_ __simd_mask_load(
+    const void*         __address,
+    _MaskType_          __mask,
+    _VectorType_        __additional_source,
+    _AlignmentPolicy_&& __policy) noexcept
+{
+    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load<_DesiredType_>(__address, __mask, __additional_source, __policy);
 }
 
 template <
@@ -799,23 +816,6 @@ simd_stl_always_inline _DesiredType_* __simd_compress_store(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
-    class				_RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_,
-    class               _MaskType_,
-    class               _AlignmentPolicy_ = __unaligned_policy>
-simd_stl_always_inline _VectorType_ __simd_mask_load(
-    const void*         __address,
-    _MaskType_          __mask,
-    _VectorType_        __additional_source,
-    _AlignmentPolicy_&& __policy) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __mask_load<_DesiredType_>(__address, __mask, __additional_source, __policy);
-}
-
-template <
     arch::CpuFeature    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _Type_>
@@ -846,7 +846,7 @@ using __make_tail_mask_return_type_helper = std::conditional_t<__is_intrin_type_
 template <class _BasicSimd_>
 using __make_tail_mask_return_type = __make_tail_mask_return_type_helper<_BasicSimd_,
     type_traits::invoke_result_type<decltype(__simd_make_tail_mask<_BasicSimd_::__generation, typename _BasicSimd_::policy_type,
-    typename _BasicSimd_::value_type>), uint32>>;
+    typename _BasicSimd_::value_type>), simd_mask<_BasicSimd_::__generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy_type>>;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

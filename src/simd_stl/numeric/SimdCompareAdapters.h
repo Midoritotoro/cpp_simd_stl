@@ -57,8 +57,8 @@ template <
     class _CompareResult_, 
     class _Adapter_>
 requires requires(
-    _Adapter_       __adapter, 
-    _CompareResult_&& __compare_result) 
+    _Adapter_           __adapter, 
+    _CompareResult_&&   __compare_result) 
 {
     __adapter(__compare_result);
 }
@@ -73,8 +73,8 @@ template <
     class _Adapter_,
     class _CompareResult_>
 requires requires(
-    _Adapter_       __adapter, 
-    _CompareResult_&& __compare_result) 
+    _Adapter_           __adapter, 
+    _CompareResult_&&   __compare_result) 
 {
     __adapter(__compare_result); 
 }

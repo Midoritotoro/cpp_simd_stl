@@ -121,4 +121,105 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operat
 	return any_of();
 }
 
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr void simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::clear_left_most_set_bit() noexcept {
+	_mask = _mask & (_mask - 1);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr bool simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>
+	::operator==(const simd_index_mask& __other) const noexcept
+{
+	return _mask == __other._mask;
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr bool simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>
+	::operator!=(const simd_index_mask& __other) const noexcept
+{
+	return _mask != __other._mask;
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator~() const noexcept
+{
+	return __implementation::__bit_not(_mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator&(const simd_index_mask& __other) const noexcept
+{
+	return __implementation::__bit_and(_mask, __other._mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator|(const simd_index_mask& __other) const noexcept
+{
+	return __implementation::__bit_or(_mask, __other._mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator^(const simd_index_mask& __other) const noexcept
+{
+	return __implementation::__bit_xor(_mask, __other._mask);
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator&=(const simd_index_mask& __other) noexcept
+{
+	_mask &= __other._mask;
+	return *this;
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator|=(const simd_index_mask& __other) noexcept
+{
+	_mask |= __other._mask;
+	return *this;
+}
+
+template <
+	arch::CpuFeature	_SimdGeneration_,
+	typename			_Element_,
+	class				_RegisterPolicy_>
+constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+	simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator^=(const simd_index_mask& __other) noexcept
+{
+	_mask ^= __other._mask;
+	return *this;
+}
+
 __SIMD_STL_NUMERIC_NAMESPACE_END

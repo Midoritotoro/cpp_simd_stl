@@ -38,7 +38,7 @@ inline void __fail(
 	std::terminate();
 }
 
-const char* __extract_basename(
+inline const char* __extract_basename(
 	const char* __path,
 	size_t		__size) noexcept
 {

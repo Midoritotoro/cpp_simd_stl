@@ -38,9 +38,23 @@ public:
 	constexpr simd_stl_always_inline size_type count_leading_zero_bits() const noexcept;
 	constexpr simd_stl_always_inline size_type count_trailing_one_bits() const noexcept;
 	constexpr simd_stl_always_inline size_type count_leading_one_bits() const noexcept;
+	constexpr simd_stl_always_inline void clear_left_most_set_bit() noexcept;
 
 	constexpr simd_stl_always_inline mask_type unwrap() const noexcept;
 	constexpr simd_stl_always_inline explicit operator bool() const noexcept;
+
+	constexpr simd_stl_always_inline bool operator==(const simd_index_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline bool operator!=(const simd_index_mask& __other) const noexcept;
+
+	constexpr simd_stl_always_inline simd_index_mask operator&(const simd_index_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline simd_index_mask operator|(const simd_index_mask& __other) const noexcept;
+	constexpr simd_stl_always_inline simd_index_mask operator^(const simd_index_mask& __other) const noexcept;
+
+	constexpr simd_stl_always_inline simd_index_mask& operator&=(const simd_index_mask& __other) noexcept;
+	constexpr simd_stl_always_inline simd_index_mask& operator|=(const simd_index_mask& __other) noexcept;
+	constexpr simd_stl_always_inline simd_index_mask& operator^=(const simd_index_mask& __other) noexcept;
+
+	constexpr simd_stl_always_inline simd_index_mask operator~() const noexcept;
 private:
 	mask_type _mask = 0;
 };

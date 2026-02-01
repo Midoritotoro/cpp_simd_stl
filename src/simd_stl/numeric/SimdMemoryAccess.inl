@@ -526,10 +526,23 @@ simd_stl_always_inline __m256i __simd_memory_access<arch::CpuFeature::AVX2, ymm2
 
 #pragma region Avx512 memory access
 
+template <
+    sizetype    _Size_, 
+    class       _Type_>
+static constexpr auto __make_tail_mask_table() {
+    using _MaskType = typename IntegerForSize<(_Size_ / sizeof(_Type_)) / 8>::Unsigned;
+    std::array<_MaskType, 64> __table{};
+    
+    for (auto __bytes = 0; __bytes < 64; ++__bytes)
+        __table[__bytes] = (__bytes == 0) ? 0 : (static_cast<_MaskType>((_MaskType(1) << (__bytes / sizeof(_Type_))) - 1));
+
+    return __table;
+} 
     
 template <typename _Type_>
 simd_stl_always_inline auto __simd_memory_access<arch::CpuFeature::AVX512F, zmm512>::__make_tail_mask(uint32 __bytes) noexcept {
-    return (__bytes == 0) ? 0 : (static_cast<type_traits::__deduce_simd_mask_type<__generation, _Type_, __register_policy>>((1ull << (__bytes / sizeof(_Type_))) - 1));
+    static constexpr auto __tail_table = __make_tail_mask_table<__register_policy::__width, _Type_>();
+    return __tail_table[__bytes];
 }
 
 template <typename _VectorType_>
@@ -797,7 +810,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
         return __intrin_bitcast<_VectorType_>(_mm512_maskz_loadu_epi8(__mask_convert<__generation, __register_policy, _DesiredType_, uint64>(__mask), __address));
 
     else
-        return __simd_mask_load<arch::CpuFeature::AVX512F, __register_policy, _DesiredType_>(__address, __mask, __policy);
+        return __simd_mask_load<arch::CpuFeature::AVX512F, __register_policy, _DesiredType_, _VectorType_>(__address, __mask, __policy);
 }
 
 template <
@@ -825,7 +838,8 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
 
 template <typename _Type_>
 simd_stl_always_inline auto __simd_memory_access<arch::CpuFeature::AVX512VLF, ymm256>::__make_tail_mask(uint32 __bytes) noexcept {
-    return (__bytes == 0) ? 0 : (static_cast<type_traits::__deduce_simd_mask_type<__generation, _Type_, __register_policy>>((1ull << (__bytes / sizeof(_Type_))) - 1));
+    using _MaskType = type_traits::__deduce_simd_mask_type<__generation, _Type_, __register_policy>;
+    return (__bytes == 0) ? 0 : (static_cast<_MaskType>((_MaskType(1) << (__bytes / sizeof(_Type_))) - 1));
 }
 
 template <
@@ -917,7 +931,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
         }
     }
 
-    return __mask_load<_DesiredType_>(__address, __mask, __simd_broadcast_zeros<__generation, __register_policy, _VectorType_>(), __policy);
+    return __mask_load<_DesiredType_, _VectorType_>(__address, __mask, __simd_broadcast_zeros<__generation, __register_policy, _VectorType_>(), __policy);
 }
 
 template <
@@ -1017,7 +1031,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
     _AlignmentPolicy_&& __policy) noexcept
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
-        return __simd_mask_load<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_>(__address, __mask, __policy);
+        return __simd_mask_load<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, _VectorType_>(__address, __mask, __policy);
 
     else if constexpr (sizeof(_DesiredType_) == 2)
         return __intrin_bitcast<_VectorType_>(_mm256_maskz_loadu_epi16(__mask_convert<__generation, __register_policy, _DesiredType_, uint16>(__mask), __address));
@@ -1049,7 +1063,8 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
 
 template <typename _Type_>
 simd_stl_always_inline auto __simd_memory_access<arch::CpuFeature::AVX512VLF, xmm128>::__make_tail_mask(uint32 __bytes) noexcept {
-    return (__bytes == 0) ? 0 : (static_cast<type_traits::__deduce_simd_mask_type<__generation, _Type_, __register_policy>>((1ull << (__bytes / sizeof(_Type_))) - 1));
+    using _MaskType = type_traits::__deduce_simd_mask_type<__generation, _Type_, __register_policy>;
+    return (__bytes == 0) ? 0 : (static_cast<_MaskType>((_MaskType(1) << (__bytes / sizeof(_Type_))) - 1));
 }
 
 template <
@@ -1110,7 +1125,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
     _AlignmentPolicy_&& __policy) noexcept
 {
     if constexpr (__is_intrin_type_v<_MaskType_>) {
-        return __simd_mask_load<arch::CpuFeature::AVX2, __register_policy, _DesiredType_>(__address, __mask, __policy);
+        return __simd_mask_load<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, _VectorType_>(__address, __mask, __policy);
     }
     else {
         if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
@@ -1241,7 +1256,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX51
     _AlignmentPolicy_&& __policy) noexcept
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
-        return __simd_mask_load<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_>(__address, __mask, __policy);
+        return __simd_mask_load<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, _VectorType_>(__address, __mask, __policy);
 
     else if constexpr (sizeof(_DesiredType_) == 2)
         return __intrin_bitcast<_VectorType_>(_mm_maskz_loadu_epi16(__mask_convert<__generation, __register_policy, _DesiredType_, uint8>(__mask), __address));

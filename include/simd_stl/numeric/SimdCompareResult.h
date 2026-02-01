@@ -35,6 +35,22 @@ public:
 	simd_compare_result(simd_compare_result&&) noexcept = default; 
 	simd_compare_result& operator=(simd_compare_result&&) noexcept = default;
 
+	template <class _Type_>
+	simd_stl_always_inline friend simd_compare_result operator& <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+		return __compare_result._compare_result & __other;
+	}
+
+	template <class _Type_>
+	simd_stl_always_inline friend simd_compare_result operator| <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+		return __compare_result._compare_result | __other;
+	}
+	
+	template <class _Type_>
+	simd_stl_always_inline friend simd_compare_result operator^ <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+		return __compare_result._compare_result ^ __other;
+	}
+
+	simd_stl_always_inline simd_compare_result operator~() noexcept;
 	simd_stl_always_inline operator bool() const noexcept;
 private:
 	native_type _compare_result;
