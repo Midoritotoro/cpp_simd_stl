@@ -1,5 +1,3 @@
-#pragma once
-
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <
@@ -77,9 +75,9 @@ __simd_nodiscard_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_Vec
         return __vector;
 }
 
-template <class _MaskType_, std::enable_if_t<__is_valid_basic_simd_v<_MaskType_> || __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_> || __is_valid_simd_mask_v<_MaskType_>, int>>
+template <class _MaskType_, std::enable_if_t<__is_valid_basic_simd_v<_MaskType_> || __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_> || __is_simd_mask_v<_MaskType_>, int>>
 __simd_nodiscard_inline auto __simd_unwrap_mask(_MaskType_ __mask) noexcept {
-    if constexpr (__is_valid_simd_mask_v<_MaskType_>)
+    if constexpr (__is_simd_mask_v<_MaskType_>)
         return __mask.unwrap();
     else if constexpr (std::is_integral_v<_MaskType_>)
         return __mask;
@@ -118,43 +116,6 @@ __simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
 {
     return __intrin_bitcast<__unwrapped_vector_type<__rebind_vector_generation_type<_ToSimdGeneration_,
         _ToElementType_, _FromVector_>>>(__simd_unwrap(__from));
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    class               _Type_,
-    class               _MaskType_>
-__simd_nodiscard_inline __make_tail_mask_return_type<simd<_SimdGeneration_, _Type_,
-    _RegisterPolicy_>> __simd_convert_to_mask_for_native_store(_MaskType_ __mask) noexcept
-{
-    using _ConvertTo = __make_tail_mask_return_type<simd<_SimdGeneration_, _Type_, _RegisterPolicy_>>;
-
-    constexpr auto __from_simd      = __is_valid_basic_simd_v<_MaskType_>;
-    constexpr auto __to_simd        = __is_valid_basic_simd_v<_ConvertTo>;
-
-    constexpr auto __from_integral  = std::is_integral_v<_MaskType_>;
-    constexpr auto __to_integral    = std::is_integral_v<_ConvertTo>;
-
-    constexpr auto __both_simd      = __from_simd && __to_simd;
-    constexpr auto __both_integral  = __from_integral && __to_integral;
-
-    if constexpr (__both_simd)
-        return _ConvertTo { __simd_unwrap(__mask) };
-
-    else if constexpr (__both_integral)
-        return static_cast<_ConvertTo>(__mask);
-
-    else if constexpr (__from_integral && __to_simd)
-        return _ConvertTo { __simd_to_vector<_SimdGeneration_, _RegisterPolicy_,
-            typename _ConvertTo::vector_type, _Type_>(__mask)
-        };
-
-    else if constexpr (__from_simd && __to_integral)
-        return __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _Type_>(__mask);
-
-    else
-        static_assert(false, "Invalid _ConvertTo");
 }
 
 __SIMD_STL_NUMERIC_NAMESPACE_END

@@ -1,95 +1,57 @@
 #pragma once 
 
-#include <src/simd_stl/numeric/SimdIndexMaskImplementation.h>
-#include <simd_stl/math/BitMath.h>
+#include <src/simd_stl/numeric/SimdIndexMaskOperations.h>
+#include <src/simd_stl/numeric/MaskTypeSelector.h>
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-	class				_RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
-class simd_index_mask {
-	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
-	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
-
-	using __implementation = __simd_index_mask_implementation<_SimdGeneration_, _Element_, _RegisterPolicy_>;
+	class				_RegisterPolicy_>
+class simd_index_mask: public __simd_index_mask_operations<simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>> {
 public:
 	static constexpr auto __generation = _SimdGeneration_;
+	static constexpr auto __is_k_register = __has_avx512f_support_v<__generation>;
 
-	using value_type = _Element_;
-	using policy_type = _RegisterPolicy_;
+	using element_type	= _Element_;
+	using policy_type	= _RegisterPolicy_;
 
-	using mask_type = typename __implementation::mask_type;
-	using size_type = typename __implementation::size_type;
+	static constexpr bool __is_native_compare_returns_number = std::is_integral_v<__simd_native_compare_return_type<
+		simd<__generation, element_type, policy_type>, element_type, __simd_comparison::equal>>;
+
+	static constexpr uint8 __divisor = __simd_index_mask_divisor<__generation, policy_type, element_type>;
+	static constexpr uint8 __used_bits = policy_type::__width / sizeof(element_type) * __divisor;
+
+	using mask_type = __mmask_for_size_t<((__used_bits <= 8) ? 1 : (__used_bits / 8))>;
 
 	simd_index_mask() noexcept;
 	simd_index_mask(const mask_type __mask) noexcept;
 	
 	template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int> = 0>
 	simd_index_mask(const _VectorMask_& __vector_mask) noexcept;
-	
-	constexpr simd_stl_always_inline bool all_of() const noexcept;
-	constexpr simd_stl_always_inline bool any_of() const noexcept;
-	constexpr simd_stl_always_inline bool none_of() const noexcept;
 
-	constexpr simd_stl_always_inline size_type count_set() const noexcept;
-	constexpr simd_stl_always_inline size_type count_trailing_zero_bits() const noexcept;
-	constexpr simd_stl_always_inline size_type count_leading_zero_bits() const noexcept;
-	constexpr simd_stl_always_inline size_type count_trailing_one_bits() const noexcept;
-	constexpr simd_stl_always_inline size_type count_leading_one_bits() const noexcept;
-	constexpr simd_stl_always_inline void clear_left_most_set_bit() noexcept;
-
-	constexpr simd_stl_always_inline mask_type unwrap() const noexcept;
-	constexpr simd_stl_always_inline explicit operator bool() const noexcept;
-
-	constexpr simd_stl_always_inline bool operator==(const simd_index_mask& __other) const noexcept;
-	constexpr simd_stl_always_inline bool operator!=(const simd_index_mask& __other) const noexcept;
-
-	constexpr simd_stl_always_inline simd_index_mask operator&(const simd_index_mask& __other) const noexcept;
-	constexpr simd_stl_always_inline simd_index_mask operator|(const simd_index_mask& __other) const noexcept;
-	constexpr simd_stl_always_inline simd_index_mask operator^(const simd_index_mask& __other) const noexcept;
 
 	constexpr simd_stl_always_inline simd_index_mask& operator&=(const simd_index_mask& __other) noexcept;
 	constexpr simd_stl_always_inline simd_index_mask& operator|=(const simd_index_mask& __other) noexcept;
 	constexpr simd_stl_always_inline simd_index_mask& operator^=(const simd_index_mask& __other) noexcept;
 
-	constexpr simd_stl_always_inline simd_index_mask operator~() const noexcept;
+	constexpr simd_stl_always_inline simd_index_mask& operator>>=(const uint8 __shift) noexcept;
+	constexpr simd_stl_always_inline simd_index_mask& operator<<=(const uint8 __shift) noexcept;
+
+	template <sizetype _Shift_>
+	constexpr simd_stl_always_inline simd_index_mask& operator>>=(const std::integral_constant<uint8, _Shift_> __shift) noexcept;
+
+	template <sizetype _Shift_>
+	constexpr simd_stl_always_inline simd_index_mask& operator<<=(const std::integral_constant<uint8, _Shift_> __shift) noexcept;
+
+	constexpr simd_stl_always_inline mask_type unwrap() const noexcept;
+	static constexpr simd_stl_always_inline arch::CpuFeature generation() noexcept;
+	static constexpr simd_stl_always_inline uint8 bit_width() noexcept;
+	static constexpr simd_stl_always_inline uint8 divisor() noexcept;
 private:
 	mask_type _mask = 0;
 };
-
-template <
-	class _SimdMask_, 
-	class = void>
-struct __is_valid_simd_index_mask:
-	std::false_type
-{};
-
-template <class _SimdMask_>
-struct __is_valid_simd_index_mask<
-	_SimdMask_,
-    std::void_t<simd_index_mask<
-        _SimdMask_::__generation,
-        typename _SimdMask_::value_type,
-        typename _SimdMask_::policy_type>>>
-    : std::bool_constant<
-        type_traits::is_virtual_base_of_v<
-            simd_index_mask<
-				_SimdMask_::__generation,
-                typename _SimdMask_::value_type,
-                typename _SimdMask_::policy_type>,
-            _SimdMask_> ||
-        std::is_same_v<
-            simd_index_mask<
-				_SimdMask_::__generation,
-				typename _SimdMask_::value_type,
-				typename _SimdMask_::policy_type>,
-            _SimdMask_>> 
-{};
-
-template <class _SimdMask_>
-constexpr bool __is_valid_simd_index_mask_v = __is_valid_simd_index_mask<_SimdMask_>::value;
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

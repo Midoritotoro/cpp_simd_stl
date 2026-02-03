@@ -319,7 +319,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX2,
             __mask_convert<__generation, __register_policy, _DesiredType_, __m128i>(__mask)));
 
     else if constexpr (__is_pd_v<_DesiredType_>)
-        return __intrin_bitcast<_VectorType_>(_mm_maskload_ps(reinterpret_cast<const double*>(__address),
+        return __intrin_bitcast<_VectorType_>(_mm_maskload_ps(reinterpret_cast<const float*>(__address),
             __mask_convert<__generation, __register_policy, _DesiredType_, __m128i>(__mask)));
 
     else
@@ -423,7 +423,7 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::CpuFeature::AVX2,
             __mask_convert<__generation, __register_policy, _DesiredType_, __m256i>(__mask)));
 
     else if constexpr (__is_pd_v<_DesiredType_>)
-        return __intrin_bitcast<_VectorType_>(_mm256_maskload_ps(reinterpret_cast<const double*>(__address),
+        return __intrin_bitcast<_VectorType_>(_mm256_maskload_ps(reinterpret_cast<const float*>(__address),
             __mask_convert<__generation, __register_policy, _DesiredType_, __m256i>(__mask)));
 
     else

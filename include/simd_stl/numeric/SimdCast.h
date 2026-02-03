@@ -2,6 +2,7 @@
 
 #include <src/simd_stl/numeric/IntrinBitcast.h>
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
+#include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -10,7 +11,7 @@ template <class _VectorType_>
 __simd_nodiscard_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_VectorType_ __vector) noexcept;
 
 template <class _MaskType_, std::enable_if_t<__is_valid_basic_simd_v<_MaskType_> ||
-    __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_> || __is_valid_simd_mask_v<_MaskType_>, int> = 0>
+    __is_intrin_type_v<_MaskType_> || std::is_integral_v<_MaskType_> || __is_simd_mask_v<_MaskType_>, int> = 0>
 __simd_nodiscard_inline auto __simd_unwrap_mask(_MaskType_ __mask) noexcept;
 
 template <
@@ -35,15 +36,6 @@ template <
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int> = 0>
 __simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
     _ToElementType_, _FromVector_> simd_cast(_FromVector_ __from) noexcept;
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    class               _Type_,
-    class               _MaskType_>
-__simd_nodiscard_inline __make_tail_mask_return_type<simd<_SimdGeneration_, _Type_,
-    _RegisterPolicy_>> __simd_convert_to_mask_for_native_store(_MaskType_ __mask) noexcept;
-
 
 __SIMD_STL_NUMERIC_NAMESPACE_END
 

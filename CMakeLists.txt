@@ -156,8 +156,14 @@ set(PRIVATE_HEADERS
     src/simd_stl/numeric/SimdCompareResult.inl
     src/simd_stl/numeric/SimdCompareAdapters.h
     src/simd_stl/numeric/SimdCompareAdapters.inl
-    src/simd_stl/numeric/SimdIndexMaskImplementation.h
-    src/simd_stl/numeric/SimdIndexMaskImplementation.inl
+    src/simd_stl/numeric/SimdMaskCommonOperations.h
+    src/simd_stl/numeric/SimdMaskCommonOperations.inl
+    src/simd_stl/numeric/SimdElementMaskOperations.h
+    src/simd_stl/numeric/SimdIndexMaskOperations.h
+    src/simd_stl/numeric/SimdElementMaskOperations.inl
+    src/simd_stl/numeric/SimdIndexMaskOperations.inl
+    src/simd_stl/numeric/MaskTypeSelector.h
+    src/simd_stl/numeric/SimdMaskTypeCheck.h
 
 
     src/simd_stl/numeric/SimdOperations.h
@@ -167,7 +173,6 @@ set(PRIVATE_HEADERS
 
     src/simd_stl/numeric/BasicSimd.inl
     src/simd_stl/numeric/SimdCast.inl
-    src/simd_stl/numeric/BasicSimdMaskImplementation.inl
     src/simd_stl/numeric/BasicSimdElementReference.inl
     src/simd_stl/numeric/IsComparable.h
     src/simd_stl/numeric/SimdDispatcher.h
@@ -287,7 +292,6 @@ set(PUBLIC_HEADERS
     include/simd_stl/numeric/Simd.h
     include/simd_stl/numeric/BasicSimd.h
     include/simd_stl/numeric/BasicSimdElementReference.h
-    include/simd_stl/numeric/BasicSimdMaskImplementation.h
     include/simd_stl/numeric/BasicSimdMask.h
     include/simd_stl/numeric/BasicSimdShuffleMask.h
     include/simd_stl/numeric/SimdCast.h

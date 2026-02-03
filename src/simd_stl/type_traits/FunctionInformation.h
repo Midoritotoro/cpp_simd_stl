@@ -1,7 +1,6 @@
 #pragma once 
 
 #include <simd_stl/Types.h>
-#include <src/simd_stl/type_traits/FunctionPass.h>
 
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
 

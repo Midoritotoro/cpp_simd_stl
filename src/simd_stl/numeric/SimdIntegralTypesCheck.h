@@ -1,8 +1,10 @@
 #pragma once 
 
 #include <simd_stl/arch/CpuFeature.h>
+
 #include <src/simd_stl/type_traits/TypeCheck.h>
 #include <src/simd_stl/type_traits/IsVirtualBaseOf.h>
+#include <src/simd_stl/type_traits/FunctionInformation.h>
 
 
 __SIMD_STL_NUMERIC_NAMESPACE_BEGIN
@@ -212,6 +214,23 @@ template <
     class               _VectorType_>
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_sse2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE2);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_sse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE3);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_ssse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSSE3);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_sse41_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE41);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_sse42_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE42);
+
+template <arch::CpuFeature _SimdGeneration_>
+constexpr inline bool __has_avx2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX2);
 
 template <arch::CpuFeature _SimdGeneration_> 
 constexpr inline bool __has_avx512f_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX512F);

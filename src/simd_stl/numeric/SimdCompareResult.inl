@@ -15,7 +15,7 @@ template <
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, _Comparison_>::operator bool() const noexcept {
-	return (*this | as_index_mask);
+	return static_cast<bool>(*this | as_index_mask);
 }
 
 template <
