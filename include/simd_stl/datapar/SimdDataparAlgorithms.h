@@ -54,6 +54,64 @@ __simd_nodiscard_inline auto reduce(
     return math::__population_count(__datapar);
 }
 
+template <class _DataparType_> 
+__simd_nodiscard_inline auto make_tail_mask(uint32 __bytes) noexcept -> __make_tail_mask_return_type<_DataparType_>
+	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_make_tail_mask<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+			typename _RawDataparType::value_type>(__bytes);
+}
 
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto abs(const _DataparType_& __datapar) noexcept -> _DataparType_
+	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_abs<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::value_type>(__simd_unwrap(__datapar));
+}
+
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto horizontal_min(const _DataparType_& __datapar) noexcept -> typename _DataparType_::value_type
+	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_horizontal_min<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::value_type>(__simd_unwrap(__datapar));
+}
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto horizontal_max(const _DataparType_& __datapar) noexcept -> typename _DataparType_::value_type
+	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_horizontal_max<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::value_type>(__simd_unwrap(__datapar));
+}
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto vertical_min(
+	const _DataparType_& __first, 
+	const _DataparType_& __second) noexcept -> _DataparType_
+		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_vertical_min<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::value_type>(__simd_unwrap(__first), __simd_unwrap(__second));
+}
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto vertical_max(
+	const _DataparType_& __first,
+	const _DataparType_& __second) noexcept -> _DataparType_
+		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_vertical_max<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::value_type>(__simd_unwrap(__first), __simd_unwrap(__second));
+}
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

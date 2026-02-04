@@ -648,16 +648,6 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-__make_tail_mask_return_type<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
-simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::make_tail_mask(uint32 __bytes) noexcept
-{
-    return __simd_make_tail_mask<_SimdGeneration_, _RegisterPolicy_, _Element_>(__bytes);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
 void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::streaming_fence() noexcept {
     return __simd_streaming_fence<_SimdGeneration_>();
 }
@@ -723,59 +713,6 @@ simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
 {
     _vector = simd_cast<vector_type>(__simd_blend<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(
         simd_cast<decltype(__vector._vector)>(_vector), __vector._vector, __simd_unwrap_mask(__mask)));
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vertical_min(
-        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept 
-{
-    return __simd_vertical_min<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __other._vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline _DesiredType_ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::horizontal_min() const noexcept {
-    return __simd_horizontal_min<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vertical_max(
-        const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept
-{
-    return __simd_vertical_max<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __other._vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline _DesiredType_ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::horizontal_max() const noexcept {
-    return __simd_horizontal_max<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
-}
-
-template <
-    arch::CpuFeature	_SimdGeneration_,
-    typename			_Element_,
-    class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> 
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::abs() const noexcept 
-{
-    return __simd_abs<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector);
 }
 
 template <

@@ -345,25 +345,25 @@ void testMethods() {
         Simd a = Simd::load(arrA);
         Simd b = Simd::load(arrB);
 
-        auto minVec = a.vertical_min(b);
+        auto minVec = simd_stl::datapar::vertical_min(a, b);
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
         }
 
-        auto maxVec = a.vertical_max(b);
+        auto maxVec = simd_stl::datapar::vertical_max(a, b);
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
         }
 
-        T minScalar = a.horizontal_min();
+        T minScalar = simd_stl::datapar::horizontal_min(a);
         T expectedMin = *std::min_element(arrA, arrA + N);
         simd_stl_assert(minScalar == expectedMin);
 
-        T maxScalar = a.horizontal_max();
+        T maxScalar = simd_stl::datapar::horizontal_max(a);
         T expectedMax = *std::max_element(arrA, arrA + N);
         simd_stl_assert(maxScalar == expectedMax);
 
-        auto absVec = a.abs();
+        auto absVec = simd_stl::datapar::abs(a);
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
         }

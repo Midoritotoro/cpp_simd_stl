@@ -214,21 +214,6 @@ public:
         const _MaskType_&                                               __mask) noexcept;
 
     template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_min(const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> vertical_max(const simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_>& __other) const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_ horizontal_min() const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline _DesiredType_ horizontal_max() const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
-    simd_stl_always_inline simd<_SimdGeneration_, _DesiredType_, _RegisterPolicy_> abs() const noexcept;
-
-    template <typename _DesiredType_ = _Element_>
     simd_stl_always_inline void reverse() noexcept;
 
     template <typename _ElementType_ = _Element_>
@@ -243,8 +228,6 @@ public:
     static simd_stl_always_inline bool is_supported() noexcept;
 
     simd_stl_always_inline vector_type unwrap() const noexcept;
-
-    static simd_stl_always_inline __make_tail_mask_return_type<simd> make_tail_mask(uint32 __bytes) noexcept;
 private:
     vector_type _vector;
 };

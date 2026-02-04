@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simd_stl/datapar/Simd.h>
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
 
 #include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 #include <src/simd_stl/datapar/ZmmThreshold.h>
@@ -48,7 +48,7 @@ struct __find_vectorized_internal {
 
         if (__tail_size != 0) {
             if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
-                const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
+                const auto __tail_mask  = datapar::make_tail_mask<_Simd_>(__tail_size);
                 const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
                 const auto __mask = ((__comparand == __loaded) & __tail_mask) | datapar::as_index_mask;
