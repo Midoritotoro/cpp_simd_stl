@@ -489,21 +489,19 @@ void testMethods() {
 }
 
 int main() {
-    //testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
 
     testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::xmm128>();
-
 
     testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::numeric::zmm512>();
-
 
     testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::xmm128>();
@@ -514,6 +512,9 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::ymm256>();
+
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI, simd_stl::numeric::zmm512>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2, simd_stl::numeric::zmm512>();
 
     return 0;
 }

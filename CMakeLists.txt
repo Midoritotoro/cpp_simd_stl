@@ -191,7 +191,7 @@ set(PRIVATE_HEADERS
 )
 
 set(PUBLIC_HEADERS
-    include/simd_stl/algorithm/algorithm 
+    include/simd_stl/algorithm/Algorithm.h
 
     include/simd_stl/math/Math.h
     include/simd_stl/math/BitMath.h

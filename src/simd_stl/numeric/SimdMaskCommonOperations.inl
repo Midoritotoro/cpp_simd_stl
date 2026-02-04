@@ -15,26 +15,29 @@ constexpr uint8 __simd_mask_common_operations<_Derived_>::__bit_width() noexcept
 	return __self::bit_width();
 }
 
-
 template <class _Derived_>
 constexpr bool __simd_mask_common_operations<_Derived_>::all_of() const noexcept {
 	const auto __bits		= __unwrap();
 	using _MaskType = decltype(__bits);
 
+	constexpr auto __max_for_bits = ((sizeof(_MaskType) * 8) == __bit_width())
+		? math::__maximum_integral_limit<_MaskType>()
+		: _MaskType(((_MaskType(1) << __bit_width()) - 1));
+
 	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
-		return _kortestz_mask16_u8(__bits, static_cast<__mmask16>((__mmask16(1) << __bit_width()) - 1));
+		return _ktestc_mask16_u8(__bits, __max_for_bits);
 
 	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
-		return _kortestz_mask8_u8(__bits, static_cast<__mmask8>((__mmask8(1) << __bit_width()) - 1));
+		return _ktestc_mask8_u8(__bits, __max_for_bits);
 
 	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
-		return _kortestz_mask32_u8(__bits, static_cast<__mmask32>((__mmask32(1) << __bit_width()) - 1));
+		return _ktestc_mask32_u8(__bits, __max_for_bits);
 
 	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
-		return _kortestz_mask64_u8(__bits, static_cast<__mmask64>((__mmask64(1) << __bit_width()) - 1));
+		return _ktestc_mask64_u8(__bits, __max_for_bits);
 
 	else
-		return (__bits == _MaskType(((_MaskType(1) << __bit_width()) - 1)));
+		return (__bits == __max_for_bits);
 }
 
 template <class _Derived_>
@@ -134,12 +137,12 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 
 template <class _Derived_>
 constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_operations<_Derived_>::operator>>(const uint8 __shift) const noexcept {
-	return __unwrap() >> __shift;
+	return __to_int() >> __shift;
 }
 
 template <class _Derived_>
 constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_operations<_Derived_>::operator<<(const uint8 __shift) const noexcept {
-	return __unwrap() << __shift;
+	return __to_int() << __shift;
 }
 
 template <class _Derived_>

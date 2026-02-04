@@ -18,6 +18,8 @@ class simd_compare_result {
 	friend __as_mask_t;
 	friend __as_native_t;
 	friend __as_simd_t;
+
+	using __native_type = __simd_native_compare_return_type<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>, _Element_, _Comparison_>;
 public:
 	static inline constexpr auto __generation = _SimdGeneration_;
 	static inline constexpr auto __comparison = _Comparison_;
@@ -25,7 +27,7 @@ public:
 	using element_type		= _Element_;
 	using register_policy	= _RegisterPolicy_;
 
-	using native_type		= __simd_native_compare_return_type<simd<_SimdGeneration_, element_type, _RegisterPolicy_>, element_type, _Comparison_>;
+	using native_type		= std::conditional_t<std::is_integral_v<__native_type>, simd_mask<_SimdGeneration_, element_type, _RegisterPolicy_>, __native_type>;
 
 	simd_compare_result(const native_type& __result) noexcept;
 
@@ -36,7 +38,9 @@ public:
 	simd_compare_result& operator=(simd_compare_result&&) noexcept = default;
 
 	template <class _Type_>
-	simd_stl_always_inline friend simd_compare_result operator& <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+	simd_stl_always_inline friend simd_compare_result operator& <>(simd_compare_result __compare_result, _Type_ __other) noexcept 
+		requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> || __is_simd_mask_v<_Type_>
+	{
 		return __compare_result._compare_result & __other;
 	}
 

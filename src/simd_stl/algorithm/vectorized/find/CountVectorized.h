@@ -7,7 +7,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_always_inline sizetype simd_stl_stdcall __count_scalar(
+simd_stl_always_inline sizetype __count_scalar(
     const void*     __first,
     const sizetype  __bytes,
     _Type_          __value) noexcept
@@ -27,7 +27,7 @@ simd_stl_always_inline sizetype simd_stl_stdcall __count_scalar(
 template <class _Simd_>
 struct __count_vectorized_internal {
     template <class _CachePrefetcher_>
-    simd_stl_always_inline sizetype simd_stl_stdcall operator()(
+    simd_stl_always_inline sizetype operator()(
         sizetype                    __aligned_size,
         sizetype                    __tail_size,
         const void*                 __first,
@@ -36,8 +36,8 @@ struct __count_vectorized_internal {
     {
         const auto __guard = numeric::make_guard<_Simd_>();
 
-        constexpr auto __is_native_compare_return_number = std::is_integral_v<numeric::__native_compare_return_type<_Simd_, 
-            typename _Simd_::value_type, numeric::simd_comparison::equal>>;
+        constexpr auto __is_native_compare_return_number = numeric::__is_simd_mask_v<numeric::__native_compare_return_type<_Simd_,
+            typename _Simd_::value_type, numeric::simd_comparison::equal>> ;
 
         constexpr auto __is_safe_reducible = std::is_integral_v<typename _Simd_::value_type> && !__is_native_compare_return_number;
 
@@ -51,12 +51,11 @@ struct __count_vectorized_internal {
 
         do {
             const auto __loaded     = _Simd_::load(__first);
-            const auto __compared   = __comparand.native_compare<numeric::simd_comparison::equal>(__loaded);
 
             if constexpr (__is_safe_reducible)
-                __count += (__zeros - __compared).reduce_add();
+                __count += (__zeros - (__comparand == __loaded)).reduce_add();
             else
-                __count += typename _Simd_::mask_type(__compared).count_set();
+                __count += ((__comparand == __loaded) | numeric::as_index_mask).count_set();
 
             __advance_bytes(__first, sizeof(_Simd_));
             __aligned_size -= sizeof(_Simd_);
@@ -67,7 +66,7 @@ struct __count_vectorized_internal {
                 const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
                 const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-                const auto __mask = typename _Simd_::mask_type(__comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask);
+                const auto __mask = ((__comparand == __loaded) & __tail_mask) | numeric::as_index_mask;
                 __count += __mask.count_set();
             }
 
@@ -86,7 +85,7 @@ simd_stl_declare_const_function sizetype simd_stl_stdcall __count_vectorized(
     _Type_          __value) noexcept
 {
     const auto __fallback_args  = std::forward_as_tuple(__first, __bytes, __value);
-    const auto __simd_args      = std::forward_as_tuple(__first, __value, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>());
+    const auto __simd_args      = std::forward_as_tuple(__first, __value);
 
     return numeric::__simd_sized_dispatcher<__count_vectorized_internal>::__apply<_Type_>(
         __bytes, &__count_scalar<_Type_>, std::move(__simd_args), std::move(__fallback_args));

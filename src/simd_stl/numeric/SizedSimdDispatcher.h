@@ -103,6 +103,13 @@ public:
 //            return __invoke_simd<_Function_<simd128_sse2<_Type_>>>(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) -
 //                sizeof(typename simd128_sse2<_Type_>::value_type)), std::move(__simd_args));
 //        }
+
+        const auto __aligned_size_64 = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1));
+
+        if (__aligned_size_64 != 0) {
+            return __invoke_simd<_Function_<simd512_avx512bwdq<_Type_>>>(__aligned_size_64, __size & (sizeof(simd512_avx512bwdq<_Type_>) -
+                sizeof(typename simd512_avx512bwdq<_Type_>::value_type)), std::move(__simd_args));
+        }
         
         return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
     }

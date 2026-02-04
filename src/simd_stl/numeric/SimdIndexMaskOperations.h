@@ -10,8 +10,6 @@ template <class _Derived_>
 struct __simd_index_mask_operations:
 	public __simd_mask_common_operations<_Derived_>
 {
-	// static_assert(__is_simd_index_mask_v<_Derived_>, "Incompatible derived type. ");
-
     using __self = std::remove_cvref_t<_Derived_>;
 	using __base = __simd_mask_common_operations<_Derived_>;
 
