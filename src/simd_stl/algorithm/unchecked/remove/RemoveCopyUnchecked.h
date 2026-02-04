@@ -6,7 +6,7 @@
 #include <src/simd_stl/algorithm/AlgorithmDebug.h>
 #include <src/simd_stl/type_traits/SimdAlgorithmSafety.h>
 
-#include <src/simd_stl/numeric/IsComparable.h>
+#include <src/simd_stl/datapar/IsComparable.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN

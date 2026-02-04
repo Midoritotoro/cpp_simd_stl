@@ -132,51 +132,51 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
-    src/simd_stl/numeric/SimdBroadcast.h
-    src/simd_stl/numeric/ShuffleTables.h
-    src/simd_stl/numeric/SimdDivisors.h
-    src/simd_stl/numeric/SimdArithmetic.h
-    src/simd_stl/numeric/IntrinBitcast.h
-    src/simd_stl/numeric/SimdConvert.h
-    src/simd_stl/numeric/SimdCompare.h
-    src/simd_stl/numeric/SimdElementAccess.h
-    src/simd_stl/numeric/SimdElementWise.h
-    src/simd_stl/numeric/SimdIntegralTypesCheck.h
-    src/simd_stl/numeric/SimdMemoryAccess.h
+    src/simd_stl/datapar/SimdBroadcast.h
+    src/simd_stl/datapar/ShuffleTables.h
+    src/simd_stl/datapar/SimdDivisors.h
+    src/simd_stl/datapar/SimdArithmetic.h
+    src/simd_stl/datapar/IntrinBitcast.h
+    src/simd_stl/datapar/SimdConvert.h
+    src/simd_stl/datapar/SimdCompare.h
+    src/simd_stl/datapar/SimdElementAccess.h
+    src/simd_stl/datapar/SimdElementWise.h
+    src/simd_stl/datapar/SimdIntegralTypesCheck.h
+    src/simd_stl/datapar/SimdMemoryAccess.h
 
-    src/simd_stl/numeric/SimdBroadcast.inl
-    src/simd_stl/numeric/SimdArithmetic.inl
-    src/simd_stl/numeric/SimdConvert.inl
-    src/simd_stl/numeric/SimdCompare.inl
-    src/simd_stl/numeric/SimdElementAccess.inl
-    src/simd_stl/numeric/SimdElementWise.inl
-    src/simd_stl/numeric/SimdMemoryAccess.inl
-    src/simd_stl/numeric/SimdIndexMask.inl
-    src/simd_stl/numeric/SimdComparison.h
-    src/simd_stl/numeric/SimdCompareResult.inl
-    src/simd_stl/numeric/SimdCompareAdapters.h
-    src/simd_stl/numeric/SimdCompareAdapters.inl
-    src/simd_stl/numeric/SimdMaskCommonOperations.h
-    src/simd_stl/numeric/SimdMaskCommonOperations.inl
-    src/simd_stl/numeric/SimdElementMaskOperations.h
-    src/simd_stl/numeric/SimdIndexMaskOperations.h
-    src/simd_stl/numeric/SimdElementMaskOperations.inl
-    src/simd_stl/numeric/SimdIndexMaskOperations.inl
-    src/simd_stl/numeric/MaskTypeSelector.h
-    src/simd_stl/numeric/SimdMaskTypeCheck.h
+    src/simd_stl/datapar/SimdBroadcast.inl
+    src/simd_stl/datapar/SimdArithmetic.inl
+    src/simd_stl/datapar/SimdConvert.inl
+    src/simd_stl/datapar/SimdCompare.inl
+    src/simd_stl/datapar/SimdElementAccess.inl
+    src/simd_stl/datapar/SimdElementWise.inl
+    src/simd_stl/datapar/SimdMemoryAccess.inl
+    src/simd_stl/datapar/SimdIndexMask.inl
+    src/simd_stl/datapar/SimdComparison.h
+    src/simd_stl/datapar/SimdCompareResult.inl
+    src/simd_stl/datapar/SimdCompareAdapters.h
+    src/simd_stl/datapar/SimdCompareAdapters.inl
+    src/simd_stl/datapar/SimdMaskCommonOperations.h
+    src/simd_stl/datapar/SimdMaskCommonOperations.inl
+    src/simd_stl/datapar/SimdElementMaskOperations.h
+    src/simd_stl/datapar/SimdIndexMaskOperations.h
+    src/simd_stl/datapar/SimdElementMaskOperations.inl
+    src/simd_stl/datapar/SimdIndexMaskOperations.inl
+    src/simd_stl/datapar/MaskTypeSelector.h
+    src/simd_stl/datapar/SimdMaskTypeCheck.h
 
 
-    src/simd_stl/numeric/SimdOperations.h
-    src/simd_stl/numeric/ZmmThreshold.h
-    src/simd_stl/numeric/CachePrefetcher.h
-    src/simd_stl/numeric/MaskExpand.h
+    src/simd_stl/datapar/SimdOperations.h
+    src/simd_stl/datapar/ZmmThreshold.h
+    src/simd_stl/datapar/CachePrefetcher.h
+    src/simd_stl/datapar/MaskExpand.h
 
-    src/simd_stl/numeric/BasicSimd.inl
-    src/simd_stl/numeric/SimdCast.inl
-    src/simd_stl/numeric/BasicSimdElementReference.inl
-    src/simd_stl/numeric/IsComparable.h
-    src/simd_stl/numeric/SimdDispatcher.h
-    src/simd_stl/numeric/SizedSimdDispatcher.h
+    src/simd_stl/datapar/BasicSimd.inl
+    src/simd_stl/datapar/SimdCast.inl
+    src/simd_stl/datapar/BasicSimdElementReference.inl
+    src/simd_stl/datapar/IsComparable.h
+    src/simd_stl/datapar/SimdDispatcher.h
+    src/simd_stl/datapar/SizedSimdDispatcher.h
     src/simd_stl/concurrency/WindowsThread.h
     src/simd_stl/concurrency/ThreadYield.h
     src/simd_stl/concurrency/WindowsThreadPool.h
@@ -289,14 +289,15 @@ set(PUBLIC_HEADERS
     include/simd_stl/memory/PointerToIntegral.h
     include/simd_stl/memory/Alignment.h
 
-    include/simd_stl/numeric/Simd.h
-    include/simd_stl/numeric/BasicSimd.h
-    include/simd_stl/numeric/BasicSimdElementReference.h
-    include/simd_stl/numeric/BasicSimdMask.h
-    include/simd_stl/numeric/BasicSimdShuffleMask.h
-    include/simd_stl/numeric/SimdCast.h
-    include/simd_stl/numeric/SimdIndexMask.h
-    include/simd_stl/numeric/SimdCompareResult.h
+    include/simd_stl/datapar/Simd.h
+    include/simd_stl/datapar/BasicSimd.h
+    include/simd_stl/datapar/BasicSimdElementReference.h
+    include/simd_stl/datapar/BasicSimdMask.h
+    include/simd_stl/datapar/BasicSimdShuffleMask.h
+    include/simd_stl/datapar/SimdCast.h
+    include/simd_stl/datapar/SimdIndexMask.h
+    include/simd_stl/datapar/SimdCompareResult.h
+    include/simd_stl/datapar/SimdDataparAlgorithms.h
 )
 
 include(CMakePackageConfigHelpers)

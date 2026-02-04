@@ -6,7 +6,7 @@
 #include <src/simd_stl/algorithm/vectorized/find/FindLastVectorized.h>
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 
-#include <src/simd_stl/numeric/IsComparable.h>
+#include <src/simd_stl/datapar/IsComparable.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN

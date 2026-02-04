@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/simd_stl/numeric/SizedSimdDispatcher.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -27,7 +27,7 @@ struct __swap_ranges_vectorized_internal {
 		typename _Simd_::value_type*		__first,
 		typename _Simd_::value_type*		__second) noexcept
 	{
-		numeric::zero_upper_at_exit_guard<_Simd_::__generation> _Guard;
+		datapar::zero_upper_at_exit_guard<_Simd_::__generation> _Guard;
 
 		auto __stop_at = __first;
 		__advance_bytes(__stop_at, __aligned_size);
@@ -55,7 +55,7 @@ void __swap_ranges_vectorized(
 	_Type_*		__second,
 	sizetype	__count) noexcept
 {
-	numeric::__simd_sized_dispatcher<__swap_ranges_vectorized_internal>::__apply<_Type_>(
+	datapar::__simd_sized_dispatcher<__swap_ranges_vectorized_internal>::__apply<_Type_>(
 		__count * sizeof(_Type_), &__swap_ranges_scalar<_Type_>,
 		std::make_tuple(__first, __second), std::make_tuple(__first, __second, __count));
 }

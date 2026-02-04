@@ -1,5 +1,4 @@
-﻿#include <simd_stl/numeric/Simd.h>
-
+﻿#include <simd_stl/datapar/SimdDataparAlgorithms.h>
 #include <simd_stl/math/Math.h>
 
 #include <string>
@@ -26,7 +25,7 @@ void mask_compress_any(
 
 template <typename T, simd_stl::arch::CpuFeature Arch, typename _RegisterPolicy_>
 void testMethods() {
-    using Simd = simd_stl::numeric::simd<Arch, T, _RegisterPolicy_>;
+    using Simd = simd_stl::datapar::simd<Arch, T, _RegisterPolicy_>;
     constexpr size_t N = Simd::size();
 
     {
@@ -68,26 +67,26 @@ void testMethods() {
     }
 
     {
-        using simd_stl::numeric::simd_cast;
+        using simd_stl::datapar::simd_cast;
         Simd v(11);
-        auto vOther = simd_cast<simd_stl::numeric::simd128_sse2<float>>(v);
+        auto vOther = simd_cast<simd_stl::datapar::simd128_sse2<float>>(v);
         auto vOther2 = simd_cast<simd_stl::arch::CpuFeature::SSE2, float>(v);
         auto vOther3 = simd_cast<simd_stl::arch::CpuFeature::SSE2>(v);
         auto vOther4 = simd_cast<__m128i>(v);
         auto vOther5 = simd_cast<int>(v);
 
         static_assert(std::is_same_v<decltype(vOther), decltype(vOther2)>);
-        static_assert(std::is_same_v<decltype(vOther2), simd_stl::numeric::simd128_sse2<float>>);
-        static_assert(std::is_same_v<decltype(vOther3), simd_stl::numeric::simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, simd_stl::numeric::xmm128>>);
+        static_assert(std::is_same_v<decltype(vOther2), simd_stl::datapar::simd128_sse2<float>>);
+        static_assert(std::is_same_v<decltype(vOther3), simd_stl::datapar::simd<simd_stl::arch::CpuFeature::SSE2, typename Simd::value_type, simd_stl::datapar::xmm128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
-        static_assert(std::is_same_v<decltype(vOther5), simd_stl::numeric::simd<Simd::__generation, int, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther5), simd_stl::datapar::simd<Simd::__generation, int, typename Simd::policy_type>>);
     }
 
     {
         alignas(16) simd_stl::int32 arr[4] = { 10,20,30,40 };
-        Simd v = Simd::load(arr, simd_stl::numeric::aligned_policy{});
+        Simd v = Simd::load(arr, simd_stl::datapar::aligned_policy{});
         simd_stl::int32 out[4] = {};
-        v.store(out, simd_stl::numeric::aligned_policy{});
+        v.store(out, simd_stl::datapar::aligned_policy{});
         for (int i = 0; i < 4; ++i) simd_stl_assert(out[i] == arr[i]);
 
         Simd v2 = Simd::load(arr);
@@ -122,7 +121,7 @@ void testMethods() {
                 simd_stl_assert(loaded_unaligned.extract<T>(i) == T(0));
         }
 
-        Simd loaded_aligned = Simd::mask_load(src, mask, simd_stl::numeric::aligned_policy{});
+        Simd loaded_aligned = Simd::mask_load(src, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(loaded_aligned.extract<T>(i) == src[i]);
@@ -140,7 +139,7 @@ void testMethods() {
         }
 
         for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i);
-        v.mask_store(dst, mask, simd_stl::numeric::aligned_policy{});
+        v.mask_store(dst, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if (mask & (typename Simd::mask_type(1) << i))
                 simd_stl_assert(dst[i] == T(77));
@@ -172,7 +171,7 @@ void testMethods() {
 
         {
             alignas(64) T dst[N] = {};
-            v.compress_store(dst, mask, simd_stl::numeric::aligned_policy{});
+            v.compress_store(dst, mask, simd_stl::datapar::aligned_policy{});
 
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
@@ -195,7 +194,7 @@ void testMethods() {
         {
             for (mask = 0; mask != N; ++mask) {
                 alignas(64) T dst[N] = {};
-                v.compress_store(dst, mask, simd_stl::numeric::aligned_policy{});
+                v.compress_store(dst, mask, simd_stl::datapar::aligned_policy{});
 
                 alignas(64) T expected[N];
                 mask_compress_any<Simd>(src, src, expected, mask);
@@ -220,25 +219,25 @@ void testMethods() {
         simd_stl_assert(a == b);
         simd_stl_assert(a != c);
 
-        auto mEq = simd_stl::numeric::as_mask | (a == b);
+        auto mEq = simd_stl::datapar::as_mask | (a == b);
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mEq[i] == true);
         }
 
-        auto mNeq = (a != c) | simd_stl::numeric::as_mask;
+        auto mNeq = (a != c) | simd_stl::datapar::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mGt = (c > a) | simd_stl::numeric::as_mask;
-        auto mLt = (a < c) | simd_stl::numeric::as_mask;
+        auto mGt = (c > a) | simd_stl::datapar::as_mask;
+        auto mLt = (a < c) | simd_stl::datapar::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mGt[i] == true);
             simd_stl_assert(mLt[i] == true);
         }
 
-        auto mGe = (a >= b) | simd_stl::numeric::as_mask;
-        auto mLe = (a <= b) | simd_stl::numeric::as_mask;
+        auto mGe = (a >= b) | simd_stl::datapar::as_mask;
+        auto mLe = (a <= b) | simd_stl::datapar::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mGe[i] == true);
             simd_stl_assert(mLe[i] == true);
@@ -257,17 +256,17 @@ void testMethods() {
 
         simd_stl_assert(v0 != vmax);
 
-        auto mEq = (v0 == v0) | simd_stl::numeric::as_mask;
-        auto mNeq = (v0 != vmax) | simd_stl::numeric::as_mask;
+        auto mEq = (v0 == v0) | simd_stl::datapar::as_mask;
+        auto mNeq = (v0 != vmax) | simd_stl::datapar::as_mask;
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mEq[i] == true);
             simd_stl_assert(mNeq[i] == true);
         }
 
-        auto mLt = (v0 < vmax) | simd_stl::numeric::as_mask;
-        auto mGt = (vmax > v0) | simd_stl::numeric::as_mask;
-        auto mLe = (v0 <= v0) | simd_stl::numeric::as_mask;
-        auto mGe = (vmax >= vmax) | simd_stl::numeric::as_mask;
+        auto mLt = (v0 < vmax) | simd_stl::datapar::as_mask;
+        auto mGt = (vmax > v0) | simd_stl::datapar::as_mask;
+        auto mLe = (v0 <= v0) | simd_stl::datapar::as_mask;
+        auto mGe = (vmax >= vmax) | simd_stl::datapar::as_mask;
 
         for (size_t i = 0; i < N; ++i) {
             simd_stl_assert(mLt[i] == true);
@@ -287,12 +286,12 @@ void testMethods() {
             Simd vA = Simd::load(arrA);
             Simd vB = Simd::load(arrB);
 
-            auto mEq = (vA == vA) | simd_stl::numeric::as_mask;
-            auto mNeq = (vA != vB) | simd_stl::numeric::as_mask;
-            auto mLt = (vA < vB) | simd_stl::numeric::as_mask;
-            auto mGt = (vB > vA) | simd_stl::numeric::as_mask;
-            auto mLe = (vA <= vA) | simd_stl::numeric::as_mask;
-            auto mGe = (vB >= vB) | simd_stl::numeric::as_mask;
+            auto mEq = (vA == vA) | simd_stl::datapar::as_mask;
+            auto mNeq = (vA != vB) | simd_stl::datapar::as_mask;
+            auto mLt = (vA < vB) | simd_stl::datapar::as_mask;
+            auto mGt = (vB > vA) | simd_stl::datapar::as_mask;
+            auto mLe = (vA <= vA) | simd_stl::datapar::as_mask;
+            auto mGe = (vB >= vB) | simd_stl::datapar::as_mask;
 
             for (size_t i = 0; i < N; ++i) {
                 simd_stl_assert(mEq[i] == true);
@@ -306,7 +305,7 @@ void testMethods() {
     }
   
     {
-        simd_stl::numeric::__reduce_type<T> reduced = 0;
+        simd_stl::datapar::__reduce_type<T> reduced = 0;
 
         alignas(64) T array[N] = {};
         for (auto i = 0; i < N; ++i) {
@@ -318,7 +317,7 @@ void testMethods() {
         }
 
         Simd a = Simd::load(array);
-        auto simdReduced = a.reduce_add();
+        auto simdReduced = simd_stl::datapar::reduce(a);
 
         simd_stl_assert(simdReduced == reduced);
     }
@@ -392,8 +391,8 @@ void testMethods() {
         Simd v1(10);
         Simd v2(10);
 
-        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
-        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+        auto mask = (v1 == v2) | simd_stl::datapar::as_mask;
+        auto index_mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
 
         simd_stl_assert(index_mask.any_of());
         simd_stl_assert(index_mask.all_of());
@@ -404,6 +403,9 @@ void testMethods() {
         const auto b = mask.count_set();
 
         simd_stl_assert(index_mask.count_set() == mask.count_set());
+        simd_stl_assert(mask.count_set() == simd_stl::datapar::reduce(mask));
+        simd_stl_assert(index_mask.count_set() == simd_stl::datapar::reduce(index_mask));
+
         simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
 //        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
@@ -412,12 +414,12 @@ void testMethods() {
         Simd v1(10);
         Simd v2(20);
 
-        auto index_mask = simd_stl::numeric::as_index_mask | (v1 == v2);
+        auto index_mask = simd_stl::datapar::as_index_mask | (v1 == v2);
 
         simd_stl_assert(!index_mask.any_of());
         simd_stl_assert(!index_mask.all_of());
         simd_stl_assert(index_mask.none_of());
-        simd_stl_assert(index_mask.count_set() == 0);
+        simd_stl_assert(index_mask.count_set() == 0 && simd_stl::datapar::reduce(index_mask) == 0);
     }
 
     for (size_t i = 0; i < N; ++i) {
@@ -427,13 +429,16 @@ void testMethods() {
         v1.insert<T>(i, 42);
         v2.insert<T>(i, 42);
 
-        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
-        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
+        auto index_mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
+        auto mask = (v1 == v2) | simd_stl::datapar::as_mask;
 
         simd_stl_assert(index_mask.any_of());
         simd_stl_assert(index_mask.all_of());
 
         simd_stl_assert(index_mask.count_set() == mask.count_set());
+        simd_stl_assert(mask.count_set() == simd_stl::datapar::reduce(mask));
+        simd_stl_assert(index_mask.count_set() == simd_stl::datapar::reduce(index_mask));
+
         simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
    //     simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
@@ -446,8 +451,8 @@ void testMethods() {
         v1.insert<T>(1, 1); v2.insert<T>(1, 1);
         v1.insert<T>(N - 1, 1); v2.insert<T>(N - 1, 1);
 
-        auto index_mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
-        auto mask = (v1 == v2) | simd_stl::numeric::as_mask;
+        auto index_mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
+        auto mask = (v1 == v2) | simd_stl::datapar::as_mask;
 
         simd_stl_assert(index_mask.count_set() == mask.count_set());
     }
@@ -463,7 +468,7 @@ void testMethods() {
             Simd v1(val1);
             Simd v2(val2);
 
-            auto mask = (v1 == v2) | simd_stl::numeric::as_index_mask;
+            auto mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
 
             simd_stl_assert(mask.none_of());
         }
@@ -489,32 +494,32 @@ void testMethods() {
 }
 
 int main() {
-    testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::datapar::xmm128>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::xmm128>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::numeric::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::numeric::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::numeric::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::numeric::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::datapar::zmm512>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::xmm128>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::numeric::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::numeric::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::numeric::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::numeric::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::ymm256>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI, simd_stl::numeric::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2, simd_stl::numeric::zmm512>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI, simd_stl::datapar::zmm512>();
+    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2, simd_stl::datapar::zmm512>();
 
     return 0;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/simd_stl/numeric/SizedSimdDispatcher.h>
-#include <src/simd_stl/numeric/CachePrefetcher.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <src/simd_stl/datapar/CachePrefetcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -33,7 +33,7 @@ struct __mismatch_vectorized_internal {
         const sizetype      __length,
         _CachePrefetcher_&& __prefetcher) noexcept
     {
-        const auto __guard = numeric::make_guard<_Simd_>();
+        const auto __guard = datapar::make_guard<_Simd_>();
         auto __cached_first = static_cast<const typename _Simd_::value_type*>(__first);
 
         do {
@@ -43,7 +43,7 @@ struct __mismatch_vectorized_internal {
             const auto __loaded_first   = _Simd_::load(__first);
             const auto __loaded_second  = _Simd_::load(__second);
 
-            const auto __mask = __loaded_first.mask_compare<numeric::simd_comparison::equal>(__loaded_second);
+            const auto __mask = __loaded_first.mask_compare<datapar::simd_comparison::equal>(__loaded_second);
 
             if (__mask.all_of() == false)
                 return (static_cast<const typename _Simd_::value_type*>(__first) - __cached_first) + __mask.count_trailing_one_bits();
@@ -63,7 +63,7 @@ struct __mismatch_vectorized_internal {
             const auto __loaded_first   = _Simd_::mask_load(__first, __tail_mask);
             const auto __loaded_second  = _Simd_::mask_load(__second, __tail_mask);
 
-            const auto __combined_native_mask = __loaded_first.native_compare<numeric::simd_comparison::equal>(__loaded_second) & __tail_mask;
+            const auto __combined_native_mask = __loaded_first.native_compare<datapar::simd_comparison::equal>(__loaded_second) & __tail_mask;
             const auto __simd_mask = typename _Simd_::mask_type(__combined_native_mask);
 
             const auto __tail_length    = (__tail_size / sizeof(typename _Simd_::value_type));
@@ -90,9 +90,9 @@ simd_stl_always_inline simd_stl_declare_const_function sizetype simd_stl_stdcall
     const auto __bytes = __length * sizeof(_Type_);
 
     const auto __fallback_args  = std::forward_as_tuple(__first, __second, __length);
-    const auto __simd_args      = std::forward_as_tuple(__first, __second, __length, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>());
+    const auto __simd_args      = std::forward_as_tuple(__first, __second, __length, datapar::__cache_prefetcher<datapar::__prefetch_hint::NTA>());
 
-    return numeric::__simd_sized_dispatcher<__mismatch_vectorized_internal>::__apply<_Type_>(
+    return datapar::__simd_sized_dispatcher<__mismatch_vectorized_internal>::__apply<_Type_>(
         __bytes, &__mismatch_scalar<_Type_>, std::move(__simd_args), std::move(__fallback_args));
 }
 

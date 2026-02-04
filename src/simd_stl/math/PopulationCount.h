@@ -11,6 +11,7 @@
 
 #include <include/simd_stl/math/IntegralTypesConversions.h>
 
+simd_stl_disable_warning_msvc(4293)
 
 __SIMD_STL_MATH_NAMESPACE_BEGIN
 

@@ -13,7 +13,7 @@
 #include <simd_stl/math/BitMath.h>
 #include <simd_stl/compatibility/Inline.h>
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/datapar/BasicSimd.h>
 #include <simd_stl/algorithm/find/FindLast.h>
 
 
@@ -65,7 +65,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
     const void*     secondPointer,
     const sizetype  secondRangeLength) noexcept
 {
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
+    using _SimdType_ = datapar::simd<_SimdGeneration_, _Type_>;
     return std::find_end(static_cast<const _Type_*>(firstPointer), static_cast<const _Type_*>(firstPointer) + firstRangeLength,
         static_cast<const _Type_*>(secondPointer), static_cast<const _Type_*>(secondPointer) + secondRangeLength);
 }
@@ -81,8 +81,8 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
     const void*     secondPointer,
     _MemCmpLike_    memcmpLike) noexcept
 {
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+    using _SimdType_ = datapar::simd<_SimdGeneration_, _Type_>;
+    datapar::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     if constexpr ((_NeedleLength_ * sizeof(_Type_)) > sizeof(_SimdType_))
         return FindEndScalar<_Type_>(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/simd_stl/numeric/SimdDispatcher.h>
+#include <src/simd_stl/datapar/SimdDispatcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -27,7 +27,7 @@ struct __reverse_copy_vectorized_internal {
         const void* __last,
         void*       __destination) noexcept
     {
-        const auto __guard = numeric::make_guard<_Simd_>();
+        const auto __guard = datapar::make_guard<_Simd_>();
         const auto __aligned_size = __byte_length(__first, __last) & (~((sizeof(_Simd_)) - 1));
 
         if (__aligned_size != 0) {
@@ -55,7 +55,7 @@ void simd_stl_stdcall __reverse_copy_vectorized(
     const void* __last,
     void*       __destination) noexcept
 {
-    return numeric::__simd_dispatcher<__reverse_copy_vectorized_internal>::__apply<_Type_>(
+    return datapar::__simd_dispatcher<__reverse_copy_vectorized_internal>::__apply<_Type_>(
         &__reverse_copy_scalar<_Type_>, __first, __last, __destination);
 }
 

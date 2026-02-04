@@ -9,7 +9,7 @@
 #include <src/simd_stl/algorithm/MsvcIteratorUnwrap.h>
 #include <simd_stl/concurrency/Execution.h>
 
-#include <src/simd_stl/numeric/IsComparable.h>
+#include <src/simd_stl/datapar/IsComparable.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -51,7 +51,7 @@ simd_stl_nodiscard simd_stl_constexpr_cxx20 simd_stl_always_inline _FirstForward
 			const auto __value = *__first2_unwrapped;
 			using _ValueType = type_traits::iterator_value_type<_SecondForwardUnwrappedIterator_>;
 
-			if (numeric::__is_comparable<_FirstForwardUnwrappedIterator_>(__value) == false)
+			if (datapar::__is_comparable<_FirstForwardUnwrappedIterator_>(__value) == false)
 				return __last1;
 
 			const auto __first1_address = std::to_address(__first1_unwrapped);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/simd_stl/numeric/SizedSimdDispatcher.h>
-#include <src/simd_stl/numeric/CachePrefetcher.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <src/simd_stl/datapar/CachePrefetcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -38,7 +38,7 @@ struct __remove_vectorized_internal {
         typename _Simd_::value_type __value,
         _CachePrefetcher_&&         __prefetcher) noexcept
     {
-        const auto __guard = numeric::make_guard<_Simd_>();
+        const auto __guard = datapar::make_guard<_Simd_>();
         auto __current = __first;
 
         const auto __comparand = _Simd_(__value);
@@ -50,7 +50,7 @@ struct __remove_vectorized_internal {
             __prefetcher(static_cast<const char*>(__current) + sizeof(_Simd_));
             
             const auto __loaded = _Simd_::load(__current);
-            const auto __mask = __comparand.mask_compare<numeric::simd_comparison::equal>(__loaded);
+            const auto __mask = __comparand.mask_compare<datapar::simd_comparison::equal>(__loaded);
 
             __first = __loaded.compress_store(__first, __mask);
             __advance_bytes(__current, sizeof(_Simd_));
@@ -68,9 +68,9 @@ simd_stl_declare_const_function _Type_* simd_stl_stdcall __remove_vectorized(
     const void* __last,
     _Type_      __value) noexcept
 {
-    return numeric::__simd_sized_dispatcher<__remove_vectorized_internal>::__apply<_Type_>(
+    return datapar::__simd_sized_dispatcher<__remove_vectorized_internal>::__apply<_Type_>(
         __byte_length(__first, __last), &__remove_scalar<_Type_>,
-        std::make_tuple(__first, __last, __value, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>{}),
+        std::make_tuple(__first, __last, __value, datapar::__cache_prefetcher<datapar::__prefetch_hint::NTA>{}),
         std::make_tuple(__first, __first, __last, __value));
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/simd_stl/numeric/SizedSimdDispatcher.h>
-#include <src/simd_stl/numeric/CachePrefetcher.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <src/simd_stl/datapar/CachePrefetcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -31,7 +31,7 @@ struct __find_last_vectorized_internal {
         typename _Simd_::value_type     __value,
         _CachePrefetcher_&&             __prefetcher) const noexcept
     {
-        const auto __guard = numeric::make_guard<_Simd_>();
+        const auto __guard = datapar::make_guard<_Simd_>();
 
         const void* __cached_last = __last;
         const auto __comparand = _Simd_(__value);
@@ -43,7 +43,7 @@ struct __find_last_vectorized_internal {
             __prefetcher(__bytes_pointer_offset(__last, -sizeof(_Simd_)));
 
             const auto __loaded  = _Simd_::load(__last);
-            const auto __mask    = __comparand.mask_compare<numeric::simd_comparison::equal>(__loaded);
+            const auto __mask    = __comparand.mask_compare<datapar::simd_comparison::equal>(__loaded);
 
             if (__mask.any_of())
                 return static_cast<const typename _Simd_::value_type*>(__last) + __mask.count_trailing_zero_bits();
@@ -58,7 +58,7 @@ struct __find_last_vectorized_internal {
             const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
             const auto __loaded     = _Simd_::mask_load(__last, __tail_mask);
 
-            const auto __mask = typename _Simd_::mask_type(__comparand.native_compare<numeric::simd_comparison::equal>(__loaded) & __tail_mask);
+            const auto __mask = typename _Simd_::mask_type(__comparand.native_compare<datapar::simd_comparison::equal>(__loaded) & __tail_mask);
 
             if (__mask.any_of())
                 return static_cast<const typename _Simd_::value_type*>(__last) + __mask.count_trailing_zero_bits() + 1;
@@ -79,9 +79,9 @@ simd_stl_declare_const_function _Type_* simd_stl_stdcall __find_last_vectorized(
     _Type_      __value) noexcept
 {
     const auto __fallback_args  = std::forward_as_tuple(__first, __last, __value);
-    const auto __simd_args      = std::forward_as_tuple(__first, __last, __value, numeric::__cache_prefetcher<numeric::__prefetch_hint::NTA>());
+    const auto __simd_args      = std::forward_as_tuple(__first, __last, __value, datapar::__cache_prefetcher<datapar::__prefetch_hint::NTA>());
 
-    return const_cast<_Type_*>(numeric::__simd_sized_dispatcher<__find_last_vectorized_internal>::__apply<_Type_>(
+    return const_cast<_Type_*>(datapar::__simd_sized_dispatcher<__find_last_vectorized_internal>::__apply<_Type_>(
         __byte_length(__first, __last), &__find_last_scalar<_Type_>, std::move(__simd_args), std::move(__fallback_args)));
 }
 __SIMD_STL_ALGORITHM_NAMESPACE_END

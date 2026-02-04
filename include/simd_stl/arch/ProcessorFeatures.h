@@ -89,12 +89,13 @@ ProcessorFeatures::ProcessorFeaturesInternal::ProcessorFeaturesInternal() noexce
         cpuidex(registers.data(), 1, 0); // 0 - eax, 1 - ebx, 2 - ecx, 3 - edx
 
         const auto leaf1Ecx = registers[2];
-        const auto leaf1Edx = registers[3];
         
 #if defined(simd_stl_processor_x86_64)
         _sse    = true;
         _sse2   = true;
 #else
+        const auto leaf1Edx = registers[3];
+
         _sse    = (leaf1Edx >> 25) & 1;
         _sse2   = (leaf1Edx >> 26) & 1;
 #endif

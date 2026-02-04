@@ -6,7 +6,7 @@
 #include <src/simd_stl/type_traits/IntegralProperties.h>
 #include <src/simd_stl/type_traits/TypeCheck.h>
 
-#include <src/simd_stl/numeric/SimdIntegralTypesCheck.h>
+#include <src/simd_stl/datapar/SimdIntegralTypesCheck.h>
 
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
@@ -30,7 +30,7 @@ constexpr inline bool __is_vector_type_supported_v<bool> = false;
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _VectorElementType_,
-    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 struct __deduce_simd_vector_type__ {
 private:
     using _Type_ = std::decay_t<_VectorElementType_>;
@@ -44,7 +44,7 @@ private:
 public:
     using type =
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, numeric::zmm512>,
+            std::is_same_v<_RegisterPolicy_, datapar::zmm512>,
                 std::conditional_t<
                     __is_fp64, __m512d,
                     std::conditional_t<
@@ -53,7 +53,7 @@ public:
                             __use_i,   __m512i,
                                      void>>>,
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, numeric::ymm256>,
+            std::is_same_v<_RegisterPolicy_, datapar::ymm256>,
                 std::conditional_t<
                     __is_fp64, __m256d,
                     std::conditional_t<
@@ -62,7 +62,7 @@ public:
                             __use_i,   __m256i,
                                      void>>>,
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, numeric::xmm128>,
+            std::is_same_v<_RegisterPolicy_, datapar::xmm128>,
                 std::conditional_t<
                     __is_fp64, __m128d,
                     std::conditional_t<
@@ -76,7 +76,7 @@ public:
 template <
     arch::CpuFeature    _SimdGeneration_,
     typename            _VectorElementType_,
-    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_vector_type =
     typename __deduce_simd_vector_type__<_SimdGeneration_, _VectorElementType_, _RegisterPolicy_>::type;
 
@@ -96,13 +96,13 @@ using __deduce_simd_mask_type_helper = std::conditional_t<size <= 8, uint8,
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_RegisterPolicy_::__width / sizeof(_Element_))>;
 
 template <
 	arch::CpuFeature	_SimdGeneration_,
 	typename			_Element_,
-    class               _RegisterPolicy_ = numeric::__default_register_policy<_SimdGeneration_>>
+    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
 
 template <arch::CpuFeature _SimdGeneration_> 

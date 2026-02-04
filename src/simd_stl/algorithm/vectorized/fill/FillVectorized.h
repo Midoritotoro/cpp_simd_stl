@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/datapar/BasicSimd.h>
 #include <simd_stl/memory/Alignment.h>
 
 #define __SIMD_STL_FILL_CACHE_SIZE_LIMIT 3*1024*1024
@@ -716,7 +716,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value));
+            _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value));
         }
 
         return _Destination;
@@ -731,7 +731,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(2, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(2, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -746,7 +746,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(4, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(4, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -761,7 +761,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(8, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(8, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -776,7 +776,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(16, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(16, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -791,7 +791,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(32, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(32, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -806,7 +806,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(64, _mm512_storeu_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(64, _mm512_storeu_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -866,7 +866,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            _mm512_store_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value));
+            _mm512_store_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value));
         }
 
         return _Destination;
@@ -881,7 +881,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(2, _mm512_store_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(2, _mm512_store_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -896,7 +896,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(4, _mm512_store_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(4, _mm512_store_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -911,7 +911,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(8, _mm512_store_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(8, _mm512_store_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         return _Destination;
@@ -981,7 +981,7 @@ public:
         __m128i* _Pointer = static_cast<__m128i*>(_Destination);
 
         while (_Length--) {
-            _mm_stream_si128(_Pointer++, numeric::_IntrinBitcast<__m128i>(_Value));
+            _mm_stream_si128(_Pointer++, datapar::_IntrinBitcast<__m128i>(_Value));
         }
 
         _mm_sfence();
@@ -998,7 +998,7 @@ public:
         __m256i* _Pointer = static_cast<__m256i*>(_Destination);
 
         while (_Length--) {
-            _mm256_stream_si256(_Pointer++, numeric::_IntrinBitcast<__m256i>(_Value));
+            _mm256_stream_si256(_Pointer++, datapar::_IntrinBitcast<__m256i>(_Value));
         }
 
         _mm_sfence();
@@ -1015,7 +1015,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value));
+            _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value));
         }
 
         _mm_sfence();
@@ -1032,7 +1032,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(2, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(2, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1049,7 +1049,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(4, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(4, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1066,7 +1066,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(8, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(8, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1083,7 +1083,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(16, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(16, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1100,7 +1100,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(32, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(32, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1117,7 +1117,7 @@ public:
         __m512i* _Pointer = static_cast<__m512i*>(_Destination);
 
         while (_Length--) {
-            __SIMD_STL_REPEAT_N(64, _mm512_stream_si512(_Pointer++, numeric::_IntrinBitcast<__m512i>(_Value)));
+            __SIMD_STL_REPEAT_N(64, _mm512_stream_si512(_Pointer++, datapar::_IntrinBitcast<__m512i>(_Value)));
         }
 
         _mm_sfence();
@@ -1252,9 +1252,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 __advance_bytes(_Destination, _Offset);
@@ -1350,9 +1350,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 __advance_bytes(_Destination, _Offset);
@@ -1361,9 +1361,9 @@ struct _MemsetZerosVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::A
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, datapar::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, datapar::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 __advance_bytes(_Destination, _Offset);
@@ -1480,7 +1480,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::SSE2> 
 
         __m128i _Broadcasted;
         if (_Bytes > 16)
-            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::SSE2, numeric::xmm128, __m128i>(_Value);
+            _Broadcasted = datapar::_SimdBroadcast<arch::CpuFeature::SSE2, datapar::xmm128, __m128i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1569,7 +1569,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
 
         __m256i _Broadcasted;
         if (_Bytes > 16)
-            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::AVX, numeric::ymm256, __m256i>(_Value);
+            _Broadcasted = datapar::_SimdBroadcast<arch::CpuFeature::AVX, datapar::ymm256, __m256i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1582,9 +1582,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX> {
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 __advance_bytes(_Destination, _Offset);
@@ -1669,7 +1669,7 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
 
         __m512i _Broadcasted;
         if (_Bytes > 16)
-            _Broadcasted = numeric::_SimdBroadcast<arch::CpuFeature::AVX512F, numeric::zmm512, __m512i>(_Value);
+            _Broadcasted = datapar::_SimdBroadcast<arch::CpuFeature::AVX512F, datapar::zmm512, __m512i>(_Value);
 
         while (_Bytes) {
             if (_Bytes < 16)
@@ -1682,9 +1682,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 32)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_MemsetAlignedStreaming<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
                 else
-                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, numeric::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
+                    _MemsetImplementation<__m128i>::_Memset<16>(_Destination, datapar::_IntrinBitcast<__m128i>(_Broadcasted), _Bytes >> 4);
 
                 _Offset = _Bytes & -16;
                 __advance_bytes(_Destination, _Offset);
@@ -1693,9 +1693,9 @@ struct _MemsetVectorizedChooser<_Aligned_, _Streaming_, arch::CpuFeature::AVX512
             else if (_Bytes < 64)
             {
                 if constexpr (_Streaming_ && _Aligned_)
-                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_MemsetAlignedStreaming<32>(_Destination, datapar::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
                 else
-                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, numeric::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
+                    _MemsetImplementation<__m256i>::_Memset<32>(_Destination, datapar::_IntrinBitcast<__m256i>(_Broadcasted), _Bytes >> 5);
 
                 _Offset = _Bytes & -32;
                 __advance_bytes(_Destination, _Offset);

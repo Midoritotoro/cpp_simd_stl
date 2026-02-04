@@ -4,6 +4,9 @@
 
 #include <src/simd_stl/type_traits/OperatorWrappers.h>
 
+simd_stl_disable_warning_msvc(4003)
+
+
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 

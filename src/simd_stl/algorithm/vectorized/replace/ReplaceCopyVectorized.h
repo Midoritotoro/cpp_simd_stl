@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/datapar/BasicSimd.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -31,8 +31,8 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
     const _Type_    _OldValue,
     const _Type_    _NewValue) noexcept
 {
-    using _SimdType_ = numeric::simd<_SimdGeneration_, _Type_>;
-    numeric::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+    using _SimdType_ = datapar::simd<_SimdGeneration_, _Type_>;
+    datapar::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
     constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
         _SimdType_::template is_native_mask_load_supported_v<>;
@@ -64,7 +64,7 @@ simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
             auto _Loaded            = _SimdType_::maskLoadUnaligned(_First, _TailMask);
 
             const auto _Mask                = _Loaded.nativeEqual(_Comparand);
-            const auto _MaskForNativeStore  = numeric::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
+            const auto _MaskForNativeStore  = datapar::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
                 typename _SimdType_::policy_type, _Type_>(_Mask);
 
             const auto _StoreMask   = _MaskForNativeStore & _TailMask;

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/datapar/BasicSimd.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -32,7 +32,7 @@ struct __replace_vectorized_internal {
         const typename _Simd_::value_type   __new_value,
         _CachePrefetcher_&&                 __prefetcher) noexcept
     {
-        const auto __guard = numeric::make_guard<_Simd_>();
+        const auto __guard = datapar::make_guard<_Simd_>();
 
         constexpr auto __is_masked_store_supported = _Simd_::template is_native_mask_store_supported_v<>;
         constexpr auto __is_masked_memory_access_supported = __is_masked_store_supported &&
@@ -48,7 +48,7 @@ struct __replace_vectorized_internal {
             __prefetcher(static_cast<const char*>(__first) + sizeof(_Simd_));
 
             const auto __loaded = _Simd_::load(__first);
-            const auto __mask   = __loaded.native_compare<numeric::simd_comparison::equal>(__comparand);
+            const auto __mask   = __loaded.native_compare<datapar::simd_comparison::equal>(__comparand);
 
             __replacement.mask_store(__first, __mask);
             __advance_bytes(__first, sizeof(_Simd_));
@@ -61,8 +61,8 @@ struct __replace_vectorized_internal {
             const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
             const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-            const auto __mask                   = __loaded.native_compare<numeric::simd_comparison::equal>(__comparand);
-            const auto __mask_for_native_store  = numeric::__simd_convert_to_mask_for_native_store<_Simd_::__generation,
+            const auto __mask                   = __loaded.native_compare<datapar::simd_comparison::equal>(__comparand);
+            const auto __mask_for_native_store  = datapar::__simd_convert_to_mask_for_native_store<_Simd_::__generation,
                 typename _Simd_::policy_type, typename _Simd_::value_type>(__mask);
 
             const auto __store_mask = __mask_for_native_store & __tail_mask;

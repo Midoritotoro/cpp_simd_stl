@@ -7,7 +7,7 @@
 #include <simd_stl/arch/ProcessorFeatures.h>
 
 #include <src/simd_stl/type_traits/SimdTypeCheck.h>
-#include <simd_stl/numeric/BasicSimd.h>
+#include <simd_stl/datapar/BasicSimd.h>
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 

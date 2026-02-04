@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simd_stl/numeric/Simd.h>
+#include <simd_stl/datapar/Simd.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
@@ -30,7 +30,7 @@ simd_stl_declare_const_function simd_stl_always_inline std::pair<typename _Simd_
     const void* _First,
     const void* _Last) noexcept
 {
-    numeric::zero_upper_at_exit_guard<_Simd_::__generation> _Guard;
+    datapar::zero_upper_at_exit_guard<_Simd_::__generation> _Guard;
 
     constexpr auto _Is_masked_memory_access_supported = _Simd_::template is_native_mask_store_supported_v<> &&
         _Simd_::template is_native_mask_load_supported_v<>;
@@ -107,21 +107,21 @@ simd_stl_declare_const_function std::pair<_Type_, _Type_> simd_stl_stdcall _Minm
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512VL() && arch::ProcessorFeatures::AVX512BW())
-            return _MinmaxVectorizedInternal<numeric::simd256_avx512vlbw<_Type_>>(_First, _Last);
+            return _MinmaxVectorizedInternal<datapar::simd256_avx512vlbw<_Type_>>(_First, _Last);
     }
     else {
         if (arch::ProcessorFeatures::AVX512VL() && arch::ProcessorFeatures::AVX512F())
-            return _MinmaxVectorizedInternal<numeric::simd256_avx512vlf<_Type_>>(_First, _Last);
+            return _MinmaxVectorizedInternal<datapar::simd256_avx512vlf<_Type_>>(_First, _Last);
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return _MinmaxVectorizedInternal<numeric::simd256_avx2<_Type_>>(_First, _Last);
+        return _MinmaxVectorizedInternal<datapar::simd256_avx2<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSE41())
-        return _MinmaxVectorizedInternal<numeric::simd128_sse41<_Type_>>(_First, _Last);
+        return _MinmaxVectorizedInternal<datapar::simd128_sse41<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSSE3())
-        return _MinmaxVectorizedInternal<numeric::simd128_ssse3<_Type_>>(_First, _Last);
+        return _MinmaxVectorizedInternal<datapar::simd128_ssse3<_Type_>>(_First, _Last);
     else if (arch::ProcessorFeatures::SSE2())
-        return _MinmaxVectorizedInternal<numeric::simd128_sse2<_Type_>>(_First, _Last);
+        return _MinmaxVectorizedInternal<datapar::simd128_sse2<_Type_>>(_First, _Last);
 
     return _MinmaxScalar<_Type_>(_First, _Last);
 }
