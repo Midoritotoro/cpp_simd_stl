@@ -841,7 +841,8 @@ template <
     class		_BasicSimd_,
     typename	_ReturnType_>
 using __make_tail_mask_return_type_helper = std::conditional_t<__is_intrin_type_v<_ReturnType_>,
-    simd<_BasicSimd_::__generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy_type>, _ReturnType_>;
+    simd<_BasicSimd_::__generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy_type>, 
+    simd_mask<_BasicSimd_::__generation, typename _BasicSimd_::value_type, typename _BasicSimd_::policy_type>>;
 
 template <class _BasicSimd_>
 using __make_tail_mask_return_type = __make_tail_mask_return_type_helper<_BasicSimd_,

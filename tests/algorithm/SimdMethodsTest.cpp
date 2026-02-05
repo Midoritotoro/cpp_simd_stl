@@ -38,7 +38,7 @@ void testMethods() {
         for (int i = 0; i < N; ++i)
             arr[i] = i + 1;
 
-        Simd v3 = Simd::load(arr);
+        Simd v3 = simd_stl::datapar::load<Simd>(arr);
         for (int i = 0; i < v2.size(); ++i)
             simd_stl_assert(v3.extract<T>(i) == arr[i]);
 
@@ -84,14 +84,14 @@ void testMethods() {
 
     {
         alignas(16) simd_stl::int32 arr[4] = { 10,20,30,40 };
-        Simd v = Simd::load(arr, simd_stl::datapar::aligned_policy{});
+        Simd v = simd_stl::datapar::load<Simd>(arr, simd_stl::datapar::aligned_policy{});
         simd_stl::int32 out[4] = {};
-        v.store(out, simd_stl::datapar::aligned_policy{});
+        simd_stl::datapar::store(out, v, simd_stl::datapar::aligned_policy{});
         for (int i = 0; i < 4; ++i) simd_stl_assert(out[i] == arr[i]);
 
-        Simd v2 = Simd::load(arr);
+        Simd v2 = simd_stl::datapar::load<Simd>(arr);
         simd_stl::int32 out2[4] = {};
-        v2.store(out2);
+        simd_stl::datapar::store(out2, v2);
         for (int i = 0; i < 4; ++i) simd_stl_assert(out2[i] == arr[i]);
     }
 
@@ -113,7 +113,7 @@ void testMethods() {
             if (i % 2 == 0)
                 mask |= (typename Simd::mask_type(1) << i);
 
-        Simd loaded_unaligned = Simd::mask_load(src, mask);
+        Simd loaded_unaligned = simd_stl::datapar::mask_load<Simd>(src, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(loaded_unaligned.extract<T>(i) == src[i]);
@@ -121,7 +121,7 @@ void testMethods() {
                 simd_stl_assert(loaded_unaligned.extract<T>(i) == T(0));
         }
 
-        Simd loaded_aligned = Simd::mask_load(src, mask, simd_stl::datapar::aligned_policy{});
+        Simd loaded_aligned = simd_stl::datapar::mask_load<Simd>(src, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(loaded_aligned.extract<T>(i) == src[i]);
@@ -130,7 +130,7 @@ void testMethods() {
         }
 
         Simd v(77);
-        v.mask_store(dst, mask);
+        simd_stl::datapar::mask_store(dst, v, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(dst[i] == T(77));
@@ -139,7 +139,7 @@ void testMethods() {
         }
 
         for (size_t i = 0; i < N; ++i) dst[i] = static_cast<T>(200 + i);
-        v.mask_store(dst, mask, simd_stl::datapar::aligned_policy{});
+        simd_stl::datapar::mask_store(dst, v, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if (mask & (typename Simd::mask_type(1) << i))
                 simd_stl_assert(dst[i] == T(77));
@@ -152,7 +152,7 @@ void testMethods() {
         alignas(64) T src[N];
         for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
 
-        Simd v = Simd::load(src);
+        Simd v = simd_stl::datapar::load<Simd>(src);
 
 
         typename Simd::mask_type mask = 0;
@@ -212,9 +212,9 @@ void testMethods() {
             vc[i] = static_cast<T>(i + 2);
         }
 
-        Simd a = Simd::load(va.data());
-        Simd b = Simd::load(vb.data());
-        Simd c = Simd::load(vc.data());
+        Simd a = simd_stl::datapar::load<Simd>(va.data());
+        Simd b = simd_stl::datapar::load<Simd>(vb.data());
+        Simd c = simd_stl::datapar::load<Simd>(vc.data());
 
         simd_stl_assert(a == b);
         simd_stl_assert(a != c);
@@ -251,8 +251,8 @@ void testMethods() {
             arrMax[i] = std::numeric_limits<T>::max();
         }
 
-        Simd v0 = Simd::load(arr0);
-        Simd vmax = Simd::load(arrMax);
+        Simd v0 = simd_stl::datapar::load<Simd>(arr0);
+        Simd vmax = simd_stl::datapar::load<Simd>(arrMax);
 
         simd_stl_assert(v0 != vmax);
 
@@ -283,8 +283,8 @@ void testMethods() {
                 arrA[i] = step;
                 arrB[i] = step + 1;
             }
-            Simd vA = Simd::load(arrA);
-            Simd vB = Simd::load(arrB);
+            Simd vA = simd_stl::datapar::load<Simd>(arrA);
+            Simd vB = simd_stl::datapar::load<Simd>(arrB);
 
             auto mEq = (vA == vA) | simd_stl::datapar::as_mask;
             auto mNeq = (vA != vB) | simd_stl::datapar::as_mask;
@@ -316,7 +316,7 @@ void testMethods() {
             reduced += (unsigned char)(array[i]);
         }
 
-        auto simdReduced = simd_stl::datapar::reduce(Simd::load(array));
+        auto simdReduced = simd_stl::datapar::reduce(simd_stl::datapar::load<Simd>(array));
 
         simd_stl_assert(simdReduced == reduced);
     }
@@ -341,8 +341,8 @@ void testMethods() {
                 arrB[i] = static_cast<T>(N - i);
         }
 
-        Simd a = Simd::load(arrA);
-        Simd b = Simd::load(arrB);
+        Simd a = simd_stl::datapar::load<Simd>(arrA);
+        Simd b = simd_stl::datapar::load<Simd>(arrB);
 
         auto minVec = simd_stl::datapar::vertical_min(a, b);
         for (size_t i = 0; i < N; ++i) {
@@ -377,8 +377,8 @@ void testMethods() {
         }
 
 
-        Simd simdVec = simd_stl::datapar::reverse(Simd::load(arr));
-        simdVec.store(reversed);
+        Simd simdVec = simd_stl::datapar::reverse(simd_stl::datapar::load<Simd>(arr));
+        simd_stl::datapar::store(reversed, simdVec);
 
         for (size_t i = 0; i < N; ++i) {
             assert(reversed[i] == arr[N - 1 - i]);

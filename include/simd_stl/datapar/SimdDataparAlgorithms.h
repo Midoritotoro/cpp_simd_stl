@@ -55,7 +55,7 @@ __simd_nodiscard_inline auto reduce(
 }
 
 template <class _DataparType_> 
-__simd_nodiscard_inline auto make_tail_mask(uint32 __bytes) noexcept -> __make_tail_mask_return_type<_DataparType_>
+__simd_nodiscard_inline __make_tail_mask_return_type<_DataparType_> make_tail_mask(uint32 __bytes) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -65,7 +65,7 @@ __simd_nodiscard_inline auto make_tail_mask(uint32 __bytes) noexcept -> __make_t
 
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto abs(const _DataparType_& __datapar) noexcept -> _DataparType_
+__simd_nodiscard_inline _DataparType_ abs(const _DataparType_& __datapar) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -75,7 +75,7 @@ __simd_nodiscard_inline auto abs(const _DataparType_& __datapar) noexcept -> _Da
 
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto horizontal_min(const _DataparType_& __datapar) noexcept -> typename _DataparType_::value_type
+__simd_nodiscard_inline typename _DataparType_::value_type horizontal_min(const _DataparType_& __datapar) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -84,7 +84,7 @@ __simd_nodiscard_inline auto horizontal_min(const _DataparType_& __datapar) noex
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto horizontal_max(const _DataparType_& __datapar) noexcept -> typename _DataparType_::value_type
+__simd_nodiscard_inline typename _DataparType_::value_type horizontal_max(const _DataparType_& __datapar) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -93,9 +93,9 @@ __simd_nodiscard_inline auto horizontal_max(const _DataparType_& __datapar) noex
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto vertical_min(
+__simd_nodiscard_inline _DataparType_ vertical_min(
 	const _DataparType_& __first, 
-	const _DataparType_& __second) noexcept -> _DataparType_
+	const _DataparType_& __second) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -104,9 +104,9 @@ __simd_nodiscard_inline auto vertical_min(
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto vertical_max(
+__simd_nodiscard_inline _DataparType_ vertical_max(
 	const _DataparType_& __first,
-	const _DataparType_& __second) noexcept -> _DataparType_
+	const _DataparType_& __second) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -129,12 +129,12 @@ struct __zero_upper_at_exit_guard {
 };
 
 template <arch::CpuFeature _SimdGeneration_>
-simd_stl_always_inline auto make_guard() noexcept -> __zero_upper_at_exit_guard<_SimdGeneration_> {
+simd_stl_always_inline __zero_upper_at_exit_guard<_SimdGeneration_> make_guard() noexcept {
 	return __zero_upper_at_exit_guard<_SimdGeneration_>();
 }
 
 template <class _DataparType_>
-simd_stl_always_inline auto make_guard() noexcept -> __zero_upper_at_exit_guard<std::remove_cvref_t<_DataparType_>::__generation>
+simd_stl_always_inline __zero_upper_at_exit_guard<std::remove_cvref_t<_DataparType_>::__generation> make_guard() noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>) 
 {
 	return __zero_upper_at_exit_guard<std::remove_cvref_t<_DataparType_>::__generation>();
@@ -143,10 +143,10 @@ simd_stl_always_inline auto make_guard() noexcept -> __zero_upper_at_exit_guard<
 template <
 	class _DataparType_,
 	class _MaskType_>
-__simd_nodiscard_inline auto blend(
+__simd_nodiscard_inline _DataparType_ blend(
 	const _DataparType_&	__first,
 	const _DataparType_&	__second,
-	const _MaskType_&		__mask) noexcept -> _DataparType_
+	const _MaskType_&		__mask) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 {
@@ -156,7 +156,7 @@ __simd_nodiscard_inline auto blend(
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto reverse(const _DataparType_& __datapar) noexcept -> _DataparType_
+__simd_nodiscard_inline _DataparType_ reverse(const _DataparType_& __datapar) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -179,9 +179,9 @@ __simd_nodiscard_inline void streaming_fence() noexcept {
 template <
 	class _DataparType_,
 	class _MaskType_>
-__simd_nodiscard_inline auto compress(
+__simd_nodiscard_inline std::pair<uint32, _DataparType_> compress(
 	const _DataparType_&	__datapar, 
-	const _MaskType_&		__mask) noexcept -> std::pair<uint32, _DataparType_>
+	const _MaskType_&		__mask) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 {
@@ -194,11 +194,11 @@ template <
 	class _DataparType_,
     class _MaskType_,
     class _AlignmentPolicy_ = unaligned_policy>
-simd_stl_always_inline auto compress_store(
+simd_stl_always_inline typename _DataparType_::value_type* compress_store(
 	void*					__address,
 	const _DataparType_&	__datapar,
 	const _MaskType_&		__mask,
-	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept -> typename _DataparType_::value_type*
+	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 {
@@ -210,7 +210,7 @@ simd_stl_always_inline auto compress_store(
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline auto non_temporal_load(const void* __address) noexcept -> _DataparType_
+__simd_nodiscard_inline _DataparType_ non_temporal_load(const void* __address) noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -218,9 +218,9 @@ __simd_nodiscard_inline auto non_temporal_load(const void* __address) noexcept -
 }
 
 template <class _DataparType_>
-simd_stl_always_inline auto non_temporal_store(
+simd_stl_always_inline void non_temporal_store(
 	void*					__address,
-	const _DataparType_&	__datapar) noexcept -> void
+	const _DataparType_&	__datapar) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -230,9 +230,9 @@ simd_stl_always_inline auto non_temporal_store(
 template <
 	class _DataparType_, 
 	class _AlignmentPolicy_ = unaligned_policy>
-simd_stl_always_inline auto load(
+simd_stl_always_inline _DataparType_ load(
 	const void*			__address,
-	_AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept -> _DataparType_
+	_AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -242,10 +242,10 @@ simd_stl_always_inline auto load(
 template <
 	class _DataparType_, 
 	class _AlignmentPolicy_ = unaligned_policy>
-simd_stl_always_inline auto store(
+simd_stl_always_inline void store(
 	void*					__address,
 	const _DataparType_&	__datapar,
-	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept -> void
+	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
@@ -256,51 +256,51 @@ template <
 	class _DataparType_,
 	class _MaskType_,
 	class _AlignmentPolicy_ = unaligned_policy>
-__simd_nodiscard_inline auto mask_load(
+__simd_nodiscard_inline _DataparType_ mask_load(
 	const void*				__address,
-	const _DataparType_&	__datapar,
 	const _MaskType_&		__mask,
-	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept -> _DataparType_
+	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
 	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type, typename _RawDataparType::vector_type>(
-		reinterpret_cast<const _DesiredType_*>(__address), __simd_unwrap_mask(__mask), __policy);
+		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __policy);
 }
 
-template <
-	class _DataparType_,			
-	class _MaskType_,
-	class _AlignmentPolicy_ = unaligned_policy>
-__simd_nodiscard_inline auto mask_load(
-	const void*				__address,
-	const _MaskType_&		__mask,
-	const _DataparType_&	__additional_source,
-	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept -> _DataparType_
-		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
-			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
-{
-	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
-		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
-}
+//template <
+//	class _DataparType_,
+//	class _SourceDataparType_,
+//	class _MaskType_,
+//	class _AlignmentPolicy_ = unaligned_policy>
+//__simd_nodiscard_inline _DataparType_ mask_load(
+//	const void*					__address,
+//	const _MaskType_&			__mask,
+//	const _SourceDataparType_&	__additional_source,
+//	_AlignmentPolicy_&&			__policy = _AlignmentPolicy_{}) noexcept
+//		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> && __is_valid_basic_simd_v<std::remove_cvref_t<_SourceDataparType_>> &&
+//			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
+//{
+//	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+//	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
+//		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
+//}
 
 template <
 	class _DataparType_,	
 	class _MaskType_,
 	class _AlignmentPolicy_ = unaligned_policy>
-simd_stl_always_inline auto mask_store(
+simd_stl_always_inline void mask_store(
 	void*					__address,
 	const _DataparType_&	__datapar,
 	const _MaskType_&		__mask,
-	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept -> void
+	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 { 
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
 	__simd_mask_store<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
-		reinterpret_cast<typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), _vector, __policy);
+		reinterpret_cast<typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__datapar), __policy);
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END
