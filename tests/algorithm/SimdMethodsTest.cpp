@@ -113,7 +113,7 @@ void testMethods() {
             if (i % 2 == 0)
                 mask |= (typename Simd::mask_type(1) << i);
 
-        Simd loaded_unaligned = simd_stl::datapar::mask_load<Simd>(src, mask);
+        Simd loaded_unaligned = simd_stl::datapar::maskz_load<Simd>(src, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(loaded_unaligned.extract<T>(i) == src[i]);
@@ -121,7 +121,7 @@ void testMethods() {
                 simd_stl_assert(loaded_unaligned.extract<T>(i) == T(0));
         }
 
-        Simd loaded_aligned = simd_stl::datapar::mask_load<Simd>(src, mask, simd_stl::datapar::aligned_policy{});
+        Simd loaded_aligned = simd_stl::datapar::maskz_load<Simd>(src, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
                 simd_stl_assert(loaded_aligned.extract<T>(i) == src[i]);

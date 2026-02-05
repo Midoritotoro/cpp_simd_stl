@@ -56,62 +56,56 @@ public:
         std::tuple<_VectorizedArgs_...> __simd_args,
         std::tuple<_FallbackArgs_...>   __fallback_args) noexcept
     {
-//#if 0
-//        if (__size >= __zmm_threshold<_Type_>) {
-//            if constexpr (sizeof(_Type_) <= 2) {
-//                if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW())
-//                    return __invoke_simd<_Function_<simd512_avx512bw<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512bw<_Type_>) -
-//                        sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::move(__simd_args));
-//            }
-//            else {
-//                if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F())
-//                    return __invoke_simd<_Function_<simd512_avx512f<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512f<_Type_>) -
-//                        sizeof(typename simd512_avx512f<_Type_>::value_type)), std::move(__simd_args));
-//            }
-//        }
-//        else {
-//            if constexpr (sizeof(_Type_) <= 2) {
-//                if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlbw<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL())
-//                    return __invoke_simd<_Function_<simd256_avx512vlbw<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vlbw<_Type_>) -
-//                        sizeof(typename simd256_avx512vlbw<_Type_>::value_type)), std::move(__simd_args));
-//            }
-//            else {
-//                if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlf<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL())
-//                    return __invoke_simd<_Function_<simd256_avx512vlf<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vlf<_Type_>) -
-//                        sizeof(typename simd256_avx512vlf<_Type_>::value_type)), std::move(__simd_args));
-//            }
-//        }
-//#else
-//        if constexpr (sizeof(_Type_) <= 2) {
-//            if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW())
-//                return __invoke_simd<_Function_<simd512_avx512bw<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512bw<_Type_>) -
-//                    sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::move(__simd_args));
-//        }
-//        else {
-//            if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F())
-//                return __invoke_simd<_Function_<simd512_avx512f<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512f<_Type_>) -
-//                    sizeof(typename simd512_avx512f<_Type_>::value_type)), std::move(__simd_args));
-//        }
-//#endif
-//
-//        if (const auto __aligned_size = __size & (~(sizeof(simd256_avx2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX2()) {
-//            return __invoke_simd<_Function_<simd256_avx2<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx2<_Type_>) -
-//                sizeof(typename simd256_avx2<_Type_>::value_type)), std::move(__simd_args));
-//        }
-//
-//        else if (const auto __aligned_size = __size & (~(sizeof(simd128_sse2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::SSE2()) {
-//            return __invoke_simd<_Function_<simd128_sse2<_Type_>>>(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) -
-//                sizeof(typename simd128_sse2<_Type_>::value_type)), std::move(__simd_args));
-//        }
+        if (__size < 16)
+            return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
 
-        const auto __aligned_size_64 = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1));
+        else if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0) {
+            if (arch::ProcessorFeatures::AVX512BW()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return __invoke_simd<_Function_<simd512_avx512bwdq<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512bwdq<_Type_>) -
+                        sizeof(typename simd512_avx512bwdq<_Type_>::value_type)), std::move(__simd_args));
 
-        if (__aligned_size_64 != 0) {
-            return __invoke_simd<_Function_<simd512_avx512bwdq<_Type_>>>(__aligned_size_64, __size & (sizeof(simd512_avx512bwdq<_Type_>) -
-                sizeof(typename simd512_avx512bwdq<_Type_>::value_type)), std::move(__simd_args));
+                return __invoke_simd<_Function_<simd512_avx512bw<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512bw<_Type_>) -
+                    sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::move(__simd_args));
+            }
+            else if (arch::ProcessorFeatures::AVX512F()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return __invoke_simd<_Function_<simd512_avx512dq<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512dq<_Type_>) -
+                        sizeof(typename simd512_avx512dq<_Type_>::value_type)), std::move(__simd_args));
+
+                return __invoke_simd<_Function_<simd512_avx512f<_Type_>>>(__aligned_size, __size & (sizeof(simd512_avx512f<_Type_>) -
+                    sizeof(typename simd512_avx512f<_Type_>::value_type)), std::move(__simd_args));
+            }
+        }
+
+        else if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlbw<_Type_>) - 1)); __aligned_size != 0) {
+            if (arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return __invoke_simd<_Function_<simd256_avx512vlbwdq<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vlbwdq<_Type_>) -
+                        sizeof(typename simd256_avx512vlbwdq<_Type_>::value_type)), std::move(__simd_args));
+
+                return __invoke_simd<_Function_<simd256_avx512vlbw<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vlbw<_Type_>) -
+                    sizeof(typename simd256_avx512vlbw<_Type_>::value_type)), std::move(__simd_args));
+            }
+            else if (arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return __invoke_simd<_Function_<simd256_avx512vldq<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vldq<_Type_>) -
+                        sizeof(typename simd256_avx512vldq<_Type_>::value_type)), std::move(__simd_args));
+
+                return __invoke_simd<_Function_<simd256_avx512vlf<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx512vlf<_Type_>) -
+                    sizeof(typename simd256_avx512vlf<_Type_>::value_type)), std::move(__simd_args));
+            }
         }
         
-        return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
+        else if (const auto __aligned_size = __size & (~(sizeof(simd256_avx2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX2()) {
+            return __invoke_simd<_Function_<simd256_avx2<_Type_>>>(__aligned_size, __size & (sizeof(simd256_avx2<_Type_>) -
+                sizeof(typename simd256_avx2<_Type_>::value_type)), std::move(__simd_args));
+        }
+
+        else if (const auto __aligned_size = __size & (~(sizeof(simd128_sse2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::SSE2()) {
+            return __invoke_simd<_Function_<simd128_sse2<_Type_>>>(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) - 
+                sizeof(typename simd128_sse2<_Type_>::value_type)), std::move(__simd_args));
+        }
     }
 
     template <
@@ -124,52 +118,47 @@ public:
         _FallbackFunction_&&    __fallback,
         _Args_...               __args) noexcept
     {
-
-        //if (__size >= __zmm_threshold<_Type_>) {
-        //    if constexpr (sizeof(_Type_) <= 2) {
-        //        if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW())
-        //            return _Function_<simd512_avx512bw<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512bw<_Type_>) -
-        //                sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-        //    }
-        //    else {
-        //        if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F())
-        //            return _Function_<simd512_avx512f<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512f<_Type_>) -
-        //                sizeof(typename simd512_avx512f<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-        //    }
-        //}
-        //else {
-        //    if constexpr (sizeof(_Type_) <= 2) {
-        //        if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlbw<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL())
-        //            return _Function_<simd256_avx512vlbw<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vlbw<_Type_>) -
-        //                sizeof(typename simd256_avx512vlbw<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-        //    }
-        //    else {
-        //        if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlf<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL())
-        //            return _Function_<simd256_avx512vlf<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vlf<_Type_>) -
-        //                sizeof(typename simd256_avx512vlf<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-        //    }
-        //}
-
-        const auto __aligned_size_64 = __size & (~(sizeof(simd512_avx512f<_Type_>) - 1));
-        
-        if (__aligned_size_64 != 0) {
-           // if (arch::ProcessorFeatures::AVX512BW()) {
-                //if (arch::ProcessorFeatures::AVX512DQ()) {
-                    return _Function_<simd512_avx512bwdq<_Type_>>()(__aligned_size_64, __size & (sizeof(simd512_avx512bwdq<_Type_>) -
+        if (__size < 16)
+            return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
+        else if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0) {
+            if (arch::ProcessorFeatures::AVX512BW()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return _Function_<simd512_avx512bwdq<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512bwdq<_Type_>) -
                         sizeof(typename simd512_avx512bwdq<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-               // }
 
-               // return _Function_<simd512_avx512bw<_Type_>>()(__aligned_size_64, __size & (sizeof(simd512_avx512bw<_Type_>) -
-                 //   sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-           // }
+                return _Function_<simd512_avx512bw<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512bw<_Type_>) -
+                    sizeof(typename simd512_avx512bw<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+            }
+            else if (arch::ProcessorFeatures::AVX512F()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return _Function_<simd512_avx512dq<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512dq<_Type_>) -
+                        sizeof(typename simd512_avx512dq<_Type_>::value_type)), std::forward<_Args_>(__args)...);
 
-
-           // if (arch::ProcessorFeatures::AVX512F())
-             //   return _Function_<simd512_avx512f<_Type_>>()(__aligned_size_64, __size & (sizeof(simd512_avx512f<_Type_>) -
-             //       sizeof(typename simd512_avx512f<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+                return _Function_<simd512_avx512f<_Type_>>()(__aligned_size, __size & (sizeof(simd512_avx512f<_Type_>) -
+                    sizeof(typename simd512_avx512f<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+            }
         }
 
-       /* if (const auto __aligned_size = __size & (~(sizeof(simd256_avx2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX2()) {
+        else if (const auto __aligned_size = __size & (~(sizeof(simd256_avx512vlbw<_Type_>) - 1)); __aligned_size != 0) {
+            if (arch::ProcessorFeatures::AVX512BW() && arch::ProcessorFeatures::AVX512VL()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return _Function_<simd256_avx512vlbwdq<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vlbwdq<_Type_>) -
+                        sizeof(typename simd256_avx512vlbwdq<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+
+                return _Function_<simd256_avx512vlbw<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vlbw<_Type_>) -
+                    sizeof(typename simd256_avx512vlbw<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+            }
+            else if (arch::ProcessorFeatures::AVX512F() && arch::ProcessorFeatures::AVX512VL()) {
+                if (arch::ProcessorFeatures::AVX512DQ())
+                    return _Function_<simd256_avx512vldq<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vldq<_Type_>) -
+                        sizeof(typename simd256_avx512vldq<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+
+                return _Function_<simd256_avx512vlf<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx512vlf<_Type_>) -
+                    sizeof(typename simd256_avx512vlf<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+            }
+        }
+        
+        else if (const auto __aligned_size = __size & (~(sizeof(simd256_avx2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::AVX2()) {
             return _Function_<simd256_avx2<_Type_>>()(__aligned_size, __size & (sizeof(simd256_avx2<_Type_>) -
                 sizeof(typename simd256_avx2<_Type_>::value_type)), std::forward<_Args_>(__args)...);
         }
@@ -177,9 +166,7 @@ public:
         else if (const auto __aligned_size = __size & (~(sizeof(simd128_sse2<_Type_>) - 1)); __aligned_size != 0 && arch::ProcessorFeatures::SSE2()) {
             return _Function_<simd128_sse2<_Type_>>()(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) - 
                 sizeof(typename simd128_sse2<_Type_>::value_type)), std::forward<_Args_>(__args)...);
-        }*/
-
-        return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
+        }
     }
 };
 

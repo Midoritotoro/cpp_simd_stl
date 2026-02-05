@@ -51,7 +51,7 @@ struct __find_vectorized_internal {
 
         if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
             const auto __tail_mask  = datapar::make_tail_mask<_Simd_>(__tail_size);
-            const auto __loaded     = datapar::mask_load<_Simd_>(__first, __tail_mask);
+            const auto __loaded     = datapar::maskz_load<_Simd_>(__first, __tail_mask);
 
             const auto __mask = ((__comparand == __loaded) & __tail_mask) | datapar::as_index_mask;
 

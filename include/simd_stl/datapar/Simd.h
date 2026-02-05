@@ -45,6 +45,10 @@ using simd256_avx512vlf		= simd<arch::CpuFeature::AVX512VLF, _Type_, ymm256>;
 template <typename _Type_>
 using simd256_avx512vldq	= simd<arch::CpuFeature::AVX512VLDQ, _Type_, ymm256>;
 
+template <typename _Type_>
+using simd256_avx512vlbwdq	= simd<arch::CpuFeature::AVX512VLBWDQ, _Type_, ymm256>;
+
+
 
 template <typename _Type_>
 using simd512_avx512f		= simd<arch::CpuFeature::AVX512F, _Type_, zmm512>;

@@ -56,7 +56,7 @@ struct __find_last_vectorized_internal {
             __rewind_bytes(__last, __tail_size);
 
             const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
-            const auto __loaded     = _Simd_::mask_load(__last, __tail_mask);
+            const auto __loaded     = _Simd_::maskz_load(__last, __tail_mask);
 
             const auto __mask = typename _Simd_::mask_type(__comparand.native_compare<datapar::simd_comparison::equal>(__loaded) & __tail_mask);
 

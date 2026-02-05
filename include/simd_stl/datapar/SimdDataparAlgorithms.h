@@ -256,7 +256,7 @@ template <
 	class _DataparType_,
 	class _MaskType_,
 	class _AlignmentPolicy_ = unaligned_policy>
-__simd_nodiscard_inline _DataparType_ mask_load(
+__simd_nodiscard_inline _DataparType_ maskz_load(
 	const void*				__address,
 	const _MaskType_&		__mask,
 	_AlignmentPolicy_&&		__policy = _AlignmentPolicy_{}) noexcept
@@ -268,23 +268,22 @@ __simd_nodiscard_inline _DataparType_ mask_load(
 		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __policy);
 }
 
-//template <
-//	class _DataparType_,
-//	class _SourceDataparType_,
-//	class _MaskType_,
-//	class _AlignmentPolicy_ = unaligned_policy>
-//__simd_nodiscard_inline _DataparType_ mask_load(
-//	const void*					__address,
-//	const _MaskType_&			__mask,
-//	const _SourceDataparType_&	__additional_source,
-//	_AlignmentPolicy_&&			__policy = _AlignmentPolicy_{}) noexcept
-//		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> && __is_valid_basic_simd_v<std::remove_cvref_t<_SourceDataparType_>> &&
-//			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
-//{
-//	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-//	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
-//		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
-//}
+template <
+	class _DataparType_,
+	class _MaskType_,
+	class _AlignmentPolicy_ = unaligned_policy>
+__simd_nodiscard_inline _DataparType_ mask_load(
+	const void*					__address,
+	const _MaskType_&			__mask,
+	const _DataparType_&		__additional_source,
+	_AlignmentPolicy_&&			__policy = _AlignmentPolicy_{}) noexcept
+		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>> &&
+			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
+{
+	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
+	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
+		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
+}
 
 template <
 	class _DataparType_,	
@@ -301,6 +300,53 @@ simd_stl_always_inline void mask_store(
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
 	__simd_mask_store<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
 		reinterpret_cast<typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__datapar), __policy);
+}
+
+template <class _DataparType_>
+__simd_nodiscard_inline auto reduce_equal(
+	const _DataparType_& __first,
+	const _DataparType_& __second) noexcept
+{
+	constexpr auto __is_native_compare_return_number = std::is_integral_v<datapar::__simd_native_compare_return_type<_DataparType_,
+		typename _DataparType_::value_type, datapar::simd_comparison::equal>>;
+
+	if constexpr (!__is_native_compare_return_number) {
+		auto __zeros = _DataparType_();
+		__zeros.clear();
+
+		const auto __compared = (__first == __second) | as_simd;
+		const auto __count_vector = __zeros - __compared;
+
+		return reduce(__count_vector, type_traits::plus<>{});
+	}
+	else {
+		const auto __mask = (__first == __second) | as_index_mask;
+		return reduce(__mask, type_traits::plus<>{});
+	}
+}
+
+template <
+	class _DataparType_,
+	class _MaskType_>
+__simd_nodiscard_inline auto reduce_equal(
+	const _DataparType_&	__first,
+	const _DataparType_&	__second,
+	const _MaskType_&		__tail_mask) noexcept
+{
+	constexpr auto __is_native_compare_return_number = std::is_integral_v<datapar::__simd_native_compare_return_type<_DataparType_,
+		typename _DataparType_::value_type, datapar::simd_comparison::equal>>;
+
+	if constexpr (!__is_native_compare_return_number) {
+		auto __zeros = _DataparType_();
+		__zeros.clear();
+
+		const auto __compared = ((__first == __second) & __tail_mask) | as_simd;
+		return reduce(__zeros - __compared, type_traits::plus<>{});
+	}
+	else {
+		const auto __mask = ((__first == __second) & __tail_mask) | as_index_mask;
+		return reduce(__mask, type_traits::plus<>{});
+	}
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

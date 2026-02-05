@@ -3,6 +3,8 @@
 #include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 #include <src/simd_stl/datapar/CachePrefetcher.h>
 
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -26,60 +28,39 @@ simd_stl_always_inline sizetype __count_scalar(
 
 template <class _Simd_>
 struct __count_vectorized_internal {
-    template <class _CachePrefetcher_>
     simd_stl_always_inline sizetype operator()(
         sizetype                    __aligned_size,
         sizetype                    __tail_size,
         const void*                 __first,
-        typename _Simd_::value_type __value,
-        _CachePrefetcher_&&         __prefetcher) noexcept
+        typename _Simd_::value_type __value) noexcept
     {
-        const auto __guard = datapar::make_guard<_Simd_>();
-
-        constexpr auto __is_native_compare_return_number = datapar::__is_simd_mask_v<datapar::__native_compare_return_type<_Simd_,
-            typename _Simd_::value_type, datapar::simd_comparison::equal>> ;
-
-        constexpr auto __is_safe_reducible = std::is_integral_v<typename _Simd_::value_type> && !__is_native_compare_return_number;
-
-        auto __count            = sizetype(0);
+        const auto __guard  = datapar::make_guard<_Simd_>();
+        auto __count        = sizetype(0);
 
         const auto __comparand  = _Simd_(__value);
-        auto __zeros            = _Simd_();
-
-        if constexpr (__is_safe_reducible)
-            __zeros.clear();
+        const auto __stop_at    = __bytes_pointer_offset(__first, __aligned_size);
 
         do {
-            const auto __loaded     = _Simd_::load(__first);
-
-            if constexpr (__is_safe_reducible)
-                __count += (__zeros - (__comparand == __loaded)).reduce_add();
-            else
-                __count += ((__comparand == __loaded) | datapar::as_index_mask).count_set();
-
+            __count += datapar::reduce_equal(__comparand, datapar::load<_Simd_>(__first));
             __advance_bytes(__first, sizeof(_Simd_));
-            __aligned_size -= sizeof(_Simd_);
-        } while (__aligned_size != 0);
+        } while (__first != __stop_at);
 
         if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
             if (__tail_size != 0) {
-                const auto __tail_mask  = _Simd_::make_tail_mask(__tail_size);
-                const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
-
-                const auto __mask = ((__comparand == __loaded) & __tail_mask) | datapar::as_index_mask;
-                __count += __mask.count_set();
+                const auto __tail_mask  = datapar::make_tail_mask<_Simd_>(__tail_size);
+                __count += datapar::reduce_equal(datapar::maskz_load<_Simd_>(__first, __tail_mask), __comparand, __tail_mask);
             }
 
             return __count;
-        }
-        else {
+        } 
+        else  {
             return __count + __count_scalar(__first, __tail_size, __value);
         }
     }
 };
 
 template <class _Type_>
-simd_stl_declare_const_function sizetype simd_stl_stdcall __count_vectorized(
+simd_stl_always_inline sizetype __count_vectorized(
     const void*     __first,
     const sizetype  __bytes,
     _Type_          __value) noexcept

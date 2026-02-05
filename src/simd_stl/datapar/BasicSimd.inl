@@ -310,7 +310,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      __left,
     const typename simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  __right) noexcept
 {
-    return __simd_substract<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd(__right)));
+    return __simd_substract<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd<_SimdGeneration_, _Element_, _RegisterPolicy_>(__right)));
 }
 
 template <
@@ -321,7 +321,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      __left,
     const typename simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  __right) noexcept
 {
-    return __simd_multiply<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd(__right)));
+    return __simd_multiply<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd<_SimdGeneration_, _Element_, _RegisterPolicy_>(__right)));
 }
 
 
@@ -333,7 +333,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      __left,
     const typename simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  __right) noexcept
 {
-    return __simd_divide<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd(__right)));
+    return __simd_divide<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, __simd_unwrap(simd<_SimdGeneration_, _Element_, _RegisterPolicy_>(__right)));
 }
 
 template <
