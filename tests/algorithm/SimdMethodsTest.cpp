@@ -161,7 +161,7 @@ void testMethods() {
 
         {
             alignas(64) T dst[N] = {};
-            v.compress_store(dst, mask);
+            simd_stl::datapar::compress_store(dst, v, mask);
 
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
@@ -171,7 +171,7 @@ void testMethods() {
 
         {
             alignas(64) T dst[N] = {};
-            v.compress_store(dst, mask, simd_stl::datapar::aligned_policy{});
+            simd_stl::datapar::compress_store(dst, v, mask, simd_stl::datapar::aligned_policy{});
 
             alignas(64) T expected[N];
             mask_compress_any<Simd>(src, src, expected, mask);
@@ -182,7 +182,7 @@ void testMethods() {
         {
             for (mask = 0; mask != N; ++mask) {
                 alignas(64) T dst[N] = {};
-                v.compress_store(dst, mask);
+                simd_stl::datapar::compress_store(dst, v, mask);
                 
                 alignas(64) T expected[N];
                 mask_compress_any<Simd>(src, src, expected, mask);
@@ -194,7 +194,7 @@ void testMethods() {
         {
             for (mask = 0; mask != N; ++mask) {
                 alignas(64) T dst[N] = {};
-                v.compress_store(dst, mask, simd_stl::datapar::aligned_policy{});
+                simd_stl::datapar::compress_store(dst, v, mask, simd_stl::datapar::aligned_policy{});
 
                 alignas(64) T expected[N];
                 mask_compress_any<Simd>(src, src, expected, mask);
@@ -316,8 +316,7 @@ void testMethods() {
             reduced += (unsigned char)(array[i]);
         }
 
-        Simd a = Simd::load(array);
-        auto simdReduced = simd_stl::datapar::reduce(a);
+        auto simdReduced = simd_stl::datapar::reduce(Simd::load(array));
 
         simd_stl_assert(simdReduced == reduced);
     }
@@ -378,8 +377,7 @@ void testMethods() {
         }
 
 
-        Simd simdVec = Simd::load(arr);
-        simdVec.reverse();
+        Simd simdVec = simd_stl::datapar::reverse(Simd::load(arr));
         simdVec.store(reversed);
 
         for (size_t i = 0; i < N; ++i) {

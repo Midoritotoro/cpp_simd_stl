@@ -80,6 +80,11 @@ void testFind() {
     auto std_result10 = std::find(vec10.begin(), vec10.end(), 42);
     simd_stl_assert(simd_result10 == std_result10);
     simd_stl_assert(*simd_result10 == 42);
+
+    std::vector<_IntType_> vec11(753, 0);
+    auto simd_result11 = simd_stl::algorithm::find(vec11.begin(), vec11.end(), 42);
+    auto std_result11 = std::find(vec11.begin(), vec11.end(), 42);
+    simd_stl_assert(simd_result11 == std_result11);
 }
 
 void testFindIf() {

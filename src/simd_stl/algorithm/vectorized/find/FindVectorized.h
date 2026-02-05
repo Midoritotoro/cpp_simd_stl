@@ -46,23 +46,25 @@ struct __find_vectorized_internal {
             __advance_bytes(__first, sizeof(_Simd_));
         } while (__first != __stop_at);
 
-        if (__tail_size != 0) {
-            if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
-                const auto __tail_mask  = datapar::make_tail_mask<_Simd_>(__tail_size);
-                const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
+        if (__tail_size == 0)
+            return static_cast<const typename _Simd_::value_type*>(__last);
 
-                const auto __mask = ((__comparand == __loaded) & __tail_mask) | datapar::as_index_mask;
+        if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
+            const auto __tail_mask  = datapar::make_tail_mask<_Simd_>(__tail_size);
+            const auto __loaded     = _Simd_::mask_load(__first, __tail_mask);
 
-                if (__mask.any_of())
-                    return static_cast<const typename _Simd_::value_type*>(__first) + __mask.count_trailing_zero_bits();
-            }
-            else {
-                __last = __find_scalar(__first, __last, __value);
-            }
+            const auto __mask = ((__comparand == __loaded) & __tail_mask) | datapar::as_index_mask;
+
+            if (__mask.any_of())
+                return static_cast<const typename _Simd_::value_type*>(__first) + __mask.count_trailing_zero_bits();
+        }
+        else {
+            __last = __find_scalar(__first, __last, __value);
         }
 
         return static_cast<const typename _Simd_::value_type*>(__last);
     }
+
 };
 
 template <class _Type_>
