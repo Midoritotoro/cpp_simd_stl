@@ -21,10 +21,10 @@ public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>
@@ -62,10 +62,10 @@ public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>
@@ -76,7 +76,7 @@ public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 };
 
 #pragma endregion
@@ -89,10 +89,10 @@ public:
 	template <
 		class _DesiredType_,
 		class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast(_DesiredType_ __value) noexcept;
 
 	template <class _VectorType_>
-	static simd_stl_nodiscard simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
+	simd_stl_nodiscard static simd_stl_always_inline _VectorType_ __broadcast_zeros() noexcept;
 };
 
 template <>

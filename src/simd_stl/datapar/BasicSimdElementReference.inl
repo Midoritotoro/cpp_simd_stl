@@ -13,7 +13,6 @@ simd_element_reference<_Simd_, _ImposedElementType_>::simd_element_reference(
     _index(__index)
 {
     simd_stl_debug_assert(__parent != nullptr);
-    simd_stl_debug_assert(__index >= 0 && __index < parent_type::template size<value_type>());
 }
 
 template <
@@ -35,14 +34,14 @@ template <
 simd_stl_always_inline simd_element_reference<_Simd_, _ImposedElementType_>::value_type
     simd_element_reference<_Simd_, _ImposedElementType_>::get() const noexcept 
 {
-    return _parent->extract<value_type>(_index);
+    return _parent->template extract<value_type>(_index);
 }
 
 template <
     typename _Simd_,
     typename _ImposedElementType_>
 simd_stl_always_inline void simd_element_reference<_Simd_, _ImposedElementType_>::set(value_type __value) noexcept {
-    _parent->insert<value_type>(_index, __value);
+    _parent->template insert<value_type>(_index, __value);
 }
 
 template <

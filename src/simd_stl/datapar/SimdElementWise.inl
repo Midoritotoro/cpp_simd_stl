@@ -769,7 +769,7 @@ simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512
 template <
     typename    _DesiredType_,
     typename    _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__blend(
+simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__blend(
     _VectorType_ __first,
     _VectorType_ __second,
     _VectorType_ __mask) noexcept
@@ -787,7 +787,7 @@ static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature:
 template <
     typename    _DesiredType_,
     typename    _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__blend(
+simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__blend(
     _VectorType_                        __first,
     _VectorType_                        __second,
     __simd_mask_type<_DesiredType_>     __mask) noexcept
@@ -805,7 +805,7 @@ static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature:
 template <
     typename _DesiredType_,
     typename _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__reverse(_VectorType_ __vector) noexcept {
+simd_stl_always_inline _VectorType_ __simd_element_wise<arch::CpuFeature::AVX512BW, zmm512>::__reverse(_VectorType_ __vector) noexcept {
     if constexpr (sizeof(_DesiredType_) == 2) {
         const auto __shuffle = _mm512_setr_epi16(
             31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,

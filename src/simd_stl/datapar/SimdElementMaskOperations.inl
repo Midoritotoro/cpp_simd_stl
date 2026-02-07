@@ -15,10 +15,25 @@ constexpr uint8 __simd_element_mask_operations<_Derived_>::count_trailing_zero_b
 
 template <class _Derived_>
 constexpr uint8 __simd_element_mask_operations<_Derived_>::count_leading_zero_bits() const noexcept {
+	const auto __integer = __base::__to_int();
+	using _MaskType = decltype(__integer);
+
+	constexpr auto __unused_bits = simd_stl_sizeof_in_bits(_MaskType) - __base::__bit_width();
+
 	if constexpr (__has_avx2_support_v<__base::__generation()>)
-		return math::__lzcnt_clz(__base::__to_int());
+		return math::__lzcnt_clz(__integer) - __unused_bits;
 	else
-		return (math::__bsr_clz(__base::__to_int()) - ((sizeof(__base) * 8) - __base::__bit_width()));
+		return math::__bsr_clz(__integer) - __unused_bits;
+}
+
+template <class _Derived_>
+constexpr uint8 __simd_element_mask_operations<_Derived_>::count_trailing_one_bits() const noexcept {
+
+}
+
+template <class _Derived_>
+constexpr uint8 __simd_element_mask_operations<_Derived_>::count_leading_one_bits() const noexcept {
+
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

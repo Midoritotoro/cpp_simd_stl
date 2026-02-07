@@ -6,9 +6,8 @@
 #include <src/simd_stl/utility/Assert.h>
 
 #if defined(simd_stl_os_windows)
-#  include <Windows.h>
 #  include <threadpoolapiset.h>
-
+#  include <stdnoreturn.h>
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 

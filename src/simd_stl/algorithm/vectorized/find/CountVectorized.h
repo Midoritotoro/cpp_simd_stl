@@ -53,7 +53,7 @@ struct __count_vectorized_internal {
 
             return __count;
         } 
-        else  {
+        else {
             return __count + __count_scalar(__first, __tail_size, __value);
         }
     }

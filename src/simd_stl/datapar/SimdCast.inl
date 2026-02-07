@@ -67,6 +67,8 @@ template <
     class               _VectorType_>
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
+
+
 template <class _VectorType_>
 __simd_nodiscard_inline __unwrapped_vector_type<_VectorType_> __simd_unwrap(_VectorType_ __vector) noexcept {
     if constexpr (__is_valid_basic_simd_v<_VectorType_>)

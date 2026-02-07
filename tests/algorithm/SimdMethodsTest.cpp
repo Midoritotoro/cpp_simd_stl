@@ -403,9 +403,10 @@ void testMethods() {
         simd_stl_assert(index_mask.count_set() == mask.count_set());
         simd_stl_assert(mask.count_set() == simd_stl::datapar::reduce(mask));
         simd_stl_assert(index_mask.count_set() == simd_stl::datapar::reduce(index_mask));
-
+        
+        simd_stl_assert(index_mask.count_trailing_zero_bits() == 0);
         simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
-//        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
+        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
 
     {
@@ -438,7 +439,7 @@ void testMethods() {
         simd_stl_assert(index_mask.count_set() == simd_stl::datapar::reduce(index_mask));
 
         simd_stl_assert(index_mask.count_trailing_zero_bits() == mask.count_trailing_zero_bits());
-   //     simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
+        simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
 
     {

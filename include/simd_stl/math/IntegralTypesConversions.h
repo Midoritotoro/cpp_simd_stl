@@ -45,25 +45,26 @@ constexpr inline bool __convert_integral(
 	constexpr auto __to_maximum_limit = __maximum_integral_limit<_TypeTo_>();
 	constexpr auto __to_minimum_limit = __minimum_integral_limit<_TypeTo_>();
 
-	if constexpr (std::is_signed_v<_TypeFrom_> && std::is_signed_v<_TypeTo_>)
+	if constexpr (std::is_signed_v<_TypeFrom_> && std::is_signed_v<_TypeTo_>) {
 		if constexpr (sizeof(_TypeFrom_) > sizeof(_TypeTo_))
 			if (__from > __to_maximum_limit || __from < __to_minimum_limit)
 				return false;
-	
-	else if (std::is_unsigned_v<_TypeFrom_> && std::is_unsigned_v<_TypeTo_>)
+	}
+	else if (std::is_unsigned_v<_TypeFrom_> && std::is_unsigned_v<_TypeTo_>) {
 		if constexpr (sizeof(_TypeFrom_) > sizeof(_TypeTo_))
 			if (__from > __to_maximum_limit)
 				return false;
-	
-	else if (std::is_signed_v<_TypeFrom_> && std::is_unsigned_v<_TypeTo_>)
+	}
+	else if (std::is_signed_v<_TypeFrom_> && std::is_unsigned_v<_TypeTo_>) {
 		if constexpr (sizeof(_TypeFrom_) > sizeof(_TypeTo_))
 			if (__from < __to_minimum_limit)
 				return false;
-	
-	else /* std::is_unsigned_v<_TypeFrom_> && std::is_signed_v<_TypeTo_> */
+	}
+	else { /* std::is_unsigned_v<_TypeFrom_> && std::is_signed_v<_TypeTo_> */
 		if constexpr (sizeof(_TypeFrom_) > sizeof(_TypeTo_))
 			if (__from > __to_maximum_limit)
 				return false;
+	}
 
 	__to = static_cast<_TypeTo_>(__from);
 	return true;

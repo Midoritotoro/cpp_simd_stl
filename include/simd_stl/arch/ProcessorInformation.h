@@ -5,56 +5,51 @@
 
 #include <simd_stl/math/BitMath.h>
 
-
-#if defined(simd_stl_os_win)
-#  include <Windows.h>
-#endif // defined(simd_stl_os_win)
-
 __SIMD_STL_ARCH_NAMESPACE_BEGIN
 
 class ProcessorInformation {
 public:
-    simd_stl_nodiscard simd_stl_always_inline static uint32 hardwareConcurrency() noexcept {
-        return _processorInformationInternal._logicalProcessors;
+    simd_stl_nodiscard simd_stl_always_inline static uint32 hardware_concurrency() noexcept {
+        return _processor_information_internal._logical_processors;
     }
 private:
     class ProcessorInformationInternal
     {
     public:
-        uint32 _logicalProcessors = 0;
+        uint32 _logical_processors = 0;
 
         ProcessorInformationInternal() noexcept {
 #if defined(simd_stl_os_win)
 #  if defined(simd_stl_os_win64)
-            constexpr auto length = 48;
+            constexpr auto __length = 48;
 #  else 
-            constexpr auto length = 44;
+            constexpr auto __length = 44;
 #  endif
 
-            uint8 buffer[length];
-            uint8* informationBuffer = reinterpret_cast<uint8*>(&buffer);
+            uint8 __buffer[__length];
+            uint8* __information_buffer = reinterpret_cast<uint8*>(&__buffer);
             
-            dword_t bufferLength = length;
+            dword_t __buffer_length = __length;
 
-            Assert(GetLogicalProcessorInformationEx(RelationProcessorPackage, 
-                reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(informationBuffer), &bufferLength));
+            simd_stl_assert(GetLogicalProcessorInformationEx(RelationProcessorPackage, 
+                reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(__information_buffer), &__buffer_length));
 
-            while (bufferLength > 0) {
-                const auto information  = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(informationBuffer);
-                const auto informationSize = information->Size;
+            while (__buffer_length > 0) {
+                const auto __information  = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(__information_buffer);
+                const auto __information_size = __information->Size;
 
-                for (int16 i = 0; i != information->Processor.GroupCount; ++i)
-                    _logicalProcessors += math::PopulationCount(information->Processor.GroupMask[i].Mask);
+                for (int16 __current = 0; __current != __information->Processor.GroupCount; ++__current)
+                    _logical_processors += math::population_count(__information->Processor.GroupMask[__current].Mask);
 
-                informationBuffer += informationSize;
-                bufferLength -= informationSize;
+                __information_buffer += __information_size;
+                __buffer_length -= __information_size;
             }
         }
 #endif // defined(simd_stl_os_win)
      
     };
 
-    static inline ProcessorInformationInternal _processorInformationInternal;
+    static inline ProcessorInformationInternal _processor_information_internal;
 };
 
 __SIMD_STL_ARCH_NAMESPACE_END

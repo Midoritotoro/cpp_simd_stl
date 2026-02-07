@@ -86,6 +86,7 @@
 
 #if defined(simd_stl_os_windows)
 #  include <windows.h>
+#  include <stdnoreturn.h>
 #endif // defined(simd_stl_os_windows)
 
 #if defined(max) 

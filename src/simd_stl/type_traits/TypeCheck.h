@@ -45,7 +45,7 @@ template <
 constexpr inline bool is_type_complete_v = false;
 
 template <typename _Type_>
-constexpr inline bool is_type_complete_v<_Type_, std::void_t<decltype(sizeof(_Type_))>> = true
+constexpr inline bool is_type_complete_v<_Type_, std::void_t<decltype(sizeof(_Type_))>> = true;
 
 template <
     typename    _Type_,

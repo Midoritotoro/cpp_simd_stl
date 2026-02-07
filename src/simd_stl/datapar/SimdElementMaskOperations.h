@@ -13,8 +13,12 @@ struct __simd_element_mask_operations:
 	using __base = __simd_mask_common_operations<_Derived_>;
 
 	constexpr simd_stl_always_inline uint8 count_set() const noexcept;
+
 	constexpr simd_stl_always_inline uint8 count_trailing_zero_bits() const noexcept;
 	constexpr simd_stl_always_inline uint8 count_leading_zero_bits() const noexcept;
+
+	constexpr simd_stl_always_inline uint8 count_trailing_one_bits() const noexcept;
+	constexpr simd_stl_always_inline uint8 count_leading_one_bits() const noexcept;
 };
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

@@ -156,8 +156,8 @@ template <
     class _RemovedQualifiers_>
 struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, true, false> {
     using type = std::conditional_t<
-        std::is_same_v<typename function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>> ||
-        std::is_base_of_v<typename function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>>,
+        std::is_same_v<function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>> ||
+        std::is_base_of_v<function_class_type<_RemovedQualifiers_>, std::remove_cvref_t<_Object_>>,
         __invoker<__invoker_strategy::__ptr_to_member_function_with_obj>,
         std::conditional_t<
         type_traits::is_specialization_v<std::remove_cvref_t<_Object_>, std::reference_wrapper>,

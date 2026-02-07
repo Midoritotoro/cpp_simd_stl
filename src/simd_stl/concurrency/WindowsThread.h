@@ -8,22 +8,21 @@
 
 #if !defined(_DLL)
 #  include <process.h> // _beginthreadex && _endthreadex
+#  include <stdnoreturn.h>
 #else
    simd_stl_disable_warning_msvc(6258)
 #endif // !defined(_DLL)
 
-#include <Windows.h>
-
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
 struct __thread_type {
-    void* handle = nullptr;
-    dword_t id = 0;
+    void* __handle = nullptr;
+    dword_t __id = 0;
 };
 
 enum class __thread_result: uint8 {
-    Error,
-    Success
+    __error,
+    __success
 };
 
 enum __thread_creation_flags : dword_t {
@@ -43,11 +42,11 @@ simd_stl_nodiscard void* __current_thread() noexcept {
 	return GetCurrentThread();
 }
 
-__thread_result __wair_for_thread(void* __handle) noexcept {
+__thread_result __wait_for_thread(void* __handle) noexcept {
     if (WaitForSingleObjectEx(__handle, INFINITE, FALSE) == WAIT_FAILED)
-        return __thread_result::Error;
+        return __thread_result::__error;
 
-    return __thread_result::Success;
+    return __thread_result::__success;
 }
 
 int __thread_priority(void* __handle) noexcept {
@@ -97,7 +96,7 @@ __thread_type simd_stl_stdcall __create_thread(
 #if defined(simd_stl_cpp_msvc) && !defined(_DLL)
     // -MT || -MTd 
 
-    __result.handle = reinterpret_cast<HANDLE>(
+    __result.__handle = reinterpret_cast<HANDLE>(
         _beginthreadex(
             nullptr, __stack_size, __invoker, __decay_copied.get(), __creation,
             reinterpret_cast<uint32*>(&__thread_id)
@@ -106,19 +105,19 @@ __thread_type simd_stl_stdcall __create_thread(
 #else
     // -MD || -MDd
 
-    __result.handle = CreateThread(
+    __result.__handle = CreateThread(
         nullptr, __stack_size, reinterpret_cast<LPTHREAD_START_ROUTINE>(__invoker),
         reinterpret_cast<LPVOID>(__decay_copied.get()),
         __creation, reinterpret_cast<LPDWORD>(&__thread_id));
 
 #endif // defined(simd_stl_cpp_msvc) && !defined(_DLL)
 
-    if (simd_stl_likely(__result.handle != nullptr)) {
-        __result.id = __thread_id;
+    if (simd_stl_likely(__result.__handle != nullptr)) {
+        __result.__id = __thread_id;
         simd_stl_unused(__decay_copied.release());
     }
     else {
-        __result.id = 0;
+        __result.__id = 0;
     }
 
     return __result;
@@ -147,8 +146,9 @@ void simd_stl_stdcall __set_thread_priority(
     void*   __handle,
     int     __priority) noexcept 
 {
-    if (!SetThreadPriority(__handle, __priority))
-        printf("simd_stl::concurrency::_SetThreadPriority: Failed to set thread priority.");
+    if (!SetThreadPriority(__handle, __priority)) {
+        simd_stl_assert_log(false, "simd_stl::concurrency::__set_thread_priority: Failed to set thread priority.");
+    }
 }
 
 template <
@@ -158,18 +158,18 @@ simd_stl_always_inline auto __to_absolute_time(const std::chrono::duration<_Tick
     constexpr auto __zero = std::chrono::duration<_TickCountType_, _Period_>::zero();
     const auto __now      = std::chrono::steady_clock::now();
 
-    decltype(__now + __relative_time) __absoluteTime = __now; 
+    decltype(__now + __relative_time) __absolute_time = __now; 
 
-    if (__relativeTime > __zero) {
+    if (__relative_time > __zero) {
         constexpr auto __forever = (decltype(__absolute_time)::max)();
 
-        if (__absoluteTime < __forever - __relative_time)
-            __absoluteTime += __relative_time;
+        if (__absolute_time < __forever - __relative_time)
+            __absolute_time += __relative_time;
         else
-            __absoluteTime = __forever;
+            __absolute_time = __forever;
     }
 
-    return __absoluteTime;
+    return __absolute_time;
 }
 
 __SIMD_STL_CONCURRENCY_NAMESPACE_END

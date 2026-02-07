@@ -17,7 +17,7 @@ template <class _Function_>
 constexpr inline bool __is_lightweight_callable_v = std::conjunction_v<
     std::bool_constant<sizeof(_Function_) <= sizeof(void*)>,
     std::is_trivially_copy_constructible<_Function_>,
-    std::is_trivially_destructible<_Function_>>
+    std::is_trivially_destructible<_Function_>>;
 
 template <class _Function_>
 struct __function_reference {

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/SimdMemoryAccess.h>
-#include <simd_stl/memory/pointerToIntegral.h>
+#include <simd_stl/memory/PointerToIntegral.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN

@@ -13,7 +13,6 @@ __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 template <class _Type_>
 _Type_ __returns_exactly() noexcept;
 
-
 #define __EMPTY_ARGUMENT 
 
 #define __EMIT_CDECL(function, opt1, opt2, opt3) function(__cdecl, opt1, opt2, opt3)
@@ -30,7 +29,7 @@ _Type_ __returns_exactly() noexcept;
 #define __EMIT_FASTCALL(function, opt1, opt2, opt3)
 #endif // defined(_M_IX86) && !defined(_M_CEE)
 
-#if defined(simd_stl_processor_x86)
+#if defined(_M_IX86)
 #  define __EMIT_STDCALL(function, opt1, opt2, opt3)  function(__stdcall, opt1, opt2, opt3)
 #  define __EMIT_THISCALL(function, opt1, opt2, opt3) function(__thiscall, opt1, opt2, opt3)
 #else
@@ -56,18 +55,18 @@ _Type_ __returns_exactly() noexcept;
     __NON_MEMBER_CALL(func, const, ref_opt, noexcept_opt)    \
     __NON_MEMBER_CALL(func, volatile, ref_opt, noexcept_opt) \
     __NON_MEMBER_CALL(func, const volatile, ref_opt, noexcept_opt)
-
+    
 #define __NON_MEMBER_CALL_CV_REF(func, noexcept_opt) \
     __NON_MEMBER_CALL_CV(func, , noexcept_opt)       \
     __NON_MEMBER_CALL_CV(func, &, noexcept_opt)      \
     __NON_MEMBER_CALL_CV(func, &&, noexcept_opt)
 
-#if defined(__cpp_noexcept_function_type)
+#if defined(__cpp_noexcept_function_type)   
 #define __NON_MEMBER_CALL_CV_REF_NOEXCEPT(func) \
     __NON_MEMBER_CALL_CV_REF(func, )            \
     __NON_MEMBER_CALL_CV_REF(func, noexcept)
 #else // ^^^ defined(__cpp_noexcept_function_type) / !defined(__cpp_noexcept_function_type) vvv
-#define _NON_MEMBER_CALL_CV_REF_NOEXCEPT(func) _NON_MEMBER_CALL_CV_REF(func, )
+#define __NON_MEMBER_CALL_CV_REF_NOEXCEPT(func) _NON_MEMBER_CALL_CV_REF(func, )
 #endif // ^^^ !defined(__cpp_noexcept_function_type) ^^^
 
 #define __MEMBER_CALL(func, cv_opt, ref_opt, noexcept_opt) \
@@ -144,7 +143,7 @@ struct __function_information {
     using is_member_function_pointer = std::false_type;
 };
 
-#define _IS_MEMBER_FUNCTION_POINTER(call_opt, cv_opt, ref_opt, noexcept_opt)                            \
+#define __IS_MEMBER_FUNCTION_POINTER(call_opt, cv_opt, ref_opt, noexcept_opt)                            \
     template <class _Return_, class _FirstArgument_, class... _Args_>                                   \
     struct __function_information<_Return_ (call_opt _FirstArgument_::*)(_Args_...) cv_opt ref_opt noexcept_opt> { \
         using is_member_function_pointer = std::true_type;            \
@@ -152,10 +151,10 @@ struct __function_information {
         using class_type = _FirstArgument_;                \
     };
 
-_MEMBER_CALL_CV(_IS_MEMBER_FUNCTION_POINTER)
+__MEMBER_CALL_CV_REF_NOEXCEPT(__IS_MEMBER_FUNCTION_POINTER)
 #undef __IS_MEMBER_FUNCTION_POINTER
 
-#define __IS_MEMFUNPTR_ELLIPSIS(cv_ref_noexcept_opt) \
+#define __IS_MEMBER_FUNCTION_POINTER_ELLIPSIS(cv_ref_noexcept_opt) \
     template <class _Return_, class _FirstArgument_, class... _Args_> \
     struct __function_information<_Return_ (_FirstArgument_::*)(_Args_..., ...) cv_ref_noexcept_opt> { \
         using is_member_function_pointer = std::true_type; \
@@ -163,8 +162,8 @@ _MEMBER_CALL_CV(_IS_MEMBER_FUNCTION_POINTER)
         using class_type = _FirstArgument_; \
     };
 
-__CLASS_DEFINE_CV_REF_NOEXCEPT(__IS_MEMFUNPTR_ELLIPSIS)
-#undef __IS_MEMFUNPTR_ELLIPSIS
+__CLASS_DEFINE_CV_REF_NOEXCEPT(__IS_MEMBER_FUNCTION_POINTER_ELLIPSIS)
+#undef __IS_MEMBER_FUNCTION_POINTER_ELLIPSIS
 
 template <
     class                       _Type_,

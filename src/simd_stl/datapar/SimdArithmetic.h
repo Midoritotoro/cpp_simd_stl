@@ -25,30 +25,6 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
-
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -243,30 +219,6 @@ public:
         typename _VectorType_>
     static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
 
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
-
     template <
         typename _DesiredType_,
         typename _VectorType_>
@@ -369,30 +321,6 @@ public:
         typename _DesiredType_,
         typename _VectorType_>
     static simd_stl_always_inline auto __reduce(_VectorType_ __vector) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_vector(
-        _VectorType_    __vector,
-        uint32          __byte_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_right_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
-
-    template <
-        typename _DesiredType_,
-        typename _VectorType_>
-    static simd_stl_always_inline _VectorType_ __shift_left_elements(
-        _VectorType_    __vector,
-        uint32          __bit_shift) noexcept;
 
     template <
         typename _DesiredType_,
@@ -639,56 +567,6 @@ template <
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_shift_right_elements(
-    _VectorType_    __vector,
-    uint32          __bit_shift) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_right_elements<_DesiredType_>(__vector, __bit_shift);
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
-static simd_stl_always_inline _VectorType_ __simd_shift_left_elements(
-    _VectorType_    __vector,
-    uint32          __bit_shift) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_left_elements<_DesiredType_>(__vector, __bit_shift);
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_shift_right_vector(
-    _VectorType_    __vector,
-    uint32          __byte_shift) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_right_vector(__vector, __byte_shift);
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_shift_left_vector(
-    _VectorType_    __vector,
-    uint32          __byte_shift) noexcept
-{
-    __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __shift_left_vector(__vector, __byte_shift);
-}
-
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    typename            _DesiredType_,
-    typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_negate(_VectorType_ __vector) noexcept {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
     return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __negate<_DesiredType_>(__vector);
@@ -752,7 +630,7 @@ template <
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ __vector) noexcept {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_not(__vector);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::__bit_not(__vector);
 }
 
 template <
@@ -764,7 +642,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_xor(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_xor(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::__bit_xor(__left, __right);
 }
 
 template <
@@ -776,7 +654,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_and(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_and(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::__bit_and(__left, __right);
 }
 
 template <
@@ -788,7 +666,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_or(
     _VectorType_ __right) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::template __bit_or(__left, __right);
+    return __simd_arithmetic<_SimdGeneration_, _RegisterPolicy_>::__bit_or(__left, __right);
 }
 
 template <

@@ -16,15 +16,14 @@
 __SIMD_STL_CONCURRENCY_NAMESPACE_BEGIN
 
 class thread final {
+    static constexpr auto __default_stack_size = 1024 * 1024; // 1 Mb
+    static constexpr auto __default_stack_priority = Priority::NormalPriority;
 public:
-    static constexpr auto defaultStackSize      = 1024 * 1024; // 1 Mb
-    static constexpr auto defaultStackPriority  = Priority::NormalPriority;
-
 	using handle_type	= thread_handle;
 	using id			= thread_id;
 
 	simd_stl_nodiscard_constructor thread() noexcept;
-    simd_stl_nodiscard_constructor thread(thread&& other) noexcept;
+    simd_stl_nodiscard_constructor thread(thread&& __other) noexcept;
 
     thread(const thread&) = delete;
     thread& operator=(const thread&) = delete;
@@ -39,10 +38,10 @@ public:
      * Если флаг равен false, то деструктор вызывает join(), дожидаясь
      * завершения работы потока, и только затем освобождает ресурсы.
      *
-     * @param terminateOnDestroy Логический флаг, определяющий поведение деструктора.
+     * @param __terminate_on_destroy Логический флаг, определяющий поведение деструктора.
      */
-    void setTerminateOnDestroy(bool terminateOnDestroy) noexcept;
-    simd_stl_nodiscard simd_stl_always_inline bool terminateOnDestroy() const noexcept;
+    void set_terminate_on_destroy(bool __terminate_on_destroy) noexcept;
+    simd_stl_nodiscard simd_stl_always_inline bool terminate_on_destroy() const noexcept;
 
 
     /**
@@ -50,10 +49,10 @@ public:
      *
      * По умолчанию используется значение defaultStackSize.
      *
-     * @param bytes Размер стека в байтах.
+     * @param __bytes Размер стека в байтах.
      */
-    void setStackSize(sizetype bytes) noexcept;
-    simd_stl_nodiscard simd_stl_always_inline sizetype stackSize() const noexcept;
+    void set_stack_size(sizetype __bytes) noexcept;
+    simd_stl_nodiscard simd_stl_always_inline sizetype stack_size() const noexcept;
 
 
     /**
@@ -61,13 +60,13 @@ public:
      *
      * По умолчанию используется defaultStackPriority (нормальный приоритет).
      *
-     * @param priority Значение приоритета.
+     * @param __priority Значение приоритета.
      */
-    void setPriority(Priority priority) noexcept;
+    void set_priority(Priority __priority) noexcept;
     simd_stl_nodiscard simd_stl_always_inline Priority priority() const noexcept;
 
-    thread& operator=(thread&& other) noexcept;
-    void swap(thread& other) noexcept;
+    thread& operator=(thread&& __other) noexcept;
+    void swap(thread& __other) noexcept;
 
     /**
      * @brief Блокирует текущий поток до завершения работы потока,
@@ -98,11 +97,11 @@ public:
      * Принимает вызываемый объект
      * и создаёт поток, который будет выполнять его без дополнительных аргументов.
      *
-     * @tparam _Task_ Тип вызываемого объекта.
-     * @param task    Вызываемый объект, который будет выполнен в новом потоке.
+     * @tparam _Task_   Тип вызываемого объекта.
+     * @param __task    Вызываемый объект, который будет выполнен в новом потоке.
      */
     template <class _Task_>
-    inline void start(_Task_&& task);
+    inline void start(_Task_&& __task);
 
     /**
      * @brief Запускает новый поток выполнения, исполняющий переданную задачу
@@ -117,18 +116,18 @@ public:
      * @tparam _FirstArgument_ Тип первого аргумента.
      * @tparam _Args_          Типы остальных аргументов.
      *
-     * @param task          Вызываемый объект, который будет выполнен в новом потоке.
-     * @param firstArgument Первый аргумент, используемый для вызова (например, объект для метода).
-     * @param args          Дополнительные аргументы, передаваемые вызываемому объекту.
+     * @param __task            Вызываемый объект, который будет выполнен в новом потоке.
+     * @param __first_argument  Первый аргумент, используемый для вызова (например, объект для метода).
+     * @param __args            Дополнительные аргументы, передаваемые вызываемому объекту.
      */
     template <
         class       _Task_,
         class       _FirstArgument_,
         class...    _Args_>
     inline void start(
-        _Task_&&            task,
-        _FirstArgument_&&   firstArgument,
-        _Args_&& ...        args);
+        _Task_&&            __task,
+        _FirstArgument_&&   __first_argument,
+        _Args_&& ...        __args);
 
 
     simd_stl_nodiscard simd_stl_always_inline bool joinable() const noexcept;
@@ -138,7 +137,7 @@ public:
      *        доступных на текущей системе.
      * @return Количество аппаратных потоков.
      */
-    simd_stl_nodiscard simd_stl_always_inline static uint32 hardwareConcurrency() noexcept;
+    simd_stl_nodiscard simd_stl_always_inline static uint32 hardware_concurrency() noexcept;
 
     /**
      * @brief Возвращает системный дескриптор потока.
@@ -154,77 +153,78 @@ public:
     *
     * @return Значение, указывающее на совпадение с текущим потоком.
     */
-    simd_stl_nodiscard simd_stl_always_inline bool isCurrentThread() const noexcept;
+    simd_stl_nodiscard simd_stl_always_inline bool is_current_thread() const noexcept;
 private:
     handle_type _handle;
 	id _id = 0;
 
-    bool _terminateOnDestroy = false;
+    bool _terminate_on_destroy = false;
     bool _joinable = false;
 
-    sizetype _stackSize = defaultStackSize;
-    Priority _priority = defaultStackPriority;
+    sizetype _stack_size = __default_stack_size;
+    Priority _priority = __default_stack_priority;
 };
 
-thread::thread() noexcept {}
+thread::thread() noexcept 
+{}
 
-thread::thread(thread&& other) noexcept :
-    _handle(std::exchange(other._handle, {})),
-    _id(std::exchange(other._id, {})),
-    _terminateOnDestroy(std::exchange(other._terminateOnDestroy, {})),
-    _stackSize(std::exchange(other._stackSize, {})),
-    _priority(std::exchange(other._priority, {}))
+thread::thread(thread&& __other) noexcept :
+    _handle(std::exchange(__other._handle, {})),
+    _id(std::exchange(__other._id, {})),
+    _terminate_on_destroy(std::exchange(__other._terminate_on_destroy, {})),
+    _stack_size(std::exchange(__other._stack_size, {})),
+    _priority(std::exchange(__other._priority, {}))
 {
-    DebugAssert(!other.joinable());
-    _joinable = std::exchange(other._joinable, {});
+    simd_stl_debug_assert(!__other.joinable());
+    _joinable = std::exchange(__other._joinable, {});
 }
 
 thread::~thread() noexcept {
-    if (joinable() && _terminateOnDestroy)
-        _TerminateThread(_handle.nativeHandle());
+    if (_joinable && _terminate_on_destroy)
+        __terminate_thread(_handle.native_handle());
     else
         _handle.destroy();
 }
 
-void thread::setTerminateOnDestroy(bool terminateOnDestroy) noexcept {
-    _terminateOnDestroy = terminateOnDestroy;
+void thread::set_terminate_on_destroy(bool __terminate_on_destroy) noexcept {
+    _terminate_on_destroy = __terminate_on_destroy;
 }
 
-bool thread::terminateOnDestroy() const noexcept {
-    return _terminateOnDestroy;
+bool thread::terminate_on_destroy() const noexcept {
+    return _terminate_on_destroy;
 }
 
-void thread::setStackSize(sizetype bytes) noexcept {
-    _stackSize = bytes;
+void thread::set_stack_size(sizetype __bytes) noexcept {
+    _stack_size = __bytes;
 }
 
-sizetype thread::stackSize() const noexcept {
-    return _stackSize;
+sizetype thread::stack_size() const noexcept {
+    return _stack_size;
 }
 
-void thread::setPriority(Priority priority) noexcept {
-    _priority = priority;
+void thread::set_priority(Priority __priority) noexcept {
+    _priority = __priority;
 }
 
 Priority thread::priority() const noexcept {
     return _priority;
 }
 
-void thread::swap(thread& other) noexcept {
-    algorithm::swap(_handle, other._handle);
-    algorithm::swap(_id, other._id);
-    algorithm::swap(_stackSize, other._stackSize);
-    algorithm::swap(_joinable, other._joinable);
-    algorithm::swap(_priority, other._priority);
-    algorithm::swap(_terminateOnDestroy, other._terminateOnDestroy);
+void thread::swap(thread& __other) noexcept {
+    algorithm::swap(_handle, __other._handle);
+    algorithm::swap(_id, __other._id);
+    algorithm::swap(_stack_size, __other._stack_size);
+    algorithm::swap(_joinable, __other._joinable);
+    algorithm::swap(_priority, __other._priority);
+    algorithm::swap(_terminate_on_destroy, __other._terminate_on_destroy);
 }
 
 void thread::join() {
     if (_handle.available() == false)
         return;
 
-    const auto result = _WaitForThread(_handle.nativeHandle());
-    DebugAssert(result != _ThreadResult::_Error);
+    const auto result = __wait_for_thread(_handle.native_handle());
+    simd_stl_debug_assert(result != __thread_result::__error);
 
     _handle.destroy();
     _joinable = false;
@@ -232,16 +232,16 @@ void thread::join() {
 }
 
 void thread::detach() {
-    _handle.setAutoDelete(false);
-    concurrency::_DetachThread(_handle.nativeHandle());
+    _handle.set_auto_delete(false);
+    concurrency::__detach_thread(_handle.native_handle());
 
     _id = 0;
-    _handle.setNativeHandle(nullptr, false);
+    _handle.set_native_handle(nullptr, false);
 }
 
 void thread::terminate() {
     if (_handle.available()) {
-        concurrency::_TerminateThread(_handle.nativeHandle());
+        concurrency::__terminate_thread(_handle.native_handle());
 
         _handle.destroy();
         _id = 0;
@@ -253,47 +253,47 @@ thread::handle_type thread::handle() noexcept {
     return _handle;
 }
 
-bool thread::isCurrentThread() const noexcept {
-    return (concurrency::_CurrentThreadId() == _id.id());
+bool thread::is_current_thread() const noexcept {
+    return (concurrency::__current_thread_id() == _id.id());
 }
 
-uint32 thread::hardwareConcurrency() noexcept {
-    return arch::ProcessorInformation::hardwareConcurrency();
+uint32 thread::hardware_concurrency() noexcept {
+    return arch::ProcessorInformation::hardware_concurrency();
 }
 
 bool thread::joinable() const noexcept {
     return _joinable;
 }
 
-thread& thread::operator=(thread&& other) noexcept {
-    if (joinable())
+thread& thread::operator=(thread&& __other) noexcept {
+    if (_joinable)
         terminate();
 
-    _id     = std::exchange(other._id, {});
-    _handle = std::exchange(other._handle, {});
+    _id     = std::exchange(__other._id, {});
+    _handle = std::exchange(__other._handle, {});
 
     return *this;
 }
 
 template <class _Task_>
-void thread::start(_Task_&& task)
+void thread::start(_Task_&& __task)
 {
     if (_handle.available())
         terminate();
 
-    const auto result = concurrency::_CreateThread(
-        _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
-        std::forward<_Task_>(task));
+    const auto __result = concurrency::__create_thread(
+        __thread_creation_flags::__suspend_after_creation, _stack_size,
+        std::forward<_Task_>(__task));
 
-    concurrency::_SetThreadPriority(result.handle, _priority);
+    concurrency::__set_thread_priority(__result.__handle, _priority);
 
     _joinable = true;
 
-    _handle = result.handle;
-    _id = result.id;
+    _handle = __result.__handle;
+    _id = __result.__id;
 
-    _handle.setDeleter(CloseHandle);
-    concurrency::_ResumeSuspendedThread(result.handle);
+    _handle.set_deleter(CloseHandle);
+    concurrency::__resume_suspended_thread(result.handle);
 }
 
 template <
@@ -308,64 +308,64 @@ void thread::start(
     if (_handle.available())
         terminate();
 
-    const auto result = concurrency::_CreateThread(
-        _ThreadCreationFlags::_SuspendAfterCreation, _stackSize,
-        std::forward<_Task_>(task), std::forward<_FirstArgument_>(firstArgument), 
-        std::forward<_Args_>(args)...);
+    const auto __result = concurrency::__create_thread(
+        __thread_creation_flags::__suspend_after_creation, _stack_size,
+        std::forward<_Task_>(__task), std::forward<_FirstArgument_>(__first_argument), 
+        std::forward<_Args_>(__args)...);
 
-    concurrency::_SetThreadPriority(result.handle, _priority);
+    concurrency::__set_thread_priority(__result.__handle, _priority);
 
     _joinable = true;
 
-    _handle = result.handle;
-    _id = result.id;
+    _handle = __result.__handle;
+    _id = __result.__id;
 
-    _handle.setDeleter(CloseHandle);
-    concurrency::_ResumeSuspendedThread(result.handle);
+    _handle.set_deleter(CloseHandle);
+    concurrency::__resume_suspended_thread(__result.__handle);
 }
 
 namespace this_thread {
     Priority get_priority() noexcept {
-        return static_cast<Priority>(concurrency::_ThreadPriority(concurrency::_CurrentThread()));
+        return static_cast<Priority>(concurrency::__thread_priority(concurrency::__current_thread()));
     }
 
     thread_id get_id() noexcept {
-        return concurrency::_CurrentThreadId();
+        return concurrency::__current_thread_id();
     }
 
     simd_stl_always_inline void yield() noexcept {
-        concurrency::_Yield();
+        concurrency::__yield();
     }
 
     template <
         class _Clock_,
         class _Duration_>
-    void sleep_until(const std::chrono::time_point<_Clock_, _Duration_>& absoluteTime) {
-        constexpr auto maximumSleepMs = std::chrono::milliseconds(std::chrono::hours(24));
+    void sleep_until(const std::chrono::time_point<_Clock_, _Duration_>& __absolute_time) {
+        constexpr auto __maximum_sleep_ms = std::chrono::milliseconds(std::chrono::hours(24));
 
         while (true) {
-            const auto now = _Clock_::now();
+            const auto __now = _Clock_::now();
 
-            if (absoluteTime <= now)
+            if (__absolute_time <= __now)
                 return;
 
-            std::chrono::milliseconds ms;
-            const auto remainingTime = (absoluteTime - now);
+            std::chrono::milliseconds __ms;
+            const auto __remaining_time = (__absolute_time - __now);
 
-            if (remainingTime > maximumSleepMs)
-                ms = maximumSleepMs;
+            if (__remaining_time > __maximum_sleep_ms)
+                __ms = __maximum_sleep_ms;
             else
-                ms = std::chrono::ceil<std::chrono::milliseconds>(remainingTime);
+                __ms = std::chrono::ceil<std::chrono::milliseconds>(__remaining_time);
 
-            _CurrentThreadSleep(ms.count());
+            concurrency::__current_thread_sleep(ms.count());
         }
     }
 
     template <
         class _TickCountType_,
         class _Period_>
-    void sleep_for(const std::chrono::duration<_TickCountType_, _Period_>& relativeTime) {
-        sleep_until(concurrency::_ToAbsoluteTime(relativeTime));
+    void sleep_for(const std::chrono::duration<_TickCountType_, _Period_>& __relative_time) {
+        sleep_until(concurrency::__to_absolute_time(__relative_time));
     }
 } // namespace this_thread
 

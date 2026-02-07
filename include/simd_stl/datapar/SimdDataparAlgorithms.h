@@ -165,14 +165,14 @@ __simd_nodiscard_inline _DataparType_ reverse(const _DataparType_& __datapar) no
 }
 
 template <class _DataparType_>
-__simd_nodiscard_inline void streaming_fence() noexcept
+simd_stl_always_inline void streaming_fence() noexcept
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	return __simd_streaming_fence<std::remove_cvref_t<_DataparType_>::__generation>();
 }
 
 template <arch::CpuFeature _SimdGeneration_>
-__simd_nodiscard_inline void streaming_fence() noexcept {
+simd_stl_always_inline void streaming_fence() noexcept {
 	return __simd_streaming_fence<_SimdGeneration_>();
 }
 
@@ -214,7 +214,8 @@ __simd_nodiscard_inline _DataparType_ non_temporal_load(const void* __address) n
 	requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-	return __simd_non_temporal_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::vector_type>(__address);
+	return __simd_non_temporal_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, 
+		typename _RawDataparType::vector_type>(__address);
 }
 
 template <class _DataparType_>
@@ -236,7 +237,8 @@ simd_stl_always_inline _DataparType_ load(
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-	return __simd_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::vector_type>(__address, __policy);
+	return __simd_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, 
+		typename _RawDataparType::vector_type>(__address, __policy);
 }
 
 template <
@@ -249,7 +251,8 @@ simd_stl_always_inline void store(
 		requires(__is_valid_basic_simd_v<std::remove_cvref_t<_DataparType_>>)
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-	return __simd_store<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::vector_type>(__address, __simd_unwrap(__datapar), __policy);
+	return __simd_store<_RawDataparType::__generation, typename _RawDataparType::policy_type,
+		typename _RawDataparType::vector_type>(__address, __simd_unwrap(__datapar), __policy);
 }
 
 template <
@@ -264,8 +267,9 @@ __simd_nodiscard_inline _DataparType_ maskz_load(
 			(__is_valid_basic_simd_v<std::remove_cvref_t<_MaskType_>> || __is_simd_mask_v<std::remove_cvref_t<_MaskType_>>))
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
-	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type, typename _RawDataparType::vector_type>(
-		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __policy);
+	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, 
+		typename _RawDataparType::value_type, typename _RawDataparType::vector_type>(reinterpret_cast<
+			const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __policy);
 }
 
 template <
@@ -282,7 +286,8 @@ __simd_nodiscard_inline _DataparType_ mask_load(
 {
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
 	return __simd_mask_load<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
-		reinterpret_cast<const typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
+		reinterpret_cast<const typename _RawDataparType::value_type*>(__address),
+		__simd_unwrap_mask(__mask), __simd_unwrap(__additional_source), __policy);
 }
 
 template <
@@ -299,7 +304,8 @@ simd_stl_always_inline void mask_store(
 { 
 	using _RawDataparType = std::remove_cvref_t<_DataparType_>;
 	__simd_mask_store<_RawDataparType::__generation, typename _RawDataparType::policy_type, typename _RawDataparType::value_type>(
-		reinterpret_cast<typename _RawDataparType::value_type*>(__address), __simd_unwrap_mask(__mask), __simd_unwrap(__datapar), __policy);
+		reinterpret_cast<typename _RawDataparType::value_type*>(__address),
+		__simd_unwrap_mask(__mask), __simd_unwrap(__datapar), __policy);
 }
 
 template <class _DataparType_>
@@ -307,22 +313,18 @@ __simd_nodiscard_inline auto reduce_equal(
 	const _DataparType_& __first,
 	const _DataparType_& __second) noexcept
 {
-	constexpr auto __is_native_compare_return_number = std::is_integral_v<datapar::__simd_native_compare_return_type<_DataparType_,
-		typename _DataparType_::value_type, datapar::simd_comparison::equal>>;
+	using _ValueType	= typename _DataparType_::value_type;
+	using _ReduceType	= typename IntegerForSizeof<_ValueType>::Signed;
+	using _IntDatapar	= __rebind_vector_element_type<_ReduceType, _DataparType_>;
 
-	if constexpr (!__is_native_compare_return_number) {
-		auto __zeros = _DataparType_();
-		__zeros.clear();
+	constexpr auto __is_native_compare_return_number = std::is_integral_v<
+		datapar::__simd_native_compare_return_type<_DataparType_, _ValueType, datapar::simd_comparison::equal>>;
 
-		const auto __compared = (__first == __second) | as_simd;
-		const auto __count_vector = __zeros - __compared;
+	if constexpr (__is_native_compare_return_number)
+		return reduce((__first == __second) | as_index_mask, type_traits::plus<>{});
+	else
+		return reduce(_IntDatapar::zero() - simd_cast<_ReduceType>((__first == __second) | as_simd), type_traits::plus<>{});
 
-		return reduce(__count_vector, type_traits::plus<>{});
-	}
-	else {
-		const auto __mask = (__first == __second) | as_index_mask;
-		return reduce(__mask, type_traits::plus<>{});
-	}
 }
 
 template <
@@ -333,20 +335,17 @@ __simd_nodiscard_inline auto reduce_equal(
 	const _DataparType_&	__second,
 	const _MaskType_&		__tail_mask) noexcept
 {
-	constexpr auto __is_native_compare_return_number = std::is_integral_v<datapar::__simd_native_compare_return_type<_DataparType_,
-		typename _DataparType_::value_type, datapar::simd_comparison::equal>>;
+	using _ValueType	= typename _DataparType_::value_type;
+	using _ReduceType	= typename IntegerForSizeof<_ValueType>::Signed;
+	using _IntDatapar	= __rebind_vector_element_type<_ReduceType, _DataparType_>;
 
-	if constexpr (!__is_native_compare_return_number) {
-		auto __zeros = _DataparType_();
-		__zeros.clear();
+	constexpr auto __is_native_compare_return_number = std::is_integral_v<
+		datapar::__simd_native_compare_return_type<_DataparType_, _ValueType, datapar::simd_comparison::equal>>;
 
-		const auto __compared = ((__first == __second) & __tail_mask) | as_simd;
-		return reduce(__zeros - __compared, type_traits::plus<>{});
-	}
-	else {
-		const auto __mask = ((__first == __second) & __tail_mask) | as_index_mask;
-		return reduce(__mask, type_traits::plus<>{});
-	}
+	if constexpr (__is_native_compare_return_number)
+		return reduce(((__first == __second) & __tail_mask) | as_index_mask, type_traits::plus<>{});
+	else
+		return reduce(_IntDatapar::zero() - simd_cast<_ReduceType>(((__first == __second) & __tail_mask) | as_simd), type_traits::plus<>{});
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

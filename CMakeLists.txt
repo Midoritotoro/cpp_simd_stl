@@ -303,6 +303,8 @@ set(PUBLIC_HEADERS
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
 
+message(${CMAKE_CXX_COMPILER})
+
 add_library(cpp_simd_stl STATIC ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})
 add_library(cpp_simd_stl::cpp_simd_stl ALIAS cpp_simd_stl)
 
@@ -366,7 +368,7 @@ if((CMAKE_SYSTEM_PROCESSOR STREQUAL "i686") OR (CMAKE_SYSTEM_PROCESSOR STREQUAL 
 		include(cmake/x86_Simd.cmake)
 endif()
 
-if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g -Ob3 -Oi) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -411,6 +413,18 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_ID STREQUAL "C
             /Zi
             /Zc:__cplusplus
     )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(
+        cpp_simd_stl 
+        PRIVATE
+            /permissive-
+            /W4
+            /utf-8
+            /MP
+            /EHsc
+            /Zi
+            /Zc:__cplusplus
+        )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(
         cpp_simd_stl 
@@ -433,8 +447,8 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()
 
 if(PROJECT_IS_TOP_LEVEL)
-    enable_testing()
-    add_subdirectory(benchmarks)
+    # enable_testing()
+    # add_subdirectory(benchmarks)
 endif()
 
 if(CPP_SIMD_STL_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)

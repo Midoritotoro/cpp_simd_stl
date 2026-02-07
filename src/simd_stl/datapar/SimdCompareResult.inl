@@ -29,4 +29,5 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, _Comparison_>
 	return ~_compare_result;
 }
 
+
 __SIMD_STL_DATAPAR_NAMESPACE_END

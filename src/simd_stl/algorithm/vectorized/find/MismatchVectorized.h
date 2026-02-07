@@ -1,5 +1,7 @@
 #pragma once
 
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
+
 #include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 #include <src/simd_stl/datapar/CachePrefetcher.h>
 
@@ -7,7 +9,7 @@
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <typename _Type_> 
-simd_stl_always_inline sizetype simd_stl_stdcall __mismatch_scalar(
+simd_stl_always_inline sizetype __mismatch_scalar(
     const void* __first,
     const void* __second,
     sizetype    __length) noexcept
@@ -24,58 +26,52 @@ simd_stl_always_inline sizetype simd_stl_stdcall __mismatch_scalar(
 
 template <class _Simd_>
 struct __mismatch_vectorized_internal {
-    template <class _CachePrefetcher_>
-    simd_stl_declare_const_function simd_stl_always_inline sizetype operator()(
+    simd_stl_always_inline sizetype operator()(
         sizetype            __aligned_size,
         sizetype            __tail_size,
         const void*         __first,
         const void*         __second,
-        const sizetype      __length,
-        _CachePrefetcher_&& __prefetcher) noexcept
+        const sizetype      __size) noexcept
     {
+        using _ValueType = typename _Simd_::value_type;
+
         const auto __guard = datapar::make_guard<_Simd_>();
-        auto __cached_first = static_cast<const typename _Simd_::value_type*>(__first);
+        auto __cached_first = static_cast<const _ValueType*>(__first);
+
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
 
         do {
-            __prefetcher(__bytes_pointer_offset(__first, sizeof(_Simd_)));
-            __prefetcher(__bytes_pointer_offset(__second, sizeof(_Simd_)));
+            const auto __loaded_first   = datapar::load<_Simd_>(__first);
+            const auto __loaded_second  = datapar::load<_Simd_>(__second);
 
-            const auto __loaded_first   = _Simd_::load(__first);
-            const auto __loaded_second  = _Simd_::load(__second);
-
-            const auto __mask = __loaded_first.mask_compare<datapar::simd_comparison::equal>(__loaded_second);
-
-            if (__mask.all_of() == false)
-                return (static_cast<const typename _Simd_::value_type*>(__first) - __cached_first) + __mask.count_trailing_one_bits();
+            if (const auto __mask = (__loaded_first == __loaded_second) | datapar::as_index_mask; __mask.all_of() == false)
+                return (static_cast<const _ValueType*>(__first) - __cached_first) + __mask.count_trailing_one_bits();
 
             __advance_bytes(__first, sizeof(_Simd_));
             __advance_bytes(__second, sizeof(_Simd_));
-
-            __aligned_size -= sizeof(_Simd_);
-        } while (__aligned_size != 0);
+        } while (__first != __stop_at);
 
         if (__tail_size == 0)
-            return __length;
+            return __size;
 
         if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
-            const auto __tail_mask = _Simd_::make_tail_mask(__tail_size);
+            const auto __tail_mask = datapar::make_tail_mask<_Simd_>(__tail_size);
 
-            const auto __loaded_first   = _Simd_::mask_load(__first, __tail_mask);
-            const auto __loaded_second  = _Simd_::mask_load(__second, __tail_mask);
+            const auto __loaded_first   = datapar::maskz_load<_Simd_>(__first, __tail_mask);
+            const auto __loaded_second  = datapar::maskz_load<_Simd_>(__second, __tail_mask);
 
-            const auto __combined_native_mask = __loaded_first.native_compare<datapar::simd_comparison::equal>(__loaded_second) & __tail_mask;
-            const auto __simd_mask = typename _Simd_::mask_type(__combined_native_mask);
+            const auto __combined_mask = ((__loaded_first == __loaded_second) & __tail_mask) | datapar::as_mask;
 
-            const auto __tail_length    = (__tail_size / sizeof(typename _Simd_::value_type));
+            const auto __tail_length    = (__tail_size / sizeof(_ValueType));
             const auto __all_equal_mask = (typename _Simd_::mask_type::mask_type(1) << __tail_length) - 1;
 
-            if (__simd_mask != __all_equal_mask)
-                return (static_cast<const typename _Simd_::value_type*>(__first) - __cached_first) + __simd_mask.count_trailing_one_bits();
+            if (__combined_mask != __all_equal_mask)
+                return (static_cast<const _ValueType*>(__first) - __cached_first) + __combined_mask.count_trailing_one_bits();
 
-            return __length;
+            return __size;
         }
         else {
-            return __mismatch_scalar<typename _Simd_::value_type>(__first, __second, __tail_size / sizeof(typename _Simd_::value_type));
+            return __mismatch_scalar<_ValueType>(__first, __second, __tail_size / sizeof(_ValueType));
         }
     }
 };

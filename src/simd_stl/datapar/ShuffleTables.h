@@ -50,7 +50,7 @@ constexpr auto __make_shuffle_tables(
 template <sizetype _Size_> 
 constexpr auto __tables_sse = [] { 
     static_assert(_Size_ == 1 || _Size_ == 2 || _Size_ == 4 || _Size_ == 8, "Unsupported element size for __tables_sse");
-    return __shuffle_tables<1, 1>();
+    return __shuffle_tables<1, 1, 16>();
 }();
 
 template <>
@@ -68,7 +68,7 @@ constexpr auto __tables_sse<8>  = __make_shuffle_tables<4, 16, 16>(8, 8);
 template <sizetype _Size_>
 constexpr auto __tables_avx = [] { 
     static_assert(_Size_ == 1 || _Size_ == 2 || _Size_ == 4 || _Size_ == 8, "Unsupported element size for __tables_avx");
-    return __shuffle_tables<1, 1>();
+    return __shuffle_tables<1, 1, 16>();
 }();
 
 template <>

@@ -49,8 +49,8 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::clear() noexcept {
-    return *this = __simd_broadcast_zeros<_SimdGeneration_, _RegisterPolicy_, vector_type>();
+simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::zero() noexcept {
+    return __simd_broadcast_zeros<_SimdGeneration_, _RegisterPolicy_, vector_type>();
 }
 
 template <
@@ -299,7 +299,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
     const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&                      __left,
     const typename simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::value_type  __right) noexcept
 {
-    return *this + simd(__right);
+    return __left + simd(__right);
 }
 
 template <
@@ -364,7 +364,6 @@ template <typename _DesiredType_>
 simd_stl_always_inline _DesiredType_
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(size_type __index) const noexcept
 {
-    simd_stl_debug_assert(__index >= 0 && __index < size<_DesiredType_>(), "simd_stl::datapar::basic_simd: Index out of range");
     return __simd_extract<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __index);
 }
 
@@ -376,7 +375,6 @@ template <typename _DesiredType_>
 simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract_wrapped(size_type __index) noexcept
 {
-    simd_stl_debug_assert(__index >= 0 && __index < size<_DesiredType_>(), "simd_stl::datapar::basic_simd: Index out of range");
     return simd_element_reference<simd>(this, __index);
 }
 
@@ -391,46 +389,6 @@ simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
 {
     return __simd_insert<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __address, __value);
 }
-
-//template <
-//    arch::CpuFeature	_SimdGeneration_,
-//    typename			_Element_,
-//    class               _RegisterPolicy_>
-//simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator>>(
-//    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>     __left,
-//    const uint32                                                  _Shift) noexcept
-//{
-//    return _SimdShiftRightElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, _Shift);
-//}
-//
-//template <
-//    arch::CpuFeature	_SimdGeneration_,
-//    typename			_Element_,
-//    class               _RegisterPolicy_>
-//simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator<<(
-//    const simd<_SimdGeneration_, _Element_, _RegisterPolicy_>   __left,
-//    const uint32                                                _Shift) noexcept
-//{
-//    return _SimdShiftLeftElements<_SimdGeneration_, _RegisterPolicy_, _Element_>(__left._vector, _Shift);
-//}
-//
-//template <
-//    arch::CpuFeature	_SimdGeneration_,
-//    typename			_Element_,
-//    class               _RegisterPolicy_>
-//simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
-//simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator>>=(const uint32 shift) noexcept {
-//    return *this = (*this >> shift);
-//}
-//
-//template <
-//    arch::CpuFeature	_SimdGeneration_,
-//    typename			_Element_,
-//    class               _RegisterPolicy_>
-//simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
-//simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator<<=(const uint32 shift) noexcept {
-//    return *this = (*this << shift);
-//}
 
 template <
     arch::CpuFeature	_SimdGeneration_,
@@ -528,7 +486,6 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _ElementType_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::width() noexcept {
     return sizeof(vector_type);
 }
@@ -537,21 +494,16 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _ElementType_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::size() noexcept {
-    static_assert(type_traits::__is_vector_type_supported_v<_ElementType_>, "Unsupported element type");
-
-    constexpr auto __length = (sizeof(vector_type) / sizeof(_ElementType_));
-    return __length;
+    return (sizeof(vector_type) / sizeof(_Element_));
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _ElementType_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::length() noexcept {
-    return size<_ElementType_>();
+    return size();
 }
 
 template <

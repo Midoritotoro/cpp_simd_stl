@@ -721,12 +721,12 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     class				_RegisterPolicy_,
     class				_VectorType_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_non_temporal_store(
+simd_stl_always_inline void __simd_non_temporal_store(
     void*           __address,
     _VectorType_    __vector) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __non_temporal_store(__address, __vector);
+    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::__non_temporal_store(__address, __vector);
 }
 
 template <
@@ -767,17 +767,17 @@ template <
     class				_RegisterPolicy_,
     class				_VectorType_,
     class               _AlignmentPolicy_ = __unaligned_policy>
-simd_stl_nodiscard simd_stl_always_inline void __simd_store(
+simd_stl_always_inline void __simd_store(
     void*               __address,
     _VectorType_        __vector,
     _AlignmentPolicy_&& __policy = _AlignmentPolicy_{}) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __store(__address, __vector, __policy);
+    __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::__store(__address, __vector, __policy);
 }
 
 template <arch::CpuFeature _SimdGeneration_>
-simd_stl_nodiscard simd_stl_always_inline void __simd_streaming_fence() noexcept {
+simd_stl_always_inline void __simd_streaming_fence() noexcept {
     __simd_memory_access<_SimdGeneration_, __default_register_policy<_SimdGeneration_>>::__streaming_fence();
 }
 
@@ -812,7 +812,7 @@ simd_stl_always_inline _DesiredType_* __simd_compress_store(
     _AlignmentPolicy_&& __policy) noexcept
 {
     __verify_register_policy(_SimdGeneration_, _RegisterPolicy_);
-    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __compress_store(__address, __mask, __vector, __policy);
+    return __simd_memory_access<_SimdGeneration_, _RegisterPolicy_>::template __compress_store<_DesiredType_>(__address, __mask, __vector, __policy);
 }
 
 template <
