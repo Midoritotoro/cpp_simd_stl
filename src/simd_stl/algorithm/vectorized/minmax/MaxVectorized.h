@@ -1,116 +1,78 @@
 #pragma once
 
-#include <simd_stl/datapar/BasicSimd.h>
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
+
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <src/simd_stl/datapar/ZmmThreshold.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxScalar(
-    const void* _First,
-    const void* _Last) noexcept
+simd_stl_always_inline _Type_ __max_scalar(
+    const void* __first,
+    const void* __last) noexcept
 {
-    if (_First == _Last)
+    if (__first == __last)
         return -1;
 
-    const _Type_* _FirstCasted = static_cast<const _Type_*>(_First);
-    auto _Max = _FirstCasted;
+    const auto* __current = static_cast<const _Type_*>(__first);
+    auto __max = __current;
 
-    for (; ++_FirstCasted != _Last; )
-        if (*_FirstCasted > *_Max)
-            _Max = _FirstCasted;
+    while (++__current != __last)
+        if (*__current > *__max)
+            __max = __current;
 
-    return *_Max;
+    return *__max;
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_declare_const_function simd_stl_always_inline _Type_ _MaxVectorizedInternal(
-    const void*     _First,
-    const void*     _Last) noexcept
-{
-    using _SimdType_ = datapar::simd<_SimdGeneration_, _Type_>;
-    datapar::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
+template <class _Simd_>
+struct __max_vectorized_internal {
+    using _ValueType = typename _Simd_::value_type;
 
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
-        _SimdType_::template is_native_mask_load_supported_v<>;
+    simd_stl_always_inline _ValueType operator ()(
+        sizetype    __aligned_size,
+        sizetype    __tail_size,
+        const void* __first,
+        const void* __last) const noexcept
+    {
+        const auto __guard = datapar::make_guard<_Simd_>();
+        auto __maximum_values = _Simd_::zero();
 
-    const auto _Size        = __byte_length(_First, _Last);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
 
-    auto _MaximumValues = _SimdType_();
-    _MaximumValues.broadcastZeros();
+        __maximum_values = datapar::load<_Simd_>(__first);
+        __advance_bytes(__first, sizeof(_Simd_));
 
-    if (_AlignedSize != 0) {
-        const void* _StopAt = _First;
-        __advance_bytes(_StopAt, _AlignedSize);
+        while (__first != __stop_at) {
+            __maximum_values = datapar::vertical_max(datapar::load<_Simd_>(__first), __maximum_values);
+            __advance_bytes(__first, sizeof(_Simd_));
+        }
 
-        _MaximumValues = _SimdType_::loadUnaligned(_First);
-        __advance_bytes(_First, sizeof(_SimdType_));
-
-        while (_First != _StopAt) {
-            const auto _Loaded = _SimdType_::loadUnaligned(_First);
-            _MaximumValues = _MaximumValues.verticalMax(_Loaded);
-
-            __advance_bytes(_First, sizeof(_SimdType_));
-        };
-    }
-
-    const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
-
-    if constexpr (_Is_masked_memory_access_supported) {
-        if (_TailSize != 0) {
-            const auto _TailMask = _SimdType_::makeTailMask(_TailSize);
-
-            if (_AlignedSize != 0) {
-                const auto _Loaded = _SimdType_::maskLoadUnaligned(_First, _TailMask);
-                _MaximumValues = _MaximumValues.verticalMax(_Loaded);
+        if (__tail_size != 0) {
+            if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
+                const auto __tail_mask = datapar::make_tail_mask<_Simd_>(__tail_size);
+                __maximum_values = datapar::vertical_max(__maximum_values, datapar::maskz_load<_Simd_>(__first, __tail_mask));
             }
             else {
-                _MaximumValues = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+                const auto __max            = __max_scalar<_ValueType>(__first, __last);
+                const auto __horizontal_max = datapar::horizontal_max(__maximum_values);
+
+                return (__max > __horizontal_max) ? __max : __horizontal_max;
             }
         }
-    }
-    else {
-        if (_AlignedSize != 0) {
-            const auto _Max = _MaxScalar<_Type_>(_First, _Last);
-            const auto _HorizontalMax = _MaximumValues.horizontalMax();
 
-            return (_Max > _HorizontalMax) ? _Max : _HorizontalMax;
-        }
-        else {
-            return _MaxScalar<_Type_>(_First, _Last);
-        }
+        return datapar::horizontal_max(__maximum_values);
     }
-
-    return _MaximumValues.horizontalMax();
-}
+};
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_ simd_stl_stdcall _MaxVectorized(
-    const void* _First,
-    const void* _Last) noexcept
+simd_stl_always_inline _Type_ __max_vectorized(
+    const void* __first,
+    const void* __last) noexcept
 {
-    if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW()) 
-            return _MaxVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last);
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return _MaxVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last);
-    }
-
-    if (arch::ProcessorFeatures::AVX2())
-        return _MaxVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last);
-    else if (arch::ProcessorFeatures::SSE41())
-        return _MaxVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last);
-    else if (arch::ProcessorFeatures::SSSE3())
-        return _MaxVectorizedInternal<arch::CpuFeature::SSSE3, _Type_>(_First, _Last);
-    else if (arch::ProcessorFeatures::SSE2())
-        return _MaxVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last);
-
-    return _MaxScalar<_Type_>(_First, _Last);
+    return datapar::__simd_sized_dispatcher<__max_vectorized_internal>::__apply<_Type_>(
+        __byte_length(__first, __last), &__max_scalar<_Type_>, __first, __last);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

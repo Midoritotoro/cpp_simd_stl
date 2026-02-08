@@ -1,20 +1,21 @@
 #pragma once
 
-#include <src/simd_stl/datapar/SimdDispatcher.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-void simd_stl_stdcall __reverse_copy_scalar(
+simd_stl_always_inline void __reverse_copy_scalar(
     const void* __first,
     const void* __last,
     void*       __destination) noexcept
 {
-    auto __first_pointer        = static_cast<const _Type_*>(__first);
-    auto __last_pointer         = static_cast<const _Type_*>(__last);
+    auto* __first_pointer = static_cast<const _Type_*>(__first);
+    auto* __last_pointer = static_cast<const _Type_*>(__last);
 
-    auto __destination_pointer  = static_cast<_Type_*>(__destination);
+    auto* __destination_pointer  = static_cast<_Type_*>(__destination);
 
     for (; __first_pointer != __last_pointer; ++__destination_pointer)
         *__destination_pointer = *--__last_pointer;
@@ -22,27 +23,23 @@ void simd_stl_stdcall __reverse_copy_scalar(
 
 template <class _Simd_>
 struct __reverse_copy_vectorized_internal {
-    void simd_stl_stdcall operator()(
+    simd_stl_always_inline void operator()(
+        sizetype    __aligned_size,
+        sizetype    __tail_size,
         const void* __first,
         const void* __last,
         void*       __destination) noexcept
     {
         const auto __guard = datapar::make_guard<_Simd_>();
-        const auto __aligned_size = __byte_length(__first, __last) & (~((sizeof(_Simd_)) - 1));
+        const auto __stop_at = __bytes_pointer_offset(__last, -__aligned_size);
 
-        if (__aligned_size != 0) {
-            const void* __stop_at = __last;
-            __rewind_bytes(__stop_at, __aligned_size);
+        do {
+            datapar::store(__destination, datapar::reverse(
+                datapar::load<_Simd_>(__bytes_pointer_offset(__last, -sizeof(_Simd_)))));
 
-            do {
-                auto __loaded = _Simd_::load(static_cast<const char*>(__last) - sizeof(_Simd_));
-                __loaded.reverse();
-                __loaded.store(__destination);
-
-                __advance_bytes(__destination, sizeof(_Simd_));
-                __rewind_bytes(__last, sizeof(_Simd_));
-            } while (__last != __stop_at);
-        }
+            __advance_bytes(__destination, sizeof(_Simd_));
+            __rewind_bytes(__last, sizeof(_Simd_));
+        } while (__last != __stop_at);
 
         if (__first != __last)
             __reverse_copy_scalar<typename _Simd_::value_type>(__first, __last, __destination);
@@ -50,13 +47,13 @@ struct __reverse_copy_vectorized_internal {
 };
 
 template <class _Type_>
-void simd_stl_stdcall __reverse_copy_vectorized(
+simd_stl_always_inline void __reverse_copy_vectorized(
     const void* __first,
     const void* __last,
     void*       __destination) noexcept
 {
-    return datapar::__simd_dispatcher<__reverse_copy_vectorized_internal>::__apply<_Type_>(
-        &__reverse_copy_scalar<_Type_>, __first, __last, __destination);
+    return datapar::__simd_sized_dispatcher<__reverse_copy_vectorized_internal>::__apply<_Type_>(
+        __byte_length(__first, __last), &__reverse_copy_scalar<_Type_>, __first, __last, __destination);
 }
 
 

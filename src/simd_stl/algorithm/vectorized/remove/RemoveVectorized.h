@@ -3,6 +3,8 @@
 #include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 #include <src/simd_stl/datapar/CachePrefetcher.h>
 
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
+
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
@@ -13,8 +15,8 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_* __remove_scalar(
     const void* __last,
     _Type_      __value) noexcept
 {
-    auto __current_pointer  = static_cast<const _Type_*>(__current);
-    auto __first_pointer    = static_cast<_Type_*>(__first);
+    auto* __current_pointer  = static_cast<const _Type_*>(__current);
+    auto* __first_pointer    = static_cast<_Type_*>(__first);
 
     for (; __current_pointer != __last; ++__current_pointer) {
         const auto __current_value = *__current_pointer;
@@ -29,49 +31,44 @@ simd_stl_declare_const_function simd_stl_always_inline _Type_* __remove_scalar(
 
 template <class _Simd_>
 struct __remove_vectorized_internal {
-    template <class _CachePrefetcher_>
-    simd_stl_always_inline typename _Simd_::value_type* operator()(
-        sizetype                    __aligned_size,
-        sizetype                    __tail_size,
-        void*                       __first,
-        const void*                 __last,
-        typename _Simd_::value_type __value,
-        _CachePrefetcher_&&         __prefetcher) noexcept
+    using _ValueType = typename _Simd_::value_type;
+
+    simd_stl_always_inline _ValueType* operator()(
+        sizetype    __aligned_size,
+        sizetype    __tail_size,
+        void*       __first,
+        const void* __last,
+        _ValueType  __value) const noexcept
     {
         const auto __guard = datapar::make_guard<_Simd_>();
-        auto __current = __first;
-
         const auto __comparand = _Simd_(__value);
 
-        auto __stop_at = __first;
-        __advance_bytes(__stop_at, __aligned_size);
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
+        auto* __current = __first;
 
         do {
-            __prefetcher(static_cast<const char*>(__current) + sizeof(_Simd_));
-            
-            const auto __loaded = _Simd_::load(__current);
-            const auto __mask = __comparand.mask_compare<datapar::simd_comparison::equal>(__loaded);
+            const auto __loaded = datapar::load<_Simd_>(__current);
+            const auto __mask = (__comparand == __loaded) | datapar::as_mask;
 
-            __first = __loaded.compress_store(__first, __mask);
+            __first = datapar::compress_store(__first, __loaded, __mask);
             __advance_bytes(__current, sizeof(_Simd_));
         } while (__current != __stop_at);
 
         return (__tail_size == 0)
-            ? static_cast<typename _Simd_::value_type*>(__first)
-            : __remove_scalar<typename _Simd_::value_type>(__first, __current, __last, __value);
+            ? static_cast<_ValueType*>(__first)
+            : __remove_scalar<_ValueType>(__first, __current, __last, __value);
     }
 };
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_* simd_stl_stdcall __remove_vectorized(
+simd_stl_always_inline _Type_* __remove_vectorized(
     void*       __first,
     const void* __last,
     _Type_      __value) noexcept
 {
     return datapar::__simd_sized_dispatcher<__remove_vectorized_internal>::__apply<_Type_>(
         __byte_length(__first, __last), &__remove_scalar<_Type_>,
-        std::make_tuple(__first, __last, __value, datapar::__cache_prefetcher<datapar::__prefetch_hint::NTA>{}),
-        std::make_tuple(__first, __first, __last, __value));
+        std::make_tuple(__first, __last, __value), std::make_tuple(__first, __first, __last, __value));
 }
 
 

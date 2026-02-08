@@ -31,7 +31,7 @@ template <
     class _OutputIterator_,
     class _UnaryPredicate_,
     class _Type_ = type_traits::iterator_value_type<_InputIterator_>>
-__simd_inline_constexpr simd_stl_always_inline void replace_copy_if(
+__simd_inline_constexpr void replace_copy_if(
     _InputIterator_                                     __first,
     _InputIterator_                                     __last,
     _OutputIterator_                                    __destination,

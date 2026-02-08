@@ -1,12 +1,13 @@
 #pragma once
 
 #include <src/simd_stl/datapar/SizedSimdDispatcher.h>
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <class _Type_>
-simd_stl_declare_const_function _Type_* __remove_copy_scalar(
+simd_stl_always_inline _Type_* __remove_copy_scalar(
     const void* __first,
     const void* __last,
     void*       __destination,
@@ -27,37 +28,37 @@ simd_stl_declare_const_function _Type_* __remove_copy_scalar(
 
 template <class _Simd_>
 struct __remove_copy_vectorized_internal {
-    simd_stl_declare_const_function typename _Simd_::value_type* operator()(
-        sizetype                    __aligned_size,
-        sizetype                    __tail_size,
-        const void*                 __first,
-        const void*                 __last,
-        void*                       __destination,
-        typename _Simd_::value_type __value) noexcept
+    using _ValueType = typename _Simd_::value_type;
+
+    simd_stl_always_inline _ValueType* operator()(
+        sizetype    __aligned_size,
+        sizetype    __tail_size,
+        const void* __first,
+        const void* __last,
+        void*       __destination,
+        _ValueType  __value) noexcept
     {
         const auto __guard = datapar::make_guard<_Simd_>();
 
-        const void* __stop_at = __first;
-        __advance_bytes(__stop_at, __aligned_size);
-
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
         const auto __comparand = _Simd_(__value);
 
         do {
-            const auto __loaded = _Simd_::load(__first);
-            const auto __mask = __loaded.mask_compare<datapar::simd_comparison::equal>(__comparand);
-
-            __destination = __loaded.compress_store(__destination, __mask);
+            const auto __loaded = datapar::load<_Simd_>(__first);
+            const auto __mask = (__loaded == __comparand) | datapar::as_mask;
+            
+            __destination = datapar::compress_store(__destination, __loaded, __mask);
             __advance_bytes(__first, sizeof(_Simd_));
         } while (__first != __stop_at);
 
         return (__first == __last)
-            ? static_cast<typename _Simd_::value_type*>(__destination)
+            ? static_cast<_ValueType*>(__destination)
             : __remove_copy_scalar(__first, __last, __destination, __value);
     }
 };
 
 template <class _Type_>
-simd_stl_declare_const_function simd_stl_always_inline _Type_* simd_stl_stdcall __remove_copy_vectorized(
+simd_stl_always_inline _Type_* __remove_copy_vectorized(
     const void* __first,
     const void* __last,
     void*       __destination,

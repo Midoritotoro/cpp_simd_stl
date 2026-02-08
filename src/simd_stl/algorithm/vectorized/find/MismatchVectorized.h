@@ -31,7 +31,7 @@ struct __mismatch_vectorized_internal {
         sizetype            __tail_size,
         const void*         __first,
         const void*         __second,
-        const sizetype      __size) noexcept
+        const sizetype      __length) noexcept
     {
         using _ValueType = typename _Simd_::value_type;
 
@@ -52,7 +52,7 @@ struct __mismatch_vectorized_internal {
         } while (__first != __stop_at);
 
         if (__tail_size == 0)
-            return __size;
+            return __length;
 
         if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
             const auto __tail_mask = datapar::make_tail_mask<_Simd_>(__tail_size);
@@ -68,7 +68,7 @@ struct __mismatch_vectorized_internal {
             if (__combined_mask != __all_equal_mask)
                 return (static_cast<const _ValueType*>(__first) - __cached_first) + __combined_mask.count_trailing_one_bits();
 
-            return __size;
+            return __length;
         }
         else {
             return __mismatch_scalar<_ValueType>(__first, __second, __tail_size / sizeof(_ValueType));
@@ -78,18 +78,13 @@ struct __mismatch_vectorized_internal {
 
 
 template <typename _Type_>
-simd_stl_always_inline simd_stl_declare_const_function sizetype simd_stl_stdcall __mismatch_vectorized(
+simd_stl_always_inline sizetype __mismatch_vectorized(
     const void*     __first,
     const void*     __second,
     const sizetype  __length) noexcept
 {
-    const auto __bytes = __length * sizeof(_Type_);
-
-    const auto __fallback_args  = std::forward_as_tuple(__first, __second, __length);
-    const auto __simd_args      = std::forward_as_tuple(__first, __second, __length, datapar::__cache_prefetcher<datapar::__prefetch_hint::NTA>());
-
     return datapar::__simd_sized_dispatcher<__mismatch_vectorized_internal>::__apply<_Type_>(
-        __bytes, &__mismatch_scalar<_Type_>, std::move(__simd_args), std::move(__fallback_args));
+        __length * sizeof(_Type_), &__mismatch_scalar<_Type_>, __first, __second, __length);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

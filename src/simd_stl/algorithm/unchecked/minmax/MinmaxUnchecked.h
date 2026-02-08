@@ -42,7 +42,7 @@ __simd_nodiscard_inline_constexpr __minmax_return_type<_UnwrappedInputIterator_>
 {
 	using _ValueType = type_traits::iterator_value_type<_UnwrappedInputIterator_>;
 
-	if constexpr (type_traits::is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
+	if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_UnwrappedInputIterator_, _ValueType>) {
 #if simd_stl_has_cxx20
 		if (type_traits::is_constant_evaluated() == false)
 #endif // simd_stl_has_cxx20

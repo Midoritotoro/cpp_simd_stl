@@ -5,14 +5,6 @@
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
-/*
-	for (unsigned j = 1; j < K; j++) {
-		const __m256i subRange = _mm256_alignr_epi8(next1, curr, j);
-		eq = _mm256_and_si256(eq, _mm256_cmpeq_epi8(subRange, broadcasted[j]));
-	}
-*/
-
-
 #if defined(simd_stl_cpp_clang) || defined(simd_stl_cpp_msvc)
 
 template <
@@ -53,9 +45,7 @@ struct StringFindLoopImplementation<_Type_, _Traits_, K, i, true> {
 		const __m256i&,
 		const __m256i&,
 		const __m256i (&)[K])
-	{
-		// nop
-	}
+	{}
 };
 
 template <

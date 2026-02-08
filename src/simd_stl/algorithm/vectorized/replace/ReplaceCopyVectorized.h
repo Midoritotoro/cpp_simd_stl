@@ -1,110 +1,84 @@
 #pragma once
 
-
-#include <simd_stl/datapar/BasicSimd.h>
+#include <simd_stl/datapar/SimdDataparAlgorithms.h>
+#include <src/simd_stl/datapar/SizedSimdDispatcher.h>
 
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 
 template <typename _Type_>
-simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyScalar(
-    const void*     _First,
-    const void*     _Last,
-    void*           _Destination,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
+simd_stl_always_inline void __replace_copy_scalar(
+    const void*     __first,
+    const void*     __last,
+    void*           __destination,
+    const _Type_    __old_value,
+    const _Type_    __new_value) noexcept
 {
-    auto _Current               = static_cast<const _Type_*>(_First);
-    auto _DestinationCurrent    = static_cast<_Type_*>(_Destination);
+    auto* __current              = static_cast<const _Type_*>(__first);
+    auto* __destination_current  = static_cast<_Type_*>(__destination);
 
-    for (; _Current != _Last; ++_Current, ++_DestinationCurrent)
-        *_DestinationCurrent = (*_Current == _OldValue) ? _NewValue : (*_Current);
+    for (; __current != __last; ++__current, ++__destination_current)
+        *__destination_current = (*__current == __old_value) ? __new_value : (*__current);
 }
 
-template <
-    arch::CpuFeature    _SimdGeneration_,
-    typename            _Type_>
-simd_stl_always_inline void simd_stl_stdcall _ReplaceCopyVectorizedInternal(
-    const void*     _First,
-    const void*     _Last,
-    void*           _Destination,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
-{
-    using _SimdType_ = datapar::simd<_SimdGeneration_, _Type_>;
-    datapar::zero_upper_at_exit_guard<_SimdGeneration_> _Guard;
 
-    constexpr auto _Is_masked_memory_access_supported = _SimdType_::template is_native_mask_store_supported_v<> &&
-        _SimdType_::template is_native_mask_load_supported_v<>;
+template <class _Simd_>
+struct __replace_copy_vectorized_internal {
+    using _ValueType = typename _Simd_::value_type;
 
-    const auto _Size        = __byte_length(_First, _Last);
-    const auto _AlignedSize = _Size & (~(sizeof(_SimdType_) - 1));
+    simd_stl_always_inline void operator()(
+        sizetype    __aligned_size,
+        sizetype    __tail_size,
+        const void* __first,
+        const void* __last,
+        void*       __destination,
+        _ValueType  __old_value,
+        _ValueType  __new_value) noexcept
+    {
+        const auto __guard = datapar::make_guard<_Simd_>();
 
-    const void* _StopAt = _First;
-    __advance_bytes(_StopAt, _AlignedSize);
+        const auto __stop_at = __bytes_pointer_offset(__first, __aligned_size);
 
-    const auto _Comparand   = _SimdType_(_OldValue);
-    const auto _Replacement = _SimdType_(_NewValue);
+        const auto __comparand = _Simd_(__old_value);
+        const auto __replacement = _Simd_(__new_value);
 
-    while (_First != _StopAt) {
-        const auto _Loaded      = _SimdType_::loadUnaligned(_First);
-        const auto _NativeMask  = _Loaded.nativeEqual(_Comparand);
+       do {
+            const auto __loaded = datapar::load<_Simd_>(__first);
+            const auto __native_mask = (__loaded == __comparand) | datapar::as_native;
 
-        _Replacement.maskBlendStoreUnaligned(_Destination, _NativeMask, _Loaded);
+            datapar::mask_store(__destination, __replacement, __native_mask);
 
-        __advance_bytes(_First, sizeof(_SimdType_));
-        __advance_bytes(_Destination, sizeof(_SimdType_));
-    }
-    
-    if constexpr (_Is_masked_memory_access_supported) {
-        const auto _TailSize = _Size & (sizeof(_SimdType_) - sizeof(_Type_));
+            __advance_bytes(__first, sizeof(_Simd_));
+            __advance_bytes(__destination, sizeof(_Simd_));
+       } while (__first != __stop_at);
 
-        if (_TailSize != 0) {
-            const auto _TailMask    = _SimdType_::makeTailMask(_TailSize);
-            auto _Loaded            = _SimdType_::maskLoadUnaligned(_First, _TailMask);
+       if (__tail_size == 0)
+           return;
 
-            const auto _Mask                = _Loaded.nativeEqual(_Comparand);
-            const auto _MaskForNativeStore  = datapar::_SimdConvertToMaskForNativeStore<_SimdGeneration_,
-                typename _SimdType_::policy_type, _Type_>(_Mask);
+        if constexpr (_Simd_::template is_native_mask_load_supported_v<>) {
+            const auto __tail_mask = datapar::make_tail_mask<_Simd_>(__tail_size);
+            const auto __loaded = datapar::maskz_load<_Simd_>(__first, __tail_mask);
 
-            const auto _StoreMask   = _MaskForNativeStore & _TailMask;
-
-            _Loaded.blend(_Replacement, ~_StoreMask);
-            _Loaded.maskStoreUnaligned(_Destination, _StoreMask);
+            const auto __mask = ((__loaded == __comparand) & __tail_mask) | datapar::as_native;
+            datapar::mask_store(__destination, __replacement, __mask);
+        }
+        else {
+            __replace_copy_scalar<_ValueType>(__first, __last, __destination, __old_value, __new_value);
         }
     }
-    else {
-        if (_First != _Last)
-            _ReplaceCopyScalar<_Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-    }
-}
+};
 
 template <typename _Type_>
-void simd_stl_stdcall _ReplaceCopyVectorized(
-    const void*     _First,
-    const void*     _Last,
-    void*           _Destination,
-    const _Type_    _OldValue,
-    const _Type_    _NewValue) noexcept
+simd_stl_always_inline void __replace_copy_vectorized(
+    const void*     __first,
+    const void*     __last,
+    void*           __destination,
+    const _Type_    __old_value,
+    const _Type_    __new_value) noexcept
 {
-    
-    if constexpr (sizeof(_Type_) <= 2) {
-        if (arch::ProcessorFeatures::AVX512BW())
-            return _ReplaceCopyVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-    }
-    else {
-        if (arch::ProcessorFeatures::AVX512F())
-            return _ReplaceCopyVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-    }
-
-    if (arch::ProcessorFeatures::AVX2())
-        return _ReplaceCopyVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-    else if (arch::ProcessorFeatures::SSE41())
-        return _ReplaceCopyVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-    else if (arch::ProcessorFeatures::SSE2())
-        return _ReplaceCopyVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
-
-    return _ReplaceCopyScalar<_Type_>(_First, _Last, _Destination, _OldValue, _NewValue);
+    datapar::__simd_sized_dispatcher<__replace_copy_vectorized_internal>::__apply<_Type_>(
+        __byte_length(__first, __last), &__replace_copy_scalar<_Type_>,
+        __first, __last, __destination, __old_value, __new_value);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END
