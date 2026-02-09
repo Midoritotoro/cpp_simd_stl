@@ -15,8 +15,8 @@ enable_testing()
 macro(cpp_simd_stl_algorithm_add_test filename)
     add_executable(${filename} ${filename}.cpp)
 
-    add_compile_options(/bigobj /Od /GL-)
-
+    add_compile_options(/bigobj /Od /GL- /DSIMD_STL_FORCE_AVX512BW)
+    
     target_link_libraries(
       ${filename} PRIVATE
       cpp_simd_stl::cpp_simd_stl

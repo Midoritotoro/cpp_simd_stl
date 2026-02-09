@@ -45,12 +45,10 @@ public:
             array[i] = i;
 
         for (simd_stl::sizetype i = 0; i < sizeForBenchmark; i += 2)
-            array[i] = simd_stl::math::__maximum_integral_limit<_Type_>() >> 1;
+            array[i] = 42;
 
         while (state.KeepRunning()) {
-            std::replace(array, array + sizeForBenchmark, static_cast<_Type_>((simd_stl::math::__maximum_integral_limit<_Type_>() >> 1)),
-                simd_stl::math::__maximum_integral_limit<_Type_>());
-
+            std::replace(array, array + sizeForBenchmark, 42, 43);
             benchmark::DoNotOptimize(array);
             benchmark::ClobberMemory();
         }
@@ -69,11 +67,10 @@ public:
             array[i] = i;
 
         for (simd_stl::sizetype i = 0; i < sizeForBenchmark; i += 2)
-            array[i] = simd_stl::math::__maximum_integral_limit<_Type_>() >> 1;
+            array[i] = 42;
 
         while (state.KeepRunning()) {
-            simd_stl::algorithm::replace(array, array + sizeForBenchmark,
-                (simd_stl::math::__maximum_integral_limit<_Type_>() >> 1), simd_stl::math::__maximum_integral_limit<_Type_>());
+            simd_stl::algorithm::replace(array, array + sizeForBenchmark, 42, 43);
             benchmark::DoNotOptimize(array);
             benchmark::ClobberMemory();
         }
@@ -84,5 +81,7 @@ SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchma
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int16, Replace);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int32, Replace);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, simd_stl::int64, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, float, Replace);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceBenchmark, StdReplaceBenchmark, double, Replace);
 
 SIMD_STL_BENCHMARK_MAIN();

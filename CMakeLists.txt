@@ -298,6 +298,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/datapar/SimdIndexMask.h
     include/simd_stl/datapar/SimdCompareResult.h
     include/simd_stl/datapar/SimdDataparAlgorithms.h
+    include/simd_stl/datapar/SimdConfig.h
 )
 
 include(CMakePackageConfigHelpers)
@@ -382,7 +383,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         PRIVATE
             /permissive-
             /W4
-
+            
             /utf-8
 
             /MP
@@ -441,14 +442,136 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 endif()
 
+set(SIMD_STL_FORCE_LIST
+    SIMD_STL_FORCE_SSE2
+    SIMD_STL_FORCE_SSE3
+    SIMD_STL_FORCE_SSSE3
+    SIMD_STL_FORCE_SSE41
+    SIMD_STL_FORCE_SSE42
+    SIMD_STL_FORCE_AVX
+    SIMD_STL_FORCE_AVX2
+    SIMD_STL_FORCE_AVX512F
+    SIMD_STL_FORCE_AVX512BW
+    SIMD_STL_FORCE_AVX512CD
+    SIMD_STL_FORCE_AVX512DQ
+    SIMD_STL_FORCE_AVX512VL
+    SIMD_STL_FORCE_AVX512VBMI
+    SIMD_STL_FORCE_AVX512VBMI2
+)
+
+set(SIMD_STL_USER_FORCE_ENABLED OFF)
+
+foreach(flag ${SIMD_STL_FORCE_LIST})
+    if(DEFINED ${flag})
+        set(SIMD_STL_USER_FORCE_ENABLED ON)
+    endif()
+endforeach()
+
+
+if(SIMD_STL_USER_FORCE_ENABLED)
+    message(STATUS "SIMD_STL: ISA FORCE mode enabled")
+
+    if(MSVC)
+
+        message(STATUS "SIMD_STL: MSVC detected — validating /arch: flags")
+
+        if(SIMD_STL_FORCE_SSE2)
+            add_compile_definitions(SIMD_STL_FORCE_SSE2=1)
+        endif()
+
+        if(SIMD_STL_FORCE_AVX)
+            simd_stl_test_msvc_arch("AVX" AVX_OK)
+            if(NOT AVX_OK)
+                message(FATAL_ERROR "MSVC does not support /arch:AVX")
+            endif()
+            add_compile_options(/arch:AVX)
+            add_compile_definitions(SIMD_STL_FORCE_AVX=1)
+        endif()
+
+        if(SIMD_STL_FORCE_AVX2)
+            simd_stl_test_msvc_arch("AVX2" AVX2_OK)
+            if(NOT AVX2_OK)
+                message(FATAL_ERROR "MSVC does not support /arch:AVX2")
+            endif()
+            add_compile_options(/arch:AVX2)
+            add_compile_definitions(SIMD_STL_FORCE_AVX2=1)
+        endif()
+
+
+        if(SIMD_STL_FORCE_AVX512F OR SIMD_STL_FORCE_AVX512BW OR SIMD_STL_FORCE_AVX512CD
+           OR SIMD_STL_FORCE_AVX512DQ OR SIMD_STL_FORCE_AVX512VL
+           OR SIMD_STL_FORCE_AVX512VBMI OR SIMD_STL_FORCE_AVX512VBMI2)
+
+            simd_stl_test_msvc_arch("AVX512" AVX512_OK)
+            if(NOT AVX512_OK)
+                message(FATAL_ERROR "MSVC does not support /arch:AVX512")
+            endif()
+
+            add_compile_options(/arch:AVX512)
+
+            # MSVC does not expose fine-grained AVX-512 macros → assume full set
+            add_compile_definitions(
+                SIMD_STL_FORCE_AVX512F=1
+                SIMD_STL_FORCE_AVX512BW=1
+                SIMD_STL_FORCE_AVX512CD=1
+                SIMD_STL_FORCE_AVX512DQ=1
+                SIMD_STL_FORCE_AVX512VL=1
+                SIMD_STL_FORCE_AVX512VBMI=1
+                SIMD_STL_FORCE_AVX512VBMI2=1
+            )
+        endif()
+
+    else()
+
+        # GCC / Clang
+        include(CheckCXXCompilerFlag)
+
+        macro(simd_stl_require flag compileflag)
+            if(${flag})
+                check_cxx_compiler_flag(${compileflag} ${flag}_SUPPORTED)
+                if(NOT ${flag}_SUPPORTED)
+                    message(FATAL_ERROR "${flag}=1 requires ${compileflag}, but compiler does not support it")
+                endif()
+                add_compile_options(${compileflag})
+                add_compile_definitions(${flag}=1)
+            endif()
+        endmacro()
+
+        simd_stl_require(SIMD_STL_FORCE_SSE2   "-msse2")
+        simd_stl_require(SIMD_STL_FORCE_SSE3   "-msse3")
+        simd_stl_require(SIMD_STL_FORCE_SSSE3  "-mssse3")
+        simd_stl_require(SIMD_STL_FORCE_SSE41  "-msse4.1")
+        simd_stl_require(SIMD_STL_FORCE_SSE42  "-msse4.2")
+        simd_stl_require(SIMD_STL_FORCE_AVX    "-mavx")
+        simd_stl_require(SIMD_STL_FORCE_AVX2   "-mavx2")
+        simd_stl_require(SIMD_STL_FORCE_AVX512F     "-mavx512f")
+        simd_stl_require(SIMD_STL_FORCE_AVX512BW    "-mavx512bw")
+        simd_stl_require(SIMD_STL_FORCE_AVX512CD    "-mavx512cd")
+        simd_stl_require(SIMD_STL_FORCE_AVX512DQ    "-mavx512dq")
+        simd_stl_require(SIMD_STL_FORCE_AVX512VL    "-mavx512vl")
+        simd_stl_require(SIMD_STL_FORCE_AVX512VBMI  "-mavx512vbmi")
+        simd_stl_require(SIMD_STL_FORCE_AVX512VBMI2 "-mavx512vbmi2")
+
+    endif()
+
+    add_compile_definitions(SIMD_STL_ISA_FORCE_ENABLED=1)
+
+else()
+
+    message(STATUS "SIMD_STL: No FORCE ISA specified — using runtime dispatch")
+    add_compile_definitions(SIMD_STL_ISA_FORCE_ENABLED=0)
+
+endif()
+
+
 if(PROJECT_IS_TOP_LEVEL)
     enable_testing()
     add_subdirectory(tests)
 endif()
 
 if(PROJECT_IS_TOP_LEVEL)
-    # enable_testing()
-    # add_subdirectory(benchmarks)
+    enable_testing()
+    add_subdirectory(benchmarks)
 endif()
 
 if(CPP_SIMD_STL_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)

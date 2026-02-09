@@ -56,6 +56,14 @@ public:
         std::tuple<_VectorizedArgs_...> __simd_args,
         std::tuple<_FallbackArgs_...>   __fallback_args) noexcept
     {
+#if SIMD_STL_ISA_FORCE_ENABLED
+        if (__size < sizeof(simd_forced<_Type_>))
+            return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
+
+        else if (const auto __aligned_size = __size & (~(sizeof(simd_forced<_Type_>) - 1)); __aligned_size != 0)
+            return __invoke_simd<_Function_<simd_forced<_Type_>>>(__aligned_size, __size & (sizeof(simd_forced<_Type_>) -
+                sizeof(typename simd_forced<_Type_>::value_type)), std::move(__simd_args));
+#else 
         if (__size < 16)
             return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
 
@@ -106,6 +114,7 @@ public:
             return __invoke_simd<_Function_<simd128_sse2<_Type_>>>(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) - 
                 sizeof(typename simd128_sse2<_Type_>::value_type)), std::move(__simd_args));
         }
+#endif
     }
 
     template <
@@ -118,6 +127,14 @@ public:
         _FallbackFunction_&&    __fallback,
         _Args_...               __args) noexcept
     {
+#if SIMD_STL_ISA_FORCE_ENABLED
+        if (__size < sizeof(simd_forced<_Type_>))
+            return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
+
+        else if (const auto __aligned_size = __size & (~(sizeof(simd_forced<_Type_>) - 1)); __aligned_size != 0)
+            return _Function_<simd_forced<_Type_>>()(__aligned_size, __size & (sizeof(simd_forced<_Type_>) -
+                sizeof(typename simd_forced<_Type_>::value_type)), std::forward<_Args_>(__args)...);
+#else
         if (__size < 16)
             return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
         else if (const auto __aligned_size = __size & (~(sizeof(simd512_avx512bw<_Type_>) - 1)); __aligned_size != 0) {
@@ -167,6 +184,7 @@ public:
             return _Function_<simd128_sse2<_Type_>>()(__aligned_size, __size & (sizeof(simd128_sse2<_Type_>) - 
                 sizeof(typename simd128_sse2<_Type_>::value_type)), std::forward<_Args_>(__args)...);
         }
+#endif
     }
 };
 
