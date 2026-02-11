@@ -69,7 +69,7 @@ constexpr bool __simd_mask_common_operations<_Derived_>::none_of() const noexcep
 template <class _Derived_>
 constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_operations<_Derived_>::operator&(const __self& __other) const noexcept {
 	const auto __bits		= __unwrap();
-	const auto __other_bits = __other.unwrap();
+	const auto __other_bits = __other.__unwrap();
 
 	using _MaskType = decltype(__bits);
 
@@ -92,7 +92,7 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 template <class _Derived_>
 constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_operations<_Derived_>::operator|(const __self& __other) const noexcept {
 	const auto __bits		= __unwrap();
-	const auto __other_bits = __other.unwrap();
+	const auto __other_bits = __other.__unwrap();
 
 	using _MaskType = decltype(__bits);
 
@@ -115,7 +115,7 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 template <class _Derived_>
 constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_operations<_Derived_>::operator^(const __self& __other) const noexcept {
 	const auto __bits		= __unwrap();
-	const auto __other_bits = __other.unwrap();
+	const auto __other_bits = __other.__unwrap();
 
 	using _MaskType = decltype(__bits);
 
@@ -188,7 +188,7 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 		return _kshiftli_mask32(__bits, __shift);
 
 	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
-		return _kshifti_mask64(__bits, __shift);
+		return _kshiftli_mask64(__bits, __shift);
 
 	else
 		return __bits >> __shift;
@@ -264,12 +264,30 @@ constexpr __simd_mask_common_operations<_Derived_>::operator bool() const noexce
 
 template <class _Derived_>
 constexpr bool __simd_mask_common_operations<_Derived_>::operator==(const __self& __other) const noexcept {
-	return (__other.unwrap() == __unwrap());
+	const auto __bits = __unwrap();
+	const auto __other_bits = __other.__unwrap();
+
+	using _MaskType = decltype(__bits);
+
+	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+		return _ktestc_mask16_u8(__bits, __other_bits);
+
+	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+		return _ktestc_mask8_u8(__bits, __other_bits);
+
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+		return _ktestc_mask32_u8(__bits, __other_bits);
+
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+		return _ktestc_mask64_u8(__bits, __other_bits);
+
+	else
+		return (__bits == __other_bits);
 }
 
 template <class _Derived_>	
-constexpr bool __simd_mask_common_operations<_Derived_>::operator!=(const __self& __other) const noexcept {
-	return (__other.unwrap() != __unwrap());
+constexpr bool __simd_mask_common_operations<_Derived_>::operator!=(const __self& __other) const noexcept {	
+	return !(*this == __other);
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

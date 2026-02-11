@@ -371,16 +371,17 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(-g -Ob3 -Oi) 
+        add_compile_options(-g -Ob3) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-O2 -Ot -Ob3 -Oi3 -GS- -Oy)
+        add_compile_options(-O2 -Ob3)
     endif()
 
-    target_link_options(cpp_simd_stl PRIVATE "/LTCG;/opt:ref,icf;")
+   #  target_link_options(cpp_simd_stl PRIVATE "/LTCG;/opt:ref,icf;")
 
     target_compile_options(
         cpp_simd_stl 
         PRIVATE
+            /bigobj
             /permissive-
             /W4
             
@@ -391,7 +392,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
             /guard:cf
 
-            /GL
             /w15038 
             /w14265 
             /wd4018
@@ -467,6 +467,16 @@ foreach(flag ${SIMD_STL_FORCE_LIST})
     endif()
 endforeach()
 
+function(simd_stl_test_msvc_arch flag result_var) 
+    set(src "${CMAKE_BINARY_DIR}/simd_test_${flag}.cpp") 
+    file(WRITE "${src}" "int main(){return 0;}") 
+
+    try_compile(${result_var} 
+        "${CMAKE_BINARY_DIR}" 
+        "${src}" CMAKE_FLAGS 
+        "-DCMAKE_CXX_FLAGS=/arch:${flag}" 
+        OUTPUT_VARIABLE out) 
+endfunction()
 
 if(SIMD_STL_USER_FORCE_ENABLED)
     message(STATUS "SIMD_STL: ISA FORCE mode enabled")
@@ -509,7 +519,6 @@ if(SIMD_STL_USER_FORCE_ENABLED)
 
             add_compile_options(/arch:AVX512)
 
-            # MSVC does not expose fine-grained AVX-512 macros → assume full set
             add_compile_definitions(
                 SIMD_STL_FORCE_AVX512F=1
                 SIMD_STL_FORCE_AVX512BW=1
@@ -522,8 +531,6 @@ if(SIMD_STL_USER_FORCE_ENABLED)
         endif()
 
     else()
-
-        # GCC / Clang
         include(CheckCXXCompilerFlag)
 
         macro(simd_stl_require flag compileflag)

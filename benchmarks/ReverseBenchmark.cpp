@@ -34,5 +34,11 @@ public:
 };
 
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, simd_stl::int8, Reverse);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, simd_stl::int16, Reverse);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, simd_stl::int32, Reverse);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, simd_stl::int64, Reverse);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, float, Reverse);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReverseBenchmark, StdReverseBenchmark, double, Reverse);
+
 
 SIMD_STL_BENCHMARK_MAIN();

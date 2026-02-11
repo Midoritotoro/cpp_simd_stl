@@ -151,6 +151,66 @@ class __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, xmm128> :
 	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, xmm128>
 {};
 
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVL, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VL, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVLBW, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VLBW, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVLBWDQ, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VLBWDQ, xmm128> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVL, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, ymm256>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VL, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLF, ymm256>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVLBW, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, ymm256>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VLBW, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBW, ymm256>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMIVLBWDQ, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+{};
+
+template <>
+class __simd_broadcast_implementation<arch::CpuFeature::AVX512VBMI2VLBWDQ, ymm256> :
+	public __simd_broadcast_implementation<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+{};
+
 #pragma endregion
 
 template <

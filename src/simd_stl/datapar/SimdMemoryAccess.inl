@@ -174,7 +174,7 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::SSE
 
 template <typename _Type_>
 simd_stl_always_inline __m128i __simd_memory_access<arch::CpuFeature::SSE2, xmm128>::__make_tail_mask(uint32 __bytes) noexcept {
-    constexpr uint32 __tail_mask[8] = { ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0 };
+    static constexpr uint32 __tail_mask[8] = { ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0 };
     return __load<__m128i>(reinterpret_cast<const uint8*>(__tail_mask) + (16 - __bytes));
 }
 
@@ -518,7 +518,7 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::CpuFeature::AVX
 
 template <typename _Type_>
 simd_stl_always_inline __m256i __simd_memory_access<arch::CpuFeature::AVX2, ymm256>::__make_tail_mask(uint32 __bytes) noexcept {
-    constexpr uint32 __tail_mask[16] = { ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static constexpr uint32 __tail_mask[16] = { ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, 0, 0, 0, 0, 0, 0, 0, 0 };
     return __load<__m256i>(reinterpret_cast<const uint8*>(__tail_mask) + (32 - __bytes));
 }
 

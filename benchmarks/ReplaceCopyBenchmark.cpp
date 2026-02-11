@@ -29,7 +29,7 @@ _ReplaceBenchmarkArray<_Type_, _Size_> _GenerateArrayForReplaceBenchmark() noexc
         result.array[i] = i;
 
     for (simd_stl::sizetype i = 0; i < _Size_; i += 2)
-        result.array[i] = simd_stl::math::__maximum_integral_limit<_Type_>() >> 1;
+        result.array[i] = 42;
 
     return result;
 }
@@ -46,8 +46,7 @@ public:
     static void ReplaceCopy(benchmark::State& state) noexcept {
         while (state.KeepRunning()) {
             std::replace_copy(array.array, array.array + sizeForBenchmark, destination.array,
-                static_cast<_Type_>((simd_stl::math::__maximum_integral_limit<_Type_>() >> 1)),
-                simd_stl::math::__maximum_integral_limit<_Type_>());
+                static_cast<_Type_>(42), static_cast<_Type_>(43));
 
             benchmark::DoNotOptimize(array.array);
         }
@@ -65,7 +64,7 @@ public:
     static void ReplaceCopy(benchmark::State& state) noexcept {
         while (state.KeepRunning()) {
             simd_stl::algorithm::replace_copy(array.array, array.array + sizeForBenchmark, destination.array,
-                (simd_stl::math::__maximum_integral_limit<_Type_>() >> 1), simd_stl::math::__maximum_integral_limit<_Type_>());
+                static_cast<_Type_>(42), static_cast<_Type_>(43));
             benchmark::DoNotOptimize(array.array);
         }
     }
@@ -75,5 +74,7 @@ SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCop
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCopyBenchmark, simd_stl::int16, ReplaceCopy);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCopyBenchmark, simd_stl::int32, ReplaceCopy);
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCopyBenchmark, simd_stl::int64, ReplaceCopy);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCopyBenchmark, float, ReplaceCopy);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlReplaceCopyBenchmark, StdReplaceCopyBenchmark, double, ReplaceCopy);
 
 SIMD_STL_BENCHMARK_MAIN();
