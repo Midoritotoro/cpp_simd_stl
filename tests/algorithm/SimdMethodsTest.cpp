@@ -28,11 +28,11 @@ void testMethods() {
     using Simd = simd_stl::datapar::simd<Arch, T, _RegisterPolicy_>;
     constexpr size_t N = Simd::size();
 
-    {
+     {
         Simd v1;
         Simd v2(5);
 
-        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v2.extract<T>(i) == 5);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v2.extract(i) == 5);
 
         alignas(16) T arr[N];
         for (int i = 0; i < N; ++i)
@@ -40,32 +40,32 @@ void testMethods() {
 
         Simd v3 = simd_stl::datapar::load<Simd>(arr);
         for (int i = 0; i < v2.size(); ++i)
-            simd_stl_assert(v3.extract<T>(i) == arr[i]);
+            simd_stl_assert(v3.extract(i) == arr[i]);
 
 
         Simd v4(v3.unwrap());
-        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v4.extract<T>(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v4.extract(i) == arr[i]);
 
         Simd v5(v3);
-        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v5.extract<T>(i) == arr[i]);
+        for (int i = 0; i < v2.size(); ++i) simd_stl_assert(v5.extract(i) == arr[i]);
     }
 
     {
         Simd v;
-        v.fill<T>(42);
-        for (int i = 0; i < v.size(); ++i) simd_stl_assert(v.extract<T>(i) == 42);
+        v.fill(42);
+        for (int i = 0; i < v.size(); ++i) simd_stl_assert(v.extract(i) == 42);
 
-        v.insert<T>(0, 99);
-        simd_stl_assert(v.extract<T>(0) == 99);
+        v.insert(0, 99);
+        simd_stl_assert(v.extract(0) == 99);
     }
 
     {
         Simd v(7);
-        auto ref = v.extract_wrapped<T>(0);
+        auto ref = v.extract_wrapped(0);
         ref = 123;
-        simd_stl_assert(v.extract<T>(0) == 123);
+        simd_stl_assert(v.extract(0) == 123);
     }
-
+    
     {
         using simd_stl::datapar::simd_cast;
         Simd v(11);
@@ -81,20 +81,7 @@ void testMethods() {
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
         static_assert(std::is_same_v<decltype(vOther5), simd_stl::datapar::simd<Simd::__generation, int, typename Simd::policy_type>>);
     }
-
-    {
-        alignas(16) simd_stl::int32 arr[4] = { 10,20,30,40 };
-        Simd v = simd_stl::datapar::load<Simd>(arr, simd_stl::datapar::aligned_policy{});
-        simd_stl::int32 out[4] = {};
-        simd_stl::datapar::store(out, v, simd_stl::datapar::aligned_policy{});
-        for (int i = 0; i < 4; ++i) simd_stl_assert(out[i] == arr[i]);
-
-        Simd v2 = simd_stl::datapar::load<Simd>(arr);
-        simd_stl::int32 out2[4] = {};
-        simd_stl::datapar::store(out2, v2);
-        for (int i = 0; i < 4; ++i) simd_stl_assert(out2[i] == arr[i]);
-    }
-
+    
     {
         Simd v(42);
         auto raw = v.unwrap();
@@ -116,17 +103,17 @@ void testMethods() {
         Simd loaded_unaligned = simd_stl::datapar::maskz_load<Simd>(src, mask);
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
-                simd_stl_assert(loaded_unaligned.extract<T>(i) == src[i]);
+                simd_stl_assert(loaded_unaligned.extract(i) == src[i]);
             else
-                simd_stl_assert(loaded_unaligned.extract<T>(i) == T(0));
+                simd_stl_assert(loaded_unaligned.extract(i) == T(0));
         }
 
         Simd loaded_aligned = simd_stl::datapar::maskz_load<Simd>(src, mask, simd_stl::datapar::aligned_policy{});
         for (size_t i = 0; i < N; ++i) {
             if ((mask >> i) & 1)
-                simd_stl_assert(loaded_aligned.extract<T>(i) == src[i]);
+                simd_stl_assert(loaded_aligned.extract(i) == src[i]);
             else
-                simd_stl_assert(loaded_aligned.extract<T>(i) == T(0));
+                simd_stl_assert(loaded_aligned.extract(i) == T(0));
         }
 
         Simd v(77);
@@ -147,7 +134,7 @@ void testMethods() {
                 simd_stl_assert(dst[i] == T(200 + i));
         }
     }
-
+    
     {
         alignas(64) T src[N];
         for (size_t i = 0; i < N; ++i) src[i] = static_cast<T>(i + 1);
@@ -346,12 +333,12 @@ void testMethods() {
 
         auto minVec = simd_stl::datapar::vertical_min(a, b);
         for (size_t i = 0; i < N; ++i) {
-            simd_stl_assert(minVec.extract<T>(i) == std::min(arrA[i], arrB[i]));
+            simd_stl_assert(minVec.extract(i) == std::min(arrA[i], arrB[i]));
         }
 
         auto maxVec = simd_stl::datapar::vertical_max(a, b);
         for (size_t i = 0; i < N; ++i) {
-            simd_stl_assert(maxVec.extract<T>(i) == std::max(arrA[i], arrB[i]));
+            simd_stl_assert(maxVec.extract(i) == std::max(arrA[i], arrB[i]));
         }
 
         T minScalar = simd_stl::datapar::horizontal_min(a);
@@ -364,7 +351,7 @@ void testMethods() {
 
         auto absVec = simd_stl::datapar::abs(a);
         for (size_t i = 0; i < N; ++i) {
-            simd_stl_assert(absVec.extract<T>(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
+            simd_stl_assert(absVec.extract(i) == static_cast<T>(simd_stl::math::abs(arrA[i])));
         }
     }
 
@@ -381,7 +368,7 @@ void testMethods() {
         simd_stl::datapar::store(reversed, simdVec);
 
         for (size_t i = 0; i < N; ++i) {
-            assert(reversed[i] == arr[N - 1 - i]);
+            simd_stl_assert(reversed[i] == arr[N - 1 - i]);
         }
     }
 
@@ -425,13 +412,11 @@ void testMethods() {
         Simd v1(0);
         Simd v2(0);
 
-        v1.insert<T>(i, 42);
-        v2.insert<T>(i, 42);
+        v1.insert(i, 42);
+        v2.insert(i, 42);
 
         auto index_mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
         auto mask = (v1 == v2) | simd_stl::datapar::as_mask;
-        std::cout << index_mask.all_of() << '\n';
-        std::cout << index_mask.unwrap();
 
         simd_stl_assert(index_mask.any_of());
         simd_stl_assert(index_mask.all_of());
@@ -444,13 +429,13 @@ void testMethods() {
         simd_stl_assert(index_mask.count_leading_zero_bits() == mask.count_leading_zero_bits());
     }
 
-    {
+   {
         Simd v1(0);
         Simd v2(0);
 
-        v1.insert<T>(0, 1); v2.insert<T>(0, 1);
-        v1.insert<T>(1, 1); v2.insert<T>(1, 1);
-        v1.insert<T>(N - 1, 1); v2.insert<T>(N - 1, 1);
+        v1.insert(0, 1); v2.insert(0, 1);
+        v1.insert(1, 1); v2.insert(1, 1);
+        v1.insert(N - 1, 1); v2.insert(N - 1, 1);
 
         auto index_mask = (v1 == v2) | simd_stl::datapar::as_index_mask;
         auto mask = (v1 == v2) | simd_stl::datapar::as_mask;
@@ -496,43 +481,43 @@ void testMethods() {
 
 int main() {
     testMethods<simd_stl::arch::CpuFeature::SSE2, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE3, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSSE3, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE41, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::SSE42, simd_stl::datapar::xmm128>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::xmm128>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::datapar::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::datapar::zmm512>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::datapar::zmm512>();
+    
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::xmm128>();
+    
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::ymm256>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::xmm128>();
 
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::xmm128>();
 
-
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::xmm128>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::xmm128>();
-
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::ymm256>();
-    //testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::ymm256>();
 
     return 0;
 }

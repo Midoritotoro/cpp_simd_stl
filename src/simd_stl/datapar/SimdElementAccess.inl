@@ -337,59 +337,31 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX2, ymm256
         }
     }
     else if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
-        auto __qword_value = memory::pointer_to_integral(__value);
+        const auto __broadcasted = __simd_broadcast<__generation, __register_policy, __m256i>(__value);
 
         switch (__position) {
             case 0:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(__vector), __qword_value, 0));
+                __vector = __intrin_bitcast<_VectorType_>(_mm256_blend_epi32(__intrin_bitcast<__m256i>(__vector), __broadcasted, 0x03));
                 break;
             case 1:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(__vector), __qword_value, 1));
+                __vector = __intrin_bitcast<_VectorType_>(_mm256_blend_epi32(__intrin_bitcast<__m256i>(__vector), __broadcasted, 0x0C));
                 break;
             case 2:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(__vector), __qword_value, 2));
+                __vector = __intrin_bitcast<_VectorType_>(_mm256_blend_epi32(__intrin_bitcast<__m256i>(__vector), __broadcasted, 0x30));
                 break;
             default:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi64(__intrin_bitcast<__m256i>(__vector), __qword_value, 3));
-                break;
-        }
-    }
-    else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_>) {
-        auto __dword_value = memory::pointer_to_integral(__value);
-
-        switch (__position) {
-            case 0:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 0));
-                break;
-            case 1:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 1));
-                break;
-            case 2:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 2));
-                break;
-            case 3:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 3));
-                break;
-            case 4:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 4));
-                break;
-            case 5:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 5));
-                break;
-            case 6:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 6));
-                break;
-            default:
-                __vector = __intrin_bitcast<_VectorType_>(_mm256_insert_epi32(__intrin_bitcast<__m256i>(__vector), __dword_value, 7));
+                __vector = __intrin_bitcast<_VectorType_>(_mm256_blend_epi32(__intrin_bitcast<__m256i>(__vector), __broadcasted, 0xC0));
                 break;
         }
     }
     else {
-        const auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();
+        constexpr auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();
+
+        const auto __validated_position = __position & (__mask.__offset - 1);
 
         const auto __broadcasted = __simd_broadcast<__generation, __register_policy, _VectorType_>(__value);
         const auto __insert_mask = __simd_load<__generation, __register_policy, _VectorType_>(
-            (__mask.__array + __mask.__offset - (__position & (__mask.__offset - 1))));
+            (__mask.__array + __mask.__offset - __validated_position));
 
         __vector = __simd_blend<__generation, __register_policy, _DesiredType_>(__vector, __broadcasted, __insert_mask);
     }
@@ -458,27 +430,19 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX512F, zmm
 {
     if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi64(
-            __intrin_bitcast<__m512i>(__vector),
-            static_cast<uint8>(1u << __position), 
-            memory::pointer_to_integral(__value)));
+            __intrin_bitcast<__m512i>(__vector), static_cast<uint8>(1u << __position),  memory::pointer_to_integral(__value)));
     }
     else if constexpr (__is_epi32_v<_DesiredType_> || __is_epu32_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_set1_epi32(
-            __intrin_bitcast<__m512i>(__vector),
-            static_cast<uint16>(1u << __position),
-            memory::pointer_to_integral(__value)));
+            __intrin_bitcast<__m512i>(__vector), static_cast<uint16>(1u << __position), memory::pointer_to_integral(__value)));
     }
     else if constexpr (__is_ps_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_broadcastss_ps(
-            __intrin_bitcast<__m512>(__vector),
-            static_cast<uint16>(1u << __position),
-            _mm_set_ss(__value)));
+            __intrin_bitcast<__m512>(__vector), static_cast<uint16>(1u << __position), _mm_set_ss(__value)));
     }
     else if constexpr (__is_pd_v<_DesiredType_>) {
         __vector = __intrin_bitcast<_VectorType_>(_mm512_mask_broadcastsd_pd(
-            __intrin_bitcast<__m512d>(__vector),
-            static_cast<uint8>(1u << __position), 
-            _mm_set_sd(__value)));
+            __intrin_bitcast<__m512d>(__vector), static_cast<uint8>(1u << __position), _mm_set_sd(__value)));
     }
     else {
         const auto __mask = __simd_make_insert_mask<_VectorType_, _DesiredType_>();

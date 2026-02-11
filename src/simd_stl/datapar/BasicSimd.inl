@@ -27,7 +27,7 @@ template <
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd(value_type __value) noexcept {
-    fill<value_type>(__value);
+    fill(__value);
 }
 
 template <
@@ -57,9 +57,8 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
-    ::fill(typename std::type_identity<_DesiredType_>::type __value) noexcept
+simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
+    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::fill(value_type __value) noexcept
 {
     _vector = __simd_broadcast<_SimdGeneration_, _RegisterPolicy_, vector_type>(__value);
     return *this;
@@ -360,18 +359,15 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
-simd_stl_always_inline _DesiredType_
-    simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(size_type __index) const noexcept
+simd_stl_always_inline _Element_ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(size_type __index) const noexcept
 {
-    return __simd_extract<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __index);
+    return __simd_extract<_SimdGeneration_, _RegisterPolicy_, value_type>(_vector, __index);
 }
 
 template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
 simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
     simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract_wrapped(size_type __index) noexcept
 {
@@ -382,12 +378,11 @@ template <
     arch::CpuFeature	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
-template <typename _DesiredType_>
 simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::insert(
-    const size_type                                         __address,
-    const typename std::type_identity<_DesiredType_>::type  __value) noexcept
+    size_type   __position,
+    value_type  __value) noexcept
 {
-    return __simd_insert<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(_vector, __address, __value);
+    return __simd_insert<_SimdGeneration_, _RegisterPolicy_, value_type>(_vector, __position, __value);
 }
 
 template <

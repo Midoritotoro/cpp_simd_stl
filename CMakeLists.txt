@@ -373,10 +373,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g -Ob3) 
     elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-O2 -Ob3)
+        add_compile_options(-O2 -Ob3 -Oy)
     endif()
 
-   #  target_link_options(cpp_simd_stl PRIVATE "/LTCG;/opt:ref,icf;")
+    target_link_options(cpp_simd_stl PRIVATE "/LTCG;/opt:ref,icf;")
 
     target_compile_options(
         cpp_simd_stl 

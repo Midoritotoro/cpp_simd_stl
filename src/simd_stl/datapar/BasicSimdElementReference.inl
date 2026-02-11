@@ -34,14 +34,14 @@ template <
 simd_stl_always_inline simd_element_reference<_Simd_, _ImposedElementType_>::value_type
     simd_element_reference<_Simd_, _ImposedElementType_>::get() const noexcept 
 {
-    return _parent->template extract<value_type>(_index);
+    return _parent->extract(_index);
 }
 
 template <
     typename _Simd_,
     typename _ImposedElementType_>
 simd_stl_always_inline void simd_element_reference<_Simd_, _ImposedElementType_>::set(value_type __value) noexcept {
-    _parent->template insert<value_type>(_index, __value);
+    _parent->insert(_index, __value);
 }
 
 template <

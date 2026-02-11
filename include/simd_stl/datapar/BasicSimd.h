@@ -70,19 +70,13 @@ public:
 
     static simd_stl_always_inline simd zero() noexcept;
 
-    template <typename _DesiredType_ = value_type>
-    simd_stl_always_inline simd& fill(typename std::type_identity<_DesiredType_>::type __value) noexcept;
-
-    template <typename _DesiredType_>
-    simd_stl_always_inline _DesiredType_ extract(size_type __index) const noexcept;
-
-    template <typename _DesiredType_>
+    simd_stl_always_inline simd& fill(value_type __value) noexcept;
+    simd_stl_always_inline value_type extract(size_type __index) const noexcept;
     simd_stl_always_inline simd_element_reference<simd> extract_wrapped(size_type __index) noexcept;
 
-    template <typename _DesiredType_>
     simd_stl_always_inline void insert(
-        size_type                                         __index,
-        typename std::type_identity<_DesiredType_>::type  __value) noexcept;
+        size_type   __index,
+        value_type  __value) noexcept;
 
     friend simd operator+ <>(const simd& __left, const value_type __right) noexcept;
     friend simd operator- <>(const simd& __left, const value_type __right) noexcept;
