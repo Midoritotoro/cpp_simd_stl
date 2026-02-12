@@ -88,14 +88,12 @@ simd_stl_always_inline int __popcnt_population_count(_IntegralType_ __value) noe
         return static_cast<int>(__simd_stl_popcnt_u64(static_cast<uint64>(__value)));
     else if constexpr (__digits == 32)
         return static_cast<int>(__simd_stl_popcnt_u32(static_cast<uint32>(__value)));
-    else if constexpr (__digits == 16)
+    else if constexpr (__digits <= 16)
 #if defined(simd_stl_cpp_msvc)
         return static_cast<int>(__popcnt16(static_cast<uint16>(__value)));
 #elif defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_clang)
         return __bit_hacks_population_count(__value);
 #endif // defined(simd_stl_cpp_msvc) // defined(simd_stl_cpp_gnu) || defined(simd_stl_cpp_clang)
-    
-    return __bit_hacks_population_count(__value);
 }
 
 #endif // (defined(simd_stl_processor_x86_32) || defined(simd_stl_processor_x86_64) || defined(simd_stl_processor_arm_64))

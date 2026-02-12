@@ -28,7 +28,7 @@ __simd_inline_constexpr _ForwardIterator_ fill(
 
     if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>) {
         const auto __difference = __iterators_difference(__first_unwrapped, __last_unwrapped);
-        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __difference * sizeof(_Type_));
+        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __difference);
     }
     else
         for (; __first_unwrapped != __last_unwrapped; ++__first_unwrapped)

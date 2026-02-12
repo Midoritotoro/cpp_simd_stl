@@ -38,7 +38,7 @@ private:
     simd_stl_always_inline static auto __invoke_simd(
         _SizeType_                          __aligned_size,
         _SizeType_                          __tail_size,
-        std::tuple<_VectorizedArgs_...>&& __simd_args) noexcept
+        std::tuple<_VectorizedArgs_...>&&   __simd_args) noexcept
     {
         return std::apply(&__invoke_simd_helper<_SpecializedFunction_, _SizeType_, _VectorizedArgs_...>,
             std::tuple_cat(std::make_tuple(__aligned_size, __tail_size), std::move(__simd_args)));

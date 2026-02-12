@@ -26,7 +26,7 @@ __simd_inline_constexpr _ForwardIterator_ fill_n(
     auto __first_unwrapped = __unwrap_iterator_offset(__first, __count);
 
     if constexpr (type_traits::__is_vectorized_find_algorithm_safe_v<_ForwardIterator_, _Type_>)
-        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __count * sizeof(_Type_));
+        __memset_vectorized<_Type_>(std::to_address(__first_unwrapped), __value, __count);
     else
         for (auto __current = _SizeType_(0); __current < __count; ++__current, ++__first_unwrapped)
             *__first_unwrapped = __value;

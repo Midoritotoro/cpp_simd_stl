@@ -24,6 +24,7 @@ private:
 public:
     template <
         class       _Type_,
+        class       _SizeType_,
         class       _FallbackFunction_,
         class ...   _VectorizedArgs_,
         class ...   _FallbackArgs_>
@@ -32,54 +33,73 @@ public:
         std::tuple<_VectorizedArgs_...> __simd_args,
         std::tuple<_FallbackArgs_...>   __fallback_args) noexcept
     {
-        if constexpr (sizeof(_Type_)<= 2) {
-            if (arch::ProcessorFeatures::AVX512BW())
-                return __invoke_simd<_Function_<datapar::simd512_avx512bw<_Type_>>>(std::move(__simd_args));
+#if SIMD_STL_ISA_FORCE_ENABLED
+        return __invoke_simd<_Function_<simd_forced<_Type_>>>(std::forward<_Args_>(__args)...);
+#else
+        if (arch::ProcessorFeatures::AVX512BW()) {
+            if (arch::ProcessorFeatures::AVX512DQ())
+                return _Function_<simd512_avx512bwdq<_Type_>>()(std::move(__simd_args));
+
+            return __invoke_simd<_Function_<simd512_avx512bw<_Type_>>>(std::move(__simd_args));
         }
+        else if (arch::ProcessorFeatures::AVX512F()) {
+            if (arch::ProcessorFeatures::AVX512DQ())
+                return __invoke_simd<_Function_<simd512_avx512dq<_Type_>>>(std::move(__simd_args));
+
+            return __invoke_simd<_Function_<simd512_avx512f<_Type_>>>(std::move(__simd_args));
+        }
+        
+        else if (arch::ProcessorFeatures::AVX2()) {
+            return __invoke_simd<_Function_<simd256_avx2<_Type_>>>(std::move(__simd_args));
+        }
+
+        else if (arch::ProcessorFeatures::SSE2()) {
+            return __invoke_simd<_Function_<simd128_sse2<_Type_>>>(std::move(__simd_args));
+        }
+
         else {
-            if (arch::ProcessorFeatures::AVX512F())
-                return __invoke_simd<_Function_<datapar::simd512_avx512f<_Type_>>>(std::move(__simd_args));
+            return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
         }
-
-        if (arch::ProcessorFeatures::AVX2())
-            return __invoke_simd<_Function_<datapar::simd256_avx2<_Type_>>>(std::move(__simd_args));
-
-        else if (arch::ProcessorFeatures::SSE42())
-            return __invoke_simd<_Function_<datapar::simd128_sse42<_Type_>>>(std::move(__simd_args));
-
-        else if (arch::ProcessorFeatures::SSE2())
-            return __invoke_simd<_Function_<datapar::simd128_sse2<_Type_>>>(std::move(__simd_args));
-
-        return std::apply(type_traits::__pass_function(__fallback), std::move(__fallback_args));
+#endif
     }
 
     template <
         class       _Type_,
+        class       _SizeType_,
         class       _FallbackFunction_,
         class ...   _Args_>
     simd_stl_always_inline static auto __apply(
         _FallbackFunction_&&    __fallback,
-        _Args_&& ...            __args) noexcept
+        _Args_...               __args) noexcept
     {
-        if constexpr (sizeof(_Type_) <= 2) {
-            if (arch::ProcessorFeatures::AVX512BW())
-                return _Function_<datapar::simd512_avx512bw<_Type_>>()(std::forward<_Args_>(__args)...);
+#if SIMD_STL_ISA_FORCE_ENABLED
+        return _Function_<simd_forced<_Type_>>()(std::forward<_Args_>(__args)...);
+#else
+        if (arch::ProcessorFeatures::AVX512BW()) {
+            if (arch::ProcessorFeatures::AVX512DQ())
+                return _Function_<simd512_avx512bwdq<_Type_>>()(std::forward<_Args_>(__args)...);
+
+            return _Function_<simd512_avx512bw<_Type_>>()(std::forward<_Args_>(__args)...);
         }
+        else if (arch::ProcessorFeatures::AVX512F()) {
+            if (arch::ProcessorFeatures::AVX512DQ())
+                return _Function_<simd512_avx512dq<_Type_>>()(std::forward<_Args_>(__args)...);
+
+            return _Function_<simd512_avx512f<_Type_>>()(std::forward<_Args_>(__args)...);
+        }
+
+        else if (arch::ProcessorFeatures::AVX2()) {
+            return _Function_<simd256_avx2<_Type_>>()(std::forward<_Args_>(__args)...);
+        }
+
+        else if (arch::ProcessorFeatures::SSE2()) {
+            return _Function_<simd128_sse2<_Type_>>()(std::forward<_Args_>(__args)...);
+        }
+
         else {
-            if (arch::ProcessorFeatures::AVX512F())
-                return _Function_<datapar::simd512_avx512f<_Type_>>()(std::forward<_Args_>(__args)...);
+            return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
         }
-
-        if (arch::ProcessorFeatures::AVX2())
-            return _Function_<datapar::simd256_avx2<_Type_>>()(std::forward<_Args_>(__args)...);
-
-        else if (arch::ProcessorFeatures::SSE42())
-            return _Function_<datapar::simd128_sse42<_Type_>>()(std::forward<_Args_>(__args)...);
-
-        else if (arch::ProcessorFeatures::SSE2())
-            return _Function_<datapar::simd128_sse2<_Type_>>()(std::forward<_Args_>(__args)...);
-
-        return type_traits::invoke(type_traits::__pass_function(__fallback), std::forward<_Args_>(__args)...);
+#endif
     }
 };
 

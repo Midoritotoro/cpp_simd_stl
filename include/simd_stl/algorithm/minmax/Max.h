@@ -32,7 +32,7 @@ __simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ __first,
 	_InputIterator_ __last) noexcept
 {
-	simd_stl_assert(__first != __last && "max_range requires non-empty range");
+	simd_stl_debug_assert(__first != __last && "max_range requires non-empty range");
 	return __max_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last));
 }
 
@@ -45,7 +45,7 @@ __simd_nodiscard_inline _Type_ max_range(
 	_InputIterator_ __last,
 	_Predicate_		__predicate) noexcept
 {
-	simd_stl_assert(__first != __last && "max_range requires non-empty range");
+	simd_stl_debug_assert(__first != __last && "max_range requires non-empty range");
 	return __max_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last), type_traits::__pass_function(__predicate));
 }
 

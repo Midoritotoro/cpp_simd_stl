@@ -25,27 +25,24 @@ __simd_nodiscard_inline _Type_ min(
 	return __predicate(__right, __left) ? __right : __left;
 }
 
-template <
-	class _InputIterator_,
-	class _Type_>
-__simd_nodiscard_inline _Type_ min_range(
+template <class _InputIterator_>
+__simd_nodiscard_inline type_traits::iterator_value_type<_InputIterator_> min_range(
 	_InputIterator_ __first,
 	_InputIterator_ __last) noexcept
 {
-	simd_stl_assert(__first != __last && "min_range requires non-empty range");
+	simd_stl_debug_assert(__first != __last && "min_range requires non-empty range");
 	return __min_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last));
 }
 
 template <
 	class _InputIterator_,
-	class _Type_,
 	class _Predicate_>
-__simd_nodiscard_inline _Type_ min_range(
+__simd_nodiscard_inline type_traits::iterator_value_type<_InputIterator_> min_range(
 	_InputIterator_ __first,
 	_InputIterator_ __last,
 	_Predicate_		__predicate) noexcept
 {
-	simd_stl_assert(__first != __last && "min_range requires non-empty range");
+	simd_stl_debug_assert(__first != __last && "min_range requires non-empty range");
 	return __min_unchecked(__unwrap_iterator(__first), __unwrap_iterator(__last), type_traits::__pass_function(__predicate));
 }
 

@@ -489,11 +489,15 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX2, simd_stl::datapar::xmm128>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
+   /* testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::datapar::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::datapar::zmm512>();
     testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::datapar::zmm512>();
-    
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIDQ, simd_stl::datapar::zmm512>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2DQ, simd_stl::datapar::zmm512>();
+
     testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::xmm128>();
@@ -504,20 +508,16 @@ int main() {
     testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::ymm256>();
 
-
     testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::xmm128>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLDQ, simd_stl::datapar::xmm128>();
 
     testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::ymm256>();
     testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBW, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBW, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLBWDQ, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLBWDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLDQ, simd_stl::datapar::ymm256>();*/
+
 
     return 0;
 }

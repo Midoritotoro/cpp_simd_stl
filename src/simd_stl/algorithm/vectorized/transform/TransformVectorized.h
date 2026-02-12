@@ -1,8 +1,6 @@
 #pragma once
 
 #include <simd_stl/datapar/BasicSimd.h>
-#include <src/simd_stl/algorithm/vectorized/VectorizedOperators.h>
-
 
 __SIMD_STL_ALGORITHM_NAMESPACE_BEGIN
 

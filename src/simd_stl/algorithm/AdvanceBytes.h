@@ -142,13 +142,14 @@ simd_stl_nodiscard _Char_* __unsigned_integral_to_buffer(
 template <
     typename    _Type_,
     class       _Integral_>
-simd_stl_always_inline const _Type_* __bytes_pointer_offset(
-    const _Type_*   __target,
+simd_stl_always_inline _Type_* __bytes_pointer_offset(
+    _Type_*   __target,
     _Integral_      __offset) noexcept
 {
-    return reinterpret_cast<const _Type_*>(const_cast<const unsigned char*>(
+    return reinterpret_cast<_Type_*>(const_cast<unsigned char*>(
         reinterpret_cast<const volatile unsigned char*>(__target)) + __offset);
 }
+
 
 template <
     typename    _Type_,

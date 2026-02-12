@@ -41,28 +41,37 @@ template <
 simd_stl_always_inline _VectorType_ __simd_convert<arch::CpuFeature::SSE2, xmm128>::__to_vector(__simd_mask_type<_DesiredType_> __mask) noexcept
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __first = (__mask >> 1) & 1;
-        const auto __second = __mask & 1;
+        const auto __broadcasted_mask = _mm_set1_epi8(static_cast<int8>(__mask));
+        const auto __selected = _mm_and_si128(__broadcasted_mask, _mm_setr_epi32(1, 1, 2, 2));
 
-        const auto __broadcasted = _mm_set_epi32(__first, __first, __second, __second);
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(__broadcasted, _mm_set1_epi32(1)));
+        return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi32(__selected, _mm_setzero_si128()));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __broadcasted = _mm_set_epi32((__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(__broadcasted, _mm_set1_epi32(1)));
+        const auto __broadcasted_mask = _mm_set1_epi8(static_cast<int8>(__mask));
+        const auto __selected = _mm_and_si128(__broadcasted_mask, _mm_setr_epi32(1, 2, 4, 8));
+
+        return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi32(__selected, _mm_setzero_si128()));
     }
     else if constexpr (sizeof(_DesiredType_) == 2) {
-        const auto __broadcasted = _mm_set_epi16((__mask >> 7) & 1, (__mask >> 6) & 1, (__mask >> 5) & 1,
-            (__mask >> 4) & 1, (__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi16(__broadcasted, _mm_set1_epi16(1)));
+        const auto __broadcasted_mask = _mm_set1_epi8(static_cast<int8>(__mask));
+        const auto __selected = _mm_and_si128(__broadcasted_mask, _mm_setr_epi32(0x00020001, 0x00080004, 0x00200010, 0x00800040));
+        
+        return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi16(__selected, _mm_setzero_si128()));
     }
     else if constexpr (sizeof(_DesiredType_) == 1) {
-        const auto __broadcasted = _mm_set_epi8((__mask >> 15) & 1, (__mask >> 14) & 1, (__mask >> 13) & 1, (__mask >> 12) & 1,
-            (__mask >> 11) & 1, (__mask >> 10) & 1, (__mask >> 9) & 1, (__mask >> 8) & 1, (__mask >> 7) & 1,
-            (__mask >> 6) & 1, (__mask >> 5) & 1, (__mask >> 4) & 1, (__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
+        const auto __not_mask = uint16(~__mask);
 
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi8(__broadcasted, _mm_set1_epi8(1)));
+        const auto __broadcasted_low_mask = _mm_set1_epi8(static_cast<int8>(__not_mask));
+        const auto __broadcasted_high_mask = _mm_set1_epi8(static_cast<int8>(__not_mask >> 8));
+
+        const auto __vector_mask_low = _mm_setr_epi32(0x08040201, 0x80402010, 0, 0);
+        const auto __vector_mask_high = _mm_setr_epi32(0, 0, 0x08040201, 0x80402010);
+
+        const auto __selected_low = _mm_and_si128(__broadcasted_low_mask, __vector_mask_low);
+        const auto __selected_high = _mm_and_si128(__broadcasted_high_mask, __vector_mask_high);
+
+        const auto __combined = _mm_or_si128(__selected_low, __selected_high);
+        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi8(__combined, _mm_setzero_si128()));
     }
 }
 
@@ -71,28 +80,14 @@ template <
     typename _DesiredType_>
 simd_stl_always_inline _VectorType_ __simd_convert<arch::CpuFeature::SSSE3, xmm128>::__to_vector(__simd_mask_type<_DesiredType_> __mask) noexcept 
 {
-    if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __first = (__mask >> 1) & 1;
-        const auto __second = __mask & 1;
-
-        const auto __broadcasted = _mm_set_epi32(__first, __first, __second, __second);
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(__broadcasted, _mm_set1_epi32(1)));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __broadcasted = _mm_set_epi32((__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi32(__broadcasted, _mm_set1_epi32(1)));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 2) {
-        const auto __broadcasted = _mm_set_epi16((__mask >> 7) & 1, (__mask >> 6) & 1, (__mask >> 5) & 1, (__mask >> 4) & 1,
-            (__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-
-        return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi16(__broadcasted, _mm_set1_epi16(1)));
-    }
-    else if constexpr (sizeof(_DesiredType_) == 1) {
+    if constexpr (sizeof(_DesiredType_) == 1) {
         const auto __select = _mm_set1_epi64x(0x8040201008040201ull);
         const auto __shuffled = _mm_shuffle_epi8(_mm_cvtsi32_si128(__mask), _mm_set_epi64x(0x0101010101010101ll, 0));
 
         return __intrin_bitcast<_VectorType_>(_mm_cmpeq_epi8(_mm_and_si128(__shuffled, __select), __select));
+    }
+    else {
+        return __simd_to_vector<arch::CpuFeature::SSE2, __register_policy, _VectorType_, _DesiredType_>(__mask);
     }
 }
 
@@ -140,20 +135,24 @@ template <
 simd_stl_always_inline _VectorType_ __simd_convert<arch::CpuFeature::AVX2, ymm256>::__to_vector(__simd_mask_type<_DesiredType_> __mask) noexcept 
 {
     if constexpr (sizeof(_DesiredType_) == 8) {
-        const auto __broadcasted = _mm256_set_pd((__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-        return __intrin_bitcast<_VectorType_>(_mm256_cmp_pd(__broadcasted, _mm256_set1_pd(1), 0));
+        const auto __vector_mask = _mm256_set1_epi32(static_cast<int32>(__mask));
+        const auto __selected = _mm256_and_si256(__vector_mask, _mm256_setr_epi32(1, 0, 2, 0, 4, 0, 8, 0));
+
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi64(__selected, _mm256_setzero_si256()));
     }
     else if constexpr (sizeof(_DesiredType_) == 4) {
-        const auto __broadcasted = _mm256_set_ps((__mask >> 7) & 1, (__mask >> 6) & 1, (__mask >> 5) & 1, (__mask >> 4) & 1,
-            (__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
-        return __intrin_bitcast<_VectorType_>(_mm256_cmp_ps(__broadcasted, _mm256_set1_ps(1), 0));
+        const auto __vector_mask = _mm256_set1_epi32(static_cast<int32>(__mask));
+        const auto __selected = _mm256_and_si256(__vector_mask, _mm256_setr_epi32(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi32(__selected, _mm256_setzero_si256()));
     }
     else if constexpr (sizeof(_DesiredType_) == 2) {
-        const auto __broadcasted = _mm256_set_epi16((__mask >> 15) & 1, (__mask >> 14) & 1, (__mask >> 13) & 1, (__mask >> 12) & 1,
-            (__mask >> 11) & 1, (__mask >> 10) & 1, (__mask >> 9) & 1, (__mask >> 8) & 1, (__mask >> 7) & 1, (__mask >> 6) & 1,
-            (__mask >> 5) & 1, (__mask >> 4) & 1, (__mask >> 3) & 1, (__mask >> 2) & 1, (__mask >> 1) & 1, __mask & 1);
+        const auto __vector_mask = _mm256_set1_epi16(static_cast<int16>(__mask));
 
-        return __intrin_bitcast<_VectorType_>(_mm256_cmpeq_epi16(__broadcasted, _mm256_set1_epi16(1)));
+        const auto __shuffled = _mm256_shuffle_epi8(__vector_mask, _mm256_setr_epi32(0, 0, 0, 0, 0x00010001, 0x00010001, 0x00010001, 0x00010001));
+        const auto __select = _mm256_setr_epi32(0x00020001,0x00080004,0x00200010,0x00800040,0x00020001,0x00080004,0x00200010,0x00800040);
+
+        return __intrin_bitcast<_VectorType_>(_mm256_cmpgt_epi16(_mm256_and_si256(__shuffled, __select), _mm256_setzero_si256()));
     }
     else if constexpr (sizeof(_DesiredType_) == 1) {
         const auto __vector_mask = _mm256_setr_epi32(__mask & 0xFFFF, 0, 0, 0, (__mask >> 16) & 0xFFFF, 0, 0, 0);
@@ -208,7 +207,6 @@ simd_stl_always_inline auto __simd_convert<arch::CpuFeature::AVX512F, zmm512>::_
 
         const auto __low = __simd_to_index_mask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(__intrin_bitcast<__m256d>(__vector));
         const auto __high = __simd_to_index_mask<arch::CpuFeature::AVX2, ymm256, _DesiredType_>(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
-
 
         using _Type = IntegerForSize<sizeof(decltype(__low)) * 2>::Unsigned;
 

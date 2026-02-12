@@ -33,37 +33,41 @@ _FillBenchmarkArray<_Type_, _Size_> _GenerateArrayForBenchmark() noexcept {
 
 template <
     typename _Type_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class StdFillBenchmark {
 public:
-    static inline auto array = _GenerateArrayForBenchmark<_Type_, sizeForBenchmark>();
-
     static void Fill(benchmark::State& state) noexcept {
+        auto array = _GenerateArrayForBenchmark<_Type_, sizeForBenchmark>();
+
         while (state.KeepRunning()) {
-            std::fill(array.array, array.array + sizeForBenchmark, _Type_(42));
+            std::fill(array.array, array.array + sizeForBenchmark, std::numeric_limits<_Type_>::max());
             benchmark::DoNotOptimize(array.array);
+            benchmark::ClobberMemory();
         }
     }
 };
 
 template <
     typename _Type_,
-    SizeForBenchmark sizeForBenchmark = SizeForBenchmark::Large>
+    SizeForBenchmark sizeForBenchmark>
 class SimdStlFillBenchmark {
 public:
-    static inline auto array = _GenerateArrayForBenchmark<_Type_, sizeForBenchmark>();
-
     static void Fill(benchmark::State& state) noexcept {
+        auto array = _GenerateArrayForBenchmark<_Type_, sizeForBenchmark>();
+
         while (state.KeepRunning()) {
-            simd_stl::algorithm::fill(array.array, array.array + sizeForBenchmark, _Type_(42));
+            simd_stl::algorithm::fill(array.array, array.array + sizeForBenchmark, std::numeric_limits<_Type_>::max());
             benchmark::DoNotOptimize(array.array);
+            benchmark::ClobberMemory();
         }
     }
 };
 
 SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int8, Fill);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int16, Fill);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int32, Fill);
-//SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int64, Fill);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int16, Fill);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int32, Fill);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, simd_stl::int64, Fill);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, float, Fill);
+SIMD_STL_ADD_BENCHMARKS_FOR_EACH_SIZE(SimdStlFillBenchmark, StdFillBenchmark, double, Fill);
 
 SIMD_STL_BENCHMARK_MAIN();

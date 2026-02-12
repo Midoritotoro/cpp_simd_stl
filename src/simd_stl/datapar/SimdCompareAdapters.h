@@ -57,32 +57,32 @@ template <
     class _CompareResult_, 
     class _Adapter_>
 requires requires(
-    _Adapter_           __adapter, 
+    _Adapter_&&         __adapter, 
     _CompareResult_&&   __compare_result) 
 {
     __adapter(__compare_result);
 }
 simd_stl_always_inline auto operator|(
     _CompareResult_&&   __compare_result, 
-    const _Adapter_&    __adapter) noexcept
+    _Adapter_&&         __adapter) noexcept
 {
-    return __adapter(std::forward<_CompareResult_>(__compare_result));
+    return std::forward<_Adapter_>(__adapter)(std::forward<_CompareResult_>(__compare_result));
 }
 
 template <
     class _Adapter_,
     class _CompareResult_>
 requires requires(
-    _Adapter_           __adapter, 
+    _Adapter_&&         __adapter, 
     _CompareResult_&&   __compare_result) 
 {
     __adapter(__compare_result); 
 }
 simd_stl_always_inline auto operator|(
-    const _Adapter_&    __adapter,
+    _Adapter_&&         __adapter,
     _CompareResult_&&   __compare_result) noexcept 
 {
-    return __adapter(std::forward<_CompareResult_>(__compare_result));
+    return std::forward<_Adapter_>(__adapter)(std::forward<_CompareResult_>(__compare_result));
 }
 
 __SIMD_STL_DATAPAR_NAMESPACE_END
