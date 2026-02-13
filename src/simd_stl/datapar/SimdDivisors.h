@@ -8,12 +8,12 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Element_>
 class SimdDivisor;
 
 template <>
-class SimdDivisor<arch::CpuFeature::SSE2, int32> {
+class SimdDivisor<arch::ISA::SSE2, int32> {
 protected:
     __m128i multiplier;
     __m128i firstShift;
@@ -75,7 +75,7 @@ public:
 };
 
 template <>
-class SimdDivisor<arch::CpuFeature::SSE2, uint32> {
+class SimdDivisor<arch::ISA::SSE2, uint32> {
 protected:
     __m128i multiplier;
     
@@ -134,7 +134,7 @@ public:
 };
 
 template <>
-class SimdDivisor<arch::CpuFeature::SSE2, int16> {
+class SimdDivisor<arch::ISA::SSE2, int16> {
 protected:
     __m128i multiplier;
     __m128i firstShift;
@@ -192,7 +192,7 @@ public:
 
 
 template <>
-class SimdDivisor<arch::CpuFeature::SSE2, uint16> {
+class SimdDivisor<arch::ISA::SSE2, uint16> {
 protected:
     __m128i multiplier;
 

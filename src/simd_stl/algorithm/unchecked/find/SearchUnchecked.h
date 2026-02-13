@@ -92,7 +92,7 @@ __simd_nodiscard_inline_constexpr _FirstUnwrappedForwardIterator_ __search_unche
 			}
 		}
 
-		const auto __position = _Search<arch::CpuFeature::None>()(
+		const auto __position = _Search<arch::ISA::None>()(
 			__first1_address, __first_range_length, __first2_address,
 			__second_range_length, type_traits::__pass_function(_Predicate));
 

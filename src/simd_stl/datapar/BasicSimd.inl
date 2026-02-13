@@ -5,14 +5,14 @@ simd_stl_disable_warning_msvc(4002)
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd() noexcept
 {}
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 template <
@@ -23,7 +23,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd(_VectorType_ __other) 
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd(value_type __value) noexcept {
@@ -31,14 +31,14 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd(value_type __value) no
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::~simd() noexcept
 {}
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline bool simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::is_supported() noexcept {
@@ -46,7 +46,7 @@ simd_stl_always_inline bool simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::zero() noexcept {
@@ -54,7 +54,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_> simd<
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -65,7 +65,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -75,7 +75,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -85,7 +85,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -95,7 +95,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -105,7 +105,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -116,7 +116,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline _Element_
@@ -126,7 +126,7 @@ simd_stl_always_inline _Element_
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
@@ -136,7 +136,7 @@ simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, 
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
@@ -147,7 +147,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++(int) noexcept {
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -156,7 +156,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++() noexcept {
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
@@ -168,7 +168,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--(int) noexcept
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -178,7 +178,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--() noexcept
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
@@ -187,7 +187,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator~() const noexcept 
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -196,7 +196,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator&=(const simd& __ot
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -205,7 +205,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator|=(const simd& __ot
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -214,7 +214,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator^=(const simd& __ot
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
@@ -225,7 +225,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
@@ -236,7 +236,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
@@ -247,7 +247,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
@@ -258,7 +258,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator&(
@@ -269,7 +269,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator&(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator|(
@@ -280,7 +280,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator|(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator^(
@@ -291,7 +291,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator^(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
@@ -302,7 +302,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator+(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
@@ -313,7 +313,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator-(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
@@ -325,7 +325,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator*(
 
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
@@ -336,7 +336,7 @@ simd<_SimdGeneration_, _Element_, _RegisterPolicy_> operator/(
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
@@ -346,7 +346,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
@@ -356,7 +356,7 @@ simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline _Element_ simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::extract(size_type __index) const noexcept
@@ -365,7 +365,7 @@ simd_stl_always_inline _Element_ simd<_SimdGeneration_, _Element_, _RegisterPoli
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>>
@@ -375,7 +375,7 @@ simd_stl_always_inline simd_element_reference<simd<_SimdGeneration_, _Element_, 
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::insert(
@@ -386,7 +386,7 @@ simd_stl_always_inline void simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::equal> operator==(
@@ -398,7 +398,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::not_equal> operator!=(
@@ -410,7 +410,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less> operator<(
@@ -422,7 +422,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::less_equal> operator<=(
@@ -434,7 +434,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater> operator>(
@@ -446,7 +446,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparison::greater_equal> operator>=(
@@ -458,7 +458,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, simd_comparis
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
@@ -469,7 +469,7 @@ simd_stl_always_inline simd_mask<_SimdGeneration_, _DesiredType_, _RegisterPolic
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 template <typename _DesiredType_>
@@ -478,7 +478,7 @@ simd_stl_always_inline auto simd<_SimdGeneration_, _Element_, _RegisterPolicy_>:
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::width() noexcept {
@@ -486,7 +486,7 @@ constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::width() noexc
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::size() noexcept {
@@ -494,7 +494,7 @@ constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::size() noexce
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::length() noexcept {
@@ -502,7 +502,7 @@ constexpr int simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::length() noex
 }
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 simd_stl_always_inline simd<_SimdGeneration_, _Element_, _RegisterPolicy_>::vector_type

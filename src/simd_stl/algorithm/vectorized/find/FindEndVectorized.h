@@ -57,7 +57,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndScal
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Type_>
 simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVectorizedInternalAnySize(
     const void*     firstPointer,
@@ -71,7 +71,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Type_,
     sizetype            _NeedleLength_,
     typename            _MemCmpLike_>
@@ -134,7 +134,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
 
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Type_>
 simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVectorizedInternal(
     const void*     firstPointer,
@@ -215,7 +215,7 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* FindEndVect
     const sizetype  secondRangeLength) noexcept
 {
     if (arch::ProcessorFeatures::SSE2())
-        return FindEndVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(
+        return FindEndVectorizedInternal<arch::ISA::SSE2, _Type_>(
             firstPointer, firstRangeLength, secondPointer, secondRangeLength);
 
     return FindEndScalar<_Type_>(firstPointer, firstRangeLength, secondPointer, secondRangeLength);

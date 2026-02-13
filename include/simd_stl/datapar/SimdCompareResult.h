@@ -9,7 +9,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	class				_Element_,
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>

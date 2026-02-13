@@ -16,11 +16,11 @@ SIMD_STL_DECLARE_CPU_FEATURE_GUARDED_CLASS(
     template <arch::CpuFeature feature> struct _Search,
     feature,
     "simd_stl::algorithm",
-    arch::CpuFeature::None, arch::CpuFeature::AVX512F, arch::CpuFeature::AVX2, arch::CpuFeature::SSE2
+    arch::ISA::None, arch::ISA::AVX512F, arch::ISA::AVX2, arch::ISA::SSE2
 );
 
 template <>
-struct _Search<arch::CpuFeature::None> {
+struct _Search<arch::ISA::None> {
     template <
 		typename _Type_,
 		typename _Predicate_>
@@ -63,7 +63,7 @@ struct _Search<arch::CpuFeature::None> {
 };
 
 template <>
-struct _Search<arch::CpuFeature::SSE2> {
+struct _Search<arch::ISA::SSE2> {
     template <typename _Type_>
     simd_stl_declare_const_function simd_stl_always_inline const _Type_* operator()(
         const _Type_*   mainRange,
@@ -115,11 +115,11 @@ private:
 		if (mainLength <= 0)
 			return nullptr;
 		
-		using _SimdType_ = datapar::simd<arch::CpuFeature::SSE2, _Type_>;
+		using _SimdType_ = datapar::simd<arch::ISA::SSE2, _Type_>;
 		constexpr auto subSizeInBytes = sizeof(_Type_) * needleLength;
 
 		if constexpr (subSizeInBytes > sizeof(_SimdType_))
-			return _Search<arch::CpuFeature::None>()(mainRange, mainLength, subRange, needleLength, type_traits::equal_to<>{});
+			return _Search<arch::ISA::None>()(mainRange, mainLength, subRange, needleLength, type_traits::equal_to<>{});
 
 		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
 
@@ -162,9 +162,9 @@ private:
 			return nullptr;
 
 		if (((subLength & (~sizetype{ 0xF }))) != 0)
-			return _Search<arch::CpuFeature::None>()(mainRange, mainLength, subRange, subLength, type_traits::equal_to<>{});
+			return _Search<arch::ISA::None>()(mainRange, mainLength, subRange, subLength, type_traits::equal_to<>{});
 
-		using _SimdType_ = datapar::simd<arch::CpuFeature::SSE2, _Type_>;
+		using _SimdType_ = datapar::simd<arch::ISA::SSE2, _Type_>;
 
 		const auto mainRangeSizeInBytes = sizeof(_Type_) * mainLength;
 		const auto subInBytes			= sizeof(_Type_) * subLength;
@@ -210,9 +210,9 @@ simd_stl_declare_const_function simd_stl_always_inline const _Type_* _SearchVect
     else */ /*if (arch::ProcessorFeatures::AVX2())
         return _Search<arch::CpuFeature::AVX2>()(first1, mainRangeLength, first2, subRangeLength);*/
     /*else */if (arch::ProcessorFeatures::SSE2())
-        return _Search<arch::CpuFeature::SSE2>()(first1, mainRangeLength, first2, subRangeLength);
+        return _Search<arch::ISA::SSE2>()(first1, mainRangeLength, first2, subRangeLength);
 
-	return _Search<arch::CpuFeature::None>()(first1, mainRangeLength, first2, subRangeLength, type_traits::equal_to<>{});
+	return _Search<arch::ISA::None>()(first1, mainRangeLength, first2, subRangeLength, type_traits::equal_to<>{});
 }
 
 

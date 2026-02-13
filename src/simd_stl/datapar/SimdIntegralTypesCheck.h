@@ -10,7 +10,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 class simd;
@@ -32,7 +32,7 @@ struct zmm512 {
 };
 
 
-template <arch::CpuFeature _SimdGeneration_>
+template <arch::ISA _SimdGeneration_>
 using __default_register_policy = std::conditional_t<
 	arch::__is_xmm_v<_SimdGeneration_>,
 	datapar::xmm128,
@@ -47,12 +47,12 @@ using __default_register_policy = std::conditional_t<
 >;
 
 template <
-	arch::CpuFeature    _SimdGeneration_,
+	arch::ISA    _SimdGeneration_,
 	typename            _VectorElementType_>
 constexpr int __vector_default_size = __default_register_policy<_SimdGeneration_>::__width;
 
 template <
-	arch::CpuFeature	_SimdGeneration_, 
+	arch::ISA	_SimdGeneration_, 
 	class				_RegisterPolicy_> 
 constexpr bool __is_register_policy_for_generation_v = __vector_default_size<_SimdGeneration_, int> >= _RegisterPolicy_::__width;
 
@@ -196,7 +196,7 @@ template <
 struct __rebind_vector_element_t;
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_,
     bool                _IsBasicSimd_ = __is_valid_basic_simd_v<_VectorType_>,
@@ -209,42 +209,42 @@ template <
 using __rebind_vector_element_type = typename __rebind_vector_element_t<_RebindType_, _VectorType_>::type;
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_>
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_sse2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE2);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_sse2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::SSE2);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_sse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE3);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_sse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::SSE3);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_ssse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSSE3);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_ssse3_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::SSSE3);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_sse41_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE41);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_sse41_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::SSE41);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_sse42_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::SSE42);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_sse42_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::SSE42);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_avx2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX2);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_avx2_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::AVX2);
 
-template <arch::CpuFeature _SimdGeneration_> 
-constexpr inline bool __has_avx512f_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::CpuFeature::AVX512F);
+template <arch::ISA _SimdGeneration_> 
+constexpr inline bool __has_avx512f_support_v = static_cast<int>(_SimdGeneration_) >= static_cast<int>(arch::ISA::AVX512F);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_avx512bw_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BW)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BWDQ)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBWDQ)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBW);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_avx512bw_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512BW)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512BWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512VLBWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512VLBW);
 
-template <arch::CpuFeature _SimdGeneration_>
-constexpr inline bool __has_avx512dq_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512DQ)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512BWDQ)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLBWDQ)
-	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::CpuFeature::AVX512VLDQ);
+template <arch::ISA _SimdGeneration_>
+constexpr inline bool __has_avx512dq_support_v = static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512DQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512BWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512VLBWDQ)
+	|| static_cast<int>(_SimdGeneration_) == static_cast<int>(arch::ISA::AVX512VLDQ);
 
 __SIMD_STL_DATAPAR_NAMESPACE_END

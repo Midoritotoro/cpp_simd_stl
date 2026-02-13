@@ -114,7 +114,7 @@ __simd_nodiscard_inline _DataparType_ vertical_max(
 		typename _RawDataparType::value_type>(__simd_unwrap(__first), __simd_unwrap(__second));
 }
 
-template <arch::CpuFeature _SimdGeneration_>
+template <arch::ISA _SimdGeneration_>
 struct __zero_upper_at_exit_guard {
     __zero_upper_at_exit_guard(const __zero_upper_at_exit_guard&) noexcept = delete;
     __zero_upper_at_exit_guard(__zero_upper_at_exit_guard&&) noexcept = delete;
@@ -128,7 +128,7 @@ struct __zero_upper_at_exit_guard {
 	}
 };
 
-template <arch::CpuFeature _SimdGeneration_>
+template <arch::ISA _SimdGeneration_>
 simd_stl_always_inline __zero_upper_at_exit_guard<_SimdGeneration_> make_guard() noexcept {
 	return __zero_upper_at_exit_guard<_SimdGeneration_>();
 }
@@ -171,7 +171,7 @@ simd_stl_always_inline void streaming_fence() noexcept
 	return __simd_streaming_fence<std::remove_cvref_t<_DataparType_>::__generation>();
 }
 
-template <arch::CpuFeature _SimdGeneration_>
+template <arch::ISA _SimdGeneration_>
 simd_stl_always_inline void streaming_fence() noexcept {
 	return __simd_streaming_fence<_SimdGeneration_>();
 }

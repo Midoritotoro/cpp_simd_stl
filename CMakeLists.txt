@@ -187,7 +187,46 @@ set(PRIVATE_HEADERS
     src/simd_stl/algorithm/FixedMemcmp.h
     src/simd_stl/algorithm/MsvcIteratorUnwrap.h
 
-   
+    src/simd_stl/datapar/bitwise/BitAnd.h
+    src/simd_stl/datapar/bitwise/BitOr.h
+    src/simd_stl/datapar/bitwise/BitXor.h
+    src/simd_stl/datapar/bitwise/BitNot.h
+    src/simd_stl/datapar/bitwise/ToMask.h
+    src/simd_stl/datapar/bitwise/ToVector.h
+    src/simd_stl/datapar/bitwise/ToIndexMask.h
+
+    src/simd_stl/datapar/arithmetic/Sub.h
+    src/simd_stl/datapar/arithmetic/Add.h
+    src/simd_stl/datapar/arithmetic/Mul.h
+    src/simd_stl/datapar/arithmetic/Div.h
+    src/simd_stl/datapar/arithmetic/Negate.h
+    src/simd_stl/datapar/arithmetic/VerticalMax.h
+    src/simd_stl/datapar/arithmetic/VerticalMin.h
+
+    src/simd_stl/datapar/compare/NativeCompare.h
+
+    src/simd_stl/datapar/memory/CompressStore.h
+    src/simd_stl/datapar/memory/Load.h
+    src/simd_stl/datapar/memory/Store.h
+    src/simd_stl/datapar/memory/MaskLoad.h
+    src/simd_stl/datapar/memory/MaskzLoad.h
+    src/simd_stl/datapar/memory/MaskStore.h
+    src/simd_stl/datapar/memory/NonTemporalLoad.h
+    src/simd_stl/datapar/memory/NonTemporalStore.h
+    src/simd_stl/datapar/memory/StreamingFence.h
+
+    src/simd_stl/datapar/reduce/ReduceAdd.h
+    src/simd_stl/datapar/reduce/HorizontalFold.h
+    src/simd_stl/datapar/reduce/HorizontalMax.h
+    src/simd_stl/datapar/reduce/HorizontalMin.h
+
+    src/simd_stl/datapar/shuffle/Insert.h
+    src/simd_stl/datapar/shuffle/Extract.h
+    src/simd_stl/datapar/shuffle/Compress.h
+    src/simd_stl/datapar/shuffle/Broadcast.h
+    src/simd_stl/datapar/shuffle/BroadcastZeros.h
+    src/simd_stl/datapar/shuffle/Reverse.h
+    src/simd_stl/datapar/shuffle/Blend.h
 )
 
 set(PUBLIC_HEADERS
@@ -236,6 +275,7 @@ set(PUBLIC_HEADERS
     include/simd_stl/compatibility/UnreachableCode.h
     include/simd_stl/compatibility/Warnings.h
     include/simd_stl/compatibility/SimdCompatibility.h
+    include/simd_stl/compatibility/StaticOperators.h
 
     include/simd_stl/Types.h
     include/simd_stl/SimdStlNamespace.h

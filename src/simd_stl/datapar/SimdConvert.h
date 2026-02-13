@@ -9,15 +9,15 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_>
 class __simd_convert;
 
 #pragma region Sse2-Sse4.2 Simd convert
 
 template <>
-class __simd_convert<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto __generation  = arch::CpuFeature::SSE2;
+class __simd_convert<arch::ISA::SSE2, xmm128> {
+    static constexpr auto __generation  = arch::ISA::SSE2;
     using __register_policy             = xmm128;
 
     template <typename _DesiredType_>
@@ -43,15 +43,15 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::SSE3, xmm128> :
-    public __simd_convert<arch::CpuFeature::SSE2, xmm128>
+class __simd_convert<arch::ISA::SSE3, xmm128> :
+    public __simd_convert<arch::ISA::SSE2, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::SSSE3, xmm128> :
-    public __simd_convert<arch::CpuFeature::SSE3, xmm128>
+class __simd_convert<arch::ISA::SSSE3, xmm128> :
+    public __simd_convert<arch::ISA::SSE3, xmm128>
 {
-    static constexpr auto __generation  = arch::CpuFeature::SSE2;
+    static constexpr auto __generation  = arch::ISA::SSE2;
     using __register_policy             = xmm128;
 
     template <typename _DesiredType_>
@@ -64,13 +64,13 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::SSE41, xmm128> :
-    public __simd_convert<arch::CpuFeature::SSSE3, xmm128>
+class __simd_convert<arch::ISA::SSE41, xmm128> :
+    public __simd_convert<arch::ISA::SSSE3, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::SSE42, xmm128> :
-    public __simd_convert<arch::CpuFeature::SSE41, xmm128>
+class __simd_convert<arch::ISA::SSE42, xmm128> :
+    public __simd_convert<arch::ISA::SSE41, xmm128>
 {};
 
 #pragma endregion
@@ -78,14 +78,14 @@ class __simd_convert<arch::CpuFeature::SSE42, xmm128> :
 #pragma region Avx-Avx2 Simd convert
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX2, xmm128> :
-    public __simd_convert<arch::CpuFeature::SSE42, xmm128>
+class __simd_convert<arch::ISA::AVX2, xmm128> :
+    public __simd_convert<arch::ISA::SSE42, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX2, ymm256>
+class __simd_convert<arch::ISA::AVX2, ymm256>
 {
-    static constexpr auto __generation  = arch::CpuFeature::AVX2;
+    static constexpr auto __generation  = arch::ISA::AVX2;
     using __register_policy             = ymm256;
 
     template <typename _DesiredType_>
@@ -115,9 +115,9 @@ public:
 #pragma region Avx512 Simd convert
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512F, zmm512>
+class __simd_convert<arch::ISA::AVX512F, zmm512>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512F;
+    static constexpr auto __generation = arch::ISA::AVX512F;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
@@ -150,10 +150,10 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512BW, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512F, zmm512>
+class __simd_convert<arch::ISA::AVX512BW, zmm512>:
+    public __simd_convert<arch::ISA::AVX512F, zmm512>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512BW;
+    static constexpr auto __generation = arch::ISA::AVX512BW;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
@@ -179,10 +179,10 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512BWDQ, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_convert<arch::ISA::AVX512BWDQ, zmm512>:
+    public __simd_convert<arch::ISA::AVX512BW, zmm512>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512BWDQ;
+    static constexpr auto __generation = arch::ISA::AVX512BWDQ;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
@@ -200,10 +200,10 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512DQ, zmm512> :
-    public __simd_convert<arch::CpuFeature::AVX512F, zmm512>
+class __simd_convert<arch::ISA::AVX512DQ, zmm512> :
+    public __simd_convert<arch::ISA::AVX512F, zmm512>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512DQ;
+    static constexpr auto __generation = arch::ISA::AVX512DQ;
     using __register_policy = zmm512;
 
     template <typename _DesiredType_>
@@ -221,36 +221,36 @@ public:
 };
 
 template <> 
-class __simd_convert<arch::CpuFeature::AVX512VBMI, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_convert<arch::ISA::AVX512VBMI, zmm512>:
+    public __simd_convert<arch::ISA::AVX512BW, zmm512>
 {};
 
 template <> 
-class __simd_convert<arch::CpuFeature::AVX512VBMI2, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_convert<arch::ISA::AVX512VBMI2, zmm512>:
+    public __simd_convert<arch::ISA::AVX512BW, zmm512>
 {};
 
 template <> 
-class __simd_convert<arch::CpuFeature::AVX512VBMIDQ, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512BWDQ, zmm512>
+class __simd_convert<arch::ISA::AVX512VBMIDQ, zmm512>:
+    public __simd_convert<arch::ISA::AVX512BWDQ, zmm512>
 {};
 
 template <> 
-class __simd_convert<arch::CpuFeature::AVX512VBMI2DQ, zmm512>:
-    public __simd_convert<arch::CpuFeature::AVX512BWDQ, zmm512>
+class __simd_convert<arch::ISA::AVX512VBMI2DQ, zmm512>:
+    public __simd_convert<arch::ISA::AVX512BWDQ, zmm512>
 {};
 
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLF, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX2, ymm256>
+class __simd_convert<arch::ISA::AVX512VLF, ymm256> :
+	public __simd_convert<arch::ISA::AVX2, ymm256>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_convert<arch::ISA::AVX512VLBW, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLF, ymm256>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLBW;
+    static constexpr auto __generation = arch::ISA::AVX512VLBW;
     using __register_policy = ymm256;
 
     template <typename _DesiredType_>
@@ -276,10 +276,10 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLDQ, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_convert<arch::ISA::AVX512VLDQ, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLF, ymm256>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLDQ;
+    static constexpr auto __generation = arch::ISA::AVX512VLDQ;
     using __register_policy = ymm256;
 
     template <typename _DesiredType_>
@@ -297,15 +297,15 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLF, xmm128> :
-	public __simd_convert<arch::CpuFeature::SSE42, xmm128>
+class __simd_convert<arch::ISA::AVX512VLF, xmm128> :
+	public __simd_convert<arch::ISA::SSE42, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_convert<arch::ISA::AVX512VLBW, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLF, xmm128>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLBW;
+    static constexpr auto __generation = arch::ISA::AVX512VLBW;
     using __register_policy = xmm128;
 
     template <typename _DesiredType_>
@@ -331,10 +331,10 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLDQ, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_convert<arch::ISA::AVX512VLDQ, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLF, xmm128>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLDQ;
+    static constexpr auto __generation = arch::ISA::AVX512VLDQ;
     using __register_policy = xmm128;
 
     template <typename _DesiredType_>
@@ -353,10 +353,10 @@ public:
 
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, ymm256> :
-    public __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_convert<arch::ISA::AVX512VLBWDQ, ymm256> :
+    public __simd_convert<arch::ISA::AVX512VLBW, ymm256>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLBWDQ;
+    static constexpr auto __generation = arch::ISA::AVX512VLBWDQ;
     using __register_policy = ymm256;
 
     template <typename _DesiredType_>
@@ -380,10 +380,10 @@ public:
 
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VLBWDQ, xmm128>:
-    public __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_convert<arch::ISA::AVX512VLBWDQ, xmm128>:
+    public __simd_convert<arch::ISA::AVX512VLBW, xmm128>
 {
-    static constexpr auto __generation = arch::CpuFeature::AVX512VLBWDQ;
+    static constexpr auto __generation = arch::ISA::AVX512VLBWDQ;
     using __register_policy = xmm128;
 
     template <typename _DesiredType_>
@@ -406,49 +406,49 @@ public:
 };
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMIVL, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_convert<arch::ISA::AVX512VBMIVL, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLBW, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMI2VL, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_convert<arch::ISA::AVX512VBMI2VL, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLBW, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMIVLDQ, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class __simd_convert<arch::ISA::AVX512VBMIVLDQ, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLBWDQ, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMI2VLDQ, xmm128> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class __simd_convert<arch::ISA::AVX512VBMI2VLDQ, xmm128> :
+	public __simd_convert<arch::ISA::AVX512VLBWDQ, xmm128>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMIVL, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_convert<arch::ISA::AVX512VBMIVL, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLBW, ymm256>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMI2VL, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_convert<arch::ISA::AVX512VBMI2VL, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLBW, ymm256>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMIVLDQ, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class __simd_convert<arch::ISA::AVX512VBMIVLDQ, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLBWDQ, ymm256>
 {};
 
 template <>
-class __simd_convert<arch::CpuFeature::AVX512VBMI2VLDQ, ymm256> :
-	public __simd_convert<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class __simd_convert<arch::ISA::AVX512VBMI2VLDQ, ymm256> :
+	public __simd_convert<arch::ISA::AVX512VLBWDQ, ymm256>
 {};
 
 #pragma endregion
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -463,7 +463,7 @@ simd_stl_always_inline auto __simd_to_mask(_VectorType_ __vector) noexcept
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -478,7 +478,7 @@ simd_stl_always_inline auto __simd_to_index_mask(_VectorType_ __vector) noexcept
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_,
     typename            _DesiredType_,
@@ -493,7 +493,7 @@ simd_stl_always_inline _VectorType_ __simd_to_vector(_MaskType_ __mask) noexcept
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_, 
+    arch::ISA    _SimdGeneration_, 
     class               _RegisterPolicy_, 
     class               _DesiredType_>
 constexpr inline auto __simd_index_mask_divisor = __simd_convert<_SimdGeneration_, _RegisterPolicy_>::template __index_mask_divisor<_DesiredType_>;

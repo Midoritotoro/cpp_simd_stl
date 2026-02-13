@@ -44,7 +44,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformScalar(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Type_,
     class               _UnaryPredicate_>
 simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
@@ -99,7 +99,7 @@ simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _Type_,
     class               _BinaryPredicate_>
 simd_stl_always_inline void* simd_stl_stdcall _TransformVectorizedInternal(
@@ -151,23 +151,23 @@ _Type_* simd_stl_stdcall _TransformVectorized(
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(
+            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX512BW, _Type_>(
                 _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(
+            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX512F, _Type_>(
                 _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX2, _Type_>(
             _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
     else if (arch::ProcessorFeatures::SSE41())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::SSE41, _Type_>(
             _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
     else if (arch::ProcessorFeatures::SSE2())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::SSE2, _Type_>(
             _First, _Last, _Destination, type_traits::passFunction(_Predicate)));
 
     return static_cast<_Type_*>(_TransformScalar<_Type_>(
@@ -186,23 +186,23 @@ _Type_* simd_stl_stdcall _TransformVectorized(
 {
     if constexpr (sizeof(_Type_) <= 2) {
         if (arch::ProcessorFeatures::AVX512BW())
-            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512BW, _Type_>(
+            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX512BW, _Type_>(
                 _First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate)));
     }
     else {
         if (arch::ProcessorFeatures::AVX512F())
-            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX512F, _Type_>(
+            return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX512F, _Type_>(
                 _First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate)));
     }
 
     if (arch::ProcessorFeatures::AVX2())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::AVX2, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::AVX2, _Type_>(
             _First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate)));
     else if (arch::ProcessorFeatures::SSE41())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::SSE41, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::SSE41, _Type_>(
             _First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate)));
     else if (arch::ProcessorFeatures::SSE2())
-        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::CpuFeature::SSE2, _Type_>(
+        return static_cast<_Type_*>(_TransformVectorizedInternal<arch::ISA::SSE2, _Type_>(
             _First1, _Last1, _First2, _Destination, type_traits::passFunction(_Predicate)));
 
     return static_cast<_Type_*>(_TransformScalar<_Type_>(

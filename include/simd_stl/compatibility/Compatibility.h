@@ -34,6 +34,7 @@
 #include <simd_stl/compatibility/UnreachableCode.h>
 #include <simd_stl/compatibility/Warnings.h>
 
+#include <simd_stl/compatibility/StaticOperators.h>
 #include <cstddef>
 
 simd_stl_disable_warning_msvc(4067)

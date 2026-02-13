@@ -9,15 +9,15 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_>
 class __simd_arithmetic;
 
 #pragma region Sse2-Sse4.2 Simd arithmetic
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::SSE2, xmm128> {
-    static constexpr auto __generation  = arch::CpuFeature::SSE2;
+class __simd_arithmetic<arch::ISA::SSE2, xmm128> {
+    static constexpr auto __generation  = arch::ISA::SSE2;
     using __register_policy             = datapar::xmm128;
 public:
     template <
@@ -115,15 +115,15 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSE2, xmm128>
+class __simd_arithmetic<arch::ISA::SSE3, xmm128>:
+    public __simd_arithmetic<arch::ISA::SSE2, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSE3, xmm128>
+class __simd_arithmetic<arch::ISA::SSSE3, xmm128>:
+    public __simd_arithmetic<arch::ISA::SSE3, xmm128>
 {
-    static constexpr auto __generation   = arch::CpuFeature::SSSE3;
+    static constexpr auto __generation   = arch::ISA::SSSE3;
     using __register_policy               = datapar::xmm128;
 public:
     template <
@@ -151,10 +151,10 @@ template <
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSSE3, xmm128>
+class __simd_arithmetic<arch::ISA::SSE41, xmm128>:
+    public __simd_arithmetic<arch::ISA::SSSE3, xmm128>
 {
-    static constexpr auto __generation  = arch::CpuFeature::SSE41;
+    static constexpr auto __generation  = arch::ISA::SSE41;
     using __register_policy             = datapar::xmm128;
 public:
     template <
@@ -190,8 +190,8 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::SSE41, xmm128>
+class __simd_arithmetic<arch::ISA::SSE42, xmm128>:
+    public __simd_arithmetic<arch::ISA::SSE41, xmm128>
 {};
 
 #pragma endregion 
@@ -199,19 +199,19 @@ class __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>:
 #pragma region Avx Simd arithmetic
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX2, xmm128> :
-    public __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>
+class __simd_arithmetic<arch::ISA::AVX2, xmm128> :
+    public __simd_arithmetic<arch::ISA::SSE42, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX, ymm256> 
+class __simd_arithmetic<arch::ISA::AVX, ymm256> 
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>:
-    public __simd_arithmetic<arch::CpuFeature::AVX, ymm256>
+class __simd_arithmetic<arch::ISA::AVX2, ymm256>:
+    public __simd_arithmetic<arch::ISA::AVX, ymm256>
 {
-    static constexpr auto __generation  = arch::CpuFeature::AVX2;
+    static constexpr auto __generation  = arch::ISA::AVX2;
     using __register_policy             = datapar::ymm256;
 public:
     template <
@@ -313,8 +313,8 @@ public:
 #pragma region Avx512 Simd arithmetic
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512> {
-    static constexpr auto __generation  = arch::CpuFeature::AVX512F;
+class __simd_arithmetic<arch::ISA::AVX512F, zmm512> {
+    static constexpr auto __generation  = arch::ISA::AVX512F;
     using __register_policy             = zmm512;
 public:
         template <
@@ -412,10 +412,10 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512BW, zmm512> :
+    public __simd_arithmetic<arch::ISA::AVX512F, zmm512>
 {
-    static constexpr auto __generation  = arch::CpuFeature::AVX512BW;
+    static constexpr auto __generation  = arch::ISA::AVX512BW;
     using __register_policy             = zmm512;
 public:
     template <
@@ -462,40 +462,40 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512DQ, zmm512> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512F, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512DQ, zmm512> :
+    public __simd_arithmetic<arch::ISA::AVX512F, zmm512>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512BWDQ, zmm512> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512BWDQ, zmm512> :
+    public __simd_arithmetic<arch::ISA::AVX512BW, zmm512>
 {};
 
 template <> 
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI, zmm512>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512VBMI, zmm512>:
+    public __simd_arithmetic<arch::ISA::AVX512BW, zmm512>
 {};
 
 template <> 
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2, zmm512>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512BW, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2, zmm512>:
+    public __simd_arithmetic<arch::ISA::AVX512BW, zmm512>
 {};
 
 template <> 
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMIDQ, zmm512>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512BWDQ, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512VBMIDQ, zmm512>:
+    public __simd_arithmetic<arch::ISA::AVX512BWDQ, zmm512>
 {};
 
 template <> 
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2DQ, zmm512>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512BWDQ, zmm512>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2DQ, zmm512>:
+    public __simd_arithmetic<arch::ISA::AVX512BWDQ, zmm512>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLF, ymm256>:
-    public __simd_arithmetic<arch::CpuFeature::AVX2, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VLF, ymm256>:
+    public __simd_arithmetic<arch::ISA::AVX2, ymm256>
 {
-    static constexpr auto __generation  = arch::CpuFeature::AVX512VLF;
+    static constexpr auto __generation  = arch::ISA::AVX512VLF;
     using __register_policy             = ymm256;
 public:
     template <
@@ -519,25 +519,25 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLBW, ymm256> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VLBW, ymm256> :
+    public __simd_arithmetic<arch::ISA::AVX512VLF, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLDQ, ymm256> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLF, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VLDQ, ymm256> :
+    public __simd_arithmetic<arch::ISA::AVX512VLF, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VLBWDQ, ymm256>:
+    public __simd_arithmetic<arch::ISA::AVX512VLBW, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLF, xmm128> :
-    public __simd_arithmetic<arch::CpuFeature::SSE42, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VLF, xmm128> :
+    public __simd_arithmetic<arch::ISA::SSE42, xmm128>
 {
-    static constexpr auto __generation  = arch::CpuFeature::AVX512VLF;
+    static constexpr auto __generation  = arch::ISA::AVX512VLF;
     using __register_policy             = xmm128;
 public:
     template <
@@ -561,64 +561,64 @@ public:
 };
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLBW, xmm128> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VLBW, xmm128> :
+    public __simd_arithmetic<arch::ISA::AVX512VLF, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLDQ, xmm128> :
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLF, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VLDQ, xmm128> :
+    public __simd_arithmetic<arch::ISA::AVX512VLF, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>:
-    public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VLBWDQ, xmm128>:
+    public __simd_arithmetic<arch::ISA::AVX512VLBW, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMIVL, xmm128> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VBMIVL, xmm128> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBW, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2VL, xmm128> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2VL, xmm128> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBW, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMIVLDQ, xmm128> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VBMIVLDQ, xmm128> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBWDQ, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2VLDQ, xmm128> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, xmm128>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2VLDQ, xmm128> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBWDQ, xmm128>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMIVL, ymm256> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VBMIVL, ymm256> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBW, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2VL, ymm256> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBW, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2VL, ymm256> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBW, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMIVLDQ, ymm256> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VBMIVLDQ, ymm256> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBWDQ, ymm256>
 {};
 
 template <>
-class __simd_arithmetic<arch::CpuFeature::AVX512VBMI2VLDQ, ymm256> :
-	public __simd_arithmetic<arch::CpuFeature::AVX512VLBWDQ, ymm256>
+class __simd_arithmetic<arch::ISA::AVX512VBMI2VLDQ, ymm256> :
+	public __simd_arithmetic<arch::ISA::AVX512VLBWDQ, ymm256>
 {};
 
 #pragma endregion
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -628,7 +628,7 @@ simd_stl_always_inline _VectorType_ __simd_negate(_VectorType_ __vector) noexcep
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -641,7 +641,7 @@ simd_stl_always_inline _VectorType_ __simd_add(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -654,7 +654,7 @@ simd_stl_always_inline _VectorType_ __simd_substract(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -667,7 +667,7 @@ simd_stl_always_inline _VectorType_ __simd_multiply(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -680,7 +680,7 @@ simd_stl_always_inline _VectorType_ __simd_divide(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ __vector) noexcept {
@@ -689,7 +689,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_not(_VectorType_ __vector) noexce
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_xor(
@@ -701,7 +701,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_xor(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_and(
@@ -713,7 +713,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_and(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _VectorType_>
 simd_stl_always_inline _VectorType_ __simd_bit_or(
@@ -725,7 +725,7 @@ simd_stl_always_inline _VectorType_ __simd_bit_or(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -735,7 +735,7 @@ simd_stl_always_inline auto __simd_reduce(_VectorType_ __vector) noexcept {
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -748,7 +748,7 @@ simd_stl_always_inline _VectorType_ __simd_vertical_min(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -758,7 +758,7 @@ simd_stl_always_inline _DesiredType_ __simd_horizontal_max(_VectorType_ __vector
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -768,7 +768,7 @@ simd_stl_always_inline _DesiredType_ __simd_horizontal_min(_VectorType_ __vector
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -781,7 +781,7 @@ simd_stl_always_inline _VectorType_ __simd_vertical_max(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_>
@@ -791,7 +791,7 @@ simd_stl_always_inline _VectorType_ __simd_abs(_VectorType_ __vector) noexcept {
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_,
     typename            _DesiredType_,
     typename            _VectorType_,
@@ -805,7 +805,7 @@ simd_stl_always_inline _DesiredType_ __simd_horizontal_fold(
 }
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_, 
     typename            _DesiredType_>
 struct __vertical_min_wrapper {
@@ -819,7 +819,7 @@ struct __vertical_min_wrapper {
 };
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     class               _RegisterPolicy_, 
     typename            _DesiredType_>
 struct __vertical_max_wrapper {

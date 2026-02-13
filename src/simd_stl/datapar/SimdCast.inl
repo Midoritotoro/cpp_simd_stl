@@ -15,11 +15,11 @@ template <
 struct __rebind_vector_element_t<_RebindType_, _VectorType_, false, true> {
     using type = std::conditional_t<__is_intrin_type_v<_RebindType_> || __is_valid_basic_simd_v<_RebindType_>, _RebindType_,
         std::conditional_t<sizeof(_VectorType_) == __zmm_width,
-        type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX512F, _RebindType_>,
+        type_traits::__deduce_simd_vector_type<arch::ISA::AVX512F, _RebindType_>,
         std::conditional_t<sizeof(_VectorType_) == __ymm_width,
-        type_traits::__deduce_simd_vector_type<arch::CpuFeature::AVX, _RebindType_>,
+        type_traits::__deduce_simd_vector_type<arch::ISA::AVX, _RebindType_>,
         std::conditional_t<sizeof(_VectorType_) == __xmm_width,
-        type_traits::__deduce_simd_vector_type<arch::CpuFeature::SSE2, _RebindType_>, void>>>>;
+        type_traits::__deduce_simd_vector_type<arch::ISA::SSE2, _RebindType_>, void>>>>;
 };
 
 template <
@@ -31,7 +31,7 @@ struct __rebind_vector_element_t<_RebindType_, _VectorType_, true, false> {
 };
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_,
     bool                _IsBasicSimd_,
@@ -41,7 +41,7 @@ struct __rebind_vector_generation_t {
 };
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_>
 struct __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_, false, true> {
@@ -49,7 +49,7 @@ struct __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorTyp
 };
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_>
 struct __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_, true, false> {
@@ -62,7 +62,7 @@ template <
 using __rebind_vector_element_type = typename __rebind_vector_element_t<_RebindType_, _VectorType_>::type;
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _RebindType_,
     class               _VectorType_>
 using __rebind_vector_generation_type = typename __rebind_vector_generation_t<_ToSimdGeneration_, _RebindType_, _VectorType_>::type;
@@ -98,7 +98,7 @@ __simd_nodiscard_inline __rebind_vector_element_type<_ToType_, _FromType_> simd_
 }
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _FromVector_,
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int>>
 __simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
@@ -109,7 +109,7 @@ __simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
 }
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _ToElementType_,
     class               _FromVector_,
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int>>

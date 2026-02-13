@@ -1,7 +1,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	class				_Element_,
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>
@@ -10,7 +10,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, _Comparison_>
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	class				_Element_,
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>
@@ -19,7 +19,7 @@ simd_compare_result<_SimdGeneration_, _Element_, _RegisterPolicy_, _Comparison_>
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	class				_Element_,
 	class				_RegisterPolicy_,
 	__simd_comparison	_Comparison_>

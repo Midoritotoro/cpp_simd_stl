@@ -5,7 +5,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 class simd_index_mask;
@@ -43,7 +43,7 @@ template <class _SimdMask_>
 constexpr bool __is_simd_index_mask_v = __is_simd_index_mask<_SimdMask_>::value;
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 class simd_mask;

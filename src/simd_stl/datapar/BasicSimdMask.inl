@@ -3,14 +3,14 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask() noexcept
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int>>
@@ -22,7 +22,7 @@ simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const _Vecto
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_type __mask) noexcept :
@@ -30,7 +30,7 @@ simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const mask_t
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const simd_mask& __mask) noexcept :
@@ -38,7 +38,7 @@ simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_mask(const simd_m
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_type 
@@ -48,7 +48,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_type
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator[](int32 __index) const noexcept {
@@ -56,7 +56,7 @@ constexpr bool simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operato
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++(int) noexcept {
@@ -66,7 +66,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> simd_mask<_Si
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator++() noexcept {
@@ -75,7 +75,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd_mask<_S
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--(int) noexcept {
@@ -85,7 +85,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_> simd_mask<_Si
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator--() noexcept {
@@ -94,7 +94,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& simd_mask<_S
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -104,7 +104,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -114,7 +114,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -124,7 +124,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -134,7 +134,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -144,7 +144,7 @@ constexpr simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <uint8 _Shift_>
@@ -155,7 +155,7 @@ simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator>>=(const std:
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <uint8 _Shift_>
@@ -166,7 +166,7 @@ simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::operator<<=(const std:
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr uint8 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::bit_width() noexcept {
@@ -174,10 +174,10 @@ constexpr uint8 simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::bit_wi
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr arch::CpuFeature simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::generation() noexcept {
+constexpr arch::ISA simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::generation() noexcept {
 	return _SimdGeneration_;
 }
 

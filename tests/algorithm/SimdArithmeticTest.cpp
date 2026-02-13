@@ -1,14 +1,14 @@
 ﻿#include <simd_stl/datapar/BasicSimd.h>
 #include <string>
 
-template <typename T, simd_stl::arch::CpuFeature Arch>
+template <typename T, simd_stl::arch::ISA Arch>
 bool areEqual(simd_stl::datapar::simd<Arch, T>& simd, const std::vector<T>& vec) {
     std::vector<T> simd_data(vec.size());
     simd.storeUnaligned(simd_data.data());
     return std::equal(simd_data.begin(), simd_data.end(), vec.begin());
 }
 
-template <typename T, simd_stl::arch::CpuFeature Arch>
+template <typename T, simd_stl::arch::ISA Arch>
 void testArithmeticOperations() {
     using Simd = simd_stl::datapar::simd<Arch, T>;
 
@@ -123,7 +123,7 @@ void testArithmeticOperations() {
     }
 }
 
-template <simd_stl::arch::CpuFeature _Generation_>
+template <simd_stl::arch::ISA _Generation_>
 void testArithmetic() {
     testArithmeticOperations<simd_stl::int8, _>();
     testArithmeticOperations<simd_stl::uint8, _Generation_>();
@@ -142,16 +142,16 @@ void testArithmetic() {
 }
 
 int main() {
-    testArithmetic<simd_stl::arch::CpuFeature::SSE2>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE3>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSSE3>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE41>();
-    testArithmetic<simd_stl::arch::CpuFeature::SSE42>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX2>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX512F>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX512BW>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX512DQ>();
-    testArithmetic<simd_stl::arch::CpuFeature::AVX512VL>();
+    testArithmetic<simd_stl::arch::ISA::SSE2>();
+    testArithmetic<simd_stl::arch::ISA::SSE3>();
+    testArithmetic<simd_stl::arch::ISA::SSSE3>();
+    testArithmetic<simd_stl::arch::ISA::SSE41>();
+    testArithmetic<simd_stl::arch::ISA::SSE42>();
+    testArithmetic<simd_stl::arch::ISA::AVX2>();
+    testArithmetic<simd_stl::arch::ISA::AVX512F>();
+    testArithmetic<simd_stl::arch::ISA::AVX512BW>();
+    testArithmetic<simd_stl::arch::ISA::AVX512DQ>();
+    testArithmetic<simd_stl::arch::ISA::AVX512VL>();
 
     return 0;
 }

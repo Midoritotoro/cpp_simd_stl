@@ -49,8 +49,8 @@ simd_stl_always_inline auto __expand_mask_bits_zmm(_Type_ __mask) noexcept {
         return __mask_8bit_expand_table_avx512bw[__mask];
     }
     else if constexpr (sizeof(_Type_) == 2) {
-        auto __low  = uint8(__mask & 0xFF);
-        auto __high = uint8(__mask >> 8);
+        const auto __low  = uint8(__mask & 0xFF);
+        const auto __high = uint8(__mask >> 8);
 
         return ((static_cast<uint64>(__mask_16bit_expand_table_avx512bw[__high]) << 32)) | __mask_16bit_expand_table_avx512bw[__low];
     }

@@ -23,14 +23,14 @@ template <
 __simd_nodiscard_inline __rebind_vector_element_type<_ToType_, _FromType_> simd_cast(_FromType_ __from) noexcept;
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _FromVector_,
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int> = 0>
 __simd_nodiscard_inline __rebind_vector_generation_type<_ToSimdGeneration_,
     __vector_element_type<_FromVector_>, _FromVector_> simd_cast(_FromVector_ __from) noexcept;
 
 template <
-    arch::CpuFeature	_ToSimdGeneration_,
+    arch::ISA	_ToSimdGeneration_,
     class               _ToElementType_,
     class               _FromVector_,
     std::enable_if_t<__is_valid_basic_simd_v<_FromVector_> || __is_intrin_type_v<_FromVector_>, int> = 0>

@@ -11,7 +11,7 @@
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
-template <arch::CpuFeature _SimdGeneration_>
+template <arch::ISA _SimdGeneration_>
 constexpr inline bool __is_generation_supported_v =
     arch::__contains<_SimdGeneration_, __ymm_features, __xmm_features, __zmm_features>::value;
 
@@ -28,7 +28,7 @@ template <>
 constexpr inline bool __is_vector_type_supported_v<bool> = false;
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _VectorElementType_,
     class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 struct __deduce_simd_vector_type__ {
@@ -74,7 +74,7 @@ public:
 };
 
 template <
-    arch::CpuFeature    _SimdGeneration_,
+    arch::ISA    _SimdGeneration_,
     typename            _VectorElementType_,
     class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_vector_type =
@@ -94,25 +94,25 @@ using __deduce_simd_mask_type_helper = std::conditional_t<size <= 8, uint8,
 				std::conditional_t<size <= 64, uint64, void>>>>;
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
     class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_RegisterPolicy_::__width / sizeof(_Element_))>;
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
     class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
 
-template <arch::CpuFeature _SimdGeneration_> 
+template <arch::ISA _SimdGeneration_> 
 constexpr bool __is_zeroupper_required_v =
-    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX2) ||
-    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::CpuFeature::AVX);
+    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::ISA::AVX2) ||
+    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::ISA::AVX);
 
 template <
-    arch::CpuFeature _SimdGenerationFirst_,
-    arch::CpuFeature _SimdGenerationSecond_>
+    arch::ISA _SimdGenerationFirst_,
+    arch::ISA _SimdGenerationSecond_>
 constexpr bool __is_simd_feature_superior_v = (static_cast<uint8>(_SimdGenerationFirst_) > static_cast<uint8>(_SimdGenerationSecond_));
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_END

@@ -9,7 +9,7 @@ __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE2, xmm128>::__insert(
+simd_stl_always_inline void __simd_element_access<arch::ISA::SSE2, xmm128>::__insert(
     _VectorType_&       __vector,
     const uint8         __position,
     const _DesiredType_ __value) noexcept
@@ -81,7 +81,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE2, xmm128
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE2, xmm128>::__extract(
+simd_stl_always_inline _DesiredType_ __simd_element_access<arch::ISA::SSE2, xmm128>::__extract(
     _VectorType_    __vector,
     const uint8     __where) noexcept
 {
@@ -155,7 +155,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE41, xmm128>::__insert(
+simd_stl_always_inline void __simd_element_access<arch::ISA::SSE41, xmm128>::__insert(
     _VectorType_&       __vector,
     const uint8         __position,
     const _DesiredType_ __value) noexcept
@@ -219,14 +219,14 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::SSE41, xmm12
         }
     }
     else {
-        return __simd_insert<arch::CpuFeature::SSE2, __register_policy>(__vector, __position, __value);
+        return __simd_insert<arch::ISA::SSE2, __register_policy>(__vector, __position, __value);
     }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE41, xmm128>::__extract(
+simd_stl_always_inline _DesiredType_ __simd_element_access<arch::ISA::SSE41, xmm128>::__extract(
     _VectorType_    __vector,
     const uint8     __where) noexcept
 {
@@ -271,7 +271,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
         }
     }
     else {
-        return __simd_extract<arch::CpuFeature::SSE2, __register_policy, _DesiredType_>(__vector, __where);
+        return __simd_extract<arch::ISA::SSE2, __register_policy, _DesiredType_>(__vector, __where);
     }
 }
 
@@ -283,7 +283,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::SSE
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX2, ymm256>::__insert(
+simd_stl_always_inline void __simd_element_access<arch::ISA::AVX2, ymm256>::__insert(
     _VectorType_&       __vector,
     const uint8         __position,
     const _DesiredType_ __value) noexcept
@@ -370,7 +370,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX2, ymm256
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX2, ymm256>::__extract(
+simd_stl_always_inline _DesiredType_ __simd_element_access<arch::ISA::AVX2, ymm256>::__extract(
     _VectorType_    __vector,
     const uint8     __where) noexcept
 {
@@ -423,7 +423,7 @@ simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX512F, zmm512>::__insert(
+simd_stl_always_inline void __simd_element_access<arch::ISA::AVX512F, zmm512>::__insert(
     _VectorType_&       __vector,
     const uint8         __position,
     const _DesiredType_ __value) noexcept
@@ -458,7 +458,7 @@ simd_stl_always_inline void __simd_element_access<arch::CpuFeature::AVX512F, zmm
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _DesiredType_ __simd_element_access<arch::CpuFeature::AVX512F, zmm512>::__extract(
+simd_stl_always_inline _DesiredType_ __simd_element_access<arch::ISA::AVX512F, zmm512>::__extract(
     _VectorType_    __vector,
     const uint8     __where) noexcept
 {

@@ -27,7 +27,7 @@ using simd_comparison = __simd_comparison;
 
 
 template <
-    arch::CpuFeature	_SimdGeneration_,
+    arch::ISA	_SimdGeneration_,
     typename			_Element_,
     class               _RegisterPolicy_>
 class simd {

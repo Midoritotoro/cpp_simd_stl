@@ -1,7 +1,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <class _Derived_>
-constexpr arch::CpuFeature __simd_mask_common_operations<_Derived_>::__generation() noexcept {
+constexpr arch::ISA __simd_mask_common_operations<_Derived_>::__generation() noexcept {
 	return __self::generation();
 }
 

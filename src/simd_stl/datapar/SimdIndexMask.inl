@@ -3,14 +3,14 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_index_mask() noexcept
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <class _VectorMask_, std::enable_if_t<__is_valid_basic_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int>>
@@ -22,7 +22,7 @@ simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_index_mask(
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_index_mask(const mask_type __mask) noexcept :
@@ -30,7 +30,7 @@ simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::simd_index_mask(
 {}
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_type
@@ -40,15 +40,15 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::mask_t
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
-constexpr arch::CpuFeature simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::generation() noexcept {
+constexpr arch::ISA simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::generation() noexcept {
 	return _SimdGeneration_;
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr uint8 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::bit_width() noexcept {
@@ -56,7 +56,7 @@ constexpr uint8 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr uint8 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::divisor() noexcept {
@@ -64,7 +64,7 @@ constexpr uint8 simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>::
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
@@ -74,7 +74,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -84,7 +84,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -95,7 +95,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -105,7 +105,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>& 
@@ -115,7 +115,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <sizetype _Shift_>
@@ -126,7 +126,7 @@ constexpr simd_index_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>&
 }
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 template <sizetype _Shift_>

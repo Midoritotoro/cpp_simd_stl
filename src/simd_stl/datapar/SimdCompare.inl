@@ -8,7 +8,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>::__native_compare(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE2, xmm128>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -34,7 +34,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>::__compare_equal(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE2, xmm128>::__compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -71,7 +71,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>::__compare_less(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE2, xmm128>::__compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -147,7 +147,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE2, xmm128>::__compare_greater(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE2, xmm128>::__compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -158,7 +158,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE41, xmm128>::__native_compare(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE41, xmm128>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -184,7 +184,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE41, xmm128>::__compare_equal(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE41, xmm128>::__compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -218,7 +218,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>::__native_compare(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE42, xmm128>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -244,7 +244,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>::__compare_greater(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE42, xmm128>::__compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -261,14 +261,14 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
         return __intrin_bitcast<_VectorType_>(_mm_cmpgt_epi64(__left_signed, __right_signed));
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::SSE2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::ISA::SSE2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::SSE42, xmm128>::__compare_less(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::SSE42, xmm128>::__compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -284,7 +284,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__native_compare(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::AVX2, ymm256>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -310,7 +310,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__compare_equal(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::AVX2, ymm256>::__compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -342,7 +342,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__compare_less(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::AVX2, ymm256>::__compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -352,7 +352,7 @@ simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeatu
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::AVX2, ymm256>::__compare_greater(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::AVX2, ymm256>::__compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -423,20 +423,20 @@ template <
     class               _DesiredType_,
     __simd_comparison   _CompareType_,
     class               _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__blockwise_compare(
+simd_stl_always_inline _VectorType_ __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__blockwise_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
-    const auto __compared_low128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared_low128 = __simd_native_compare<arch::ISA::SSE42, xmm128, _DesiredType_, _CompareType_>(
         __intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
 
-    const auto __compared2_low128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared2_low128 = __simd_native_compare<arch::ISA::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm256_extractf128_si256(__intrin_bitcast<__m256i>(__left), 1), _mm256_extractf128_si256(__intrin_bitcast<__m256i>(__right), 1));
 
-    const auto __compared_high128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared_high128 = __simd_native_compare<arch::ISA::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__left), 2), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__right), 2));
 
-    const auto __compared2_high128 = __simd_native_compare<arch::CpuFeature::SSE42, xmm128, _DesiredType_, _CompareType_>(
+    const auto __compared2_high128 = __simd_native_compare<arch::ISA::SSE42, xmm128, _DesiredType_, _CompareType_>(
         _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__left), 3), _mm512_extracti32x4_epi32(__intrin_bitcast<__m512i>(__right), 3));
 
     auto __result = __intrin_bitcast<__m512i>(__compared_low128);
@@ -451,7 +451,7 @@ template <
     class               _DesiredType_,
     __simd_comparison   _CompareType_,
     class               _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__mask_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__mask_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -478,7 +478,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -491,7 +491,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -515,7 +515,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -545,7 +545,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512F, zmm512>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512F, zmm512>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -557,7 +557,7 @@ template <
     class               _DesiredType_,
     __simd_comparison   _CompareType_,
     class               _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512BW, zmm512>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -583,7 +583,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512BW, zmm512>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -609,7 +609,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512BW, zmm512>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -619,7 +619,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512BW, zmm512>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512BW, zmm512>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -659,7 +659,7 @@ template <
     class               _DesiredType_,
     __simd_comparison   _CompareType_,
     class               _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>::__mask_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, ymm256>::__mask_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -685,7 +685,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, ymm256>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -702,27 +702,27 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpeq_epi32_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
 
     else
-        return __simd_native_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX2, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
 }
 
 template <
     typename _DesiredType_,
     __simd_comparison    _CompareType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, ymm256>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return __mask_compare<_DesiredType_, _CompareType_>(__left, __right);
     else
-        return __simd_native_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, _CompareType_>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX2, __register_policy, _DesiredType_, _CompareType_>(__left, __right);
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, ymm256>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -732,7 +732,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, ymm256>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, ymm256>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -755,14 +755,14 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmp_pd_mask(__intrin_bitcast<__m256d>(__left), __intrin_bitcast<__m256d>(__right), _CMP_GT_OQ);
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::AVX2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX2, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, ymm256>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -779,7 +779,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpeq_epu8_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
     }
 }
 
@@ -787,7 +787,7 @@ template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, ymm256>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -813,7 +813,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, ymm256>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -823,7 +823,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, ymm256>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, ymm256>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -840,7 +840,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm256_cmpgt_epu8_mask(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
@@ -848,7 +848,7 @@ template <
     class   _DesiredType_,
     __simd_comparison   _CompareType_,
     class   _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>::__mask_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, xmm128>::__mask_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -874,7 +874,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, xmm128>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -891,27 +891,27 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpeq_epi32_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
 
     else
-        return __simd_native_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::ISA::SSE42, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
 }
 
 template <
     typename            _DesiredType_,
     __simd_comparison   _CompareType_,
     typename            _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, xmm128>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
     if constexpr (sizeof(_DesiredType_) >= 4)
         return __mask_compare<_DesiredType_, _CompareType_>(__left, __right);
     else
-        return __simd_native_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, _CompareType_>(__left, __right);
+        return __simd_native_compare<arch::ISA::SSE42, __register_policy, _DesiredType_, _CompareType_>(__left, __right);
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, xmm128>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -921,7 +921,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLF, xmm128>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLF, xmm128>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -944,14 +944,14 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmp_pd_mask(__intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right), _CMP_GT_OQ);
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::SSE42, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::ISA::SSE42, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128>::__mask_compare_equal(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, xmm128>::__mask_compare_equal(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -968,7 +968,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpeq_epu8_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::equal>(__left, __right);
     }
 }
 
@@ -976,7 +976,7 @@ template <
     typename _DesiredType_,
     __simd_comparison    _CompareType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128>::__native_compare(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, xmm128>::__native_compare(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -1002,7 +1002,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128>::__mask_compare_less(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, xmm128>::__mask_compare_less(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -1012,7 +1012,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
 template <
     typename _DesiredType_,
     typename _VectorType_>
-simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX512VLBW, xmm128>::__mask_compare_greater(
+simd_stl_always_inline auto __simd_compare_implementation<arch::ISA::AVX512VLBW, xmm128>::__mask_compare_greater(
     _VectorType_ __left,
     _VectorType_ __right) noexcept
 {
@@ -1029,7 +1029,7 @@ simd_stl_always_inline auto __simd_compare_implementation<arch::CpuFeature::AVX5
         return _mm_cmpgt_epu8_mask(__intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right));
     }
     else {
-        return __simd_native_compare<arch::CpuFeature::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
+        return __simd_native_compare<arch::ISA::AVX512VLF, __register_policy, _DesiredType_, __simd_comparison::greater>(__left, __right);
     }
 }
 

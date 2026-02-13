@@ -7,7 +7,7 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::CpuFeature	_SimdGeneration_,
+	arch::ISA	_SimdGeneration_,
 	typename			_Element_,
 	class				_RegisterPolicy_>
 class simd_mask: 
@@ -54,7 +54,7 @@ public:
 	constexpr simd_stl_always_inline simd_mask& operator<<=(const std::integral_constant<uint8, _Shift_> __shift) const noexcept;
 
 	static constexpr simd_stl_always_inline uint8 bit_width() noexcept;
-	static constexpr simd_stl_always_inline arch::CpuFeature generation() noexcept;
+	static constexpr simd_stl_always_inline arch::ISA generation() noexcept;
 	constexpr simd_stl_always_inline mask_type unwrap() const noexcept;
 
 private:
