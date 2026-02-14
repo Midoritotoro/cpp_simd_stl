@@ -11,103 +11,9 @@ static constexpr int32 __constexpr_max() noexcept {
     return (__first_ > _Second_) ? __first_ : _Second_;
 }
 
-template <
-    arch::ISA    _SimdGeneration_,
-    class               _RegisterPolicy_,
-    class               _DesiredType_,
-    class               _MaskTypeTo_,
-    class               _MaskTypeFrom_>
-simd_stl_always_inline _MaskTypeTo_ __mask_convert(_MaskTypeFrom_ __from) noexcept {
-    if constexpr (std::is_integral_v<_MaskTypeFrom_> && std::is_integral_v<_MaskTypeTo_>)
-        return static_cast<_MaskTypeTo_>(__from);
-
-    else if constexpr (__is_intrin_type_v<_MaskTypeFrom_> && __is_intrin_type_v<_MaskTypeTo_>)
-        return __intrin_bitcast<_MaskTypeTo_>(__from);
-
-    else if constexpr (__is_intrin_type_v<_MaskTypeFrom_> && std::is_integral_v<_MaskTypeTo_>)
-        return __simd_to_mask<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__from);
-
-    else if constexpr (std::is_integral_v<_MaskTypeFrom_> && __is_intrin_type_v<_MaskTypeTo_>)
-        return __simd_to_vector<_SimdGeneration_, _RegisterPolicy_, _MaskTypeTo_, _DesiredType_>(__from);
-}
-
-template <typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE2, xmm128>
-    ::__non_temporal_load(const void* __address) noexcept
-{
-    return __load<_VectorType_>(__address, __aligned_policy{});
-}
-
-template <typename _VectorType_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::SSE2, xmm128>
-    ::__non_temporal_store(
-        void*           __address,
-        _VectorType_    __vector) noexcept
-{
-    _mm_stream_si128(static_cast<__m128i*>(__address), __intrin_bitcast<__m128i>(__vector));
-}
 
 simd_stl_always_inline void __simd_memory_access<arch::ISA::SSE2, xmm128>::__streaming_fence() noexcept {
     return _mm_sfence();
-}
-
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE2, xmm128>::__load(
-    const void* __address,
-    _AlignmentPolicy_&&) noexcept 
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_load_si128(reinterpret_cast<const __m128i*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_load_pd(reinterpret_cast<const double*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_load_ps(reinterpret_cast<const float*>(__address));
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_loadu_si128(reinterpret_cast<const __m128i*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_loadu_pd(reinterpret_cast<const double*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_loadu_ps(reinterpret_cast<const float*>(__address));
-    }
-}
-
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::SSE2, xmm128>::__store(
-    void*           __address,
-    _VectorType_    __vector,
-    _AlignmentPolicy_&&) noexcept
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_store_si128(reinterpret_cast<__m128i*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_store_pd(reinterpret_cast<double*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_store_ps(reinterpret_cast<float*>(__address), __vector);
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m128i>)
-            return _mm_storeu_si128(reinterpret_cast<__m128i*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128d>)
-            return _mm_storeu_pd(reinterpret_cast<double*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m128>)
-            return _mm_storeu_ps(reinterpret_cast<float*>(__address), __vector);
-    }
 }
 
 template <
@@ -139,20 +45,6 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE2, xmm128
     return __mask_load<_DesiredType_>(__address, __mask, __simd_broadcast_zeros<__generation, __register_policy, _VectorType_>(), __policy);
 }
 
-template <
-    typename    _DesiredType_,
-    typename    _VectorType_,
-    class       _MaskType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE2, xmm128>::__mask_load(
-    const void*         __address,
-    _MaskType_          __mask,
-    _VectorType_        __additional_source,
-    _AlignmentPolicy_&& __policy) noexcept
-{
-    return __simd_blend<__generation, __register_policy, _DesiredType_>(__load<_VectorType_>(__address),
-        __additional_source, __mask_convert<__generation, __register_policy, _DesiredType_, _VectorType_>(__mask));
-}
 
 template <
     typename    _DesiredType_,
@@ -179,19 +71,6 @@ simd_stl_always_inline __m128i __simd_memory_access<arch::ISA::SSE2, xmm128>::__
 }
 
 template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE3, xmm128>::__load(
-    const void*         __address,
-    _AlignmentPolicy_&& __policy) noexcept 
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment == false && std::is_same_v<_VectorType_, __m128i>)
-        return _mm_lddqu_si128(reinterpret_cast<const __m128i*>(__address));
-    else
-        return __simd_load<arch::ISA::SSE2, xmm128, _VectorType_>(__address, __policy);
-}
-
-template <
     typename    _DesiredType_,
     typename    _VectorType_,
     class       _MaskType_,
@@ -207,11 +86,6 @@ simd_stl_always_inline _DesiredType_* __simd_memory_access<arch::ISA::SSSE3, xmm
 
     algorithm::__advance_bytes(__address, __compressed.first);
     return __address;
-}
-
-template <typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::SSE41, xmm128>::__non_temporal_load(const void* __address) noexcept {
-    return __intrin_bitcast<_VectorType_>(_mm_stream_load_si128(reinterpret_cast<const __m128i*>(__address)));
 }
 
 template <
@@ -341,64 +215,6 @@ simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::AVX2, xmm128
         __additional_source, __mask_convert<__generation, __register_policy, _DesiredType_, _VectorType_>(__mask));
 }
 
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::AVX2, ymm256>::__load(
-    const void* __address,
-    _AlignmentPolicy_&&) noexcept 
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m256i>)
-            return _mm256_load_si256(reinterpret_cast<const __m256i*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256d>)
-            return _mm256_load_pd(reinterpret_cast<const double*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256>)
-            return _mm256_load_ps(reinterpret_cast<const float*>(__address));
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m256i>)
-            return _mm256_lddqu_si256(reinterpret_cast<const __m256i*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256d>)
-            return _mm256_loadu_pd(reinterpret_cast<const double*>(__address));
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256>)
-            return _mm256_loadu_ps(reinterpret_cast<const float*>(__address));
-    }
-}
-
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__store(
-    void*           __address,
-    _VectorType_    __vector,
-    _AlignmentPolicy_&&) noexcept
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m256i>)
-            return _mm256_store_si256(reinterpret_cast<__m256i*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256d>)
-            return _mm256_store_pd(reinterpret_cast<double*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256>)
-            return _mm256_store_ps(reinterpret_cast<float*>(__address), __vector);
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m256i>)
-            return _mm256_storeu_si256(reinterpret_cast<__m256i*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256d>)
-            return _mm256_storeu_pd(reinterpret_cast<double*>(__address), __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m256>)
-            return _mm256_storeu_ps(reinterpret_cast<float*>(__address), __vector);
-    }
-}
 
 template <
     typename    _DesiredType_,
@@ -482,11 +298,6 @@ simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__mas
 }
 
 template <typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::AVX2, ymm256>::__non_temporal_load(const void* __address) noexcept {
-    return __intrin_bitcast<_VectorType_>(_mm256_stream_load_si256(reinterpret_cast<const __m256i*>(__address)));
-}
-
-template <typename _VectorType_>
 simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__non_temporal_store(
     void* __address,
     _VectorType_    __vector) noexcept
@@ -546,11 +357,6 @@ simd_stl_always_inline auto __simd_memory_access<arch::ISA::AVX512F, zmm512>::__
 }
 
 template <typename _VectorType_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::AVX512F, zmm512>::__non_temporal_load(const void* __address) noexcept {
-    return __intrin_bitcast<_VectorType_>(_mm512_stream_load_si512(__address));
-}
-
-template <typename _VectorType_>
 simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__non_temporal_store(
     void*           __address,
     _VectorType_    __vector) noexcept
@@ -560,35 +366,6 @@ simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__
 
 simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__streaming_fence() noexcept {
     return _mm_sfence();
-}
-
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline _VectorType_ __simd_memory_access<arch::ISA::AVX512F, zmm512>::__load(
-    const void* __address,
-    _AlignmentPolicy_&&) noexcept 
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
-            return _mm512_load_si512(__address);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
-            return _mm512_load_pd(__address);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512>)
-            return _mm512_load_ps(__address);
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
-            return _mm512_loadu_si512(__address);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
-            return _mm512_loadu_pd(__address);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512>)
-            return _mm512_loadu_ps(__address);
-    }
 }
 
 template <

@@ -194,6 +194,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/bitwise/ToMask.h
     src/simd_stl/datapar/bitwise/ToVector.h
     src/simd_stl/datapar/bitwise/ToIndexMask.h
+    src/simd_stl/datapar/bitwise/MaskConvert.h
 
     src/simd_stl/datapar/arithmetic/Sub.h
     src/simd_stl/datapar/arithmetic/Add.h
@@ -214,6 +215,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/memory/NonTemporalLoad.h
     src/simd_stl/datapar/memory/NonTemporalStore.h
     src/simd_stl/datapar/memory/StreamingFence.h
+    src/simd_stl/datapar/memory/AlignmentPolicy.h
 
     src/simd_stl/datapar/reduce/ReduceAdd.h
     src/simd_stl/datapar/reduce/HorizontalFold.h
@@ -227,6 +229,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/shuffle/BroadcastZeros.h
     src/simd_stl/datapar/shuffle/Reverse.h
     src/simd_stl/datapar/shuffle/Blend.h
+
 )
 
 set(PUBLIC_HEADERS

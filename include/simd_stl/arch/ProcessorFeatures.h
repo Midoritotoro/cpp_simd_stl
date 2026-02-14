@@ -30,7 +30,7 @@ public:
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512F()     noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512BW()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512PF()    noexcept;
-    simd_stl_nodiscard simd_stl_always_inline static bool AVX512ER()    noexcept;
+    raze_nodiscard raze_always_inline static bool AVX512ER()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512CD()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512VL()    noexcept;
     simd_stl_nodiscard simd_stl_always_inline static bool AVX512DQ()    noexcept;
