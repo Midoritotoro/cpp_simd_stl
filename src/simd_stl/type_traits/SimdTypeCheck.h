@@ -11,9 +11,9 @@
 
 __SIMD_STL_TYPE_TRAITS_NAMESPACE_BEGIN
 
-template <arch::ISA _SimdGeneration_>
+template <arch::ISA _ISA_>
 constexpr inline bool __is_generation_supported_v =
-    arch::__contains<_SimdGeneration_, __ymm_features, __xmm_features, __zmm_features>::value;
+    arch::__contains<_ISA_, __ymm_features, __xmm_features, __zmm_features>::value;
 
 template <typename _VectorElementType_>
 constexpr inline bool __is_pointer_decay_v = std::is_pointer_v<std::decay_t<_VectorElementType_>>;
@@ -28,9 +28,9 @@ template <>
 constexpr inline bool __is_vector_type_supported_v<bool> = false;
 
 template <
-    arch::ISA    _SimdGeneration_,
-    typename            _VectorElementType_,
-    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
+    arch::ISA   _ISA_,
+    typename    _VectorElementType_,
+    uint32      _Width_ = __default_width<_ISA_>>
 struct __deduce_simd_vector_type__ {
 private:
     using _Type_ = std::decay_t<_VectorElementType_>;
@@ -44,7 +44,7 @@ private:
 public:
     using type =
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, datapar::zmm512>,
+            _Width_ == 512,
                 std::conditional_t<
                     __is_fp64, __m512d,
                     std::conditional_t<
@@ -53,7 +53,7 @@ public:
                             __use_i,   __m512i,
                                      void>>>,
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, datapar::ymm256>,
+            _Width_ == 256,
                 std::conditional_t<
                     __is_fp64, __m256d,
                     std::conditional_t<
@@ -62,7 +62,7 @@ public:
                             __use_i,   __m256i,
                                      void>>>,
         std::conditional_t<
-            std::is_same_v<_RegisterPolicy_, datapar::xmm128>,
+            _Width_ == 128,
                 std::conditional_t<
                     __is_fp64, __m128d,
                     std::conditional_t<
@@ -74,11 +74,10 @@ public:
 };
 
 template <
-    arch::ISA    _SimdGeneration_,
-    typename            _VectorElementType_,
-    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
-using __deduce_simd_vector_type =
-    typename __deduce_simd_vector_type__<_SimdGeneration_, _VectorElementType_, _RegisterPolicy_>::type;
+    arch::ISA   _ISA_,
+    typename    _VectorElementType_,
+    uint32      _Width_ = __default_width<_ISA_>>
+using __deduce_simd_vector_type = typename __deduce_simd_vector_type__<_ISA_, _VectorElementType_, _Width_>::type;
 
 template <sizetype size>
 using __deduce_simd_shuffle_mask_type_helper = std::conditional_t<size <= 2, uint8,
@@ -87,28 +86,28 @@ using __deduce_simd_shuffle_mask_type_helper = std::conditional_t<size <= 2, uin
 				std::conditional_t<size <= 16, uint64, void>>>>;
 
 
-template <sizetype size>
-using __deduce_simd_mask_type_helper = std::conditional_t<size <= 8, uint8,
-		std::conditional_t<size <= 16, uint16,
-			std::conditional_t<size <= 32, uint32,
-				std::conditional_t<size <= 64, uint64, void>>>>;
+template <sizetype _Size_>
+using __deduce_simd_mask_type_helper = std::conditional_t<_Size_ <= 8, uint8,
+		std::conditional_t<_Size_ <= 16, uint16,
+			std::conditional_t<_Size_ <= 32, uint32,
+				std::conditional_t<_Size_ <= 64, uint64, void>>>>;
 
 template <
-	arch::ISA	_SimdGeneration_,
-	typename			_Element_,
-    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
-using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_RegisterPolicy_::__width / sizeof(_Element_))>;
+	arch::ISA	_ISA_,
+	typename	_Element_,
+    uint32      _Width_ = __default_width<_ISA_>>
+using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_Width_ / sizeof(_Element_))>;
 
 template <
-	arch::ISA	_SimdGeneration_,
-	typename			_Element_,
-    class               _RegisterPolicy_ = datapar::__default_register_policy<_SimdGeneration_>>
-using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(sizeof(type_traits::__deduce_simd_vector_type<_SimdGeneration_, _Element_, _RegisterPolicy_>) / sizeof(_Element_))>;
+	arch::ISA	_ISA_,
+	typename	_Element_,
+    uint32      _Width_ = __default_width<_ISA_>>
+using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(_Width_ / sizeof(_Element_))>;
 
-template <arch::ISA _SimdGeneration_> 
+template <arch::ISA _ISA_> 
 constexpr bool __is_zeroupper_required_v =
-    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::ISA::AVX2) ||
-    static_cast<int8>(_SimdGeneration_) == static_cast<int8>(arch::ISA::AVX);
+    static_cast<int8>(_ISA_) == static_cast<int8>(arch::ISA::AVX2) ||
+    static_cast<int8>(_ISA_) == static_cast<int8>(arch::ISA::AVX);
 
 template <
     arch::ISA _SimdGenerationFirst_,

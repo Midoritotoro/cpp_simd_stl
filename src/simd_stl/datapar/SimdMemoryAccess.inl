@@ -4,13 +4,6 @@ __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 #pragma region Sse2-Sse4.2 memory access 
 
-template <
-    int32 __first_,
-    int32 _Second_>
-static constexpr int32 __constexpr_max() noexcept {
-    return (__first_ > _Second_) ? __first_ : _Second_;
-}
-
 
 simd_stl_always_inline void __simd_memory_access<arch::ISA::SSE2, xmm128>::__streaming_fence() noexcept {
     return _mm_sfence();

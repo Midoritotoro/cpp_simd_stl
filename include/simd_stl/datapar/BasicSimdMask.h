@@ -7,11 +7,11 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::ISA	_SimdGeneration_,
-	typename			_Element_,
-	class				_RegisterPolicy_>
+	arch::ISA	_ISA_,
+	typename	_Element_,
+	uint32		_SimdWidth_>
 class simd_mask: 
-	public __simd_element_mask_operations<simd_mask<_SimdGeneration_, _Element_, _RegisterPolicy_>>
+	public __simd_element_mask_operations<simd_mask<_ISA_, _Element_, _SimdWidth_>>
 {
 	static_assert(type_traits::__is_generation_supported_v<_SimdGeneration_>);
 	static_assert(type_traits::__is_vector_type_supported_v<_Element_>);
