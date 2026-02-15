@@ -203,6 +203,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/arithmetic/Negate.h
     src/simd_stl/datapar/arithmetic/VerticalMax.h
     src/simd_stl/datapar/arithmetic/VerticalMin.h
+    src/simd_stl/datapar/arithmetic/Abs.h
 
     src/simd_stl/datapar/compare/Less.h
     src/simd_stl/datapar/compare/LessEqual.h
@@ -223,7 +224,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/memory/AlignmentPolicy.h
 
     src/simd_stl/datapar/reduce/ReduceAdd.h
-    src/simd_stl/datapar/reduce/HorizontalFold.h
+    src/simd_stl/datapar/reduce/ReduceAddType.h
+    src/simd_stl/datapar/reduce/Fold.h
     src/simd_stl/datapar/reduce/HorizontalMax.h
     src/simd_stl/datapar/reduce/HorizontalMin.h
 
@@ -592,13 +594,13 @@ if(SIMD_STL_USER_FORCE_ENABLED)
             endif()
         endmacro()
 
-        simd_stl_require(SIMD_STL_FORCE_SSE2   "-msse2")
-        simd_stl_require(SIMD_STL_FORCE_SSE3   "-msse3")
-        simd_stl_require(SIMD_STL_FORCE_SSSE3  "-mssse3")
-        simd_stl_require(SIMD_STL_FORCE_SSE41  "-msse4.1")
-        simd_stl_require(SIMD_STL_FORCE_SSE42  "-msse4.2")
-        simd_stl_require(SIMD_STL_FORCE_AVX    "-mavx")
-        simd_stl_require(SIMD_STL_FORCE_AVX2   "-mavx2")
+        simd_stl_require(SIMD_STL_FORCE_SSE2        "-msse2")
+        simd_stl_require(SIMD_STL_FORCE_SSE3        "-msse3")
+        simd_stl_require(SIMD_STL_FORCE_SSSE3       "-mssse3")
+        simd_stl_require(SIMD_STL_FORCE_SSE41       "-msse4.1")
+        simd_stl_require(SIMD_STL_FORCE_SSE42       "-msse4.2")
+        simd_stl_require(SIMD_STL_FORCE_AVX         "-mavx")
+        simd_stl_require(SIMD_STL_FORCE_AVX2        "-mavx2")
         simd_stl_require(SIMD_STL_FORCE_AVX512F     "-mavx512f")
         simd_stl_require(SIMD_STL_FORCE_AVX512BW    "-mavx512bw")
         simd_stl_require(SIMD_STL_FORCE_AVX512CD    "-mavx512cd")

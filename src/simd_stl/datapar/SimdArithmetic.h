@@ -818,20 +818,6 @@ struct __vertical_min_wrapper {
     }
 };
 
-template <
-    arch::ISA    _SimdGeneration_,
-    class               _RegisterPolicy_, 
-    typename            _DesiredType_>
-struct __vertical_max_wrapper {
-    template <typename _VectorType_>
-    simd_stl_always_inline _VectorType_ operator()(
-        _VectorType_ __left,
-        _VectorType_ __right) const noexcept
-    {
-        return __simd_vertical_max<_SimdGeneration_, _RegisterPolicy_, _DesiredType_>(__left, __right);
-    }
-};
-
 __SIMD_STL_DATAPAR_NAMESPACE_END
 
 #include <src/simd_stl/datapar/SimdArithmetic.inl>
