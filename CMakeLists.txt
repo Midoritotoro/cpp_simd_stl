@@ -230,6 +230,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/reduce/HorizontalMin.h
 
     src/simd_stl/datapar/shuffle/Insert.h
+    src/simd_stl/datapar/shuffle/InsertMask.h
     src/simd_stl/datapar/shuffle/Extract.h
     src/simd_stl/datapar/shuffle/Compress.h
     src/simd_stl/datapar/shuffle/Broadcast.h
