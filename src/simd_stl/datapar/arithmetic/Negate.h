@@ -31,6 +31,15 @@ template <class _DesiredType_>
 struct _Simd_negate<arch::ISA::AVX2, 256, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept {
+		if      constexpr (__is_ps_v<_DesiredType_>)
+			return __intrin_bitcast<_IntrinType_>(_mm256_xor_ps(__intrin_bitcast<__m256>(__vector), _mm256_set1_ps(-0.0f)));
+
+		else if constexpr (__is_pd_v<_DesiredType_>)
+			return __intrin_bitcast<_IntrinType_>(_mm256_xor_pd(__intrin_bitcast<__m256d>(__vector),
+				__intrin_bitcast<__m256d>(_mm256_setr_epi32(0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000))));
+
+		else
+			return _Simd_sub<arch::ISA::AVX2, 256, _DesiredType_>()(_Simd_broadcast_zeros<arch::ISA::AVX2, 256, _DesiredType_>()(), __vector);
 	}
 };
 
@@ -38,6 +47,16 @@ template <class _DesiredType_>
 struct _Simd_negate<arch::ISA::AVX512F, 512, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept {
+		if      constexpr (__is_ps_v<_DesiredType_>)
+			return __intrin_bitcast<_IntrinType_>(_mm512_xor_ps(__vector, _mm512_set1_ps(-0.0f)));
+
+		else if constexpr (__is_pd_v<_DesiredType_>)
+			return __intrin_bitcast<_IntrinType_>(_mm512_xor_pd(__vector, __intrin_bitcast<__m512d>(
+				_mm512_setr_epi32(0, 0x80000000, 0, 0x80000000, 0, 0x80000000,
+					0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000, 0, 0x80000000))));
+
+		else
+			return _Simd_sub<arch::ISA::AVX512F, 512, _DesiredType_>()(_Simd_broadcast_zeros<arch::ISA::AVX512F, 512, _DesiredType_>()(), __vector);
 	}
 };
 

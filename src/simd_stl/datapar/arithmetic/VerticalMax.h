@@ -1,7 +1,7 @@
 #pragma once 
 
+#include <src/simd_stl/datapar/compare/Greater.h>
 #include <src/simd_stl/datapar/shuffle/Blend.h>
-#include <src/simd_stl/datapar/compare/NativeCompare.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
@@ -32,8 +32,8 @@ struct _Simd_vertical_max<arch::ISA::SSE2, 128, _DesiredType_> {
 			return __intrin_bitcast<_IntrinType_>(_mm_max_pd(__intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
 		}
 		else {
-			const auto __mask = _Simd_native_compare<arch::ISA::SSE2,, 128, _DesiredType_, __simd_comparison::greater>()(__left, __right);
-			return __simd_blend<__generation, __register_policy, _DesiredType_>(__left, __right, __mask);
+			const auto __mask = _Simd_greater<arch::ISA::SSE2, 128, _DesiredType_>()(__left, __right);
+			return _Simd_blend<arch::ISA::SSE2, 128, _DesiredType_>()(__left, __right, __mask);
 		}
 	}
 };
@@ -56,7 +56,7 @@ struct _Simd_vertical_max<arch::ISA::AVX512F, 512, _DesiredType_> {
 		_IntrinType_ __left,
 		_IntrinType_ __right) simd_stl_const_operator noexcept
 	{
-		
+
 	}
 };
 

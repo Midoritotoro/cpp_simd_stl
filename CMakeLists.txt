@@ -204,7 +204,12 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/arithmetic/VerticalMax.h
     src/simd_stl/datapar/arithmetic/VerticalMin.h
 
-    src/simd_stl/datapar/compare/NativeCompare.h
+    src/simd_stl/datapar/compare/Less.h
+    src/simd_stl/datapar/compare/LessEqual.h
+    src/simd_stl/datapar/compare/Greater.h
+    src/simd_stl/datapar/compare/GreaterEqual.h
+    src/simd_stl/datapar/compare/Equal.h
+    src/simd_stl/datapar/compare/NotEqual.h
 
     src/simd_stl/datapar/memory/CompressStore.h
     src/simd_stl/datapar/memory/Load.h
