@@ -132,27 +132,10 @@ set(PRIVATE_HEADERS
 
     "src/simd_stl/utility/Assert.h"
 
-    src/simd_stl/datapar/SimdBroadcast.h
-    src/simd_stl/datapar/ShuffleTables.h
-    src/simd_stl/datapar/SimdDivisors.h
-    src/simd_stl/datapar/SimdArithmetic.h
     src/simd_stl/datapar/IntrinBitcast.h
-    src/simd_stl/datapar/SimdConvert.h
-    src/simd_stl/datapar/SimdCompare.h
-    src/simd_stl/datapar/SimdElementAccess.h
-    src/simd_stl/datapar/SimdElementWise.h
     src/simd_stl/datapar/SimdIntegralTypesCheck.h
-    src/simd_stl/datapar/SimdMemoryAccess.h
 
-    src/simd_stl/datapar/SimdBroadcast.inl
-    src/simd_stl/datapar/SimdArithmetic.inl
-    src/simd_stl/datapar/SimdConvert.inl
-    src/simd_stl/datapar/SimdCompare.inl
-    src/simd_stl/datapar/SimdElementAccess.inl
-    src/simd_stl/datapar/SimdElementWise.inl
-    src/simd_stl/datapar/SimdMemoryAccess.inl
     src/simd_stl/datapar/SimdIndexMask.inl
-    src/simd_stl/datapar/SimdComparison.h
     src/simd_stl/datapar/SimdCompareResult.inl
     src/simd_stl/datapar/SimdCompareAdapters.h
     src/simd_stl/datapar/SimdCompareAdapters.inl
@@ -165,11 +148,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/MaskTypeSelector.h
     src/simd_stl/datapar/SimdMaskTypeCheck.h
 
-
-    src/simd_stl/datapar/SimdOperations.h
-    src/simd_stl/datapar/ZmmThreshold.h
     src/simd_stl/datapar/CachePrefetcher.h
-    src/simd_stl/datapar/MaskExpand.h
 
     src/simd_stl/datapar/BasicSimd.inl
     src/simd_stl/datapar/SimdCast.inl
@@ -229,6 +208,8 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/reduce/HorizontalMax.h
     src/simd_stl/datapar/reduce/HorizontalMin.h
 
+    src/simd_stl/datapar/shuffle/ShuffleTables.h
+    src/simd_stl/datapar/shuffle/MaskExpand.h
     src/simd_stl/datapar/shuffle/Insert.h
     src/simd_stl/datapar/shuffle/InsertMask.h
     src/simd_stl/datapar/shuffle/Extract.h

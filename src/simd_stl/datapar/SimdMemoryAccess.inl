@@ -1,13 +1,3 @@
-#pragma once 
-
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
-
-#pragma region Sse2-Sse4.2 memory access 
-
-
-simd_stl_always_inline void __simd_memory_access<arch::ISA::SSE2, xmm128>::__streaming_fence() noexcept {
-    return _mm_sfence();
-}
 
 template <
     typename    _DesiredType_,
@@ -290,18 +280,6 @@ simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__mas
         __store(__address, __simd_blend<__generation, __register_policy, _DesiredType_>(__vector, __load<_VectorType_>(__address, __policy), __mask));
 }
 
-template <typename _VectorType_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__non_temporal_store(
-    void* __address,
-    _VectorType_    __vector) noexcept
-{
-    _mm256_stream_si256(reinterpret_cast<__m256i*>(__address), __intrin_bitcast<__m256i>(__vector));
-}
-
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX2, ymm256>::__streaming_fence() noexcept {
-    return _mm_sfence();
-}
-
 template <
     typename    _DesiredType_,
     typename    _VectorType_,
@@ -347,48 +325,6 @@ template <typename _Type_>
 simd_stl_always_inline auto __simd_memory_access<arch::ISA::AVX512F, zmm512>::__make_tail_mask(uint32 __bytes) noexcept {
     static constexpr auto __tail_table = __make_tail_mask_table<__register_policy::__width, _Type_>();
     return __tail_table[__bytes];
-}
-
-template <typename _VectorType_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__non_temporal_store(
-    void*           __address,
-    _VectorType_    __vector) noexcept
-{
-    _mm512_stream_si512(__address, __intrin_bitcast<__m512i>(__vector));
-}
-
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__streaming_fence() noexcept {
-    return _mm_sfence();
-}
-
-template <
-    typename    _VectorType_,
-    class       _AlignmentPolicy_>
-simd_stl_always_inline void __simd_memory_access<arch::ISA::AVX512F, zmm512>::__store(
-    void*           __address,
-    _VectorType_    __vector,
-    _AlignmentPolicy_&&) noexcept
-{
-    if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
-            return _mm512_store_si512(__address, __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
-            return _mm512_store_pd(__address, __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512>)
-            return _mm512_store_ps(__address, __vector);
-    }
-    else {
-        if      constexpr (std::is_same_v<_VectorType_, __m512i>)
-            return _mm512_storeu_si512(__address, __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512d>)
-            return _mm512_storeu_pd(__address, __vector);
-
-        else if constexpr (std::is_same_v<_VectorType_, __m512>)
-            return _mm512_storeu_ps(__address, __vector);
-    }
 }
 
 template <
