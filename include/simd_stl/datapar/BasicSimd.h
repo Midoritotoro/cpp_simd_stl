@@ -70,7 +70,7 @@ public:
 
     simd_stl_always_inline simd& fill(value_type __value) noexcept;
     simd_stl_always_inline value_type extract(size_type __index) const noexcept;
-    simd_stl_always_inline simd_Type_reference<simd> extract_wrapped(size_type __index) noexcept;
+    simd_stl_always_inline simd_element_reference<simd> extract_wrapped(size_type __index) noexcept;
 
     simd_stl_always_inline void insert(
         size_type   __index,

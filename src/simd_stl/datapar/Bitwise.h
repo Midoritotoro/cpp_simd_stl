@@ -8,3 +8,4 @@
 #include <src/simd_stl/datapar/bitwise/ToIndexMask.h>
 #include <src/simd_stl/datapar/bitwise/ToMask.h>
 #include <src/simd_stl/datapar/bitwise/ToVector.h>
+#include <src/simd_stl/datapar/bitwise/IndexMaskDivisor.h>

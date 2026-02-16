@@ -32,7 +32,6 @@ public:
 	template <class _VectorMask_, std::enable_if_t<__is_valid_simd_v<_VectorMask_> || __is_intrin_type_v<_VectorMask_>, int> = 0>
 	simd_index_mask(const _VectorMask_& __vector_mask) noexcept;
 
-
 	constexpr simd_stl_always_inline simd_index_mask& operator&=(const simd_index_mask& __other) noexcept;
 	constexpr simd_stl_always_inline simd_index_mask& operator|=(const simd_index_mask& __other) noexcept;
 	constexpr simd_stl_always_inline simd_index_mask& operator^=(const simd_index_mask& __other) noexcept;

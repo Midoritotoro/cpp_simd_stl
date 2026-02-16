@@ -402,7 +402,7 @@ template <class _DesiredType_>
 struct _Simd_compress<arch::ISA::AVX512F, 512, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline std::pair<int32, _IntrinType_> operator()(
-		_IntrinType_ __first,
+		_IntrinType_ __vector,
 		_IntrinType_ __mask) simd_stl_const_operator noexcept
 	{
         return (*this)(__vector, _Simd_to_mask<arch::ISA::AVX512F, 512, _DesiredType_>()(__mask));

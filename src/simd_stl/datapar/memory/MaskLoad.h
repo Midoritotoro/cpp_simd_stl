@@ -133,7 +133,7 @@ struct _Simd_mask_load<arch::ISA::AVX512F, 512, _DesiredType_> {
 					__mask_convert<arch::ISA::AVX512F, 512, _DesiredType_, uint16>(__mask), __address));
 		}
 
-		return _Simd_blend<arch::ISA::AVX512F, 512, _DesiredType_>()(_Simd_load<arch::ISA::AVX512F, 512, _IntrinType_>()(__address, __policy),
+		return _Simd_blend<arch::ISA::AVX512F, 512, _DesiredType_>()(_Simd_load<arch::ISA::AVX512F, 512, _IntrinType_>()(__address, __alignment_policy),
 			__additional_source, __mask_convert<arch::ISA::AVX512F, 512, _DesiredType_, _IntrinType_>(__mask));
 	}
 };
@@ -161,7 +161,7 @@ struct _Simd_mask_load<arch::ISA::AVX512BW, 512, _DesiredType_>:
 				__mask_convert<arch::ISA::AVX512BW, 512, _DesiredType_, uint64>(__mask), __address));
 
 		else
-			return _Simd_mask_load<arch::ISA::AVX512F, 512, _DesiredType_>()(__address, __mask, __additional_source, __policy);
+			return _Simd_mask_load<arch::ISA::AVX512F, 512, _DesiredType_>()(__address, __mask, __additional_source, __alignment_policy);
 	}
 };
 
@@ -211,7 +211,7 @@ struct _Simd_mask_load<arch::ISA::AVX512VLF, 256, _DesiredType_>:
 			}
 		}
 
-		return _Simd_blend<arch::ISA::AVX512VLF, 256, _DesiredType_>()(_Simd_load<arch::ISA::AVX512VLF, 256, _IntrinType_>()(__address, __policy),
+		return _Simd_blend<arch::ISA::AVX512VLF, 256, _DesiredType_>()(_Simd_load<arch::ISA::AVX512VLF, 256, _IntrinType_>()(__address, __alignment_policy),
 			__additional_source, __mask_convert<arch::ISA::AVX512VLF, 256, _DesiredType_, _IntrinType_>(__mask));
 	}
 };
@@ -232,7 +232,7 @@ struct _Simd_mask_load<arch::ISA::AVX512VLBW, 256, _DesiredType_> :
 		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
 	{
 		if constexpr (sizeof(_DesiredType_) >= 4)
-			return __simd_mask_load<arch::ISA::AVX512VLF, 256, _DesiredType_>(__address, __mask, __additional_source, __policy);
+			return __simd_mask_load<arch::ISA::AVX512VLF, 256, _DesiredType_>(__address, __mask, __additional_source, __alignment_policy);
 
 		else if constexpr (sizeof(_DesiredType_) == 2)
 			return __intrin_bitcast<_IntrinType_>(_mm256_mask_loadu_epi16(__intrin_bitcast<__m256i>(__additional_source),
@@ -290,7 +290,7 @@ struct _Simd_mask_load<arch::ISA::AVX512VLF, 128, _DesiredType_>:
 			}
 		}
 
-		return _Simd_blend<arch::ISA::AVX512VLF, 128, _DesiredType_>()(_Simd_load<arch::ISA::AVX512VLF, 128, _IntrinType_>()(__address, __policy),
+		return _Simd_blend<arch::ISA::AVX512VLF, 128, _DesiredType_>()(_Simd_load<arch::ISA::AVX512VLF, 128, _IntrinType_>()(__address, __alignment_policy),
 			__additional_source, __mask_convert<arch::ISA::AVX512VLF, 128, _DesiredType_, _IntrinType_>(__mask));
 	}
 };
@@ -311,7 +311,7 @@ struct _Simd_mask_load<arch::ISA::AVX512VLBW, 128, _DesiredType_> :
 		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
 	{
 		if constexpr (sizeof(_DesiredType_) >= 4)
-			return __simd_mask_load<arch::ISA::AVX512VLF, 128, _DesiredType_>(__address, __mask, __additional_source, __policy);
+			return __simd_mask_load<arch::ISA::AVX512VLF, 128, _DesiredType_>(__address, __mask, __additional_source, __alignment_policy);
 
 		else if constexpr (sizeof(_DesiredType_) == 2)
 			return __intrin_bitcast<_IntrinType_>(_mm_mask_loadu_epi16(__intrin_bitcast<__m128i>(__additional_source),

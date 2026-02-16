@@ -14,11 +14,11 @@ template <
     class _VectorType_>
 struct __rebind_vector_element_t<_RebindType_, _VectorType_, false, true> {
     using type = std::conditional_t<__is_intrin_type_v<_RebindType_> || __is_valid_simd_v<_RebindType_>, _RebindType_,
-        std::conditional_t<sizeof(_VectorType_) == __zmm_width,
+        std::conditional_t<sizeof(_VectorType_) == 64,
         type_traits::__deduce_simd_vector_type<arch::ISA::AVX512F, _RebindType_, 512>,
-        std::conditional_t<sizeof(_VectorType_) == __ymm_width,
+        std::conditional_t<sizeof(_VectorType_) == 32,
         type_traits::__deduce_simd_vector_type<arch::ISA::AVX2, _RebindType_, 256>,
-        std::conditional_t<sizeof(_VectorType_) == __xmm_width,
+        std::conditional_t<sizeof(_VectorType_) == 16,
         type_traits::__deduce_simd_vector_type<arch::ISA::SSE2, _RebindType_, 128>, void>>>>;
 };
 

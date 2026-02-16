@@ -11,3 +11,5 @@
 #include <src/simd_stl/datapar/memory/NonTemporalStore.h>
 #include <src/simd_stl/datapar/memory/Store.h>
 #include <src/simd_stl/datapar/memory/StreamingFence.h>
+#include <src/simd_stl/datapar/memory/MaskLoadSupport.h>
+#include <src/simd_stl/datapar/memory/MaskStoreSupport.h>
