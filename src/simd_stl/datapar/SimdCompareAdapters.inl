@@ -3,7 +3,7 @@ __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 template <class _CompareResult_>
 __as_mask_t::__simd_mask_type<_CompareResult_> __as_mask_t::operator()(_CompareResult_&& __compare_result) const noexcept {
 	using _WithoutReference_ = std::remove_cvref_t<_CompareResult_>;
-	return __simd_to_mask<_WithoutReference_::__generation, typename _WithoutReference_::register_policy,
+	return _Simd_to_mask<_WithoutReference_::__isa, _WithoutReference_::__width,
 		typename _WithoutReference_::element_type>(__simd_unwrap_mask(__compare_result._compare_result));
 }
 

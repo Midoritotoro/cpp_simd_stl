@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/IntrinBitcast.h>
-#include <src/simd_stl/datapar/MaskExpand.h>
+#include <src/simd_stl/datapar/shuffle/MaskExpand.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN 
@@ -98,7 +98,7 @@ struct _Simd_blend<arch::ISA::AVX512F, 512, _DesiredType_> {
 		_IntrinType_ __second,
 		_IntrinType_ __mask) simd_stl_const_operator noexcept
 	{
-		return __intrin_bitcast<_VectorType_>(_mm512_ternarylogic_epi32(__intrin_bitcast<__m512i>(__mask),
+		return __intrin_bitcast<_IntrinType_>(_mm512_ternarylogic_epi32(__intrin_bitcast<__m512i>(__mask),
 			__intrin_bitcast<__m512i>(__first), __intrin_bitcast<__m512i>(__second), 0xCA));
 	}
 
@@ -178,4 +178,4 @@ template <class _DesiredType_> struct _Simd_blend<arch::ISA::AVX512VBMI2VL, 128,
 template <class _DesiredType_> struct _Simd_blend<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_>: _Simd_blend<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_blend<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_>: _Simd_blend<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

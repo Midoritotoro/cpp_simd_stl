@@ -66,13 +66,13 @@ struct _Simd_load<arch::ISA::AVX2, 256, _IntrinType_> {
 		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-			if      constexpr (std::is_same_v<_VectorType_, __m256i>)
+			if      constexpr (std::is_same_v<_IntrinType_, __m256i>)
 				return _mm256_load_si256(reinterpret_cast<const __m256i*>(__address));
 
-			else if constexpr (std::is_same_v<_VectorType_, __m256d>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m256d>)
 				return _mm256_load_pd(reinterpret_cast<const double*>(__address));
 
-			else if constexpr (std::is_same_v<_VectorType_, __m256>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m256>)
 				return _mm256_load_ps(reinterpret_cast<const float*>(__address));
 		}
 		else {
@@ -89,23 +89,23 @@ struct _Simd_load<arch::ISA::AVX512F, 512, _IntrinType_> {
 		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-			if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+			if      constexpr (std::is_same_v<_IntrinType_, __m512i>)
 				return _mm512_load_si512(__address);
 
-			else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m512d>)
 				return _mm512_load_pd(__address);
 
-			else if constexpr (std::is_same_v<_VectorType_, __m512>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m512>)
 				return _mm512_load_ps(__address);
 		}
 		else {
-			if      constexpr (std::is_same_v<_VectorType_, __m512i>)
+			if      constexpr (std::is_same_v<_IntrinType_, __m512i>)
 				return _mm512_loadu_si512(__address);
 
-			else if constexpr (std::is_same_v<_VectorType_, __m512d>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m512d>)
 				return _mm512_loadu_pd(__address);
 
-			else if constexpr (std::is_same_v<_VectorType_, __m512>)
+			else if constexpr (std::is_same_v<_IntrinType_, __m512>)
 				return _mm512_loadu_ps(__address);
 		}
 	}
@@ -142,4 +142,4 @@ template <class _IntrinType_> struct _Simd_load<arch::ISA::AVX512VBMI2VL, 128, _
 template <class _IntrinType_> struct _Simd_load<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_> : _Simd_load<arch::ISA::AVX512VLBWDQ, 128, _IntrinType_> {};
 template <class _IntrinType_> struct _Simd_load<arch::ISA::AVX512VBMI2VLDQ, 128, _IntrinType_> : _Simd_load<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

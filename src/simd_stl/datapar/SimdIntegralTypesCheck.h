@@ -99,19 +99,19 @@ template <class _BasicSimd_>
 struct __is_valid_simd<
     _BasicSimd_,
     std::void_t<simd<
-        _BasicSimd_::__generation,
+        _BasicSimd_::__isa,
         typename _BasicSimd_::value_type,
-        typename _BasicSimd_::policy_type>>> 
+        _BasicSimd_::__width>>>
     : std::bool_constant<
         type_traits::is_virtual_base_of_v<
-            simd<_BasicSimd_::__generation,
+            simd<_BasicSimd_::__isa,
                        typename _BasicSimd_::value_type,
-                       typename _BasicSimd_::policy_type>,
+                       _BasicSimd_::__width>,
             _BasicSimd_> ||
         std::is_same_v<
-            simd<_BasicSimd_::__generation,
+            simd<_BasicSimd_::__isa,
                        typename _BasicSimd_::value_type,
-                       typename _BasicSimd_::policy_type>,
+                       _BasicSimd_::__width>,
             _BasicSimd_>> 
 {};
 
@@ -167,7 +167,7 @@ template <
 	typename	_ReturnType_,
 	typename	_DesiredType_>
 using __native_compare_return_type_helper = std::conditional_t<__is_intrin_type_v<_ReturnType_>,
-	simd<_Simd_::__generation, _DesiredType_, typename _Simd_::policy_type>, _ReturnType_>;
+	simd<_Simd_::__isa, _DesiredType_, _Simd_::__width>, _ReturnType_>;
 
 template <
     class _RebindType_,

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/IntrinBitcast.h>
-#include <src/simd_stl/datapar/MaskExpand.h>
+#include <src/simd_stl/datapar/shuffle/MaskExpand.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
@@ -182,4 +182,4 @@ template <class _DesiredType_> struct _Simd_reverse<arch::ISA::AVX512VBMI2VL, 12
 template <class _DesiredType_> struct _Simd_reverse<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_reverse<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_reverse<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_reverse<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

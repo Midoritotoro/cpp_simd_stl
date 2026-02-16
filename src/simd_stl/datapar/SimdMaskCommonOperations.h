@@ -12,7 +12,7 @@ template <class _Derived_>
 struct __simd_mask_common_operations {
     using __self			= std::remove_cvref_t<_Derived_>;
 
-    static constexpr simd_stl_always_inline arch::ISA __generation() noexcept;
+    static constexpr simd_stl_always_inline arch::ISA __isa() noexcept;
     static constexpr simd_stl_always_inline uint8 __bit_width() noexcept;
     constexpr simd_stl_always_inline auto __unwrap() const noexcept;
 

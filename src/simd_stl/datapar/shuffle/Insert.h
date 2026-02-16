@@ -92,6 +92,9 @@ struct _Simd_insert<arch::ISA::SSE2, 128> {
 	}
 };
 
+template <> struct _Simd_insert<arch::ISA::SSE3, 128> : _Simd_insert<arch::ISA::SSE2, 128> {};
+template <> struct _Simd_insert<arch::ISA::SSSE3, 128> : _Simd_insert<arch::ISA::SSE3, 128> {};
+
 template <> 
 struct _Simd_insert<arch::ISA::SSE41, 128>: 
     _Simd_insert<arch::ISA::SSSE3, 128> 
@@ -228,7 +231,7 @@ struct _Simd_insert<arch::ISA::AVX2, 256> {
             }
         }
         else if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
-            const auto __broadcasted = __simd_broadcast<__generation, __register_policy, __m256i>(__value);
+            const auto __broadcasted = _Simd_broadcast<arch::ISA::AVX2, 256, __m256i>(__value);
 
             switch (__index) {
                 case 0:
@@ -297,8 +300,6 @@ struct _Simd_insert<arch::ISA::AVX512F, 512> {
 	}
 };
 
-template <> struct _Simd_insert<arch::ISA::SSE3, 128>: _Simd_insert<arch::ISA::SSE2, 128> {};
-template <> struct _Simd_insert<arch::ISA::SSSE3, 128>: _Simd_insert<arch::ISA::SSE3, 128> {};
 template <> struct _Simd_insert<arch::ISA::SSE42, 128>: _Simd_insert<arch::ISA::SSE41, 128> {};
 template <> struct _Simd_insert<arch::ISA::AVX2, 128>: _Simd_insert<arch::ISA::SSE42, 128> {};
 
@@ -328,4 +329,4 @@ template <> struct _Simd_insert<arch::ISA::AVX512VBMI2VL, 128>: _Simd_insert<arc
 template <> struct _Simd_insert<arch::ISA::AVX512VBMIVLDQ, 128>: _Simd_insert<arch::ISA::AVX512VLBWDQ, 128> {};
 template <> struct _Simd_insert<arch::ISA::AVX512VBMI2VLDQ, 128>: _Simd_insert<arch::ISA::AVX512VBMIVLDQ, 128> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

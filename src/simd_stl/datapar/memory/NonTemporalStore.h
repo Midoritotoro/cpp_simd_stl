@@ -75,4 +75,4 @@ template <> struct _Simd_non_temporal_store<arch::ISA::AVX512VBMI2VL, 128> : _Si
 template <> struct _Simd_non_temporal_store<arch::ISA::AVX512VBMIVLDQ, 128> : _Simd_non_temporal_store<arch::ISA::AVX512VLBWDQ, 128> {};
 template <> struct _Simd_non_temporal_store<arch::ISA::AVX512VBMI2VLDQ, 128> : _Simd_non_temporal_store<arch::ISA::AVX512VBMIVLDQ, 128> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

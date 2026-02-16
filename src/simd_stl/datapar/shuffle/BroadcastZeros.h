@@ -88,4 +88,4 @@ template <class _IntrinType_> struct _Simd_broadcast_zeros<arch::ISA::AVX512VBMI
 template <class _IntrinType_> struct _Simd_broadcast_zeros<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_>: _Simd_broadcast_zeros<arch::ISA::AVX512VLBWDQ, 128, _IntrinType_> {};
 template <class _IntrinType_> struct _Simd_broadcast_zeros<arch::ISA::AVX512VBMI2VLDQ, 128, _IntrinType_>: _Simd_broadcast_zeros<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

@@ -23,9 +23,9 @@ void mask_compress_any(
         dst[i] = src[i];
 }
 
-template <typename T, simd_stl::arch::ISA Arch, typename _RegisterPolicy_>
+template <typename T, simd_stl::arch::ISA Arch, uint32 _Width_>
 void testMethods() {
-    using Simd = simd_stl::datapar::simd<Arch, T, _RegisterPolicy_>;
+    using Simd = simd_stl::datapar::simd<Arch, T, _Width_>;
     constexpr size_t N = Simd::size();
 
      {
@@ -77,7 +77,7 @@ void testMethods() {
 
         static_assert(std::is_same_v<decltype(vOther), decltype(vOther2)>);
         static_assert(std::is_same_v<decltype(vOther2), simd_stl::datapar::simd128_sse2<float>>);
-        static_assert(std::is_same_v<decltype(vOther3), simd_stl::datapar::simd<simd_stl::arch::ISA::SSE2, typename Simd::value_type, simd_stl::datapar::xmm128>>);
+        static_assert(std::is_same_v<decltype(vOther3), simd_stl::datapar::simd<simd_stl::arch::ISA::SSE2, typename Simd::value_type, 128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
         static_assert(std::is_same_v<decltype(vOther5), simd_stl::datapar::simd<Simd::__generation, int, typename Simd::policy_type>>);
     }
@@ -461,7 +461,7 @@ void testMethods() {
     }
 }
 
-template <simd_stl::arch::ISA _Generation_, typename _RegisterPolicy_>
+template <simd_stl::arch::ISA _Generation_, simd_stl::uint32 _Width_>
 void testMethods() {
     testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
     testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
@@ -480,43 +480,43 @@ void testMethods() {
 }
 
 int main() {
-    testMethods<simd_stl::arch::ISA::SSE2, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::ISA::SSE3, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::ISA::SSSE3, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::ISA::SSE41, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::ISA::SSE42, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::ISA::SSE2, 128>();
+    testMethods<simd_stl::arch::ISA::SSE3, 128>();
+    testMethods<simd_stl::arch::ISA::SSSE3, 128>();
+    testMethods<simd_stl::arch::ISA::SSE41, 128>();
+    testMethods<simd_stl::arch::ISA::SSE42, 128>();
 
-    testMethods<simd_stl::arch::ISA::AVX2, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::ISA::AVX2, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::ISA::AVX2, 128>();
+    testMethods<simd_stl::arch::ISA::AVX2, 256>();
 
-   /* testMethods<simd_stl::arch::CpuFeature::AVX512F, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BW, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512DQ, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512BWDQ, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIDQ, simd_stl::datapar::zmm512>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2DQ, simd_stl::datapar::zmm512>();
+   /* testMethods<simd_stl::arch::ISA::AVX512F, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512BW, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512DQ, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512BWDQ, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMIDQ, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2DQ, 512>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::ISA::AVX512VLF, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VLBW, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VLBWDQ, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VLDQ, 128>();
     
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLF, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBW, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLBWDQ, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VLDQ, simd_stl::datapar::ymm256>();
+    testMethods<simd_stl::arch::ISA::AVX512VLF, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VLBW, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VLBWDQ, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VLDQ, 256>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLDQ, simd_stl::datapar::xmm128>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLDQ, simd_stl::datapar::xmm128>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMIVL, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2VL, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMIVLDQ, 128>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2VLDQ, 128>();
 
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVL, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VL, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMIVLDQ, simd_stl::datapar::ymm256>();
-    testMethods<simd_stl::arch::CpuFeature::AVX512VBMI2VLDQ, simd_stl::datapar::ymm256>();*/
+    testMethods<simd_stl::arch::ISA::AVX512VBMIVL, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2VL, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMIVLDQ, 256>();
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2VLDQ, 256>();*/
 
 
     return 0;

@@ -26,4 +26,4 @@ struct _Simd_not_equal {
     }
 };
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

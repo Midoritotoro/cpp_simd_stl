@@ -1,8 +1,8 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <class _Derived_>
-constexpr arch::ISA __simd_mask_common_operations<_Derived_>::__generation() noexcept {
-	return __self::generation();
+constexpr arch::ISA __simd_mask_common_operations<_Derived_>::__isa() noexcept {
+	return __self::isa();
 }
 
 template <class _Derived_>
@@ -24,16 +24,16 @@ constexpr bool __simd_mask_common_operations<_Derived_>::all_of() const noexcept
 		? math::__maximum_integral_limit<_MaskType>()
 		: _MaskType(((_MaskType(1) << __bit_width()) - 1));
 
-	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _ktestc_mask16_u8(__bits, __max_for_bits);
 
-	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _ktestc_mask8_u8(__bits, __max_for_bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _ktestc_mask32_u8(__bits, __max_for_bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _ktestc_mask64_u8(__bits, __max_for_bits);
 
 	else
@@ -50,16 +50,16 @@ constexpr bool __simd_mask_common_operations<_Derived_>::none_of() const noexcep
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kortestz_mask16_u8(__bits, __bits);
 
-	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kortestz_mask8_u8(__bits, __bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kortestz_mask32_u8(__bits, __bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _kortestz_mask64_u8(__bits, __bits);
 
 	else
@@ -73,16 +73,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kand_mask8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kand_mask16(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kand_mask32(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _kand_mask64(__bits, __other_bits);
 
 	else
@@ -96,16 +96,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kor_mask8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kor_mask16(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kor_mask32(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _kor_mask64(__bits, __other_bits);
 
 	else
@@ -119,16 +119,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kxor_mask8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kxor_mask16(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kxor_mask32(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _kxor_mask64(__bits, __other_bits);
 
 	else
@@ -153,16 +153,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kshiftri_mask8(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kshiftri_mask16(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kshiftri_mask32(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kshiftri_mask64(__bits, __shift);
 
 	else 
@@ -178,16 +178,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _kshiftli_mask8(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _kshiftli_mask16(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _kshiftli_mask32(__bits, __shift);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _kshiftli_mask64(__bits, __shift);
 
 	else
@@ -199,16 +199,16 @@ constexpr __simd_mask_common_operations<_Derived_>::__self __simd_mask_common_op
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _knot_mask8(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _knot_mask16(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _knot_mask32(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _knot_mask64(__bits);
 
 	else
@@ -220,16 +220,16 @@ constexpr auto __simd_mask_common_operations<_Derived_>::__to_kmask() const noex
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _cvtmask8_u32(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _cvtmask16_u32(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _cvtmask32_u32(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _cvtmask64_u64(__bits);
 
 	else
@@ -241,16 +241,16 @@ constexpr auto __simd_mask_common_operations<_Derived_>::__to_int() const noexce
 	const auto __bits = __unwrap();
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _cvtu32_mask8(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _cvtu32_mask16(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _cvtu32_mask32(__bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _cvtu64_mask64(__bits);
 
 	else
@@ -269,16 +269,16 @@ constexpr bool __simd_mask_common_operations<_Derived_>::operator==(const __self
 
 	using _MaskType = decltype(__bits);
 
-	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__generation()>)
+	if constexpr (sizeof(_MaskType) == 2 && __has_avx512f_support_v<__isa()>)
 		return _ktestc_mask16_u8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 1 && __has_avx512dq_support_v<__isa()>)
 		return _ktestc_mask8_u8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 4 && __has_avx512bw_support_v<__isa()>)
 		return _ktestc_mask32_u8(__bits, __other_bits);
 
-	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__generation()>)
+	else if constexpr (sizeof(_MaskType) == 8 && __has_avx512bw_support_v<__isa()>)
 		return _ktestc_mask64_u8(__bits, __other_bits);
 
 	else

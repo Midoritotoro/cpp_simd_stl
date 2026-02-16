@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <src/simd_stl/datapar/SimdCompare.h>
+#include <src/simd_stl/datapar/Compare.h>
 #include <src/simd_stl/datapar/SimdCompareAdapters.h>
 
 #include <src/simd_stl/type_traits/TypeTraits.h>
@@ -9,25 +9,22 @@
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 template <
-	arch::ISA	_SimdGeneration_,
-	class				_Element_,
-	class				_RegisterPolicy_,
-	__simd_comparison	_Comparison_>
+	arch::ISA	_ISA_,
+	class		_Type_,
+	uint32		_Width_>
 class simd_compare_result {
 	friend __as_index_mask_t;
 	friend __as_mask_t;
 	friend __as_native_t;
 	friend __as_simd_t;
 
-	using __native_type = __simd_native_compare_return_type<simd<_SimdGeneration_, _Element_, _RegisterPolicy_>, _Element_, _Comparison_>;
+	using __native_type = __simd_native_compare_return_type<simd<_ISA_, _Type_, _Width_>, _Type_>;
 public:
-	static inline constexpr auto __generation = _SimdGeneration_;
-	static inline constexpr auto __comparison = _Comparison_;
+	static inline constexpr auto __isa = _ISA_;
+	static inline constexpr auto __width = _Width_;
 
-	using element_type		= _Element_;
-	using register_policy	= _RegisterPolicy_;
-
-	using native_type		= std::conditional_t<std::is_integral_v<__native_type>, simd_mask<_SimdGeneration_, element_type, _RegisterPolicy_>, __native_type>;
+	using element_type		= _Type_;
+	using native_type		= std::conditional_t<std::is_integral_v<__native_type>, simd_mask<_ISA_, element_type, _Width_>, __native_type>;
 
 	simd_compare_result(const native_type& __result) noexcept;
 
@@ -71,22 +68,19 @@ template <class _SimdCompareResult_>
 struct __is_valid_simd_compare_result<
 	_SimdCompareResult_,
     std::void_t<simd_compare_result<
-        _SimdCompareResult_::__generation,
+        _SimdCompareResult_::__isa,
         typename _SimdCompareResult_::value_type,
-        typename _SimdCompareResult_::policy_type,
-		_SimdCompareResult_::__comparison>>>
+        _SimdCompareResult_::__width>>>
     : std::bool_constant<
         type_traits::is_virtual_base_of_v<
-			simd_compare_result<_SimdCompareResult_::__generation,
+			simd_compare_result<_SimdCompareResult_::__isa,
                 typename _SimdCompareResult_::value_type,
-                typename _SimdCompareResult_::policy_type,
-				_SimdCompareResult_::__comparison>,
+                _SimdCompareResult_::__width>,
             _SimdCompareResult_> ||
         std::is_same_v<
-            simd_compare_result<_SimdCompareResult_::__generation,
+            simd_compare_result<_SimdCompareResult_::__isa,
 				typename _SimdCompareResult_::value_type,
-				typename _SimdCompareResult_::policy_type,
-				_SimdCompareResult_::__comparison>,
+				_SimdCompareResult_::__width>,
             _SimdCompareResult_>> 
 {};
 

@@ -121,4 +121,4 @@ template <class _DesiredType_> struct _Simd_less_equal<arch::ISA::AVX512VBMI2VL,
 template <class _DesiredType_> struct _Simd_less_equal<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_less_equal<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_less_equal<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_less_equal<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

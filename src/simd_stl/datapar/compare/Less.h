@@ -2,6 +2,7 @@
 
 #include <src/simd_stl/datapar/IntrinBitcast.h>
 #include <src/simd_stl/datapar/bitwise/ToMask.h>
+#include <src/simd_stl/datapar/bitwise/BitNot.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
@@ -31,7 +32,7 @@ struct _Simd_less<arch::ISA::SSE2, 128, _DesiredType_> {
             const auto __sign_bits32 = _mm_srai_epi32(__combined_mask, 31);
             const auto __sign_bits64 = _mm_shuffle_epi32(__sign_bits32, 0xF5);
 
-            return __intrin_bitcast<_VectorType_>(__sign_bits64);
+            return __intrin_bitcast<_IntrinType_>(__sign_bits64);
         }
         else if constexpr (__is_epu64_v<_DesiredType_>) {
             const auto __32bit_sign       = _mm_set1_epi32(0x80000000);
@@ -46,10 +47,10 @@ struct _Simd_less<arch::ISA::SSE2, 128, _DesiredType_> {
             const auto __equal_bigger     = _mm_and_si128(__equal, __shuffled_bigger);
 
             const auto __result = _mm_shuffle_epi32(_mm_or_si128(__bigger, __equal_bigger), 0xF5);
-            return __intrin_bitcast<_VectorType_>(__result);
+            return __intrin_bitcast<_IntrinType_>(__result);
         }
         else if constexpr (__is_epi32_v<_DesiredType_>) {
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi32(
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_epi32(
                 __intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right)));
         }
         else if constexpr (__is_epu32_v<_DesiredType_>) {
@@ -58,32 +59,32 @@ struct _Simd_less<arch::ISA::SSE2, 128, _DesiredType_> {
             const auto __signed_left  = _mm_xor_si128(__intrin_bitcast<__m128i>(__left), __sign);
             const auto __signed_right = _mm_xor_si128(__intrin_bitcast<__m128i>(__right), __sign);
         
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi32(__signed_left, __signed_right));
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_epi32(__signed_left, __signed_right));
         }
         else if constexpr (__is_epi16_v<_DesiredType_>) {
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi16(
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_epi16(
                 __intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right)));
         }
         else if constexpr (__is_epu16_v<_DesiredType_>) {
             const auto __substracted = _mm_subs_epu16(__intrin_bitcast<__m128i>(__right), __intrin_bitcast<__m128i>(__left));
-            return __simd_bit_not<__generation, __register_policy>(__intrin_bitcast<_VectorType_>(
+            return _Simd_bit_not<arch::ISA::SSE2, 128>()(__intrin_bitcast<_IntrinType_>(
                 _mm_cmpeq_epi16(__substracted, _mm_setzero_si128())));
         }
         else if constexpr (__is_epi8_v<_DesiredType_>) {
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_epi8(
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_epi8(
                 __intrin_bitcast<__m128i>(__left), __intrin_bitcast<__m128i>(__right)));
         }
         else if constexpr (__is_epu8_v<_DesiredType_>) {
             const auto __substracted = _mm_subs_epu8(__intrin_bitcast<__m128i>(__right), __intrin_bitcast<__m128i>(__left));
-            return __simd_bit_not<__generation, __register_policy>(__intrin_bitcast<_VectorType_>(
+            return _Simd_bit_not<arch::ISA::SSE2, 128>()(__intrin_bitcast<_IntrinType_>(
                 _mm_cmpeq_epi8(__substracted, _mm_setzero_si128())));
         }
         else if constexpr (__is_ps_v<_DesiredType_>) {
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_ps(
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_ps(
                 __intrin_bitcast<__m128>(__left), __intrin_bitcast<__m128>(__right)));
         }
         else if constexpr (__is_pd_v<_DesiredType_>) {
-            return __intrin_bitcast<_VectorType_>(_mm_cmplt_pd(
+            return __intrin_bitcast<_IntrinType_>(_mm_cmplt_pd(
                 __intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
         }
     }
@@ -360,4 +361,4 @@ template <class _DesiredType_> struct _Simd_less<arch::ISA::AVX512VBMI2VL, 128, 
 template <class _DesiredType_> struct _Simd_less<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_less<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_less<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_less<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

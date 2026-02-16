@@ -17,9 +17,7 @@ template <
 	class		_DesiredType_>
 struct _Simd_to_mask;
 
-template <
-    class
-    class _DesiredType_>
+template <class _DesiredType_>
 struct _Simd_to_mask<arch::ISA::SSE2, 128, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
@@ -74,7 +72,7 @@ struct _Simd_to_mask<arch::ISA::AVX512F, 512, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
     {
-        using _SimdMaskType = simd_mask<__generation, _DesiredType_, __register_policy>;
+        using _SimdMaskType = simd_mask<arch::ISA::AVX512F, _DesiredType_, 512>;
 
         if constexpr (sizeof(_DesiredType_) == 8) {
             return static_cast<typename _SimdMaskType::mask_type>(_mm512_cmp_epi64_mask(__intrin_bitcast<__m512i>(__vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
@@ -83,10 +81,10 @@ struct _Simd_to_mask<arch::ISA::AVX512F, 512, _DesiredType_> {
             return static_cast<typename _SimdMaskType::mask_type>(_mm512_cmp_epi32_mask(__intrin_bitcast<__m512i>(__vector), _mm512_setzero_si512(), _MM_CMPINT_LT));
         }
         else {
-            constexpr auto __ymm_bits = (sizeof(_VectorType_) / sizeof(_DesiredType_)) >> 1;
+            constexpr auto __ymm_bits = (sizeof(_IntrinType_) / sizeof(_DesiredType_)) >> 1;
 
-            const auto __low = _Simd_to_mask<arch::ISA::AVX2, ymm256, _DesiredType_>()(__intrin_bitcast<__m256d>(__vector));
-            const auto __high = _Simd_to_mask<arch::ISA::AVX2, ymm256, _DesiredType_>()(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
+            const auto __low = _Simd_to_mask<arch::ISA::AVX2, 256, _DesiredType_>()(__intrin_bitcast<__m256d>(__vector));
+            const auto __high = _Simd_to_mask<arch::ISA::AVX2, 256, _DesiredType_>()(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
 
             return ((static_cast<typename _SimdMaskType::mask_type>(__high) << __ymm_bits) | static_cast<typename _SimdMaskType::mask_type>(__low));
         }
@@ -296,4 +294,4 @@ template <class _DesiredType_> struct _Simd_to_mask<arch::ISA::AVX512VBMI2VL, 12
 template <class _DesiredType_> struct _Simd_to_mask<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_to_mask<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_to_mask<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_to_mask<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

@@ -347,7 +347,6 @@ template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMI2DQ, 512, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VBMIDQ, 512, _IntrinType_, _DesiredType_> {};
 
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VLF, 256, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX2, 256, _IntrinType_, _DesiredType_> {};
-template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VLBWDQ, 256, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VLBW, 256, _IntrinType_, _DesiredType_> {};
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMIVL, 256, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VLBW, 256, _IntrinType_, _DesiredType_> {};
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMI2VL, 256, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VBMIVL, 256, _IntrinType_, _DesiredType_> {};
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMIVLDQ, 256, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VLBWDQ, 256, _IntrinType_, _DesiredType_> {};
@@ -359,4 +358,4 @@ template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VLBWDQ, 128, _IntrinType_, _DesiredType_> {};
 template <class _IntrinType_, class _DesiredType_> struct _Simd_to_vector<arch::ISA::AVX512VBMI2VLDQ, 128, _IntrinType_, _DesiredType_> : _Simd_to_vector<arch::ISA::AVX512VBMIVLDQ, 128, _IntrinType_, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

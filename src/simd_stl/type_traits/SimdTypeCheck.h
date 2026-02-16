@@ -76,7 +76,7 @@ public:
 template <
     arch::ISA   _ISA_,
     typename    _VectorElementType_,
-    uint32      _Width_ = __default_width<_ISA_>>
+    uint32      _Width_>
 using __deduce_simd_vector_type = typename __deduce_simd_vector_type__<_ISA_, _VectorElementType_, _Width_>::type;
 
 template <sizetype size>
@@ -95,13 +95,13 @@ using __deduce_simd_mask_type_helper = std::conditional_t<_Size_ <= 8, uint8,
 template <
 	arch::ISA	_ISA_,
 	typename	_Element_,
-    uint32      _Width_ = __default_width<_ISA_>>
+    uint32      _Width_>
 using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_Width_ / sizeof(_Element_))>;
 
 template <
 	arch::ISA	_ISA_,
 	typename	_Element_,
-    uint32      _Width_ = __default_width<_ISA_>>
+    uint32      _Width_>
 using __deduce_simd_shuffle_mask_type = __deduce_simd_shuffle_mask_type_helper<(_Width_ / sizeof(_Element_))>;
 
 template <arch::ISA _ISA_> 

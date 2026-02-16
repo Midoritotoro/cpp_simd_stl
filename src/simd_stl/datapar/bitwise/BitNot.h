@@ -17,13 +17,13 @@ struct _Simd_bit_not<arch::ISA::SSE2, 128> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		_IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m128d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m128d>)
 			return _mm_xor_pd(__vector, _mm_cmpeq_pd(__vector, __vector));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m128i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m128i>)
 			return _mm_xor_si128(__vector, _mm_cmpeq_epi32(__vector, __vector));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m128>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m128>)
 			return _mm_xor_ps(__vector, _mm_cmpeq_ps(__vector, __vector));
 	}
 };
@@ -34,13 +34,13 @@ struct _Simd_bit_not<arch::ISA::AVX2, 256> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		_IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m256d>)
 			return _mm256_xor_pd(__vector, _mm256_cmp_pd(__vector, __vector, _CMP_EQ_OQ));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m256i>)
 			return _mm256_xor_si256(__vector, _mm256_cmpeq_epi32(__vector, __vector));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m256>)
 			return _mm256_xor_ps(__vector, _mm256_cmp_ps(__vector, __vector, _CMP_EQ_OQ));
 	}
 };
@@ -51,13 +51,13 @@ struct _Simd_bit_not<arch::ISA::AVX512F, 512> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		_IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m512d>)
 			return _mm512_xor_pd(__vector, _mm512_set1_pd(-1));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m512i>)
 			return _mm512_xor_si512(__vector, _mm512_set1_epi32(-1));
 
-		else if constexpr (std::is_same_v<_VectorType_, __m512>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m512>)
 			return _mm512_xor_ps(__vector, _mm512_set1_ps(-1));
 	}
 };
@@ -94,4 +94,4 @@ template <> struct _Simd_bit_not<arch::ISA::AVX512VBMI2VL, 128> : _Simd_bit_not<
 template <> struct _Simd_bit_not<arch::ISA::AVX512VBMIVLDQ, 128> : _Simd_bit_not<arch::ISA::AVX512VLBWDQ, 128> {};
 template <> struct _Simd_bit_not<arch::ISA::AVX512VBMI2VLDQ, 128> : _Simd_bit_not<arch::ISA::AVX512VBMIVLDQ, 128> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

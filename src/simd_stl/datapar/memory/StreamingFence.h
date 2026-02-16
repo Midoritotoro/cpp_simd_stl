@@ -15,4 +15,4 @@ struct _Simd_streaming_fence {
 	}
 };
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

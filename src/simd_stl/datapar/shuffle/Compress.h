@@ -671,6 +671,7 @@ struct _Simd_compress<arch::ISA::AVX512VLF, 128, _DesiredType_> :
         }
     }
 };
+
 template <class _DesiredType_> struct _Simd_compress<arch::ISA::SSE42, 128, _DesiredType_> : _Simd_compress<arch::ISA::SSE41, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_compress<arch::ISA::AVX2, 128, _DesiredType_> : _Simd_compress<arch::ISA::SSE42, 128, _DesiredType_> {};
 
@@ -698,4 +699,4 @@ template <class _DesiredType_> struct _Simd_compress<arch::ISA::AVX512VBMI2VL, 1
 template <class _DesiredType_> struct _Simd_compress<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_compress<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_compress<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_compress<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

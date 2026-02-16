@@ -17,13 +17,13 @@ struct _Simd_bit_and<arch::ISA::SSE2, 128> {
 		_IntrinType_ __left,
 		_IntrinType_ __right) simd_stl_const_operator noexcept
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m128d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m128d>)
 			return _mm_and_pd(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m128i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m128i>)
 			return _mm_and_si128(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m128>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m128>)
 			return _mm_and_ps(__left, __right);
 	}
 };
@@ -35,13 +35,13 @@ struct _Simd_bit_and<arch::ISA::AVX2, 256> {
 		_IntrinType_ __left,
 		_IntrinType_ __right) simd_stl_const_operator noexcept
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m256d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m256d>)
 			return _mm256_and_pd(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m256i>)
 			return _mm256_and_si256(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m256>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m256>)
 			return _mm256_and_ps(__left, __right);
 	}
 };
@@ -53,13 +53,13 @@ struct _Simd_bit_and<arch::ISA::AVX512F, 512> {
 		_IntrinType_ __left,
 		_IntrinType_ __right) simd_stl_const_operator noexcept
 	{
-		if      constexpr (std::is_same_v<_VectorType_, __m512d>)
+		if      constexpr (std::is_same_v<_IntrinType_, __m512d>)
 			return _mm512_and_pd(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m512i>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m512i>)
 			return _mm512_and_si512(__left, __right);
 
-		else if constexpr (std::is_same_v<_VectorType_, __m512>)
+		else if constexpr (std::is_same_v<_IntrinType_, __m512>)
 			return _mm512_and_ps(__left, __right);
 	}
 };
@@ -96,4 +96,4 @@ template <> struct _Simd_bit_and<arch::ISA::AVX512VBMI2VL, 128> : _Simd_bit_and<
 template <> struct _Simd_bit_and<arch::ISA::AVX512VBMIVLDQ, 128> : _Simd_bit_and<arch::ISA::AVX512VLBWDQ, 128> {};
 template <> struct _Simd_bit_and<arch::ISA::AVX512VBMI2VLDQ, 128> : _Simd_bit_and<arch::ISA::AVX512VBMIVLDQ, 128> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

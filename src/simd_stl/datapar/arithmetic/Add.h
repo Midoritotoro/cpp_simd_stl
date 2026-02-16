@@ -85,8 +85,8 @@ struct _Simd_add<arch::ISA::AVX512F, 512, _DesiredType_> {
 			return __intrin_bitcast<_IntrinType_>(_mm512_add_epi64(__intrin_bitcast<__m512i>(__left), __intrin_bitcast<__m512i>(__right)));
 		}
 		else {
-			const auto __low	= _Simd_add<arch::ISA::AVX2, ymm256, _DesiredType_>()(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
-			const auto __high	= _Simd_add<arch::ISA::AVX2, ymm256, _DesiredType_>()(_mm512_extracti64x4_epi64(__intrin_bitcast<__m512i>(__left), 1),
+			const auto __low	= _Simd_add<arch::ISA::AVX2, 256, _DesiredType_>()(__intrin_bitcast<__m256i>(__left), __intrin_bitcast<__m256i>(__right));
+			const auto __high	= _Simd_add<arch::ISA::AVX2, 256, _DesiredType_>()(_mm512_extracti64x4_epi64(__intrin_bitcast<__m512i>(__left), 1),
 				_mm512_extracti64x4_epi64(__intrin_bitcast<__m512i>(__right), 1));
 
 			return __intrin_bitcast<_IntrinType_>(_mm512_inserti64x4(__intrin_bitcast<__m512i>(__low), __high, 1));
@@ -126,4 +126,4 @@ template <class _DesiredType_> struct _Simd_add<arch::ISA::AVX512VBMI2VL, 128, _
 template <class _DesiredType_> struct _Simd_add<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_>: _Simd_add<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_add<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_>: _Simd_add<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

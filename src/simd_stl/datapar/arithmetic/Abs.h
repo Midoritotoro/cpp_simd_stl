@@ -197,7 +197,6 @@ template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMI2VL, 256, _
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMIVLDQ, 256, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VLBWDQ, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMI2VLDQ, 256, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VBMIVLDQ, 256, _DesiredType_> {};
 
-template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VLF, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX2, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VLBW, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VLF, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VLDQ, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VLF, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VLBW, 128, _DesiredType_> {};
@@ -206,4 +205,4 @@ template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMI2VL, 128, _
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_abs<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_>: _Simd_abs<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END

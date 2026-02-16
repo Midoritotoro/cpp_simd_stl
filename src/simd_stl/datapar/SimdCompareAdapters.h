@@ -1,13 +1,14 @@
 #pragma once 
 
-#include <src/simd_stl/datapar/SimdConvert.h>
+#include <src/simd_stl/datapar/Bitwise.h>
 #include <simd_stl/datapar/SimdIndexMask.h>
+
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
 
 class __as_mask_t {
     template <class _CompareResult_>
-    using __simd_mask_type_helper = simd_mask<_CompareResult_::__generation, typename _CompareResult_::element_type, typename _CompareResult_::register_policy>;
+    using __simd_mask_type_helper = simd_mask<_CompareResult_::__isa, typename _CompareResult_::element_type, _CompareResult_::__width>;
 
     template <class _CompareResult_>
     using __simd_mask_type = __simd_mask_type_helper<std::remove_cvref_t<_CompareResult_>>;
@@ -18,7 +19,7 @@ public:
 
 class __as_index_mask_t {
     template <class _CompareResult_>
-    using __simd_index_mask_type_helper = simd_index_mask<_CompareResult_::__generation, typename _CompareResult_::element_type, typename _CompareResult_::register_policy>;
+    using __simd_index_mask_type_helper = simd_index_mask<_CompareResult_::__isa, typename _CompareResult_::element_type, _CompareResult_::__width>;
 
     template <class _CompareResult_>
     using __simd_index_mask_type = __simd_index_mask_type_helper<std::remove_cvref_t<_CompareResult_>>;
@@ -29,7 +30,7 @@ public:
 
 class __as_simd_t {
     template <class _CompareResult_>
-    using __simd_type_helper = simd<_CompareResult_::__generation, typename _CompareResult_::element_type, typename _CompareResult_::register_policy>;
+    using __simd_type_helper = simd<_CompareResult_::__isa, typename _CompareResult_::element_type, _CompareResult_::__width>;
 
     template <class _CompareResult_>
     using __simd_type = __simd_type_helper<std::remove_cvref_t<_CompareResult_>>;

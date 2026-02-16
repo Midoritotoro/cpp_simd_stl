@@ -148,7 +148,6 @@ template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMI2, 512,
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMIDQ, 512, _DesiredType_> : _Simd_greater<arch::ISA::AVX512BWDQ, 512, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMI2DQ, 512, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VBMIDQ, 512, _DesiredType_> {};
 
-template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VLBW, 256, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VLF, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VLDQ, 256, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VLF, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VLBWDQ, 256, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VLBW, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMIVL, 256, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VLBW, 256, _DesiredType_> {};
@@ -163,4 +162,4 @@ template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMI2VL, 12
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_greater<arch::ISA::AVX512VBMI2VLDQ, 128, _DesiredType_> : _Simd_greater<arch::ISA::AVX512VBMIVLDQ, 128, _DesiredType_> {};
 
-__SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+__SIMD_STL_DATAPAR_NAMESPACE_END
