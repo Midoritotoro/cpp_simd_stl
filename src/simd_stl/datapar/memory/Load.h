@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/IntrinBitcast.h>
+#include <src/simd_stl/datapar/memory/AlignmentPolicy.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
@@ -13,10 +14,10 @@ struct _Simd_load;
 
 template <class _IntrinType_>
 struct _Simd_load<arch::ISA::SSE2, 128, _IntrinType_> {
-	template <class _AlignmentPolicy_>
+	template <class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept 
+		_AlignmentPolicy_ && = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
 			if      constexpr (std::is_same_v<_IntrinType_, __m128i>)
@@ -45,10 +46,10 @@ template <class _IntrinType_>
 struct _Simd_load<arch::ISA::SSE3, 128, _IntrinType_>:
 	_Simd_load<arch::ISA::SSE2, 128, _IntrinType_>
 {
-	template <class _AlignmentPolicy_>
+	template <class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment == false)
 			return __intrin_bitcast<_IntrinType_>(_mm_lddqu_si128(reinterpret_cast<const __m128i*>(__address)));
@@ -60,10 +61,10 @@ struct _Simd_load<arch::ISA::SSE3, 128, _IntrinType_>:
 
 template <class _IntrinType_>
 struct _Simd_load<arch::ISA::AVX2, 256, _IntrinType_> {
-	template <class _AlignmentPolicy_>
+	template <class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
 			if      constexpr (std::is_same_v<_IntrinType_, __m256i>)
@@ -83,10 +84,10 @@ struct _Simd_load<arch::ISA::AVX2, 256, _IntrinType_> {
 
 template <class _IntrinType_>
 struct _Simd_load<arch::ISA::AVX512F, 512, _IntrinType_> {
-	template <class _AlignmentPolicy_>
+	template <class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
 			if      constexpr (std::is_same_v<_IntrinType_, __m512i>)

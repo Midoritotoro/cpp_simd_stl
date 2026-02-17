@@ -18,11 +18,8 @@ public:
 
 	using element_type	= _Type_;
 
-	static constexpr bool __is_native_compare_returns_number = std::is_integral_v<__simd_native_compare_return_type<
-		simd<__isa, element_type, __width>, element_type>>;
-
 	static constexpr uint8 __divisor = __simd_index_mask_divisor<__isa, __width, element_type>;
-	static constexpr uint8 __used_bits = __width / sizeof(element_type) * __divisor;
+	static constexpr uint8 __used_bits = (__width / 8) / sizeof(element_type) * __divisor;
 
 	using mask_type = __mmask_for_size_t<((__used_bits <= 8) ? 1 : (__used_bits / 8))>;
 

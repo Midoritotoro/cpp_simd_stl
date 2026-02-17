@@ -30,7 +30,7 @@ struct __invoker<__invoker_strategy::__functor> {
         class...    _Args_>
     inline static constexpr auto __call(
         _Callable_&& __object,
-        _Args_&&...         __args)
+        _Args_&&...  __args)
         noexcept(noexcept(static_cast<_Callable_&&>(__object)(static_cast<_Args_&&>(__args)...)))
         -> decltype(static_cast<_Callable_&&>(__object)(static_cast<_Args_&&>(__args)...))
     {
@@ -135,7 +135,7 @@ struct __invoker<__invoker_strategy::__ptr_to_member_data_with_ptr> {
         class _Pointer_>
     inline static constexpr auto __call(
         _MemberData_    __member_data,
-        _Pointer_&& __pointer_to_object) noexcept(noexcept((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data))
+        _Pointer_&&     __pointer_to_object) noexcept(noexcept((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data))
         -> decltype((*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data)
     {
         return (*static_cast<_Pointer_&&>(__pointer_to_object)).*__member_data;
@@ -161,8 +161,8 @@ struct __select_invoker<_Callable_, _Object_, _RemovedQualifiers_, true, false> 
         __invoker<__invoker_strategy::__ptr_to_member_function_with_obj>,
         std::conditional_t<
         type_traits::is_specialization_v<std::remove_cvref_t<_Object_>, std::reference_wrapper>,
-        __invoker<__invoker_strategy::__ptr_to_member_data_with_refwrap>,
-        __invoker<__invoker_strategy::__ptr_to_member_data_with_ptr>>>;
+        __invoker<__invoker_strategy::__ptr_to_member_function_with_refwrap>,
+        __invoker<__invoker_strategy::__ptr_to_member_function_with_ptr>>>;
 };
 
 template <
@@ -320,30 +320,40 @@ template <
 using invoke_result_type = typename __select_invoke_traits<_Callable_, _Args_...>::type;
 
 template <class _Callable_>
-constexpr auto invoke(_Callable_&& __callable) noexcept(noexcept(static_cast<_Callable_&&>(__callable)()))
--> decltype(static_cast<_Callable_&&>(__callable)())
+constexpr auto invoke(_Callable_&& __callable) noexcept(noexcept(std::forward<_Callable_>(__callable)()))
+    -> decltype(std::forward<_Callable_>(__callable)())
 {
     static_assert(is_invocable_v<_Callable_>, "invoke argument is not callable");
-    return static_cast<_Callable_&&>(__callable)();
+    return std::forward<_Callable_>(__callable)();
 }
 
 #define __INVOKER_CALL __invoker_type<_Callable_, _FirstArgument_>::__call( \
-    static_cast<_Callable_&&>(__callable), \
-    static_cast<_FirstArgument_&&>(__first_argument), \
-    static_cast<_Args_&&>(__args)...) 
+    std::forward<_Callable_>(__callable), \
+    std::forward<_FirstArgument_>(__first_argument), \
+    std::forward<_Args_>(__args)...) 
 
 template <
     class       _Callable_,
     class       _FirstArgument_,
     class...    _Args_>
 constexpr auto invoke(
-    _Callable_&& __callable,
-    _FirstArgument_&& __first_argument,
+    _Callable_&&        __callable,
+    _FirstArgument_&&   __first_argument,
     _Args_&&...         __args)
-    noexcept(noexcept(__INVOKER_CALL)) -> decltype(__INVOKER_CALL)
+    noexcept(noexcept(__invoker_type<_Callable_, _FirstArgument_>::__call(
+        std::forward<_Callable_>(__callable), 
+        std::forward<_FirstArgument_>(__first_argument), 
+        std::forward<_Args_>(__args)...))) 
+    -> decltype(__invoker_type<_Callable_, _FirstArgument_>::__call(
+        std::forward<_Callable_>(__callable), 
+        std::forward<_FirstArgument_>(__first_argument), 
+        std::forward<_Args_>(__args)...))
 {
     static_assert(is_invocable_v<_Callable_, _FirstArgument_, _Args_...>, "invoke argument is not callable");
-    return __INVOKER_CALL;
+    return __invoker_type<_Callable_, _FirstArgument_>::__call(
+        std::forward<_Callable_>(__callable),
+        std::forward<_FirstArgument_>(__first_argument),
+        std::forward<_Args_>(__args)...);
 }
 
 #undef __INVOKER_CALL

@@ -1,8 +1,6 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/arithmetic/Sub.h>
-#include <src/simd_stl/datapar/shuffle/BroadcastZeros.h>
-
 #include <simd_stl/memory/PointerToIntegral.h>
 
 
@@ -67,14 +65,12 @@ struct _Simd_broadcast<arch::ISA::AVX2, 256, _IntrinType_> {
 
 		else if constexpr (__is_pd_v<_DesiredType_>)
 			return __intrin_bitcast<_IntrinType_>(_mm256_set1_pd(__value));
-		}
+	}
 };
 
 template <class _IntrinType_>
 struct _Simd_broadcast<arch::ISA::AVX512F, 512, _IntrinType_> {
-	template <
-		class _IntrinType_,
-		class _DesiredType_>
+	template <class _DesiredType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		_IntrinType_ operator()(_DesiredType_ __value) simd_stl_const_operator noexcept
 	{

@@ -51,11 +51,11 @@ public:
 
     template <typename _DesiredType_ = value_type>
     static constexpr inline bool is_native_mask_load_supported_v = __is_native_mask_load_supported_v<
-        __isa, _Width_, _DesiredType_>;
+        __isa, _Width_, sizeof(_DesiredType_)>;
 
     template <typename _DesiredType_ = value_type>
     static constexpr inline bool is_native_mask_store_supported_v = __is_native_mask_store_supported_v<
-        __isa, _Width_, _DesiredType_>;
+        __isa, _Width_, sizeof(_DesiredType_)>;
 
     simd() noexcept;
     simd(const value_type __value) noexcept;

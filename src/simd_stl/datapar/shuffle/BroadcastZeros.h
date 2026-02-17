@@ -1,7 +1,6 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/arithmetic/Sub.h>
-#include <src/simd_stl/datapar/shuffle/BroadcastZeros.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN 
@@ -28,7 +27,6 @@ struct _Simd_broadcast_zeros<arch::ISA::SSE2, 128, _IntrinType_> {
 
 template <class _IntrinType_>
 struct _Simd_broadcast_zeros<arch::ISA::AVX2, 256, _IntrinType_> {
-	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()() simd_stl_const_operator noexcept {
 		if constexpr (std::is_same_v<_IntrinType_, __m256i>)
 			return _mm256_setzero_si256();
@@ -43,7 +41,6 @@ struct _Simd_broadcast_zeros<arch::ISA::AVX2, 256, _IntrinType_> {
 
 template <class _IntrinType_>
 struct _Simd_broadcast_zeros<arch::ISA::AVX512F, 512, _IntrinType_> {
-	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()() simd_stl_const_operator noexcept {
 		if constexpr (std::is_same_v<_IntrinType_, __m512i>)
 			return _mm512_setzero_si512();

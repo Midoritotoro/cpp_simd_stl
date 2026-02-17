@@ -22,7 +22,7 @@ public:
 	using element_type	= _Type_;
 	using mask_type		= type_traits::__deduce_simd_mask_type<_ISA_, element_type, _SimdWidth_>;
 
-	static constexpr uint8 __used_bits = _SimdWidth_ / sizeof(_Type_);
+	static constexpr uint8 __used_bits = (_SimdWidth_ / 8) / sizeof(_Type_);
 
 	simd_mask() noexcept;
 

@@ -40,7 +40,7 @@ private:
 		sizetype    _Size_,
 		class       _DesiredType_>
 	static constexpr auto __make_tail_mask_table() {
-		using _MaskType = typename IntegerForSize<(_Size_ / sizeof(_DesiredType_)) / 8>::Unsigned;
+		using _MaskType = typename IntegerForSize<((_Size_ / sizeof(_DesiredType_)) / 64)>::Unsigned;
 		std::array<_MaskType, 64> __table{};
 
 		for (auto __bytes = 0; __bytes < 64; ++__bytes)

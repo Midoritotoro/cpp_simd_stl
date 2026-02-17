@@ -231,7 +231,7 @@ struct _Simd_insert<arch::ISA::AVX2, 256> {
             }
         }
         else if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
-            const auto __broadcasted = _Simd_broadcast<arch::ISA::AVX2, 256, __m256i>(__value);
+            const auto __broadcasted = _Simd_broadcast<arch::ISA::AVX2, 256, __m256i>()(__value);
 
             switch (__index) {
                 case 0:

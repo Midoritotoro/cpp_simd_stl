@@ -96,7 +96,7 @@ template <
 	arch::ISA	_ISA_,
 	typename	_Element_,
     uint32      _Width_>
-using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<(_Width_ / sizeof(_Element_))>;
+using __deduce_simd_mask_type = __deduce_simd_mask_type_helper<((_Width_ / 8) / sizeof(_Element_))>;
 
 template <
 	arch::ISA	_ISA_,

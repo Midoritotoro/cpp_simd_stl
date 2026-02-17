@@ -17,8 +17,12 @@ struct _Simd_to_index_mask<arch::ISA::SSE2, 128, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
 	{
-		if constexpr (sizeof(_DesiredType_) == 2)
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+
+		else if constexpr (sizeof(_DesiredType_) == 2)
 			return _mm_movemask_epi8(__intrin_bitcast<__m128i>(__vector));
+		
 		else
 			return _Simd_to_mask<arch::ISA::SSE2, 128, _DesiredType_>()(__vector);
 	}
@@ -30,8 +34,12 @@ struct _Simd_to_index_mask<arch::ISA::AVX2, 256, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		if constexpr (sizeof(_DesiredType_) == 2)
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+
+		else if constexpr (sizeof(_DesiredType_) == 2)
 			return _mm256_movemask_epi8(__intrin_bitcast<__m256i>(__vector));
+		
 		else
 			return _Simd_to_mask<arch::ISA::AVX2, 256, _DesiredType_>()(__vector);
 	}
@@ -41,9 +49,12 @@ template <class _DesiredType_>
 struct _Simd_to_index_mask<arch::ISA::AVX512F, 512, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
-		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
+		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		if constexpr (sizeof(_DesiredType_) == 8) {
+		if constexpr (std::is_integral_v<_IntrinType_>) {
+			return __vector;
+		}
+		else if constexpr (sizeof(_DesiredType_) == 8) {
 			return _mm512_cmp_epi64_mask(__intrin_bitcast<__m512i>(__vector), _mm512_setzero_si512(), _MM_CMPINT_LT);
 		}
 		else if constexpr (sizeof(_DesiredType_) == 4) {
@@ -70,7 +81,10 @@ struct _Simd_to_index_mask<arch::ISA::AVX512BW, 512, _DesiredType_>:
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		return _mm512_movepi8_mask(__intrin_bitcast<__m512i>(__vector));
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+		else
+			return _mm512_movepi8_mask(__intrin_bitcast<__m512i>(__vector));
 	}
 };
 
@@ -82,7 +96,10 @@ struct _Simd_to_index_mask<arch::ISA::AVX512VLBW, 256, _DesiredType_>:
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		return _Simd_to_mask<arch::ISA::AVX512VLBW, 256, _DesiredType_>()(__vector);
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+		else
+			return _Simd_to_mask<arch::ISA::AVX512VLBW, 256, _DesiredType_>()(__vector);
 	}
 };
 
@@ -94,7 +111,10 @@ struct _Simd_to_index_mask<arch::ISA::AVX512VLBW, 128, _DesiredType_>:
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		return _Simd_to_mask<arch::ISA::AVX512VLBW, 128, _DesiredType_>()(__vector);
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+		else
+			return _Simd_to_mask<arch::ISA::AVX512VLBW, 128, _DesiredType_>()(__vector);
 	}
 };
 
@@ -106,7 +126,9 @@ struct _Simd_to_index_mask<arch::ISA::AVX512VLBWDQ, 128, _DesiredType_>:
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		if constexpr (sizeof(_DesiredType_) <= 2)
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+		else if constexpr (sizeof(_DesiredType_) <= 2)
 			return _Simd_to_index_mask<arch::ISA::AVX512VLBW, 128, _DesiredType_>()(__vector);
 		else
 			return _Simd_to_index_mask<arch::ISA::AVX512VLDQ, 128, _DesiredType_>()(__vector);
@@ -121,7 +143,9 @@ struct _Simd_to_index_mask<arch::ISA::AVX512VLBWDQ, 256, _DesiredType_>:
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
 		auto operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
 	{
-		if constexpr (sizeof(_DesiredType_) <= 2)
+		if constexpr (std::is_integral_v<_IntrinType_>)
+			return __vector;
+		else if constexpr (sizeof(_DesiredType_) <= 2)
 			return _Simd_to_index_mask<arch::ISA::AVX512VLBW, 256, _DesiredType_>()(__vector);
 		else
 			return _Simd_to_index_mask<arch::ISA::AVX512VLDQ, 256, _DesiredType_>()(__vector);

@@ -17,7 +17,6 @@ template <typename T>
 void fill_random(std::vector<T>& v, uint64_t seed = 12345) {
     std::mt19937_64 rng(seed);
     if constexpr (std::is_integral_v<T>) {
-    if constexpr (std::is_integral_v<T>) {
         std::uniform_int_distribution<long long> dist(
             std::numeric_limits<long long>::min(),
             std::numeric_limits<long long>::max()

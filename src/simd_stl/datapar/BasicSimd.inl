@@ -50,7 +50,7 @@ template <
     class	    _Type_,
     uint32      _Width_>
 simd_stl_always_inline simd<_ISA_, _Type_, _Width_> simd<_ISA_, _Type_, _Width_>::zero() noexcept {
-    return _Simd_broadcast_zeros<_ISA_, _Width_, vector_type>();
+    return _Simd_broadcast_zeros<_ISA_, _Width_, vector_type>()();
 }
 
 template <
@@ -129,7 +129,7 @@ template <
     arch::ISA	_ISA_,
     class	    _Type_,
     uint32      _Width_>
-simd_stl_always_inline simd_Type_reference<simd<_ISA_, _Type_, _Width_>>
+simd_stl_always_inline simd_element_reference<simd<_ISA_, _Type_, _Width_>>
     simd<_ISA_, _Type_, _Width_>::operator[](const size_type __index) noexcept
 {
     return simd_element_reference<simd>(this, __index);
@@ -243,7 +243,7 @@ simd<_ISA_, _Type_, _Width_> operator-(
     const simd<_ISA_, _Type_, _Width_>& __left,
     const simd<_ISA_, _Type_, _Width_>& __right) noexcept
 {
-    return _Simd_substract<_ISA_, _Width_, _Type_>()(__left._vector, __right._vector);
+    return _Simd_sub<_ISA_, _Width_, _Type_>()(__left._vector, __right._vector);
 }
 
 template <
@@ -382,7 +382,7 @@ simd_stl_always_inline void simd<_ISA_, _Type_, _Width_>::insert(
     size_type   __position,
     value_type  __value) noexcept
 {
-    return _Simd_insert<_ISA_, _Width_, value_type>()(_vector, __position, __value);
+    _Simd_insert<_ISA_, _Width_>()(_vector, __position, __value);
 }
 
 template <

@@ -91,7 +91,7 @@ struct _Simd_fold<arch::ISA::SSSE3, 128, _DesiredType_>:
             else
                 return _mm_cvtsi128_si64(__intrin_bitcast<__m128i>(__folded));
         }
-        else if constexpr (sizeof(_DesiredType) == 4) {
+        else if constexpr (sizeof(_DesiredType_) == 4) {
             auto __folded = __intrin_bitcast<__m128i>(__vector);
 
             const auto __shuffled1 = _mm_shuffle_epi32(__folded, 0x4E);
@@ -422,35 +422,6 @@ struct _Simd_fold<arch::ISA::AVX512BW, 512, _DesiredType_> :
     }
 };
 
-template <class _DesiredType_>
-struct _Simd_fold<arch::ISA::AVX512VLF, 256, _DesiredType_> :
-    _Simd_fold<arch::ISA::AVX2, 256, _DesiredType_>
-{
-    template <class _IntrinType_>
-    simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline auto operator()(
-        _IntrinType_ __left,
-        _IntrinType_ __right) simd_stl_const_operator noexcept
-    {
-       
-    }
-};
-
-template <class _DesiredType_>
-struct _Simd_fold<arch::ISA::AVX512VLBW, 256, _DesiredType_> :
-    _Simd_fold<arch::ISA::AVX512VLF, 256, _DesiredType_>
-{
-    template <class _IntrinType_>
-    simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline auto operator()(
-        _IntrinType_ __left,
-        _IntrinType_ __right) simd_stl_const_operator noexcept
-    {
-       
-    }
-};
-
-
-
-
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::SSE3, 128, _DesiredType_> : _Simd_fold<arch::ISA::SSE2, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::SSE41, 128, _DesiredType_> : _Simd_fold<arch::ISA::SSSE3, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::SSE42, 128, _DesiredType_> : _Simd_fold<arch::ISA::SSE41, 128, _DesiredType_> {};
@@ -463,6 +434,8 @@ template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VBMI2, 512, _D
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VBMIDQ, 512, _DesiredType_> : _Simd_fold<arch::ISA::AVX512BWDQ, 512, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VBMI2DQ, 512, _DesiredType_> : _Simd_fold<arch::ISA::AVX512VBMIDQ, 512, _DesiredType_> {};
 
+template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VLF, 256, _DesiredType_> : _Simd_fold<arch::ISA::AVX2, 256, _DesiredType_> {};
+template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VLBW, 256, _DesiredType_> : _Simd_fold<arch::ISA::AVX512VLF, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VLDQ, 256, _DesiredType_> : _Simd_fold<arch::ISA::AVX512VLF, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VLBWDQ, 256, _DesiredType_> : _Simd_fold<arch::ISA::AVX512VLBW, 256, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_fold<arch::ISA::AVX512VBMIVL, 256, _DesiredType_> : _Simd_fold<arch::ISA::AVX512VLBW, 256, _DesiredType_> {};

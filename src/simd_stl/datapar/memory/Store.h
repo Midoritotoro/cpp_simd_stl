@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <src/simd_stl/datapar/IntrinBitcast.h>
+#include <src/simd_stl/datapar/memory/AlignmentPolicy.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
@@ -14,11 +15,11 @@ template <>
 struct _Simd_store<arch::ISA::SSE2, 128> {
 	template <
 		class _IntrinType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+		void*				__address,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
 			if      constexpr (std::is_same_v<_IntrinType_, __m128i>)
@@ -47,14 +48,14 @@ template <>
 struct _Simd_store<arch::ISA::AVX2, 256> {
 	template <
 		class _IntrinType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+		void*				__address,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-			if      constexpr (std::is_same_v<_IntrinType_, __m128i>)
+			if      constexpr (std::is_same_v<_IntrinType_, __m256i>)
 				return _mm256_store_si256(reinterpret_cast<__m256i*>(__address), __vector);
 
 			else if constexpr (std::is_same_v<_IntrinType_, __m256d>)
@@ -80,14 +81,14 @@ template <>
 struct _Simd_store<arch::ISA::AVX512F, 512> {
 	template <
 		class _IntrinType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+		void*				__address,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&&) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
-			if      constexpr (std::is_same_v<_IntrinType_, __m128i>)
+			if      constexpr (std::is_same_v<_IntrinType_, __m512i>)
 				return _mm512_store_si512(__address, __vector);
 
 			else if constexpr (std::is_same_v<_IntrinType_, __m512d>)

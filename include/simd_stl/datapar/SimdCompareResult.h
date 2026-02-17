@@ -4,9 +4,19 @@
 #include <src/simd_stl/datapar/SimdCompareAdapters.h>
 
 #include <src/simd_stl/type_traits/TypeTraits.h>
+#include <src/simd_stl/datapar/SimdMaskTypeCheck.h>
 
 
 __SIMD_STL_DATAPAR_NAMESPACE_BEGIN
+
+
+template <
+	class	_Simd_,
+	class   _DesiredType_>
+using __simd_native_compare_return_type = __native_compare_return_type_helper<_Simd_,
+	type_traits::invoke_result_type<_Simd_equal<_Simd_::__isa, _Simd_::__width, _DesiredType_>,
+		typename _Simd_::vector_type, typename _Simd_::vector_type>, 
+	_DesiredType_>;
 
 template <
 	arch::ISA	_ISA_,
@@ -36,18 +46,22 @@ public:
 
 	template <class _Type_>
 	simd_stl_always_inline friend simd_compare_result operator& <>(simd_compare_result __compare_result, _Type_ __other) noexcept
-		requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> || __is_simd_mask_v<_Type_>
+		requires std::is_convertible_v<_Type_, native_type> /*|| std::is_integral_v<_Type_> || __is_simd_mask_v<_Type_>*/
 	{
 		return __compare_result._compare_result & __other;
 	}
 
 	template <class _Type_>
-	simd_stl_always_inline friend simd_compare_result operator| <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+	simd_stl_always_inline friend simd_compare_result operator| <>(simd_compare_result __compare_result, _Type_ __other) noexcept 
+		requires std::is_convertible_v<_Type_, native_type> /*|| std::is_integral_v<_Type_> || __is_simd_mask_v<_Type_>*/
+	{
 		return __compare_result._compare_result | __other;
 	}
 	
 	template <class _Type_>
-	simd_stl_always_inline friend simd_compare_result operator^ <>(simd_compare_result __compare_result, _Type_ __other) noexcept requires std::is_same_v<_Type_, native_type> || std::is_integral_v<_Type_> {
+	simd_stl_always_inline friend simd_compare_result operator^ <>(simd_compare_result __compare_result, _Type_ __other) noexcept 
+		requires std::is_convertible_v<_Type_, native_type> /*|| std::is_integral_v<_Type_> || __is_simd_mask_v<_Type_>*/
+	{
 		return __compare_result._compare_result ^ __other;
 	}
 

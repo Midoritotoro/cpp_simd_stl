@@ -29,7 +29,7 @@ _OutputIterator_ copy_n(
     _SizeType_          __elements_count,
     _OutputIterator_    __destination) noexcept
 {
-    return simd_stl::algorithm::copy_n(first, __elements_count, __destination);
+    return simd_stl::algorithm::copy_n(__first, __elements_count, __destination);
 }
 
 __SIMD_STL_ALGORITHM_NAMESPACE_END

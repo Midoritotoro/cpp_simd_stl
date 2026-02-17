@@ -211,6 +211,7 @@ set(PRIVATE_HEADERS
     src/simd_stl/datapar/reduce/Fold.h
     src/simd_stl/datapar/reduce/HorizontalMax.h
     src/simd_stl/datapar/reduce/HorizontalMin.h
+    src/simd_stl/datapar/reduce/HorizontalMinmax.h
 
     src/simd_stl/datapar/shuffle/ShuffleTables.h
     src/simd_stl/datapar/shuffle/MaskExpand.h

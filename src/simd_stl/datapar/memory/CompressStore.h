@@ -19,17 +19,22 @@ struct _Simd_compress_store<arch::ISA::SSE2, 128, _DesiredType_> {
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::SSE2, 128, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::SSE2, 128>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
+
+template <class _DesiredType_> 
+struct _Simd_compress_store<arch::ISA::SSE3, 128, _DesiredType_>:
+	_Simd_compress_store<arch::ISA::SSE2, 128, _DesiredType_> {};
+
 
 template <class _DesiredType_>
 struct _Simd_compress_store<arch::ISA::SSSE3, 128, _DesiredType_> :
@@ -39,15 +44,15 @@ struct _Simd_compress_store<arch::ISA::SSSE3, 128, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::SSSE3, 128, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::SSSE3, 128>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -59,15 +64,15 @@ struct _Simd_compress_store<arch::ISA::SSE41, 128, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::SSE41, 128, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::SSE41, 128>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -77,15 +82,15 @@ struct _Simd_compress_store<arch::ISA::AVX2, 256, _DesiredType_> {
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX2, 256, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX2, 256>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -95,15 +100,15 @@ struct _Simd_compress_store<arch::ISA::AVX512F, 512, _DesiredType_> {
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512F, 512, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512F, 512>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -115,15 +120,15 @@ struct _Simd_compress_store<arch::ISA::AVX512BW, 512, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512BW, 512, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512BW, 512>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -135,15 +140,15 @@ struct _Simd_compress_store<arch::ISA::AVX512VLF, 256, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512VLF, 256, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512VLF, 256>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -155,15 +160,15 @@ struct _Simd_compress_store<arch::ISA::AVX512VLF, 128, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void* __address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512VLF, 128, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512VLF, 128>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -175,15 +180,15 @@ struct _Simd_compress_store<arch::ISA::AVX512VLBW, 128, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void*			__address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512VLBW, 128, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512VLBW, 128>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
@@ -195,19 +200,18 @@ struct _Simd_compress_store<arch::ISA::AVX512VLBW, 256, _DesiredType_> :
 		class _IntrinType_,
 		class _MaskType_,
 		class _AlignmentPolicy_>
-	simd_stl_static_operator simd_stl_always_inline void operator()(
-		const void* __address,
+	simd_stl_static_operator simd_stl_always_inline _DesiredType_* operator()(
+		void*				__address,
 		_MaskType_			__mask,
 		_IntrinType_		__vector,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		const auto __compressed = _Simd_compress<arch::ISA::AVX512VLBW, 256, _DesiredType_>()(__vector, __mask);
 		_Simd_store<arch::ISA::AVX512VLBW, 256>()(__address, __compressed.second, __alignment_policy);
-		return algorithm::__bytes_pointer_offset(__address, __compressed.first);
+		return reinterpret_cast<_DesiredType_*>(algorithm::__bytes_pointer_offset(__address, __compressed.first));
 	}
 };
 
-template <class _DesiredType_> struct _Simd_compress_store<arch::ISA::SSE3, 128, _DesiredType_> : _Simd_compress_store<arch::ISA::SSE2, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_compress_store<arch::ISA::SSE42, 128, _DesiredType_> : _Simd_compress_store<arch::ISA::SSE41, 128, _DesiredType_> {};
 template <class _DesiredType_> struct _Simd_compress_store<arch::ISA::AVX2, 128, _DesiredType_> : _Simd_compress_store<arch::ISA::SSE42, 128, _DesiredType_> {};
 

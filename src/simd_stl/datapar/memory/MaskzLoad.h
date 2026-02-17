@@ -19,13 +19,13 @@ template <
 struct _Simd_maskz_load<arch::ISA::SSE2, 128, _DesiredType_, _IntrinType_> {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&&	__alignment_policy) simd_stl_const_operator noexcept 
+		_AlignmentPolicy_&&	__alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
-		return __Simd_mask_load<arch::ISA::SSE2, 128, _DesiredType_>()(__address, __mask,
+		return _Simd_mask_load<arch::ISA::SSE2, 128, _DesiredType_>()(__address, __mask,
 			_Simd_broadcast_zeros<arch::ISA::SSE2, 128, _IntrinType_>()(), __alignment_policy);
 	}
 };
@@ -38,13 +38,13 @@ struct _Simd_maskz_load<arch::ISA::SSE3, 128, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
-		return __Simd_mask_load<arch::ISA::SSE3, 128, _DesiredType_>()(__address, __mask,
+		return _Simd_mask_load<arch::ISA::SSE3, 128, _DesiredType_>()(__address, __mask,
 			_Simd_broadcast_zeros<arch::ISA::SSE3, 128, _IntrinType_>()(), __alignment_policy);
 	}
 };
@@ -57,13 +57,13 @@ struct _Simd_maskz_load<arch::ISA::SSE41, 128, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
-		const void* __address,
+		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
-		return __Simd_mask_load<arch::ISA::SSE41, 128, _DesiredType_>()(__address, __mask,
+		return _Simd_mask_load<arch::ISA::SSE41, 128, _DesiredType_>()(__address, __mask,
 			_Simd_broadcast_zeros<arch::ISA::SSE41, 128, _IntrinType_>()(), __alignment_policy);
 	}
 };
@@ -77,11 +77,11 @@ struct _Simd_maskz_load<arch::ISA::AVX2, 128, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>)
 			return __intrin_bitcast<_IntrinType_>(_mm_maskload_epi64(reinterpret_cast<const long long*>(__address),
@@ -100,7 +100,7 @@ struct _Simd_maskz_load<arch::ISA::AVX2, 128, _DesiredType_, _IntrinType_>:
 				__mask_convert<arch::ISA::AVX2, 128, _DesiredType_, __m128i>(__mask)));
 
 		else
-			return __Simd_mask_load<arch::ISA::AVX2, 128, _DesiredType_>()(__address, __mask,
+			return _Simd_mask_load<arch::ISA::AVX2, 128, _DesiredType_>()(__address, __mask,
 				_Simd_broadcast_zeros<arch::ISA::AVX2, 128, _IntrinType_>()(), __alignment_policy);
 	}
 };
@@ -112,11 +112,11 @@ struct _Simd_maskz_load<arch::ISA::AVX2, 256, _DesiredType_, _IntrinType_>
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>)
 			return __intrin_bitcast<_IntrinType_>(_mm256_maskload_epi64(reinterpret_cast<const long long*>(__address),
@@ -135,7 +135,7 @@ struct _Simd_maskz_load<arch::ISA::AVX2, 256, _DesiredType_, _IntrinType_>
 				__mask_convert<arch::ISA::AVX2, 256, _DesiredType_, __m256i>(__mask)));
 
 		else
-			return __Simd_mask_load<arch::ISA::AVX2, 256, _DesiredType_>()(__address, __mask,
+			return _Simd_mask_load<arch::ISA::AVX2, 256, _DesiredType_>()(__address, __mask,
 				_Simd_broadcast_zeros<arch::ISA::AVX2, 256, _IntrinType_>()(), __alignment_policy);
 	}
 };
@@ -146,11 +146,11 @@ template <
 struct _Simd_maskz_load<arch::ISA::AVX512F, 512, _DesiredType_, _IntrinType_> {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (std::remove_cvref_t<_AlignmentPolicy_>::__alignment) {
 			if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>)
@@ -187,8 +187,8 @@ struct _Simd_maskz_load<arch::ISA::AVX512F, 512, _DesiredType_, _IntrinType_> {
 					__mask_convert<arch::ISA::AVX512F, 512, _DesiredType_, uint16>(__mask), __address));
 		}
 
-		return _Simd_mask_load<_DesiredType_>(__address, __mask, 
-			_Simd_broadcast_zeros<arch::ISA::AVX512F, 512, _IntrinType_>(), __alignment_policy);
+		return _Simd_mask_load<arch::ISA::AVX512F, 512, _DesiredType_>()(__address, __mask, 
+			_Simd_broadcast_zeros<arch::ISA::AVX512F, 512, _IntrinType_>()(), __alignment_policy);
 	}
 };
 
@@ -200,11 +200,11 @@ struct _Simd_maskz_load<arch::ISA::AVX512BW, 512, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>)
 			return __intrin_bitcast<_IntrinType_>(_mm512_maskz_loadu_epi16(__mask_convert<arch::ISA::AVX512BW, 512, _DesiredType_, uint32>(__mask), __address));
@@ -225,11 +225,11 @@ struct _Simd_maskz_load<arch::ISA::AVX512VLF, 256, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (__is_intrin_type_v<_MaskType_>) {
 			return _Simd_maskz_load<arch::ISA::AVX2, 256, _DesiredType_, _IntrinType_>()(__address, __mask, __alignment_policy);
@@ -276,11 +276,11 @@ struct _Simd_maskz_load<arch::ISA::AVX512VLBW, 256, _DesiredType_, _IntrinType_>
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (sizeof(_DesiredType_) >= 4)
 			return _Simd_maskz_load<arch::ISA::AVX512VLF, 256, _DesiredType_, _IntrinType_>()(__address, __mask, __alignment_policy);
@@ -301,11 +301,11 @@ struct _Simd_maskz_load<arch::ISA::AVX512VLF, 128, _DesiredType_, _IntrinType_>:
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (__is_intrin_type_v<_MaskType_>) {
 			return _Simd_maskz_load<arch::ISA::AVX2, 128, _DesiredType_, _IntrinType_>()(__address, __mask, __alignment_policy);
@@ -352,11 +352,11 @@ struct _Simd_maskz_load<arch::ISA::AVX512VLBW, 128, _DesiredType_, _IntrinType_>
 {
 	template <
 		class _MaskType_,
-		class _AlignmentPolicy_>
+		class _AlignmentPolicy_ = __unaligned_policy>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline _IntrinType_ operator()(
 		const void*			__address,
 		_MaskType_			__mask,
-		_AlignmentPolicy_&& __alignment_policy) simd_stl_const_operator noexcept
+		_AlignmentPolicy_&& __alignment_policy = _AlignmentPolicy_{}) simd_stl_const_operator noexcept
 	{
 		if constexpr (sizeof(_DesiredType_) >= 4)
 			return _Simd_maskz_load<arch::ISA::AVX512VLF, 128, _DesiredType_, _IntrinType_>()(__address, __mask, __alignment_policy);

@@ -18,7 +18,7 @@ template <class _DesiredType_>
 struct _Simd_reduce_add<arch::ISA::SSE2, 128, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
-        _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept 
+        __reduce_type<_DesiredType_> operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
     {
         using _ReduceType = __reduce_type<_DesiredType_>;
 
@@ -63,7 +63,7 @@ struct _Simd_reduce_add<arch::ISA::SSSE3, 128, _DesiredType_>:
 {
     template <class _IntrinType_>
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
-        _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
+        __reduce_type<_DesiredType_> operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
     {
         using _ReduceType = __reduce_type<_DesiredType_>;
 
@@ -96,7 +96,7 @@ template <class _DesiredType_>
 struct _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
-        _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
+        __reduce_type<_DesiredType_> operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
     {
         using _ReduceType = __reduce_type<_DesiredType_>;
 
@@ -139,7 +139,7 @@ struct _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_> {
             const auto __high64 = _mm256_extracti128_si256(__reduce1, 1);
 
             const auto __reduce8 = _mm_add_epi64(__low64, __high64);
-            return _Simd_reduce<arch::ISA::SSSE3, 128, int64>()(__reduce8);
+            return _Simd_reduce_add<arch::ISA::SSSE3, 128, int64>()(__reduce8);
         }
         else {
             constexpr auto __length = sizeof(_IntrinType_) / sizeof(_DesiredType_);
@@ -161,7 +161,7 @@ template <class _DesiredType_>
 struct _Simd_reduce_add<arch::ISA::AVX512F, 512, _DesiredType_> {
 	template <class _IntrinType_>
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
-        _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
+        __reduce_type<_DesiredType_> operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
     {
         if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>) {
             return _mm512_reduce_add_epi64(__intrin_bitcast<__m512i>(__vector));
@@ -192,7 +192,7 @@ struct _Simd_reduce_add<arch::ISA::AVX512BW, 512, _DesiredType_>:
 {
     template <class _IntrinType_>
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
-        _IntrinType_ operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
+        __reduce_type<_DesiredType_> operator()(_IntrinType_ __vector) simd_stl_const_operator noexcept
     {
         if constexpr (__is_epi64_v<_DesiredType_> || __is_epu64_v<_DesiredType_>)
             return _mm512_reduce_add_epi64(__intrin_bitcast<__m512i>(__vector));
@@ -210,8 +210,8 @@ struct _Simd_reduce_add<arch::ISA::AVX512BW, 512, _DesiredType_>:
             return _mm512_reduce_add_epi64(_mm512_sad_epu8(__intrin_bitcast<__m512i>(__vector), _mm512_setzero_si512()));
 
         else if constexpr (__is_epi16_v<_DesiredType_> || __is_epu16_v<_DesiredType_>)
-            return _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_>(__intrin_bitcast<__m256i>(__vector)) +
-                _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_>(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
+            return _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_>()(__intrin_bitcast<__m256i>(__vector)) +
+                _Simd_reduce_add<arch::ISA::AVX2, 256, _DesiredType_>()(_mm512_extractf64x4_pd(__intrin_bitcast<__m512d>(__vector), 1));
     }
 };
 

@@ -24,7 +24,10 @@ struct _Simd_to_vector<arch::ISA::SSE2, 128, _IntrinType_, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-	    if constexpr (sizeof(_DesiredType_) == 8) {
+        if constexpr (__is_intrin_type_v<_MaskType_>) {
+            return __intrin_bitcast<_IntrinType_>(__mask);
+        }
+	    else if constexpr (sizeof(_DesiredType_) == 8) {
             const auto __broadcasted_mask = _mm_set1_epi8(static_cast<int8>(__mask));
             const auto __selected = _mm_and_si128(__broadcasted_mask, _mm_setr_epi32(1, 1, 2, 2));
 
@@ -70,7 +73,10 @@ struct _Simd_to_vector<arch::ISA::SSSE3, 128, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept 
     {
-        if constexpr (sizeof(_DesiredType_) == 1) {
+        if constexpr (__is_intrin_type_v<_MaskType_>) {
+            return __intrin_bitcast<_IntrinType_>(__mask);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 1) {
             const auto __select     = _mm_set1_epi64x(0x8040201008040201ull);
             const auto __shuffled   = _mm_shuffle_epi8(_mm_cvtsi32_si128(__mask), _mm_set_epi64x(0x0101010101010101ll, 0));
 
@@ -91,7 +97,10 @@ struct _Simd_to_vector<arch::ISA::AVX2, 256, _IntrinType_, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 8) {
+        if constexpr (__is_intrin_type_v<_MaskType_>) {
+            return __intrin_bitcast<_IntrinType_>(__mask);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 8) {
             const auto __vector_mask = _mm256_set1_epi32(static_cast<int32>(__mask));
             const auto __selected = _mm256_and_si256(__vector_mask, _mm256_setr_epi32(1, 0, 2, 0, 4, 0, 8, 0));
 
@@ -130,7 +139,10 @@ struct _Simd_to_vector<arch::ISA::AVX512F, 512, _IntrinType_, _DesiredType_> {
 	simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 8) {
+        if constexpr (__is_intrin_type_v<_MaskType_>) {
+            return __intrin_bitcast<_IntrinType_>(__mask);
+        }
+        else if constexpr (sizeof(_DesiredType_) == 8) {
             return __intrin_bitcast<_IntrinType_>(_mm512_maskz_mov_epi64(__mask, _mm512_set1_epi64(-1)));
         }
         else if constexpr (sizeof(_DesiredType_) == 4) {
@@ -159,7 +171,10 @@ struct _Simd_to_vector<arch::ISA::AVX512BW, 512, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 1)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 1)
             return __intrin_bitcast<_IntrinType_>(_mm512_movm_epi8(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 2)
@@ -183,7 +198,10 @@ struct _Simd_to_vector<arch::ISA::AVX512BWDQ, 512, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 1)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 1)
             return __intrin_bitcast<_IntrinType_>(_mm512_movm_epi8(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 2)
@@ -207,7 +225,10 @@ struct _Simd_to_vector<arch::ISA::AVX512DQ, 512, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline 
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
             return __intrin_bitcast<_IntrinType_>(_mm512_movm_epi32(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 8)
@@ -228,7 +249,10 @@ struct _Simd_to_vector<arch::ISA::AVX512VLBW, 256, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 1)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 1)
             return __intrin_bitcast<_IntrinType_>(_mm256_movm_epi8(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 2)
@@ -249,7 +273,10 @@ struct _Simd_to_vector<arch::ISA::AVX512VLDQ, 256, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
             return __intrin_bitcast<_IntrinType_>(_mm256_movm_epi32(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 8)
@@ -270,7 +297,10 @@ struct _Simd_to_vector<arch::ISA::AVX512VLBW, 128, _IntrinType_, _DesiredType_> 
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 1)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 1)
             return __intrin_bitcast<_IntrinType_>(_mm_movm_epi8(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 2)
@@ -291,7 +321,10 @@ struct _Simd_to_vector<arch::ISA::AVX512VLDQ, 128, _IntrinType_, _DesiredType_>:
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) == 4)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) == 4)
             return __intrin_bitcast<_IntrinType_>(_mm_movm_epi32(__mask));
 
         else if constexpr (sizeof(_DesiredType_) == 8)
@@ -312,8 +345,12 @@ struct _Simd_to_vector<arch::ISA::AVX512VLBWDQ, 128, _IntrinType_, _DesiredType_
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) <= 2)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) <= 2)
             return _Simd_to_vector<arch::ISA::AVX512VLBW, 128, _DesiredType_>()(__mask);
+        
         else
             return _Simd_to_vector<arch::ISA::AVX512VLDQ, 128, _DesiredType_>()(__mask);
     }
@@ -329,8 +366,12 @@ struct _Simd_to_vector<arch::ISA::AVX512VLBWDQ, 256, _IntrinType_, _DesiredType_
     simd_stl_nodiscard simd_stl_static_operator simd_stl_always_inline
         _IntrinType_ operator()(_MaskType_ __mask) simd_stl_const_operator noexcept
     {
-        if constexpr (sizeof(_DesiredType_) <= 2)
+        if constexpr (__is_intrin_type_v<_MaskType_>)
+            return __intrin_bitcast<_IntrinType_>(__mask);
+
+        else if constexpr (sizeof(_DesiredType_) <= 2)
             return _Simd_to_vector<arch::ISA::AVX512VLBW, 256, _DesiredType_>()(__mask);
+        
         else
             return _Simd_to_vector<arch::ISA::AVX512VLDQ, 256, _DesiredType_>()(__mask);
     }

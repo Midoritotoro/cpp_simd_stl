@@ -61,10 +61,10 @@ struct _Simd_greater_equal<arch::ISA::AVX512F, 512, _DesiredType_> {
             return _mm512_cmpge_epu32_mask(__intrin_bitcast<__m512i>(__left), __intrin_bitcast<__m512i>(__right));
         }
         else if constexpr (__is_pd_v<_DesiredType_>) {
-            return _mm512_cmpge_pd_mask(__intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right));
+            return _mm512_cmp_pd_mask(__intrin_bitcast<__m512d>(__left), __intrin_bitcast<__m512d>(__right), _CMP_GE_OS);
         }
         else if constexpr (__is_ps_v<_DesiredType_>) {
-            return _mm512_cmpge_ps_mask(__intrin_bitcast<__m512>(__left), __intrin_bitcast<__m512>(__right));
+            return _mm512_cmp_ps_mask(__intrin_bitcast<__m512>(__left), __intrin_bitcast<__m512>(__right), _CMP_GE_OS);
         }
         else {
             const auto __compared_low128 = _Simd_greater_equal<arch::ISA::SSE42, 128, _DesiredType_>()(

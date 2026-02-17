@@ -260,7 +260,7 @@ struct _Simd_compress<arch::ISA::SSE41, 128, _DesiredType_> :
             _mm_storel_epi64(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_higher_segment));
 
             const auto __final_packed_vector = _mm_load_si128(reinterpret_cast<const __m128i*>(__temporary_stack_buffer));
-            const auto __final_blended_result_vector = __blend<_DesiredType_>(__intrin_bitcast<__m128i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
+            const auto __final_blended_result_vector = _Simd_blend<arch::ISA::SSE41, 128, _DesiredType_>()(__intrin_bitcast<__m128i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
 
             return { __total_processed_byte_count_combined, __intrin_bitcast<_IntrinType_>(__final_blended_result_vector) };
         }
@@ -479,7 +479,8 @@ struct _Simd_compress<arch::ISA::AVX512F, 512, _DesiredType_> {
             _mm_store_si128(reinterpret_cast<__m128i*>(__destination_write_pointer), __intrin_bitcast<__m128i>(__packed_data_fourth_segment));
 
             const auto __final_packed_vector = _mm512_load_si512(__temporary_stack_buffer);
-            const auto __final_blended_result_vector = __blend<_DesiredType_>(__intrin_bitcast<__m512i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
+            const auto __final_blended_result_vector = _Simd_blend<arch::ISA::AVX512F, 512, _DesiredType_>()(
+                __intrin_bitcast<__m512i>(__vector), __final_packed_vector, __unprocessed_tail_blending_mask);
 
             return { __total_processed_byte_count_combined, __intrin_bitcast<_IntrinType_>(__final_blended_result_vector) };
         }

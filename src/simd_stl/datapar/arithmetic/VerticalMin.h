@@ -32,7 +32,7 @@ struct _Simd_vertical_min<arch::ISA::SSE2, 128, _DesiredType_> {
 			return __intrin_bitcast<_IntrinType_>(_mm_min_pd(__intrin_bitcast<__m128d>(__left), __intrin_bitcast<__m128d>(__right)));
 		}
 		else {
-			const auto __mask = _Simd_greater<arch::ISA::SSE2, 128, _DesiredType_>()(__left, __right);
+			const auto __mask = _Simd_less<arch::ISA::SSE2, 128, _DesiredType_>()(__left, __right);
 			return _Simd_blend<arch::ISA::SSE2, 128, _DesiredType_>()(__left, __right, __mask);
 		}
 	}

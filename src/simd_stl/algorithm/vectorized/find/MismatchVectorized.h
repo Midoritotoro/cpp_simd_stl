@@ -71,7 +71,7 @@ struct __mismatch_vectorized_internal {
             return __length;
         }
         else {
-            return __mismatch_scalar<_ValueType>(__first, __second, __tail_size / sizeof(_ValueType));
+            return (__aligned_size / sizeof(_ValueType)) + __mismatch_scalar<_ValueType>(__first, __second, __tail_size / sizeof(_ValueType));
         }
     }
 };

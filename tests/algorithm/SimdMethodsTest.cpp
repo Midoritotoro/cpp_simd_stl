@@ -23,7 +23,7 @@ void mask_compress_any(
         dst[i] = src[i];
 }
 
-template <typename T, simd_stl::arch::ISA Arch, uint32 _Width_>
+template <typename T, simd_stl::arch::ISA Arch, simd_stl::uint32 _Width_>
 void testMethods() {
     using Simd = simd_stl::datapar::simd<Arch, T, _Width_>;
     constexpr size_t N = Simd::size();
@@ -79,7 +79,7 @@ void testMethods() {
         static_assert(std::is_same_v<decltype(vOther2), simd_stl::datapar::simd128_sse2<float>>);
         static_assert(std::is_same_v<decltype(vOther3), simd_stl::datapar::simd<simd_stl::arch::ISA::SSE2, typename Simd::value_type, 128>>);
         static_assert(std::is_same_v<decltype(vOther4), __m128i>);
-        static_assert(std::is_same_v<decltype(vOther5), simd_stl::datapar::simd<Simd::__generation, int, typename Simd::policy_type>>);
+        static_assert(std::is_same_v<decltype(vOther5), simd_stl::datapar::simd<Simd::__isa, int, Simd::__width>>);
     }
     
     {
@@ -461,22 +461,22 @@ void testMethods() {
     }
 }
 
-template <simd_stl::arch::ISA _Generation_, simd_stl::uint32 _Width_>
+template <simd_stl::arch::ISA _ISA_, simd_stl::uint32 _Width_>
 void testMethods() {
-    testMethods<simd_stl::int8, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint8, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int8, _ISA_, _Width_>();
+    testMethods<simd_stl::uint8, _ISA_, _Width_>();
 
-    testMethods<simd_stl::int16, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint16, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int16, _ISA_, _Width_>();
+    testMethods<simd_stl::uint16, _ISA_, _Width_>();
 
-    testMethods<simd_stl::int32, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint32, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int32, _ISA_, _Width_>();
+    testMethods<simd_stl::uint32, _ISA_, _Width_>();
 
-    testMethods<simd_stl::int64, _Generation_, _RegisterPolicy_>();
-    testMethods<simd_stl::uint64, _Generation_, _RegisterPolicy_>();
+    testMethods<simd_stl::int64, _ISA_, _Width_>();
+    testMethods<simd_stl::uint64, _ISA_, _Width_>();
 
-    testMethods<float, _Generation_, _RegisterPolicy_>();
-    testMethods<double, _Generation_, _RegisterPolicy_>();
+    testMethods<float, _ISA_, _Width_>();
+    testMethods<double, _ISA_, _Width_>();
 }
 
 int main() {
@@ -489,7 +489,7 @@ int main() {
     testMethods<simd_stl::arch::ISA::AVX2, 128>();
     testMethods<simd_stl::arch::ISA::AVX2, 256>();
 
-   /* testMethods<simd_stl::arch::ISA::AVX512F, 512>();
+    testMethods<simd_stl::arch::ISA::AVX512F, 512>();
     testMethods<simd_stl::arch::ISA::AVX512BW, 512>();
     testMethods<simd_stl::arch::ISA::AVX512DQ, 512>();
     testMethods<simd_stl::arch::ISA::AVX512BWDQ, 512>();
@@ -516,7 +516,7 @@ int main() {
     testMethods<simd_stl::arch::ISA::AVX512VBMIVL, 256>();
     testMethods<simd_stl::arch::ISA::AVX512VBMI2VL, 256>();
     testMethods<simd_stl::arch::ISA::AVX512VBMIVLDQ, 256>();
-    testMethods<simd_stl::arch::ISA::AVX512VBMI2VLDQ, 256>();*/
+    testMethods<simd_stl::arch::ISA::AVX512VBMI2VLDQ, 256>();
 
 
     return 0;

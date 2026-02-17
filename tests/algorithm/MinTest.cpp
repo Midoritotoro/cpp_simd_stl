@@ -36,7 +36,7 @@ void test_container(std::size_t bytes) {
     auto v = make_data<T>(bytes);
     c.insert(c.end(), v.begin(), v.end());
     if (c.empty()) return;
-    auto got = min_range<typename Cont::iterator, T>(c.begin(), c.end());
+    auto got = min_range(c.begin(), c.end());
     auto ref = ref_min_range(c.begin(), c.end());
     simd_stl_assert(got == ref);
 }

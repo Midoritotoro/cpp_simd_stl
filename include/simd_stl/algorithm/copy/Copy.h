@@ -16,7 +16,7 @@ __simd_inline_constexpr _OutputIterator_ copy(
 {
     __verify_range(__first, __last);
 
-    __seek_possibly_wrapped_iterator(_Destination, __copy_unchecked(__unwrap_iterator(__first),
+    __seek_possibly_wrapped_iterator(__destination, __copy_unchecked(__unwrap_iterator(__first),
         __unwrap_iterator(__last), __unwrap_unverified_iterator(__destination)));
 
     return __destination;
@@ -34,7 +34,7 @@ __simd_inline_constexpr _OutputIterator_ copy_if(
 		type_traits::is_nothrow_invocable_v<
 			_Predicate_, type_traits::iterator_value_type<_InputIterator_>>)
 {
-    __verify_range(__first, _Last);
+    __verify_range(__first, __last);
 
     __seek_possibly_wrapped_iterator(__destination, __copy_if_unchecked(__unwrap_iterator(__first),
         __unwrap_iterator(__last), __unwrap_unverified_iterator(__destination),

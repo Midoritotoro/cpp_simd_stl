@@ -155,7 +155,7 @@ struct _Simd_equal<arch::ISA::AVX512F, 512, _DesiredType_> {
             __result = _mm512_inserti32x4(__result, __compared2_low128, 1);
             __result = _mm512_inserti32x4(__result, __compared_high128, 2);
 
-            return _Simd_to_mask<arch::ISA::AVX512F, 512, _DesiredType_>()(_mm512_inserti32x4(__result, __compared2_high128, 3));
+            return __intrin_bitcast<_IntrinType_>(_mm512_inserti32x4(__result, __compared2_high128, 3));
         }
 	}
 };
